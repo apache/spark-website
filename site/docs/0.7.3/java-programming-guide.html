@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Java Programming Guide - Spark 0.7.3 Documentation</title>
+        <meta name="description" content="">
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 60px;
+                padding-bottom: 40px;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+        
+        <link rel="stylesheet" href="css/pygments-default.css">
+
+        <!-- Google analytics script -->
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-32518208-1']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+        </script>
+
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
+
+        <div class="navbar navbar-fixed-top" id="topbar">
+            <div class="navbar-inner">
+                <div class="container">
+                    <div class="brand"><a href="index.html">
+                      <img src="img/spark-logo-77x50px-hd.png" /></a><span class="version">0.7.3</span>
+                    </div>
+                    <ul class="nav">
+                        <!--TODO(andyk): Add class="active" attribute to li some how.-->
+                        <li><a href="index.html">Overview</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Programming Guides<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="quick-start.html">Quick Start</a></li>
+                                <li><a href="scala-programming-guide.html">Scala</a></li>
+                                <li><a href="java-programming-guide.html">Java</a></li>
+                                <li><a href="python-programming-guide.html">Python</a></li>
+                                <li><a href="streaming-programming-guide.html">Spark Streaming</a></li>
+                            </ul>
+                        </li>
+                        
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">API Docs<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="api/core/index.html">Spark Java/Scala (Scaladoc)</a></li>
+                                <li><a href="api/pyspark/index.html">Spark Python (Epydoc)</a></li>
+                                <li><a href="api/streaming/index.html">Spark Streaming Java/Scala (Scaladoc) </a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Deploying<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="ec2-scripts.html">Amazon EC2</a></li>
+                                <li><a href="spark-standalone.html">Standalone Mode</a></li>
+                                <li><a href="running-on-mesos.html">Mesos</a></li>
+                                <li><a href="running-on-yarn.html">YARN</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="api.html" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="building-with-maven.html">Building Spark with Maven</a></li>
+                                <li><a href="configuration.html">Configuration</a></li>
+                                <li><a href="tuning.html">Tuning Guide</a></li>
+                                <li><a href="bagel-programming-guide.html">Bagel (Pregel on Spark)</a></li>
+                                <li><a href="contributing-to-spark.html">Contributing to Spark</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <!--<p class="navbar-text pull-right"><span class="version-text">v0.7.3</span></p>-->
+                </div>
+            </div>
+        </div>
+
+        <div class="container" id="content">
+          <h1 class="title">Java Programming Guide</h1>
+
+          <p>The Spark Java API exposes all the Spark features available in the Scala version to Java.
+To learn the basics of Spark, we recommend reading through the
+<a href="scala-programming-guide.html">Scala programming guide</a> first; it should be
+easy to follow even if you don&#8217;t know Scala.
+This guide will show how to use the Spark features described there in Java.</p>
+
+<p>The Spark Java API is defined in the
+<a href="api/core/index.html#spark.api.java.package"><code>spark.api.java</code></a> package, and includes
+a <a href="api/core/index.html#spark.api.java.JavaSparkContext"><code>JavaSparkContext</code></a> for
+initializing Spark and <a href="api/core/index.html#spark.api.java.JavaRDD"><code>JavaRDD</code></a> classes,
+which support the same methods as their Scala counterparts but take Java functions and return
+Java data and collection types. The main differences have to do with passing functions to RDD
+operations (e.g. map) and handling RDDs of different types, as discussed next.</p>
+
+<h1 id="key-differences-in-the-java-api">Key Differences in the Java API</h1>
+
+<p>There are a few key differences between the Java and Scala APIs:</p>
+
+<ul>
+  <li>Java does not support anonymous or first-class functions, so functions must
+be implemented by extending the
+<a href="api/core/index.html#spark.api.java.function.Function"><code>spark.api.java.function.Function</code></a>,
+<a href="api/core/index.html#spark.api.java.function.Function2"><code>Function2</code></a>, etc.
+classes.</li>
+  <li>To maintain type safety, the Java API defines specialized Function and RDD
+classes for key-value pairs and doubles. For example, 
+<a href="api/core/index.html#spark.api.java.JavaPairRDD"><code>JavaPairRDD</code></a>
+stores key-value pairs.</li>
+  <li>RDD methods like <code>collect()</code> and <code>countByKey()</code> return Java collections types,
+such as <code>java.util.List</code> and <code>java.util.Map</code>.</li>
+  <li>Key-value pairs, which are simply written as <code>(key, value)</code> in Scala, are represented
+by the <code>scala.Tuple2</code> class, and need to be created using <code>new Tuple2&lt;K, V&gt;(key, value)</code>.</li>
+</ul>
+
+<h2 id="rdd-classes">RDD Classes</h2>
+
+<p>Spark defines additional operations on RDDs of key-value pairs and doubles, such
+as <code>reduceByKey</code>, <code>join</code>, and <code>stdev</code>.</p>
+
+<p>In the Scala API, these methods are automatically added using Scala&#8217;s
+<a href="http://www.scala-lang.org/node/130">implicit conversions</a> mechanism.</p>
+
+<p>In the Java API, the extra methods are defined in the
+<a href="api/core/index.html#spark.api.java.JavaPairRDD"><code>JavaPairRDD</code></a>
+and <a href="api/core/index.html#spark.api.java.JavaDoubleRDD"><code>JavaDoubleRDD</code></a>
+classes.  RDD methods like <code>map</code> are overloaded by specialized <code>PairFunction</code>
+and <code>DoubleFunction</code> classes, allowing them to return RDDs of the appropriate
+types.  Common methods like <code>filter</code> and <code>sample</code> are implemented by
+each specialized RDD class, so filtering a <code>PairRDD</code> returns a new <code>PairRDD</code>,
+etc (this acheives the &#8220;same-result-type&#8221; principle used by the <a href="http://docs.scala-lang.org/overviews/core/architecture-of-scala-collections.html">Scala collections
+framework</a>).</p>
+
+<h2 id="function-classes">Function Classes</h2>
+
+<p>The following table lists the function classes used by the Java API.  Each
+class has a single abstract method, <code>call()</code>, that must be implemented.</p>
+
+<table class="table">
+<tr><th>Class</th><th>Function Type</th></tr>
+
+<tr><td>Function&lt;T, R&gt;</td><td>T =&gt; R </td></tr>
+<tr><td>DoubleFunction&lt;T&gt;</td><td>T =&gt; Double </td></tr>
+<tr><td>PairFunction&lt;T, K, V&gt;</td><td>T =&gt; Tuple2&lt;K, V&gt; </td></tr>
+
+<tr><td>FlatMapFunction&lt;T, R&gt;</td><td>T =&gt; Iterable&lt;R&gt; </td></tr>
+<tr><td>DoubleFlatMapFunction&lt;T&gt;</td><td>T =&gt; Iterable&lt;Double&gt; </td></tr>
+<tr><td>PairFlatMapFunction&lt;T, K, V&gt;</td><td>T =&gt; Iterable&lt;Tuple2&lt;K, V&gt;&gt; </td></tr>
+
+<tr><td>Function2&lt;T1, T2, R&gt;</td><td>T1, T2 =&gt; R (function of two arguments)</td></tr>
+</table>
+
+<h2 id="storage-levels">Storage Levels</h2>
+
+<p>RDD <a href="scala-programming-guide.html#rdd-persistence">storage level</a> constants, such as <code>MEMORY_AND_DISK</code>, are
+declared in the <a href="api/core/index.html#spark.api.java.StorageLevels">spark.api.java.StorageLevels</a> class. To
+define your own storage level, you can use StorageLevels.create(&#8230;). </p>
+
+<h1 id="other-features">Other Features</h1>
+
+<p>The Java API supports other Spark features, including
+<a href="scala-programming-guide.html#accumulators">accumulators</a>,
+<a href="scala-programming-guide.html#broadcast-variables">broadcast variables</a>, and
+<a href="scala-programming-guide.html#rdd-persistence">caching</a>.</p>
+
+<h1 id="example">Example</h1>
+
+<p>As an example, we will implement word count using the Java API.</p>
+
+<div class="highlight"><pre><code class="java"><span class="kn">import</span> <span class="nn">spark.api.java.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">spark.api.java.function.*</span><span class="o">;</span>
+
+<span class="n">JavaSparkContext</span> <span class="n">sc</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JavaSparkContext</span><span class="o">(...);</span>
+<span class="n">JavaRDD</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">lines</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">textFile</span><span class="o">(</span><span class="s">&quot;hdfs://...&quot;</span><span class="o">);</span>
+<span class="n">JavaRDD</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">words</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="na">flatMap</span><span class="o">(</span>
+  <span class="k">new</span> <span class="n">FlatMapFunction</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;()</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="n">Iterable</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="nf">call</span><span class="o">(</span><span class="n">String</span> <span class="n">s</span><span class="o">)</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">&quot; &quot;</span><span class="o">));</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">);</span>
+</code></pre></div>
+
+<p>The word count program starts by creating a <code>JavaSparkContext</code>, which accepts
+the same parameters as its Scala counterpart.  <code>JavaSparkContext</code> supports the
+same data loading methods as the regular <code>SparkContext</code>; here, <code>textFile</code>
+loads lines from text files stored in HDFS.</p>
+
+<p>To split the lines into words, we use <code>flatMap</code> to split each line on
+whitespace.  <code>flatMap</code> is passed a <code>FlatMapFunction</code> that accepts a string and
+returns an <code>java.lang.Iterable</code> of strings.</p>
+
+<p>Here, the <code>FlatMapFunction</code> was created inline; another option is to subclass
+<code>FlatMapFunction</code> and pass an instance to <code>flatMap</code>:</p>
+
+<div class="highlight"><pre><code class="java"><span class="kd">class</span> <span class="nc">Split</span> <span class="kd">extends</span> <span class="n">FlatMapFunction</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="n">Iterable</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="nf">call</span><span class="o">(</span><span class="n">String</span> <span class="n">s</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">&quot; &quot;</span><span class="o">));</span>
+  <span class="o">}</span>
+<span class="o">);</span>
+<span class="n">JavaRDD</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">words</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="na">flatMap</span><span class="o">(</span><span class="k">new</span> <span class="n">Split</span><span class="o">());</span>
+</code></pre></div>
+
+<p>Continuing with the word count example, we map each word to a <code>(word, 1)</code> pair:</p>
+
+<div class="highlight"><pre><code class="java"><span class="kn">import</span> <span class="nn">scala.Tuple2</span><span class="o">;</span>
+<span class="n">JavaPairRDD</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;</span> <span class="n">ones</span> <span class="o">=</span> <span class="n">words</span><span class="o">.</span><span class="na">map</span><span class="o">(</span>
+  <span class="k">new</span> <span class="n">PairFunction</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;()</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="n">Tuple2</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;</span> <span class="n">call</span><span class="o">(</span><span class="n">String</span> <span class="n">s</span><span class="o">)</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="k">new</span> <span class="nf">Tuple2</span><span class="o">(</span><span class="n">s</span><span class="o">,</span> <span class="mi">1</span><span class="o">);</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">);</span>
+</code></pre></div>
+
+<p>Note that <code>map</code> was passed a <code>PairFunction&lt;String, String, Integer&gt;</code> and
+returned a <code>JavaPairRDD&lt;String, Integer&gt;</code>.</p>
+
+<p>To finish the word count program, we will use <code>reduceByKey</code> to count the
+occurrences of each word:</p>
+
+<div class="highlight"><pre><code class="java"><span class="n">JavaPairRDD</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">ones</span><span class="o">.</span><span class="na">reduceByKey</span><span class="o">(</span>
+  <span class="k">new</span> <span class="n">Function2</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">,</span> <span class="n">Integer</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;()</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="n">Integer</span> <span class="nf">call</span><span class="o">(</span><span class="n">Integer</span> <span class="n">i1</span><span class="o">,</span> <span class="n">Integer</span> <span class="n">i2</span><span class="o">)</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="n">i1</span> <span class="o">+</span> <span class="n">i2</span><span class="o">;</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">);</span>
+</code></pre></div>
+
+<p>Here, <code>reduceByKey</code> is passed a <code>Function2</code>, which implements a function with
+two arguments.  The resulting <code>JavaPairRDD</code> contains <code>(word, count)</code> pairs.</p>
+
+<p>In this example, we explicitly showed each intermediate RDD.  It is also
+possible to chain the RDD transformations, so the word count example could also
+be written as:</p>
+
+<div class="highlight"><pre><code class="java"><span class="n">JavaPairRDD</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="na">flatMap</span><span class="o">(</span>
+    <span class="o">...</span>
+  <span class="o">).</span><span class="na">map</span><span class="o">(</span>
+    <span class="o">...</span>
+  <span class="o">).</span><span class="na">reduceByKey</span><span class="o">(</span>
+    <span class="o">...</span>
+  <span class="o">);</span>
+</code></pre></div>
+
+<p>There is no performance difference between these approaches; the choice is
+just a matter of style.</p>
+
+<h1 id="javadoc">Javadoc</h1>
+
+<p>We currently provide documentation for the Java API as Scaladoc, in the
+<a href="api/core/index.html#spark.api.java.package"><code>spark.api.java</code> package</a>, because
+some of the classes are implemented in Scala. The main downside is that the types and function
+definitions show Scala syntax (for example, <code>def reduce(func: Function2[T, T]): T</code> instead of
+<code>T reduce(Function2&lt;T, T&gt; func)</code>). 
+We hope to generate documentation with Java-style syntax in the future.</p>
+
+<h1 id="where-to-go-from-here">Where to Go from Here</h1>
+
+<p>Spark includes several sample programs using the Java API in
+<a href="https://github.com/mesos/spark/tree/master/examples/src/main/java/spark/examples"><code>examples/src/main/java</code></a>.  You can run them by passing the class name to the
+<code>run</code> script included in Spark &#8211; for example, <code>./run
+spark.examples.JavaWordCount</code>.  Each example program prints usage help when run
+without any arguments.</p>
+
+            <!-- Main hero unit for a primary marketing message or call to action -->
+            <!--<div class="hero-unit">
+                <h1>Hello, world!</h1>
+                <p>This is a template for a simple marketing or informational website. It includes a large callout called the hero unit and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
+                <p><a class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+            </div>-->
+
+            <!-- Example row of columns -->
+            <!--<div class="row">
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+                </div>
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+               </div>
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+                </div>
+            </div>
+
+            <hr>-->
+
+            <!--<footer>
+                <p></p>
+            </footer>-->
+
+        </div> <!-- /container -->
+
+        <script src="js/vendor/jquery-1.8.0.min.js"></script>
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/main.js"></script>
+        
+        <!-- A script to fix internal hash links because we have an overlapping top bar.
+             Based on https://github.com/twitter/bootstrap/issues/193#issuecomment-2281510 -->
+        <script>
+          $(function() {
+            function maybeScrollToHash() {
+              if (window.location.hash && $(window.location.hash).length) {
+                var newTop = $(window.location.hash).offset().top - $('#topbar').height() - 5;
+                $(window).scrollTop(newTop);
+              }
+            }
+            $(window).bind('hashchange', function() {
+              maybeScrollToHash();
+            });
+            // Scroll now too in case we had opened the page on a hash, but wait 1 ms because some browsers
+            // will try to do *their* initial scroll after running the onReady handler.
+            setTimeout(function() { maybeScrollToHash(); }, 1)
+          })
+        </script>
+
+    </body>
+</html>

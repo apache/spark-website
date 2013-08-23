@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Running Spark on Mesos - Spark 0.6.1 Documentation</title>
+        <meta name="description" content="">
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 60px;
+                padding-bottom: 40px;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+        
+        <link rel="stylesheet" href="css/pygments-default.css">
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-32518208-1']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+        </script>
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
+
+        <div class="navbar navbar-fixed-top" id="topbar">
+            <div class="navbar-inner">
+                <div class="container">
+                    <div class="brand"><a href="index.html">
+                      <img src="img/spark-logo-77x50px-hd.png" /></a><span class="version">0.6.1</span>
+                    </div>
+                    <ul class="nav">
+                        <!--TODO(andyk): Add class="active" attribute to li some how.-->
+                        <li><a href="index.html">Overview</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Programming Guides<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="quick-start.html">Quick Start</a></li>
+                                <li><a href="scala-programming-guide.html">Scala</a></li>
+                                <li><a href="java-programming-guide.html">Java</a></li>
+                            </ul>
+                        </li>
+                        
+                        <li><a href="api/core/index.html">API (Scaladoc)</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Deploying<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="ec2-scripts.html">Amazon EC2</a></li>
+                                <li><a href="spark-standalone.html">Standalone Mode</a></li>
+                                <li><a href="running-on-mesos.html">Mesos</a></li>
+                                <li><a href="running-on-yarn.html">YARN</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="api.html" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="configuration.html">Configuration</a></li>
+                                <li><a href="tuning.html">Tuning Guide</a></li>
+                                <li><a href="bagel-programming-guide.html">Bagel (Pregel on Spark)</a></li>
+                                <li><a href="contributing-to-spark.html">Contributing to Spark</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <!--<p class="navbar-text pull-right"><span class="version-text">v0.6.1</span></p>-->
+                </div>
+            </div>
+        </div>
+
+        <div class="container" id="content">
+          <h1 class="title">Running Spark on Mesos</h1>
+
+          <p>Spark can run on private clusters managed by the <a href="http://incubator.apache.org/mesos/">Apache Mesos</a> resource manager. Follow the steps below to install Mesos and Spark:</p>
+
+<ol>
+  <li>Download and build Spark using the instructions <a href="index.html">here</a>.</li>
+  <li>Download Mesos 0.9.0-incubating from a <a href="http://www.apache.org/dyn/closer.cgi/incubator/mesos/mesos-0.9.0-incubating/">mirror</a>.</li>
+  <li>Configure Mesos using the <code>configure</code> script, passing the location of your <code>JAVA_HOME</code> using <code>--with-java-home</code>. Mesos comes with &ldquo;template&rdquo; configure scripts for different platforms, such as <code>configure.macosx</code>, that you can run. See the README file in Mesos for other options. <strong>Note:</strong> If you want to run Mesos without installing it into the default paths on your system (e.g. if you don&rsquo;t have administrative privileges to install it), you should also pass the <code>--prefix</code> option to <code>configure</code> to tell it where to install. For example, pass <code>--prefix=/home/user/mesos</code>. By default the prefix is <code>/usr/local</code>.</li>
+  <li>Build Mesos using <code>make</code>, and then install it using <code>make install</code>.</li>
+  <li>Create a file called <code>spark-env.sh</code> in Spark&rsquo;s <code>conf</code> directory, by copying <code>conf/spark-env.sh.template</code>, and add the following lines in it:
+    <ul>
+      <li><code>export MESOS_NATIVE_LIBRARY=&lt;path to libmesos.so&gt;</code>. This path is usually <code>&lt;prefix&gt;/lib/libmesos.so</code> (where the prefix is <code>/usr/local</code> by default). Also, on Mac OS X, the library is called <code>libmesos.dylib</code> instead of <code>.so</code>.</li>
+      <li><code>export SCALA_HOME=&lt;path to Scala directory&gt;</code>.</li>
+    </ul>
+  </li>
+  <li>Copy Spark and Mesos to the <em>same</em> paths on all the nodes in the cluster (or, for Mesos, <code>make install</code> on every node).</li>
+  <li>Configure Mesos for deployment:
+    <ul>
+      <li>On your master node, edit <code>&lt;prefix&gt;/var/mesos/deploy/masters</code> to list your master and <code>&lt;prefix&gt;/var/mesos/deploy/slaves</code> to list the slaves, where <code>&lt;prefix&gt;</code> is the prefix where you installed Mesos (<code>/usr/local</code> by default).</li>
+      <li>On all nodes, edit <code>&lt;prefix&gt;/var/mesos/conf/mesos.conf</code> and add the line <code>master=HOST:5050</code>, where HOST is your master node.</li>
+      <li>Run <code>&lt;prefix&gt;/sbin/mesos-start-cluster.sh</code> on your master to start Mesos. If all goes well, you should see Mesos&rsquo;s web UI on port 8080 of the master machine.</li>
+      <li>See Mesos&rsquo;s README file for more information on deploying it.</li>
+    </ul>
+  </li>
+  <li>To run a Spark job against the cluster, when you create your <code>SparkContext</code>, pass the string <code>mesos://HOST:5050</code> as the first parameter, where <code>HOST</code> is the machine running your Mesos master. In addition, pass the location of Spark on your nodes as the third parameter, and a list of JAR files containing your JAR&rsquo;s code as the fourth (these will automatically get copied to the workers). For example:</li>
+</ol>
+
+<div class="highlight"><pre><code class="scala"><span class="k">new</span> <span class="nc">SparkContext</span><span class="o">(</span><span class="s">&quot;mesos://HOST:5050&quot;</span><span class="o">,</span> <span class="s">&quot;My Job Name&quot;</span><span class="o">,</span> <span class="s">&quot;/home/user/spark&quot;</span><span class="o">,</span> <span class="nc">List</span><span class="o">(</span><span class="s">&quot;my-job.jar&quot;</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<p>If you want to run Spark on Amazon EC2, you can use the Spark <a href="ec2-scripts.html">EC2 launch scripts</a>, which provide an easy way to launch a cluster with Mesos, Spark, and HDFS pre-configured. This will get you a cluster in about five minutes without any configuration on your part.</p>
+
+<h1 id="mesos-run-modes">Mesos Run Modes</h1>
+
+<p>Spark can run over Mesos in two modes: &ldquo;fine-grained&rdquo; and &ldquo;coarse-grained&rdquo;. In fine-grained mode, which is the default,
+each Spark task runs as a separate Mesos task. This allows multiple instances of Spark (and other applications) to share
+machines at a very fine granularity, where each job gets more or fewer machines as it ramps up, but it comes with an
+additional overhead in launching each task, which may be inappropriate for low-latency applications that aim for
+sub-second Spark operations (e.g. interactive queries or serving web requests). The coarse-grained mode will instead
+launch only <em>one</em> long-running Spark task on each Mesos machine, and dynamically schedule its own &ldquo;mini-tasks&rdquo; within
+it. The benefit is much lower startup overhead, but at the cost of reserving the Mesos resources for the complete duration
+of the job.</p>
+
+<p>To run in coarse-grained mode, set the <code>spark.mesos.coarse</code> system property to true <em>before</em> creating your SparkContext:</p>
+
+<div class="highlight"><pre><code class="scala"><span class="nc">System</span><span class="o">.</span><span class="n">setProperty</span><span class="o">(</span><span class="s">&quot;spark.mesos.coarse&quot;</span><span class="o">,</span> <span class="s">&quot;true&quot;</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">sc</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">SparkContext</span><span class="o">(</span><span class="s">&quot;mesos://HOST:5050&quot;</span><span class="o">,</span> <span class="s">&quot;Job Name&quot;</span><span class="o">,</span> <span class="o">...)</span>
+</code></pre>
+</div>
+
+<p>In addition, for coarse-grained mode, you can control the maximum number of resources Spark will acquire. By default,
+it will acquire <em>all</em> cores in the cluster (that get offered by Mesos), which only makes sense if you run just a single
+job at a time. You can cap the maximum number of cores using <code>System.setProperty("spark.cores.max", "10")</code> (for example).
+Again, this must be done <em>before</em> initializing a SparkContext.</p>
+
+<h1 id="running-alongside-hadoop">Running Alongside Hadoop</h1>
+
+<p>You can run Spark and Mesos alongside your existing Hadoop cluster by just launching them as a separate service on the machines. To access Hadoop data from Spark, just use a hdfs:// URL (typically <code>hdfs://&lt;namenode&gt;:9000/path</code>, but you can find the right URL on your Hadoop Namenode&rsquo;s web UI).</p>
+
+<p>In addition, it is possible to also run Hadoop MapReduce on Mesos, to get better resource isolation and sharing between the two. In this case, Mesos will act as a unified scheduler that assigns cores to either Hadoop or Spark, as opposed to having them share resources via the Linux scheduler on each node. Please refer to the Mesos wiki page on <a href="https://github.com/mesos/mesos/wiki/Running-Hadoop-on-Mesos">Running Hadoop on Mesos</a>.</p>
+
+<p>In either case, HDFS runs separately from Hadoop MapReduce, without going through Mesos.</p>
+
+            <!-- Main hero unit for a primary marketing message or call to action -->
+            <!--<div class="hero-unit">
+                <h1>Hello, world!</h1>
+                <p>This is a template for a simple marketing or informational website. It includes a large callout called the hero unit and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
+                <p><a class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+            </div>-->
+
+            <!-- Example row of columns -->
+            <!--<div class="row">
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+                </div>
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+               </div>
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+                </div>
+            </div>
+
+            <hr>-->
+
+            <!--<footer>
+                <p></p>
+            </footer>-->
+
+        </div> <!-- /container -->
+
+        <script src="js/vendor/jquery-1.8.0.min.js"></script>
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/main.js"></script>
+        
+        <!-- A script to fix internal hash links because we have an overlapping top bar.
+             Based on https://github.com/twitter/bootstrap/issues/193#issuecomment-2281510 -->
+        <script>
+          $(function() {
+            function maybeScrollToHash() {
+              if (window.location.hash && $(window.location.hash).length) {
+                var newTop = $(window.location.hash).offset().top - $('#topbar').height() - 5;
+                $(window).scrollTop(newTop);
+              }
+            }
+            $(window).bind('hashchange', function() {
+              maybeScrollToHash();
+            });
+            // Scroll now too in case we had opened the page on a hash, but wait 1 ms because some browsers
+            // will try to do *their* initial scroll after running the onReady handler.
+            setTimeout(function() { maybeScrollToHash(); }, 1)
+          })
+        </script>
+
+    </body>
+</html>

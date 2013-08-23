@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>The Spark Debugger - Spark 0.7.3 Documentation</title>
+        <meta name="description" content="">
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 60px;
+                padding-bottom: 40px;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+        
+        <link rel="stylesheet" href="css/pygments-default.css">
+
+        <!-- Google analytics script -->
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-32518208-1']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+        </script>
+
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
+
+        <div class="navbar navbar-fixed-top" id="topbar">
+            <div class="navbar-inner">
+                <div class="container">
+                    <div class="brand"><a href="index.html">
+                      <img src="img/spark-logo-77x50px-hd.png" /></a><span class="version">0.7.3</span>
+                    </div>
+                    <ul class="nav">
+                        <!--TODO(andyk): Add class="active" attribute to li some how.-->
+                        <li><a href="index.html">Overview</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Programming Guides<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="quick-start.html">Quick Start</a></li>
+                                <li><a href="scala-programming-guide.html">Scala</a></li>
+                                <li><a href="java-programming-guide.html">Java</a></li>
+                                <li><a href="python-programming-guide.html">Python</a></li>
+                                <li><a href="streaming-programming-guide.html">Spark Streaming</a></li>
+                            </ul>
+                        </li>
+                        
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">API Docs<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="api/core/index.html">Spark Java/Scala (Scaladoc)</a></li>
+                                <li><a href="api/pyspark/index.html">Spark Python (Epydoc)</a></li>
+                                <li><a href="api/streaming/index.html">Spark Streaming Java/Scala (Scaladoc) </a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Deploying<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="ec2-scripts.html">Amazon EC2</a></li>
+                                <li><a href="spark-standalone.html">Standalone Mode</a></li>
+                                <li><a href="running-on-mesos.html">Mesos</a></li>
+                                <li><a href="running-on-yarn.html">YARN</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="api.html" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="building-with-maven.html">Building Spark with Maven</a></li>
+                                <li><a href="configuration.html">Configuration</a></li>
+                                <li><a href="tuning.html">Tuning Guide</a></li>
+                                <li><a href="bagel-programming-guide.html">Bagel (Pregel on Spark)</a></li>
+                                <li><a href="contributing-to-spark.html">Contributing to Spark</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <!--<p class="navbar-text pull-right"><span class="version-text">v0.7.3</span></p>-->
+                </div>
+            </div>
+        </div>
+
+        <div class="container" id="content">
+          <h1 class="title">The Spark Debugger</h1>
+
+          <p><strong>Summary:</strong> The Spark debugger provides replay debugging for deterministic (logic) errors in Spark programs. It&#8217;s currently in development, but you can try it out in the <a href="https://github.com/mesos/spark/tree/arthur">arthur branch</a>.</p>
+
+<h2 id="introduction">Introduction</h2>
+
+<p>From a user&#8217;s point of view, debugging a general distributed program can be tedious and confusing. Many distributed programs are nondeterministic; their outcome depends on the interleaving between computation and message passing across multiple machines. Also, the fact that a program is running on a cluster of hundreds or thousands of machines means that it&#8217;s hard to understand the program state and pinpoint the location of problems.</p>
+
+<p>In order to tame nondeterminism, a distributed debugger has to log a lot of information, imposing a serious performance penalty on the application being debugged.</p>
+
+<p>But the Spark programming model lets us provide replay debugging for almost zero overhead. Spark programs are a series of RDDs and deterministic transformations, so when debugging a Spark program, we don&#8217;t have to debug it all at once &#8211; instead, we can debug each transformation individually. Broadly, the debugger lets us do the following two things:</p>
+
+<ul>
+  <li>Recompute and inspect intermediate RDDs after the program has finished.</li>
+  <li>Re-run a particular task in a single-threaded debugger to find exactly what went wrong.</li>
+</ul>
+
+<p>For deterministic errors, debugging a Spark program is now as easy as debugging a single-threaded one.</p>
+
+<h2 id="approach">Approach</h2>
+
+<p>As your Spark program runs, the slaves report key events back to the master &#8211; for example, RDD creations, RDD contents, and uncaught exceptions. (A full list of event types is in <a href="https://github.com/mesos/spark/blob/arthur/core/src/main/scala/spark/EventLogging.scala">EventLogging.scala</a>.) The master logs those events, and you can load the event log into the debugger after your program is done running.</p>
+
+<p><em>A note on nondeterminism:</em> For fault recovery, Spark requires RDD transformations (for example, the function passed to <code>RDD.map</code>) to be deterministic. The Spark debugger also relies on this property, and it can also warn you if your transformation is nondeterministic. This works by checksumming the contents of each RDD and comparing the checksums from the original execution to the checksums after recomputing the RDD in the debugger.</p>
+
+<h2 id="usage">Usage</h2>
+
+<h3 id="enabling-the-event-log">Enabling the event log</h3>
+
+<p>To turn on event logging for your program, set <code>$SPARK_JAVA_OPTS</code> in <code>conf/spark-env.sh</code> as follows:</p>
+
+<div class="highlight"><pre><code class="bash"><span class="nb">export </span><span class="nv">SPARK_JAVA_OPTS</span><span class="o">=</span><span class="s1">&#39;-Dspark.arthur.logPath=path/to/event-log&#39;</span>
+</code></pre></div>
+
+<p>where <code>path/to/event-log</code> is where you want the event log to go relative to <code>$SPARK_HOME</code>.</p>
+
+<p><strong>Warning:</strong> If <code>path/to/event-log</code> already exists, event logging will be automatically disabled.</p>
+
+<h3 id="loading-the-event-log-into-the-debugger">Loading the event log into the debugger</h3>
+
+<ol>
+  <li>Run a Spark shell with <code>MASTER=&lt;i&gt;host&lt;/i&gt; ./spark-shell</code>.</li>
+  <li>Use <code>EventLogReader</code> to load the event log as follows:</li>
+</ol>
+
+<div class="highlight"><pre><code class="scala"><span class="n">spark</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">r</span> <span class="k">=</span> <span class="k">new</span> <span class="n">spark</span><span class="o">.</span><span class="nc">EventLogReader</span><span class="o">(</span><span class="n">sc</span><span class="o">,</span> <span class="nc">Some</span><span class="o">(</span><span class="s">&quot;path/to/event-log&quot;</span><span class="o">))</span>
+<span class="n">r</span><span class="k">:</span> <span class="kt">spark.EventLogReader</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="nc">EventLogReader</span><span class="k">@</span><span class="mi">726</span><span class="n">b37ad</span>
+</code></pre></div>
+
+<pre><code>**Warning:** If the event log doesn't exist or is unreadable, this will silently fail and `r.events` will be empty.
+</code></pre>
+
+<h3 id="exploring-intermediate-rdds">Exploring intermediate RDDs</h3>
+
+<p>Use <code>r.rdds</code> to get a list of intermediate RDDs generated during your program&#8217;s execution. An RDD with id <em>x</em> is located at <code>r.rdds(<i>x</i>)</code>. For example:</p>
+
+<div class="highlight"><pre><code class="scala"><span class="n">scala</span><span class="o">&gt;</span> <span class="n">r</span><span class="o">.</span><span class="n">rdds</span>
+<span class="n">res8</span><span class="k">:</span> <span class="kt">scala.collection.mutable.ArrayBuffer</span><span class="o">[</span><span class="kt">spark.RDD</span><span class="o">[</span><span class="k">_</span><span class="o">]]</span> <span class="k">=</span> <span class="nc">ArrayBuffer</span><span class="o">(</span><span class="n">spark</span><span class="o">.</span><span class="nc">HadoopRDD</span><span class="nd">@fe85adf</span><span class="o">,</span> <span class="n">spark</span><span class="o">.</span><span class="nc">MappedRDD</span><span class="k">@</span><span class="mi">5</span><span class="n">fa5eea1</span><span class="o">,</span> <span class="n">spark</span><span class="o">.</span><span class="nc">MappedRDD</span><span class="k">@</span><span class="mi">6</span><span class="n">d5bd16</span><span class="o">,</span> <span class="n">spark</span><span class="o">.</span><span class="nc">ShuffledRDD</span><span class="k">@</span><span class="mi">3</span><span class="n">a70f2db</span><span class="o">,</span> <span class="n">spark</span><span class="o">.</span><span class="nc">FlatMappedValuesRDD</span><span class="k">@</span><span class="mi">4</span><span class="n">d5825d6</span><span class="o">,</span> <span class="n">spark</span><span class="o">.</span><span class="nc">MappedValuesRDD</span><span class="k">@</span><span class="mi">561</span><span class="n">c2c45</span><span class="o">,</span> <span class="n">spark</span><span class="o">.</span><span class="nc">CoGroupedRDD</span><span class="k">@</span><span class="mi">539</span><span class="n">e922d</span><span class="o">,</span> <span class="n">spark</span><span class="o">.</span><span class="nc">MappedValuesRDD</span><span class="k">@</span><span class="mi">4</span><span class="n">f8ef33e</span><span class="o">,</span> <span class="n">spark</span><span class="o">.</span><span class="nc">FlatMappedRDD</span><span class="k">@</span><span class="mi">32039440</span><span class="o">,</span> <span class="n">spark</span><span class="o">.</span><span class="nc">ShuffledRDD</span><span class="k">@</span><span class="mi">8</span><span class="n">fa0f67</span><span class="o">,</span> <span class="n">spark</span><span class="o">.</span><span class="nc">MappedValuesRDD</span><span class="k">@</span><span class="mi">590937</span><span class="n">cb</span><span class="o">,</span> <span class="n">spark</span><span class="o">.</span><span class="nc">CoGroupedRDD</span><span class="k">@</span><span class="mi">6</span><span class="n">c2e1e17</span><span class="o">,</span> <span class="n">spark</span><span class="o">.</span><span class="nc">MappedValuesRDD</span><span class="k">@</span><span class="mi">47</span><span class="n">b9af7d</span><span class="o">,</span> <span class="n">spark</span><span class="o">.</span><span class="nc">FlatMappedRDD</span><span class="k">@</span><span class="mi">6</span><span class="n">fb05c54</span><span class="o">,</span> <span class="n">spark</span><span class="o">.</span><span class="nc">ShuffledRDD</span><span class="k">@</span><span class="mi">237</span><span class="n">dc815</span><span class="o">,</span> <span class="n">spark</span><span class="o">.</span><span class="nc">MappedValuesRDD</span><span class="k">@</span><span class="mi">16</span><span class="n">daece7</span><span class="o">,</span> <span class="n">spark</span><span class="o">.</span><span class="nc">CoGroupedRDD</span><span class="k">@</span><span class="mi">7</span><span class="n">ef73d69</span><span class="o">,</span> <span class="n">spark</span><span class="o">.</span><span class="nc">MappedValuesRDD</span><span class="k">@</span><span class="mi">19</span><span class="n">e0f99e</span><span class="o">,</span> <span class="n">spark</span><span class="o">.</span><span class="nc">FlatMappedRDD</span><span class="k">@</span><span class="mi">1240158</span><span class="o">,</span> <span class="n">spark</span><span class="o">.</span><span class="nc">ShuffledRDD</span><span class="k">@</span><span class="mi">62</span><span class="n">d438fd</span><span class="o">,</span> <span class="n">spark</span><span class="o">.</span><span class="nc">MappedValuesRDD</span><span class="k">@</span><span class="mi">5</span><span class="n">ae99cbb</span><span class="o">,</span> <span class="n">spark</span><span class="o">.</span><span class="nc">FilteredRDD</span><span class="k">@</span><span class="mi">1</span><span class="n">f30e79e</span><span class="o">,</span> <span class="n">spark</span><span class="o">.</span><span class="nc">MappedRDD</span><span class="k">@</span><span class="mi">43</span><span class="n">b64611</span><span class="o">)</span>
+</code></pre></div>
+
+<p>Use <code>r.printRDDs()</code> to get a formatted list of intermediate RDDs, along with the source location where they were created. For example:</p>
+
+<div class="highlight"><pre><code class="scala"><span class="n">scala</span><span class="o">&gt;</span> <span class="n">r</span><span class="o">.</span><span class="n">printRDDs</span>
+<span class="k">#</span><span class="mi">00</span><span class="k">:</span> <span class="kt">HadoopRDD</span>            <span class="kt">spark.bagel.examples.WikipediaPageRankStandalone$.main</span><span class="o">(</span><span class="kt">WikipediaPageRankStandalone.scala:</span><span class="err">31</span><span class="o">)</span>
+<span class="k">#</span><span class="err">01</span><span class="kt">:</span> <span class="kt">MappedRDD</span>            <span class="kt">spark.bagel.examples.WikipediaPageRankStandalone$.main</span><span class="o">(</span><span class="kt">WikipediaPageRankStandalone.scala:</span><span class="err">31</span><span class="o">)</span>
+<span class="k">#</span><span class="err">02</span><span class="kt">:</span> <span class="kt">MappedRDD</span>            <span class="kt">spark.bagel.examples.WikipediaPageRankStandalone$.main</span><span class="o">(</span><span class="kt">WikipediaPageRankStandalone.scala:</span><span class="err">35</span><span class="o">)</span>
+<span class="k">#</span><span class="err">03</span><span class="kt">:</span> <span class="kt">ShuffledRDD</span>          <span class="kt">spark.bagel.examples.WikipediaPageRankStandalone$.main</span><span class="o">(</span><span class="kt">WikipediaPageRankStandalone.scala:</span><span class="err">35</span><span class="o">)</span>
+<span class="k">#</span><span class="err">04</span><span class="kt">:</span> <span class="kt">FlatMappedValuesRDD</span>  <span class="kt">spark.bagel.examples.WikipediaPageRankStandalone$.main</span><span class="o">(</span><span class="kt">WikipediaPageRankStandalone.scala:</span><span class="err">35</span><span class="o">)</span>
+<span class="k">#</span><span class="err">05</span><span class="kt">:</span> <span class="kt">MappedValuesRDD</span>      <span class="kt">spark.bagel.examples.WikipediaPageRankStandalone$.pageRank</span><span class="o">(</span><span class="kt">WikipediaPageRankStandalone.scala:</span><span class="err">91</span><span class="o">)</span>
+<span class="k">#</span><span class="err">06</span><span class="kt">:</span> <span class="kt">CoGroupedRDD</span>         <span class="kt">spark.bagel.examples.WikipediaPageRankStandalone$.pageRank</span><span class="o">(</span><span class="kt">WikipediaPageRankStandalone.scala:</span><span class="err">92</span><span class="o">)</span>
+<span class="err">[</span><span class="kt">...</span><span class="err">]</span>
+</code></pre></div>
+
+<p>Use <code>r.visualizeRDDs()</code> to visualize the RDDs as a dependency graph. For example:</p>
+
+<div class="highlight"><pre><code class="scala"><span class="n">scala</span><span class="o">&gt;</span> <span class="n">r</span><span class="o">.</span><span class="n">visualizeRDDs</span>
+<span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">spark</span><span class="o">-</span><span class="n">rdds</span><span class="o">-</span><span class="mf">3758182885839775712.</span><span class="n">pdf</span>
+</code></pre></div>
+
+<p><img src="http://www.ankurdave.com/images/rdd-dep-graph.png" alt="Example RDD dependency graph" /></p>
+
+<p>Iterate over the <code>RDDCreation</code> entries in <code>r.events</code> (e.g. <code>for (RDDCreation(rdd, location) &lt;- events)</code>) to access the RDD creation locations as well as the RDDs themselves.</p>
+
+<h3 id="debugging-a-particular-task">Debugging a particular task</h3>
+
+<ol>
+  <li>Find the task you want to debug. If the task threw an exception, the <code>ExceptionEvent</code> that was created will have a reference to the task. For example:</li>
+</ol>
+
+<div class="highlight"><pre><code class="scala"><span class="n">spark</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">task</span> <span class="k">=</span> <span class="n">r</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">collect</span> <span class="o">{</span> <span class="k">case</span> <span class="n">e</span><span class="k">:</span> <span class="kt">ExceptionEvent</span> <span class="o">=&gt;</span> <span class="n">e</span> <span class="o">}.</span><span class="n">head</span><span class="o">.</span><span class="n">task</span>
+</code></pre></div>
+
+<pre><code>Otherwise, look through the list of all tasks in `r.tasks`, or browse tasks by RDD using &lt;code&gt;r.tasksForRDD(&lt;i&gt;rdd&lt;/i&gt;)&lt;/code&gt;, which returns a list of tasks whose input is the given RDD.
+</code></pre>
+
+<ol>
+  <li>Run the task by calling <code>r.debugTask(<i>taskStageId</i>, <i>taskPartition</i>)</code>. The task should contain these two values; you can extract them as follows:</li>
+</ol>
+
+<div class="highlight"><pre><code class="scala"><span class="k">val</span> <span class="o">(</span><span class="n">taskStageId</span><span class="o">,</span> <span class="n">taskPartition</span><span class="o">)</span> <span class="k">=</span> <span class="n">task</span> <span class="k">match</span> <span class="o">{</span>
+    <span class="k">case</span> <span class="n">rt</span><span class="k">:</span> <span class="kt">ResultTask</span><span class="o">[</span><span class="k">_</span>, <span class="k">_</span><span class="o">]</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">rt</span><span class="o">.</span><span class="n">stageId</span><span class="o">,</span> <span class="n">rt</span><span class="o">.</span><span class="n">partition</span><span class="o">)</span>
+    <span class="k">case</span> <span class="n">smt</span><span class="k">:</span> <span class="kt">ShuffleMapTask</span> <span class="o">=&gt;</span> <span class="o">(</span><span class="n">smt</span><span class="o">.</span><span class="n">stageId</span><span class="o">,</span> <span class="n">smt</span><span class="o">.</span><span class="n">partition</span><span class="o">)</span>
+    <span class="k">case</span> <span class="k">_</span> <span class="k">=&gt;</span> <span class="k">throw</span> <span class="k">new</span> <span class="nc">UnsupportedOperationException</span>
+<span class="o">})</span>
+</code></pre></div>
+
+<pre><code>The Spark debugger will launch the task in a separate JVM, but you will see the task's stdout and stderr inline with the Spark shell. If you want to pass custom debugging arguments to the task's JVM (for example, to change the debugging port), set the optional `debugOpts` argument to `r.debugTask`. When `debugOpts` is left unset, it defaults to:
+</code></pre>
+
+<div class="highlight"><pre><code class="scala"><span class="o">-</span><span class="nc">Xdebug</span> <span class="o">-</span><span class="n">agentlib</span><span class="k">:</span><span class="kt">jdwp</span><span class="o">=</span><span class="n">transport</span><span class="k">=</span><span class="n">dt_socket</span><span class="o">,</span><span class="n">server</span><span class="k">=</span><span class="n">y</span><span class="o">,</span><span class="n">suspend</span><span class="k">=</span><span class="n">y</span><span class="o">,</span><span class="n">address</span><span class="k">=</span><span class="mi">8000</span>
+</code></pre></div>
+
+<ol>
+  <li>
+    <p>In another terminal, attach your favorite conventional debugger to the Spark shell. For example, if you want to use jdb, run <code>jdb -attach 8000</code>.</p>
+  </li>
+  <li>
+    <p>Debug the task as you would debug a normal program. For example, to break when an exception is thrown:</p>
+  </li>
+</ol>
+
+<div class="highlight"><pre><code class="scala"><span class="o">&gt;</span> <span class="k">catch</span> <span class="n">org</span><span class="o">.</span><span class="n">xml</span><span class="o">.</span><span class="n">sax</span><span class="o">.</span><span class="nc">SAXParseException</span>
+</code></pre></div>
+
+<ol>
+  <li>When the task ends, its JVM will quit and control will return to the main Spark shell. To stop it prematurely, you can kill it from the debugger, or interrupt it from the terminal with Ctrl-C.</li>
+</ol>
+
+<h3 id="detecting-nondeterminism-in-your-transformations">Detecting nondeterminism in your transformations</h3>
+
+<p>When a task gets run more than once, Arthur is able to compare the checksums of the task&#8217;s output. If they are different, Arthur will insert a <code>ChecksumEvent</code> into  <code>r.checksumMismatches</code> and print a warning like the following:</p>
+
+<div class="highlight"><pre><code class="scala"><span class="mi">12</span><span class="o">/</span><span class="mi">04</span><span class="o">/</span><span class="mi">07</span> <span class="mi">11</span><span class="k">:</span><span class="err">42</span><span class="kt">:</span><span class="err">44</span> <span class="kt">WARN</span> <span class="kt">spark.EventLogWriter:</span> <span class="kt">Nondeterminism</span> <span class="kt">detected</span> <span class="kt">in</span> <span class="kt">shuffle</span> <span class="kt">output</span> <span class="kt">on</span> <span class="kt">RDD</span> <span class="err">2</span><span class="o">,</span> <span class="n">partition</span> <span class="mi">3</span><span class="o">,</span> <span class="n">output</span> <span class="n">split</span> <span class="mi">0</span>
+</code></pre></div>
+
+
+            <!-- Main hero unit for a primary marketing message or call to action -->
+            <!--<div class="hero-unit">
+                <h1>Hello, world!</h1>
+                <p>This is a template for a simple marketing or informational website. It includes a large callout called the hero unit and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
+                <p><a class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+            </div>-->
+
+            <!-- Example row of columns -->
+            <!--<div class="row">
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+                </div>
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+               </div>
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+                </div>
+            </div>
+
+            <hr>-->
+
+            <!--<footer>
+                <p></p>
+            </footer>-->
+
+        </div> <!-- /container -->
+
+        <script src="js/vendor/jquery-1.8.0.min.js"></script>
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/main.js"></script>
+        
+        <!-- A script to fix internal hash links because we have an overlapping top bar.
+             Based on https://github.com/twitter/bootstrap/issues/193#issuecomment-2281510 -->
+        <script>
+          $(function() {
+            function maybeScrollToHash() {
+              if (window.location.hash && $(window.location.hash).length) {
+                var newTop = $(window.location.hash).offset().top - $('#topbar').height() - 5;
+                $(window).scrollTop(newTop);
+              }
+            }
+            $(window).bind('hashchange', function() {
+              maybeScrollToHash();
+            });
+            // Scroll now too in case we had opened the page on a hash, but wait 1 ms because some browsers
+            // will try to do *their* initial scroll after running the onReady handler.
+            setTimeout(function() { maybeScrollToHash(); }, 1)
+          })
+        </script>
+
+    </body>
+</html>

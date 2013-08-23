@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Quick Start - Spark 0.6.2 Documentation</title>
+        <meta name="description" content="">
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 60px;
+                padding-bottom: 40px;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+        
+        <link rel="stylesheet" href="css/pygments-default.css">
+
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-32518208-1']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+        </script>
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
+
+        <div class="navbar navbar-fixed-top" id="topbar">
+            <div class="navbar-inner">
+                <div class="container">
+                    <div class="brand"><a href="index.html">
+                      <img src="img/spark-logo-77x50px-hd.png" /></a><span class="version">0.6.2</span>
+                    </div>
+                    <ul class="nav">
+                        <!--TODO(andyk): Add class="active" attribute to li some how.-->
+                        <li><a href="index.html">Overview</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Programming Guides<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="quick-start.html">Quick Start</a></li>
+                                <li><a href="scala-programming-guide.html">Scala</a></li>
+                                <li><a href="java-programming-guide.html">Java</a></li>
+                            </ul>
+                        </li>
+                        
+                        <li><a href="api/core/index.html">API (Scaladoc)</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Deploying<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="ec2-scripts.html">Amazon EC2</a></li>
+                                <li><a href="spark-standalone.html">Standalone Mode</a></li>
+                                <li><a href="running-on-mesos.html">Mesos</a></li>
+                                <li><a href="running-on-yarn.html">YARN</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="api.html" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="configuration.html">Configuration</a></li>
+                                <li><a href="tuning.html">Tuning Guide</a></li>
+                                <li><a href="bagel-programming-guide.html">Bagel (Pregel on Spark)</a></li>
+                                <li><a href="contributing-to-spark.html">Contributing to Spark</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <!--<p class="navbar-text pull-right"><span class="version-text">v0.6.2</span></p>-->
+                </div>
+            </div>
+        </div>
+
+        <div class="container" id="content">
+          <h1 class="title">Quick Start</h1>
+
+          <ul id="markdown-toc">
+  <li><a href="#interactive-analysis-with-the-spark-shell">Interactive Analysis with the Spark Shell</a>    <ul>
+      <li><a href="#basics">Basics</a></li>
+      <li><a href="#transformations">Transformations</a></li>
+      <li><a href="#caching">Caching</a></li>
+    </ul>
+  </li>
+  <li><a href="#a-standalone-job-in-scala">A Standalone Job in Scala</a></li>
+  <li><a href="#a-standalone-job-in-java">A Standalone Job In Java</a></li>
+</ul>
+
+<p>This tutorial provides a quick introduction to using Spark. We will first introduce the API through Spark&rsquo;s interactive Scala shell (don&rsquo;t worry if you don&rsquo;t know Scala &ndash; you will not need much for this), then show how to write standalone jobs in Scala and Java. See the <a href="scala-programming-guide.html">programming guide</a> for a more complete reference.</p>
+
+<p>To follow along with this guide, you only need to have successfully built Spark on one machine. Simply go into your Spark directory and run:</p>
+
+<div class="highlight"><pre><code class="bash"><span class="nv">$ </span>sbt/sbt package
+</code></pre>
+</div>
+
+<h1 id="interactive-analysis-with-the-spark-shell">Interactive Analysis with the Spark Shell</h1>
+
+<h2 id="basics">Basics</h2>
+
+<p>Spark&rsquo;s interactive shell provides a simple way to learn the API, as well as a powerful tool to analyze datasets interactively.
+Start the shell by running <code>./spark-shell</code> in the Spark directory.</p>
+
+<p>Spark&rsquo;s primary abstraction is a distributed collection of items called a Resilient Distributed Dataset (RDD). RDDs can be created from Hadoop InputFormats (such as HDFS files) or by transforming other RDDs. Let&rsquo;s make a new RDD from the text of the README file in the Spark source directory:</p>
+
+<div class="highlight"><pre><code class="scala"><span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">textFile</span> <span class="k">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="o">(</span><span class="s">&quot;README.md&quot;</span><span class="o">)</span>
+<span class="n">textFile</span><span class="k">:</span> <span class="kt">spark.RDD</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="n">spark</span><span class="o">.</span><span class="nc">MappedRDD</span><span class="k">@</span><span class="mi">2</span><span class="n">ee9b6e3</span>
+</code></pre>
+</div>
+
+<p>RDDs have <em><a href="scala-programming-guide.html#actions">actions</a></em>, which return values, and <em><a href="scala-programming-guide.html#transformations">transformations</a></em>, which return pointers to new RDDs. Let&rsquo;s start with a few actions:</p>
+
+<div class="highlight"><pre><code class="scala"><span class="n">scala</span><span class="o">&gt;</span> <span class="n">textFile</span><span class="o">.</span><span class="n">count</span><span class="o">()</span> <span class="c1">// Number of items in this RDD</span>
+<span class="n">res0</span><span class="k">:</span> <span class="kt">Long</span> <span class="o">=</span> <span class="mi">74</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">textFile</span><span class="o">.</span><span class="n">first</span><span class="o">()</span> <span class="c1">// First item in this RDD</span>
+<span class="n">res1</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="k">#</span> <span class="nc">Spark</span>
+</code></pre>
+</div>
+
+<p>Now let&rsquo;s use a transformation. We will use the <a href="scala-programming-guide.html#transformations"><code>filter</code></a> transformation to return a new RDD with a subset of the items in the file.</p>
+
+<div class="highlight"><pre><code class="scala"><span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">linesWithSpark</span> <span class="k">=</span> <span class="n">textFile</span><span class="o">.</span><span class="n">filter</span><span class="o">(</span><span class="n">line</span> <span class="k">=&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">contains</span><span class="o">(</span><span class="s">&quot;Spark&quot;</span><span class="o">))</span>
+<span class="n">linesWithSpark</span><span class="k">:</span> <span class="kt">spark.RDD</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="n">spark</span><span class="o">.</span><span class="nc">FilteredRDD</span><span class="k">@</span><span class="mi">7</span><span class="n">dd4af09</span>
+</code></pre>
+</div>
+
+<p>We can chain together transformations and actions:</p>
+
+<div class="highlight"><pre><code class="scala"><span class="n">scala</span><span class="o">&gt;</span> <span class="n">textFile</span><span class="o">.</span><span class="n">filter</span><span class="o">(</span><span class="n">line</span> <span class="k">=&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">contains</span><span class="o">(</span><span class="s">&quot;Spark&quot;</span><span class="o">)).</span><span class="n">count</span><span class="o">()</span> <span class="c1">// How many lines contain &quot;Spark&quot;?</span>
+<span class="n">res3</span><span class="k">:</span> <span class="kt">Long</span> <span class="o">=</span> <span class="mi">15</span>
+</code></pre>
+</div>
+
+<h2 id="transformations">Transformations</h2>
+<p>RDD transformations can be used for more complex computations. Let&rsquo;s say we want to find the line with the most words:</p>
+
+<div class="highlight"><pre><code class="scala"><span class="n">scala</span><span class="o">&gt;</span> <span class="n">textFile</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">line</span> <span class="k">=&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="s">&quot; &quot;</span><span class="o">).</span><span class="n">size</span><span class="o">).</span><span class="n">reduce</span><span class="o">((</span><span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="k">if</span> <span class="o">(</span><span class="n">a</span> <span class="o">&gt;</span> <span class="n">b</span><span class="o">)</span> <span class="n">a</span> <span class="k">else</span> <span class="n">b</span><span class="o">)</span>
+<span class="n">res4</span><span class="k">:</span> <span class="kt">Long</span> <span class="o">=</span> <span class="mi">16</span>
+</code></pre>
+</div>
+
+<p>This first maps a line to an integer value, creating a new RDD. <code>reduce</code> is called on that RDD to find the largest line count. The arguments to <code>map</code> and <code>reduce</code> are Scala function literals (closures), and can use any language feature or Scala/Java library. For example, we can easily call functions declared elsewhere. We&rsquo;ll use <code>Math.max()</code> function to make this code easier to understand:</p>
+
+<div class="highlight"><pre><code class="scala"><span class="n">scala</span><span class="o">&gt;</span> <span class="k">import</span> <span class="nn">java.lang.Math</span>
+<span class="k">import</span> <span class="nn">java.lang.Math</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">textFile</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">line</span> <span class="k">=&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="s">&quot; &quot;</span><span class="o">).</span><span class="n">size</span><span class="o">).</span><span class="n">reduce</span><span class="o">((</span><span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="nc">Math</span><span class="o">.</span><span class="n">max</span><span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">))</span>
+<span class="n">res5</span><span class="k">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="mi">16</span>
+</code></pre>
+</div>
+
+<p>One common data flow pattern is MapReduce, as popularized by Hadoop. Spark can implement MapReduce flows easily:</p>
+
+<div class="highlight"><pre><code class="scala"><span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">wordCounts</span> <span class="k">=</span> <span class="n">textFile</span><span class="o">.</span><span class="n">flatMap</span><span class="o">(</span><span class="n">line</span> <span class="k">=&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="s">&quot; &quot;</span><span class="o">)).</span><span class="n">map</span><span class="o">(</span><span class="n">word</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">word</span><span class="o">,</span> <span class="mi">1</span><span class="o">)).</span><span class="n">reduceByKey</span><span class="o">((</span><span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="o">)</span>
+<span class="n">wordCounts</span><span class="k">:</span> <span class="kt">spark.RDD</span><span class="o">[(</span><span class="kt">java.lang.String</span>, <span class="kt">Int</span><span class="o">)]</span> <span class="k">=</span> <span class="n">spark</span><span class="o">.</span><span class="nc">ShuffledAggregatedRDD</span><span class="k">@</span><span class="mi">71</span><span class="n">f027b8</span>
+</code></pre>
+</div>
+
+<p>Here, we combined the <a href="scala-programming-guide.html#transformations"><code>flatMap</code></a>, <a href="scala-programming-guide.html#transformations"><code>map</code></a> and <a href="scala-programming-guide.html#transformations"><code>reduceByKey</code></a> transformations to compute the per-word counts in the file as an RDD of (String, Int) pairs. To collect the word counts in our shell, we can use the <a href="scala-programming-guide.html#actions"><code>collect</code></a> action:</p>
+
+<div class="highlight"><pre><code class="scala"><span class="n">scala</span><span class="o">&gt;</span> <span class="n">wordCounts</span><span class="o">.</span><span class="n">collect</span><span class="o">()</span>
+<span class="n">res6</span><span class="k">:</span> <span class="kt">Array</span><span class="o">[(</span><span class="kt">java.lang.String</span>, <span class="kt">Int</span><span class="o">)]</span> <span class="k">=</span> <span class="nc">Array</span><span class="o">((</span><span class="n">need</span><span class="o">,</span><span class="mi">2</span><span class="o">),</span> <span class="o">(</span><span class="s">&quot;&quot;</span><span class="o">,</span><span class="mi">43</span><span class="o">),</span> <span class="o">(</span><span class="nc">Extra</span><span class="o">,</span><span class="mi">3</span><span class="o">),</span> <span class="o">(</span><span class="n">using</span><span class="o">,</span><span class="mi">1</span><span class="o">),</span> <span class="o">(</span><span class="n">passed</span><span class="o">,</span><span class="mi">1</span><span class="o">),</span> <span class="o">(</span><span class="n">etc</span><span class="o">.,</span><span class="mi">1</span><span class="o">),</span> <span class="o">(</span><span class="n">its</span><span class="o">,</span><span class="mi">1</span><span class="o">),</span> <span class="o">(</span><span class="n">`/usr/local/lib/libmesos.so`</span><span class="o">,</span><span class="mi">1</span><span class="o">),</span> <span class="o">(</span><span class="n">`SCALA_HOME`</span><span class="o">,</span><span class="mi">1</span><span class="o">),</span> <span class="o">(</span><span class="n">option</span><span class="o">,</span><span class="mi">1</span><span class="o">),</span> <span class="o">(</span><span class="n">these</span><span class="o">,</span><span class="mi">1</span><span class="o">),</span> <span class="o">(#,</span><span class="mi">1</span><span class="o">),</span> <span class="o">(</span><span class="n">`PATH`</span><span class="o">,,</span><span class="mi">2</span><span class="o">),</span> <span class="o">(</span><span class="mi">200</span><span class="o">,</span><span class="mi">1</span><span class="o">),</span> <span class="o">(</span><span class="nc">To</span><span class="o">,</span><span class="mi">3</span><span class="o">),...</span>
+</code></pre>
+</div>
+
+<h2 id="caching">Caching</h2>
+<p>Spark also supports pulling data sets into a cluster-wide in-memory cache. This is very useful when data is accessed repeatedly, such as when querying a small &ldquo;hot&rdquo; dataset or when running an iterative algorithm like PageRank. As a simple example, let&rsquo;s mark our <code>linesWithSpark</code> dataset to be cached:</p>
+
+<div class="highlight"><pre><code class="scala"><span class="n">scala</span><span class="o">&gt;</span> <span class="n">linesWithSpark</span><span class="o">.</span><span class="n">cache</span><span class="o">()</span>
+<span class="n">res7</span><span class="k">:</span> <span class="kt">spark.RDD</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="n">spark</span><span class="o">.</span><span class="nc">FilteredRDD</span><span class="k">@</span><span class="mi">17</span><span class="n">e51082</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">linesWithSpark</span><span class="o">.</span><span class="n">count</span><span class="o">()</span>
+<span class="n">res8</span><span class="k">:</span> <span class="kt">Long</span> <span class="o">=</span> <span class="mi">15</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">linesWithSpark</span><span class="o">.</span><span class="n">count</span><span class="o">()</span>
+<span class="n">res9</span><span class="k">:</span> <span class="kt">Long</span> <span class="o">=</span> <span class="mi">15</span>
+</code></pre>
+</div>
+
+<p>It may seem silly to use Spark to explore and cache a 30-line text file. The interesting part is that these same functions can be used on very large data sets, even when they are striped across tens or hundreds of nodes. You can also do this interactively by connecting <code>spark-shell</code> to a cluster, as described in the <a href="scala-programming-guide.html#initializing-spark">programming guide</a>.</p>
+
+<h1 id="a-standalone-job-in-scala">A Standalone Job in Scala</h1>
+<p>Now say we wanted to write a standalone job using the Spark API. We will walk through a simple job in both Scala (with sbt) and Java (with maven). If you are using other build systems, consider using the Spark assembly JAR described in the developer guide.</p>
+
+<p>We&rsquo;ll create a very simple Spark job in Scala. So simple, in fact, that it&rsquo;s named <code>SimpleJob.scala</code>:</p>
+
+<div class="highlight"><pre><code class="scala"><span class="cm">/*** SimpleJob.scala ***/</span>
+<span class="k">import</span> <span class="nn">spark.SparkContext</span>
+<span class="k">import</span> <span class="nn">SparkContext._</span>
+
+<span class="k">object</span> <span class="nc">SimpleJob</span> <span class="k">extends</span> <span class="nc">Application</span> <span class="o">{</span>
+  <span class="k">val</span> <span class="n">logFile</span> <span class="k">=</span> <span class="s">&quot;/var/log/syslog&quot;</span> <span class="c1">// Should be some file on your system</span>
+  <span class="k">val</span> <span class="n">sc</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">SparkContext</span><span class="o">(</span><span class="s">&quot;local&quot;</span><span class="o">,</span> <span class="s">&quot;Simple Job&quot;</span><span class="o">,</span> <span class="s">&quot;$YOUR_SPARK_HOME&quot;</span><span class="o">,</span>
+    <span class="nc">List</span><span class="o">(</span><span class="s">&quot;target/scala-2.9.2/simple-project_2.9.2-1.0.jar&quot;</span><span class="o">))</span>
+  <span class="k">val</span> <span class="n">logData</span> <span class="k">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="o">(</span><span class="n">logFile</span><span class="o">,</span> <span class="mi">2</span><span class="o">).</span><span class="n">cache</span><span class="o">()</span>
+  <span class="k">val</span> <span class="n">numAs</span> <span class="k">=</span> <span class="n">logData</span><span class="o">.</span><span class="n">filter</span><span class="o">(</span><span class="n">line</span> <span class="k">=&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">contains</span><span class="o">(</span><span class="s">&quot;a&quot;</span><span class="o">)).</span><span class="n">count</span><span class="o">()</span>
+  <span class="k">val</span> <span class="n">numBs</span> <span class="k">=</span> <span class="n">logData</span><span class="o">.</span><span class="n">filter</span><span class="o">(</span><span class="n">line</span> <span class="k">=&gt;</span> <span class="n">line</span><span class="o">.</span><span class="n">contains</span><span class="o">(</span><span class="s">&quot;b&quot;</span><span class="o">)).</span><span class="n">count</span><span class="o">()</span>
+  <span class="n">println</span><span class="o">(</span><span class="s">&quot;Lines with a: %s, Lines with b: %s&quot;</span><span class="o">.</span><span class="n">format</span><span class="o">(</span><span class="n">numAs</span><span class="o">,</span> <span class="n">numBs</span><span class="o">))</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>This job simply counts the number of lines containing &lsquo;a&rsquo; and the number containing &lsquo;b&rsquo; in a system log file. Unlike the earlier examples with the Spark shell, which initializes its own SparkContext, we initialize a SparkContext as part of the job. We pass the SparkContext constructor four arguments, the type of scheduler we want to use (in this case, a local scheduler), a name for the job, the directory where Spark is installed, and a name for the jar file containing the job&rsquo;s sources. The final two arguments are needed in a distributed setting, where Spark is running across several nodes, so we include them for completeness. Spark will automatically ship the jar files you list to slave nodes.</p>
+
+<p>This file depends on the Spark API, so we&rsquo;ll also include an sbt configuration file, <code>simple.sbt</code> which explains that Spark is a dependency. This file also adds two repositories which host Spark dependencies:</p>
+
+<div class="highlight"><pre><code class="scala"><span class="n">name</span> <span class="o">:=</span> <span class="s">&quot;Simple Project&quot;</span>
+
+<span class="n">version</span> <span class="o">:=</span> <span class="s">&quot;1.0&quot;</span>
+
+<span class="n">scalaVersion</span> <span class="o">:=</span> <span class="s">&quot;2.9.2&quot;</span>
+
+<span class="n">libraryDependencies</span> <span class="o">+=</span> <span class="s">&quot;org.spark-project&quot;</span> <span class="o">%%</span> <span class="s">&quot;spark-core&quot;</span> <span class="o">%</span> <span class="s">&quot;0.6.2&quot;</span>
+
+<span class="n">resolvers</span> <span class="o">++=</span> <span class="nc">Seq</span><span class="o">(</span>
+  <span class="s">&quot;Akka Repository&quot;</span> <span class="n">at</span> <span class="s">&quot;http://repo.akka.io/releases/&quot;</span><span class="o">,</span>
+  <span class="s">&quot;Spray Repository&quot;</span> <span class="n">at</span> <span class="s">&quot;http://repo.spray.cc/&quot;</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>Of course, for sbt to work correctly, we&rsquo;ll need to layout <code>SimpleJob.scala</code> and <code>simple.sbt</code> according to the typical directory structure. Once that is in place, we can create a JAR package containing the job&rsquo;s code, then use <code>sbt run</code> to execute our example job.</p>
+
+<div class="highlight"><pre><code class="bash"><span class="nv">$ </span>find .
+.
+./simple.sbt
+./src
+./src/main
+./src/main/scala
+./src/main/scala/SimpleJob.scala
+
+<span class="nv">$ </span>sbt package
+<span class="nv">$ </span>sbt run
+...
+Lines with a: 8422, Lines with b: 1836
+</code></pre>
+</div>
+
+<p>This example only runs the job locally; for a tutorial on running jobs across several machines, see the <a href="spark-standalone.html">Standalone Mode</a> documentation, and consider using a distributed input source, such as HDFS.</p>
+
+<h1 id="a-standalone-job-in-java">A Standalone Job In Java</h1>
+<p>Now say we wanted to write a standalone job using the Java API. We will walk through doing this with Maven. If you are using other build systems, consider using the Spark assembly JAR described in the developer guide.</p>
+
+<p>We&rsquo;ll create a very simple Spark job, <code>SimpleJob.java</code>:</p>
+
+<div class="highlight"><pre><code class="java"><span class="cm">/*** SimpleJob.java ***/</span>
+<span class="kn">import</span> <span class="nn">spark.api.java.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">spark.api.java.function.Function</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">SimpleJob</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">String</span> <span class="n">logFile</span> <span class="o">=</span> <span class="s">&quot;/var/log/syslog&quot;</span><span class="o">;</span> <span class="c1">// Should be some file on your system</span>
+    <span class="n">JavaSparkContext</span> <span class="n">sc</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JavaSparkContext</span><span class="o">(</span><span class="s">&quot;local&quot;</span><span class="o">,</span> <span class="s">&quot;Simple Job&quot;</span><span class="o">,</span>
+      <span class="s">&quot;$YOUR_SPARK_HOME&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">String</span><span class="o">[]{</span><span class="s">&quot;target/simple-project-1.0.jar&quot;</span><span class="o">});</span>
+    <span class="n">JavaRDD</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">logData</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="na">textFile</span><span class="o">(</span><span class="n">logFile</span><span class="o">).</span><span class="na">cache</span><span class="o">();</span>
+
+    <span class="kt">long</span> <span class="n">numAs</span> <span class="o">=</span> <span class="n">logData</span><span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="k">new</span> <span class="n">Function</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Boolean</span><span class="o">&gt;()</span> <span class="o">{</span>
+      <span class="kd">public</span> <span class="n">Boolean</span> <span class="nf">call</span><span class="o">(</span><span class="n">String</span> <span class="n">s</span><span class="o">)</span> <span class="o">{</span> <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">&quot;a&quot;</span><span class="o">);</span> <span class="o">}</span>
+    <span class="o">}).</span><span class="na">count</span><span class="o">();</span>
+
+    <span class="kt">long</span> <span class="n">numBs</span> <span class="o">=</span> <span class="n">logData</span><span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="k">new</span> <span class="n">Function</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Boolean</span><span class="o">&gt;()</span> <span class="o">{</span>
+      <span class="kd">public</span> <span class="n">Boolean</span> <span class="nf">call</span><span class="o">(</span><span class="n">String</span> <span class="n">s</span><span class="o">)</span> <span class="o">{</span> <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="na">contains</span><span class="o">(</span><span class="s">&quot;b&quot;</span><span class="o">);</span> <span class="o">}</span>
+    <span class="o">}).</span><span class="na">count</span><span class="o">();</span>
+
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Lines with a: &quot;</span> <span class="o">+</span> <span class="n">numAs</span> <span class="o">+</span> <span class="s">&quot;, lines with b: &quot;</span> <span class="o">+</span> <span class="n">numBs</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
+</div>
+
+<p>This job simply counts the number of lines containing &lsquo;a&rsquo; and the number containing &lsquo;b&rsquo; in a system log file. Note that like in the Scala example, we initialize a SparkContext, though we use the special <code>JavaSparkContext</code> class to get a Java-friendly one. We also create RDDs (represented by <code>JavaRDD</code>) and run transformations on them. Finally, we pass functions to Spark by creating classes that extend <code>spark.api.java.function.Function</code>. The <a href="java-programming-guide.html">Java programming guide</a> describes these differences in more detail.</p>
+
+<p>To build the job, we also write a Maven <code>pom.xml</code> file that lists Spark as a dependency. Note that Spark artifacts are tagged with a Scala version.</p>
+
+<div class="highlight"><pre><code class="xml"><span class="nt">&lt;project&gt;</span>
+  <span class="nt">&lt;groupId&gt;</span>edu.berkeley<span class="nt">&lt;/groupId&gt;</span>
+  <span class="nt">&lt;artifactId&gt;</span>simple-project<span class="nt">&lt;/artifactId&gt;</span>
+  <span class="nt">&lt;modelVersion&gt;</span>4.0.0<span class="nt">&lt;/modelVersion&gt;</span>
+  <span class="nt">&lt;name&gt;</span>Simple Project<span class="nt">&lt;/name&gt;</span>
+  <span class="nt">&lt;packaging&gt;</span>jar<span class="nt">&lt;/packaging&gt;</span>
+  <span class="nt">&lt;version&gt;</span>1.0<span class="nt">&lt;/version&gt;</span>
+  <span class="nt">&lt;repositories&gt;</span> <span class="c">&lt;!-- Repositories that Spark needs --&gt;</span>
+    <span class="nt">&lt;repository&gt;</span>
+      <span class="nt">&lt;id&gt;</span>Spray Repository<span class="nt">&lt;/id&gt;</span>
+      <span class="nt">&lt;url&gt;</span>http://repo.spray.cc<span class="nt">&lt;/url&gt;</span>
+    <span class="nt">&lt;/repository&gt;</span>
+    <span class="nt">&lt;repository&gt;</span>
+      <span class="nt">&lt;id&gt;</span>Akka Repository<span class="nt">&lt;/id&gt;</span>
+      <span class="nt">&lt;url&gt;</span>http://repo.akka.io/releases<span class="nt">&lt;/url&gt;</span>
+    <span class="nt">&lt;/repository&gt;</span>
+  <span class="nt">&lt;/repositories&gt;</span>
+  <span class="nt">&lt;dependencies&gt;</span>
+    <span class="nt">&lt;dependency&gt;</span> <span class="c">&lt;!-- Spark dependency --&gt;</span>
+      <span class="nt">&lt;groupId&gt;</span>org.spark-project<span class="nt">&lt;/groupId&gt;</span>
+      <span class="nt">&lt;artifactId&gt;</span>spark-core_2.9.2<span class="nt">&lt;/artifactId&gt;</span>
+      <span class="nt">&lt;version&gt;</span>0.6.2<span class="nt">&lt;/version&gt;</span>
+    <span class="nt">&lt;/dependency&gt;</span>
+  <span class="nt">&lt;/dependencies&gt;</span>
+<span class="nt">&lt;/project&gt;</span>
+</code></pre>
+</div>
+
+<p>We lay out these files according to the canonical Maven directory structure:</p>
+
+<div class="highlight"><pre><code class="bash"><span class="nv">$ </span>find .
+./pom.xml
+./src
+./src/main
+./src/main/java
+./src/main/java/SimpleJob.java
+</code></pre>
+</div>
+
+<p>Now, we can execute the job using Maven:</p>
+
+<div class="highlight"><pre><code class="bash"><span class="nv">$ </span>mvn package
+<span class="nv">$ </span>mvn <span class="nb">exec</span>:java -Dexec.mainClass<span class="o">=</span><span class="s2">&quot;SimpleJob&quot;</span>
+...
+Lines with a: 8422, Lines with b: 1836
+</code></pre>
+</div>
+
+<p>This example only runs the job locally; for a tutorial on running jobs across several machines, see the <a href="spark-standalone.html">Standalone Mode</a> documentation, and consider using a distributed input source, such as HDFS.</p>
+
+            <!-- Main hero unit for a primary marketing message or call to action -->
+            <!--<div class="hero-unit">
+                <h1>Hello, world!</h1>
+                <p>This is a template for a simple marketing or informational website. It includes a large callout called the hero unit and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
+                <p><a class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+            </div>-->
+
+            <!-- Example row of columns -->
+            <!--<div class="row">
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+                </div>
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+               </div>
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+                </div>
+            </div>
+
+            <hr>-->
+
+            <!--<footer>
+                <p></p>
+            </footer>-->
+
+        </div> <!-- /container -->
+
+        <script src="js/vendor/jquery-1.8.0.min.js"></script>
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/main.js"></script>
+        
+        <!-- A script to fix internal hash links because we have an overlapping top bar.
+             Based on https://github.com/twitter/bootstrap/issues/193#issuecomment-2281510 -->
+        <script>
+          $(function() {
+            function maybeScrollToHash() {
+              if (window.location.hash && $(window.location.hash).length) {
+                var newTop = $(window.location.hash).offset().top - $('#topbar').height() - 5;
+                $(window).scrollTop(newTop);
+              }
+            }
+            $(window).bind('hashchange', function() {
+              maybeScrollToHash();
+            });
+            // Scroll now too in case we had opened the page on a hash, but wait 1 ms because some browsers
+            // will try to do *their* initial scroll after running the onReady handler.
+            setTimeout(function() { maybeScrollToHash(); }, 1)
+          })
+        </script>
+
+    </body>
+</html>

@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Spark Standalone Mode - Spark 0.7.0 Documentation</title>
+        <meta name="description" content="">
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 60px;
+                padding-bottom: 40px;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+        
+        <link rel="stylesheet" href="css/pygments-default.css">
+
+        <!-- Google analytics script -->
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-32518208-1']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+        </script>
+
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
+
+        <div class="navbar navbar-fixed-top" id="topbar">
+            <div class="navbar-inner">
+                <div class="container">
+                    <div class="brand"><a href="index.html">
+                      <img src="img/spark-logo-77x50px-hd.png" /></a><span class="version">0.7.0</span>
+                    </div>
+                    <ul class="nav">
+                        <!--TODO(andyk): Add class="active" attribute to li some how.-->
+                        <li><a href="index.html">Overview</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Programming Guides<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="quick-start.html">Quick Start</a></li>
+                                <li><a href="scala-programming-guide.html">Scala</a></li>
+                                <li><a href="java-programming-guide.html">Java</a></li>
+                                <li><a href="python-programming-guide.html">Python</a></li>
+                                <li><a href="streaming-programming-guide.html">Spark Streaming</a></li>
+                            </ul>
+                        </li>
+                        
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">API Docs<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="api/core/index.html">Spark Java/Scala (Scaladoc)</a></li>
+                                <li><a href="api/pyspark/index.html">Spark Python (Epydoc)</a></li>
+                                <li><a href="api/streaming/index.html">Spark Streaming Java/Scala (Scaladoc) </a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Deploying<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="ec2-scripts.html">Amazon EC2</a></li>
+                                <li><a href="spark-standalone.html">Standalone Mode</a></li>
+                                <li><a href="running-on-mesos.html">Mesos</a></li>
+                                <li><a href="running-on-yarn.html">YARN</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="api.html" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="configuration.html">Configuration</a></li>
+                                <li><a href="tuning.html">Tuning Guide</a></li>
+                                <li><a href="bagel-programming-guide.html">Bagel (Pregel on Spark)</a></li>
+                                <li><a href="contributing-to-spark.html">Contributing to Spark</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <!--<p class="navbar-text pull-right"><span class="version-text">v0.7.0</span></p>-->
+                </div>
+            </div>
+        </div>
+
+        <div class="container" id="content">
+          <h1 class="title">Spark Standalone Mode</h1>
+
+          
+<p>In addition to running on top of <a href="https://github.com/mesos/mesos">Mesos</a>, Spark also supports a standalone mode, consisting of one Spark master and several Spark worker processes. You can run the Spark standalone mode either locally (for testing) or on a cluster. If you wish to run on a cluster, we have provided <a href="#cluster-launch-scripts">a set of deploy scripts</a> to launch a whole cluster.</p>
+
+<h1 id="getting-started">Getting Started</h1>
+
+<p>Compile Spark with <code>sbt package</code> as described in the <a href="index.html">Getting Started Guide</a>. You do not need to install Mesos on your machine if you are using the standalone mode.</p>
+
+<h1 id="starting-a-cluster-manually">Starting a Cluster Manually</h1>
+
+<p>You can start a standalone master server by executing:</p>
+
+<pre><code>./run spark.deploy.master.Master
+</code></pre>
+
+<p>Once started, the master will print out a <code>spark://IP:PORT</code> URL for itself, which you can use to connect workers to it,
+or pass as the &ldquo;master&rdquo; argument to <code>SparkContext</code> to connect a job to the cluster. You can also find this URL on
+the master&rsquo;s web UI, which is <a href="http://localhost:8080">http://localhost:8080</a> by default.</p>
+
+<p>Similarly, you can start one or more workers and connect them to the master via:</p>
+
+<pre><code>./run spark.deploy.worker.Worker spark://IP:PORT
+</code></pre>
+
+<p>Once you have started a worker, look at the master&rsquo;s web UI (<a href="http://localhost:8080">http://localhost:8080</a> by default).
+You should see the new node listed there, along with its number of CPUs and memory (minus one gigabyte left for the OS).</p>
+
+<p>Finally, the following configuration options can be passed to the master and worker: </p>
+
+<table class="table">
+  <tr><th style="width:21%">Argument</th><th>Meaning</th></tr>
+  <tr>
+    <td><code>-i IP</code>, <code>--ip IP</code></td>
+    <td>IP address or DNS name to listen on</td>
+  </tr>
+  <tr>
+    <td><code>-p PORT</code>, <code>--port PORT</code></td>
+    <td>IP address or DNS name to listen on (default: 7077 for master, random for worker)</td>
+  </tr>
+  <tr>
+    <td><code>--webui-port PORT</code></td>
+    <td>Port for web UI (default: 8080 for master, 8081 for worker)</td>
+  </tr>
+  <tr>
+    <td><code>-c CORES</code>, <code>--cores CORES</code></td>
+    <td>Total CPU cores to allow Spark jobs to use on the machine (default: all available); only on worker</td>
+  </tr>
+  <tr>
+    <td><code>-m MEM</code>, <code>--memory MEM</code></td>
+    <td>Total amount of memory to allow Spark jobs to use on the machine, in a format like 1000M or 2G (default: your machine's total RAM minus 1 GB); only on worker</td>
+  </tr>
+  <tr>
+    <td><code>-d DIR</code>, <code>--work-dir DIR</code></td>
+    <td>Directory to use for scratch space and job output logs (default: SPARK_HOME/work); only on worker</td>
+  </tr>
+</table>
+
+<h1 id="cluster-launch-scripts">Cluster Launch Scripts</h1>
+
+<p>To launch a Spark standalone cluster with the deploy scripts, you need to create a file called <code>conf/slaves</code> in your Spark directory, which should contain the hostnames of all the machines where you would like to start Spark workers, one per line. The master machine must be able to access each of the slave machines via password-less <code>ssh</code> (using a private key). For testing, you can just put <code>localhost</code> in this file.</p>
+
+<p>Once you&rsquo;ve set up this fine, you can launch or stop your cluster with the following shell scripts, based on Hadoop&rsquo;s deploy scripts, and available in <code>SPARK_HOME/bin</code>:</p>
+
+<ul>
+  <li><code>bin/start-master.sh</code> - Starts a master instance on the machine the script is executed on.</li>
+  <li><code>bin/start-slaves.sh</code> - Starts a slave instance on each machine specified in the <code>conf/slaves</code> file.</li>
+  <li><code>bin/start-all.sh</code> - Starts both a master and a number of slaves as described above.</li>
+  <li><code>bin/stop-master.sh</code> - Stops the master that was started via the <code>bin/start-master.sh</code> script.</li>
+  <li><code>bin/stop-slaves.sh</code> - Stops the slave instances that were started via <code>bin/start-slaves.sh</code>.</li>
+  <li><code>bin/stop-all.sh</code> - Stops both the master and the slaves as described above.</li>
+</ul>
+
+<p>Note that these scripts must be executed on the machine you want to run the Spark master on, not your local machine.</p>
+
+<p>You can optionally configure the cluster further by setting environment variables in <code>conf/spark-env.sh</code>. Create this file by starting with the <code>conf/spark-env.sh.template</code>, and <em>copy it to all your worker machines</em> for the settings to take effect. The following settings are available:</p>
+
+<table class="table">
+  <tr><th style="width:21%">Environment Variable</th><th>Meaning</th></tr>
+  <tr>
+    <td><code>SPARK_MASTER_IP</code></td>
+    <td>Bind the master to a specific IP address, for example a public one</td>
+  </tr>
+  <tr>
+    <td><code>SPARK_MASTER_PORT</code></td>
+    <td>Start the master on a different port (default: 7077)</td>
+  </tr>
+  <tr>
+    <td><code>SPARK_MASTER_WEBUI_PORT</code></td>
+    <td>Port for the master web UI (default: 8080)</td>
+  </tr>
+  <tr>
+    <td><code>SPARK_WORKER_PORT</code></td>
+    <td>Start the Spark worker on a specific port (default: random)</td>
+  </tr>
+  <tr>
+    <td><code>SPARK_WORKER_DIR</code></td>
+    <td>Directory to run jobs in, which will include both logs and scratch space (default: SPARK_HOME/work)</td>
+  </tr>
+  <tr>
+    <td><code>SPARK_WORKER_CORES</code></td>
+    <td>Total number of cores to allow Spark jobs to use on the machine (default: all available cores)</td>
+  </tr>
+  <tr>
+    <td><code>SPARK_WORKER_MEMORY</code></td>
+    <td>Total amount of memory to allow Spark jobs to use on the machine, e.g. 1000M, 2G (default: total memory minus 1 GB); note that each job's <i>individual</i> memory is configured using <code>SPARK_MEM</code></td>
+  </tr>
+  <tr>
+    <td><code>SPARK_WORKER_WEBUI_PORT</code></td>
+    <td>Port for the worker web UI (default: 8081)</td>
+  </tr>
+  <tr>
+    <td><code>SPARK_DAEMON_MEMORY</code></td>
+    <td>Memory to allocate to the Spark master and worker daemons themselves (default: 512m)</td>
+  </tr>
+  <tr>
+    <td><code>SPARK_DAEMON_JAVA_OPTS</code></td>
+    <td>JVM options for the Spark master and worker daemons themselves (default: none)</td>
+  </tr>
+</table>
+
+<h1 id="connecting-a-job-to-the-cluster">Connecting a Job to the Cluster</h1>
+
+<p>To run a job on the Spark cluster, simply pass the <code>spark://IP:PORT</code> URL of the master as to the <a href="scala-programming-guide.html#initializing-spark"><code>SparkContext</code>
+constructor</a>.</p>
+
+<p>To run an interactive Spark shell against the cluster, run the following command:</p>
+
+<pre><code>MASTER=spark://IP:PORT ./spark-shell
+</code></pre>
+
+<h1 id="job-scheduling">Job Scheduling</h1>
+
+<p>The standalone cluster mode currently only supports a simple FIFO scheduler across jobs.
+However, to allow multiple concurrent jobs, you can control the maximum number of resources each Spark job will acquire.
+By default, it will acquire <em>all</em> the cores in the cluster, which only makes sense if you run just a single
+job at a time. You can cap the number of cores using <code>System.setProperty("spark.cores.max", "10")</code> (for example).
+This value must be set <em>before</em> initializing your SparkContext.</p>
+
+<h1 id="monitoring-and-logging">Monitoring and Logging</h1>
+
+<p>Spark&rsquo;s standalone mode offers a web-based user interface to monitor the cluster. The master and each worker has its own web UI that shows cluster and job statistics. By default you can access the web UI for the master at port 8080. The port can be changed either in the configuration file or via command-line options.</p>
+
+<p>In addition, detailed log output for each job is also written to the work directory of each slave node (<code>SPARK_HOME/work</code> by default). You will see two files for each job, <code>stdout</code> and <code>stderr</code>, with all output it wrote to its console.</p>
+
+<h1 id="running-alongside-hadoop">Running Alongside Hadoop</h1>
+
+<p>You can run Spark alongside your existing Hadoop cluster by just launching it as a separate service on the machines. To access Hadoop data from Spark, just use a hdfs:// URL (typically <code>hdfs://&lt;namenode&gt;:9000/path</code>, but you can find the right URL on your Hadoop Namenode&rsquo;s web UI). Alternatively, you can set up a separate cluster for Spark, and still have it access HDFS over the network; this will be slower than disk-local access, but may not be a concern if you are still running in the same local area network (e.g. you place a few Spark machines on each rack that you have Hadoop on).</p>
+
+
+            <!-- Main hero unit for a primary marketing message or call to action -->
+            <!--<div class="hero-unit">
+                <h1>Hello, world!</h1>
+                <p>This is a template for a simple marketing or informational website. It includes a large callout called the hero unit and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
+                <p><a class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+            </div>-->
+
+            <!-- Example row of columns -->
+            <!--<div class="row">
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+                </div>
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+               </div>
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+                </div>
+            </div>
+
+            <hr>-->
+
+            <!--<footer>
+                <p></p>
+            </footer>-->
+
+        </div> <!-- /container -->
+
+        <script src="js/vendor/jquery-1.8.0.min.js"></script>
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/main.js"></script>
+        
+        <!-- A script to fix internal hash links because we have an overlapping top bar.
+             Based on https://github.com/twitter/bootstrap/issues/193#issuecomment-2281510 -->
+        <script>
+          $(function() {
+            function maybeScrollToHash() {
+              if (window.location.hash && $(window.location.hash).length) {
+                var newTop = $(window.location.hash).offset().top - $('#topbar').height() - 5;
+                $(window).scrollTop(newTop);
+              }
+            }
+            $(window).bind('hashchange', function() {
+              maybeScrollToHash();
+            });
+            // Scroll now too in case we had opened the page on a hash, but wait 1 ms because some browsers
+            // will try to do *their* initial scroll after running the onReady handler.
+            setTimeout(function() { maybeScrollToHash(); }, 1)
+          })
+        </script>
+
+    </body>
+</html>
