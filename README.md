@@ -4,11 +4,11 @@ Welcome to the Spark website.
 
 In this directory you will find text files formatted using Markdown, with an ".md" suffix.
 
-You can generate the html version of these files by (installing and) running `jekyll build` (for newer versions of Jekyll) or just `jekyll` (for older versions) in this directory.
+Building the site requirs Jekyll 1.0.0 or newer (because we use the keep_files config option. The easiest way to install jekyll is via a Ruby Gem. This will create a directory called `site` containing index.html as well as the rest of the compiled directories and files. Read more about Jekyll at http://jekyllrb.com/docs
 
-The easiest way to install jekyll is via a Ruby Gem. This will create a directory called `site` containing index.html as well as the rest of the compiled directories and files. Read more about Jekyll at http://jekyllrb.com/docs
+You can generate the html website by running `jekyll build` in this directory. Use the --watch flag to have jekyll recompile your files as you save changes.
 
-In addition to generating the site as html from the markdown files, jekyll can serve the site via a webserver. To build and run a webserver use the command `jekyll serve` (or --serve for older ones) which runs the webserver on port 4000, then visit the site at http://localhost:4000.
+In addition to generating the site as html from the markdown files, jekyll can serve the site via a web server. To build the site and run a web server use the command `jekyll serve` which runs the web server on port 4000, then visit the site at http://localhost:4000.
 
 ## Pygments
 
