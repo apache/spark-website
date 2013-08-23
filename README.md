@@ -10,6 +10,10 @@ You can generate the html website by running `jekyll build` in this directory. U
 
 In addition to generating the site as html from the markdown files, jekyll can serve the site via a web server. To build the site and run a web server use the command `jekyll serve` which runs the web server on port 4000, then visit the site at http://localhost:4000.
 
+## Docs sub-dir
+
+The docs are not generated as part of the website. They are built separately for each release of Spark from the Spark source repository and then copied to the website under the docs directory. See the instructions for building those in the readme in the SPARK_SOURCE/docs directory.
+
 ## Pygments
 
 We also use pygments (http://pygments.org) for syntax highlighting in documentation markdown pages.
