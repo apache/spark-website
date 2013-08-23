@@ -6,8 +6,8 @@ navigation:
   weight: 1
   show: true
 ---
-## What is Spark?
-Spark is an open source cluster computing system that aims to make data analytics <em>fast</em> — both fast to run and fast to write.
+## What is Apache Spark?
+Apache Spark is an open source cluster computing system that aims to make data analytics <em>fast</em> — both fast to run and fast to write.
 To run programs faster, Spark provides primitives for in-memory cluster computing: your job can load data into memory and query it repeatedly much more quickly than with disk-based systems like Hadoop MapReduce.
 To make programming faster, Spark provides clean, concise APIs in <a href="http://www.scala-lang.org" onclick="javascript:_gaq.push(['_trackEvent','outbound-article','http://www.scala-lang.org']);">Scala</a>, <a href="{{site.url}}docs/latest/quick-start.html#a-standalone-job-in-java" >Java</a> and <a href="{{site.url}}docs/latest/quick-start.html#a-standalone-job-in-python" >Python</a>. You can also use Spark interactively from the Scala and Python shells to rapidly query big datasets.
 
