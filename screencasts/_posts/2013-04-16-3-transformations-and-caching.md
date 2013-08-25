@@ -2,6 +2,7 @@
 layout: post
 title: 'Transformations and Caching - Spark Screencast #3'
 categories: []
+- Screencasts
 tags: []
 status: publish
 type: post
@@ -11,4 +12,4 @@ In this third Spark screencast, we demonstrate more advanced use of RDD actions 
 
 <div class="video-container shadow"><iframe width="755" height="705" src="http://www.youtube.com/embed/T1lZcimvL18?autohide=0&showinfo=0" frameborder="0" allowfullscreen></iframe></div>
 
-For more information, check out the <a href="{{site.url}}documentation.html">Spark documentation page</a>.
+For more information and links to other Spark screencasts, check out the <a href="{{site.url}}documentation.html">Spark documentation page</a>.

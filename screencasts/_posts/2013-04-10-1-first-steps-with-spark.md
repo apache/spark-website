@@ -20,8 +20,6 @@ This screencast marks the beginning of a series of hands-on screencasts we will 
 
 <div class="video-container shadow"><iframe width="755" height="705" src="http://www.youtube.com/embed/KYlLglXD6Ic?autohide=0&showinfo=0" frameborder="0" allowfullscreen></iframe></div>
 
-Check out the next spark screencast in the series, <a href="{{site.url}}screencasts/2-spark-documentation-overview.html">Spark Screencast #2 - Overview of Spark Documentation</a>. You can also find the Spark documentation online:
-<ul>
-  <li><a href="{{site.url}}documentation.html">Spark documentation page</a></li>
-  <li><a href="http://ampcamp.berkeley.edu/big-data-mini-course-home">Amp Camp Mini Course</a></li>
-</ul>
+Check out the next spark screencast in the series, <a href="{{site.url}}screencasts/2-spark-documentation-overview.html">Spark Screencast #2 - Overview of Spark Documentation</a>.
+
+For more information and links to other Spark screencasts, check out the <a href="{{site.url}}documentation.html">Spark documentation page</a>.

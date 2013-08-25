@@ -24,6 +24,7 @@ navigation:
 <ul>
   <li><a href="{{site.url}}screencasts/1-first-steps-with-spark.html">Screencast 1: First Steps with Spark</a></li>
   <li><a href="{{site.url}}screencasts/2-spark-documentation-overview.html">Screencast 2: Spark Documentation Overview</a></li>
+<li><a href="{{site.url}}screencasts/3-transformations-and-caching.html">Screencast 3: Transformations and Caching</a></li>
 </ul>
 
 <h3>Hands-On Exercises</h3>
