@@ -18,7 +18,7 @@ This screencast marks the beginning of a series of hands-on screencasts we will 
   <li>Introduce the API using the Spark interactive shell to explore a file.</li>
 </ol>
 
-<div class="video-container shadow"><iframe width="755" height="705" src="http://www.youtube.com/embed/KYlLglXD6Ic?autohide=0&showinfo=0" frameborder="0" allowfullscreen></iframe></div>
+<div class="video-container video-square shadow"><iframe width="755" height="705" src="http://www.youtube.com/embed/KYlLglXD6Ic?autohide=0&showinfo=0" frameborder="0" allowfullscreen></iframe></div>
 
 Check out the next spark screencast in the series, <a href="{{site.url}}screencasts/2-spark-documentation-overview.html">Spark Screencast #2 - Overview of Spark Documentation</a>.
 
