@@ -11,7 +11,7 @@ meta:
   _edit_last: '4'
   _wpas_done_all: '1'
 ---
-Spark 0.7.3 is a maintenance release with several bug fixes, performance fixes, and new features. You can download it as a <a href="/download/spark-0.7.3-sources.tgz">source package</a> (4 MB tar.gz) or get prebuilt packages for <a href="/download/spark-0.7.3-prebuilt-hadoop1.tgz">Hadoop 1 / CDH3</a> or for <a href="/download/spark-0.7.3-prebuilt-cdh4.tgz">CDH 4</a> (61 MB tar.gz).
+Spark 0.7.3 is a maintenance release with several bug fixes, performance fixes, and new features. You can download it as a <a href="http://spark-project.org/download/spark-0.7.3-sources.tgz">source package</a> (4 MB tar.gz) or get prebuilt packages for <a href="http://spark-project.org/download/spark-0.7.3-prebuilt-hadoop1.tgz">Hadoop 1 / CDH3</a> or for <a href="http://spark-project.org/download/spark-0.7.3-prebuilt-cdh4.tgz">CDH 4</a> (61 MB tar.gz).
 
 We recommend that all users update to this maintenance release.
 
