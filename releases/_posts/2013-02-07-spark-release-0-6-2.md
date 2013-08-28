@@ -10,7 +10,7 @@ meta:
   _edit_last: '4'
   _wpas_done_all: '1'
 ---
-Spark 0.6.2 is a maintenance release that contains several bug fixes and usability improvements. You can download it as a <a href="http://spark-project.org/files/spark-0.6.2-sources.tgz">source package</a> (2.5 MB tar.gz) or <a href="http://spark-project.org/files/spark-0.6.2-prebuilt.tgz">prebuilt package</a> (48 MB tar.gz).
+Spark 0.6.2 is a maintenance release that contains several bug fixes and usability improvements. You can download it as a <a href="http://spark-project.org/download/spark-0.6.2-sources.tgz">source package</a> (2.5 MB tar.gz) or <a href="http://spark-project.org/download/spark-0.6.2-prebuilt.tgz">prebuilt package</a> (48 MB tar.gz).
 
 We recommend that all Spark 0.6 users update to this maintenance release.
 
