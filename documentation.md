@@ -50,14 +50,15 @@ navigation:
   </li>
   <li>Programming Spark tutorial at AMP Camp: <a href="http://ampcamp.berkeley.edu/wp-content/uploads/2012/06/matei-zaharia-part-1-amp-camp-2012-spark-intro.pdf">part 1 (pdf)</a>, <a href="http://ampcamp.berkeley.edu/wp-content/uploads/2012/06/matei-zaharia-part-2-amp-camp-2012-standalone-programs.pdf">part 2 (pdf)</a>, <a href="http://www.youtube.com/watch?v=7k4yDKBYOcw">video</a>.
   </li>
-  <li><a href="{{site.url}}talks/strata_spark_streaming.ppt">Overview of Spark Streaming</a> (<a href="{{site.url}}talks/strata_spark_streaming.ppt">ppt</a>) (<a href="{{site.url}}talks/strata_spark_streaming.pdf">pdf</a>)
+  <li><a href="{{site.url}}talks/strata_spark_streaming.ppt">Overview of Spark Streaming</a> (<a href="{{site.url}}talks/strata_spark_streaming.ppt">ppt</a>) (<a href="{{site.url}}talks/strata_spark_streaming.pdf">pdf</a>)</li>
 </ul>
 
 <h3>External Tutorials, Development Blogs, and Talks</h3>
 
 <ul>
-  <li><a href="http://www.slideshare.net/EvanChan2/cassandra2013-spark-talk-final">Real-time Analytics with Cassandra, Spark, and Shark</a> -- presentation by Evan Chan from Ooyala at the 2013 Cassandra Summit</li>
-  <li><a href="http://syndeticlogic.net/?p=311">Getting Spark Setup in Eclipse</a> -- Developer blog post by Spark community member James Percent</li>
+  <li><a href="http://zenfractal.com/2013/08/21/a-powerful-big-data-trio/">A Powerful Big Data Trio: Spark, Parquet and Avro</a> -- Using Parquet in Spark by Matt Massie</li>
+  <li><a href="http://www.slideshare.net/EvanChan2/cassandra2013-spark-talk-final">Real-time Analytics with Cassandra, Spark, and Shark</a> -- Presentation by Evan Chan from Ooyala at the 2013 Cassandra Summit</li>
+  <li><a href="http://syndeticlogic.net/?p=311">Getting Spark Setup in Eclipse</a> -- Developer blog post by James Percent</li>
   <li><a href="http://aws.amazon.com/articles/Elastic-MapReduce/4926593393724923">Run Spark and Shark on Amazon Elastic MapReduce</a> -- Article by Amazon AWS Elastic MapReduce team member Parviz Deyhim</li>
   <li><a href="http://blog.quantifind.com/posts/spark-unit-test/">Unit testing with Spark</a> -- Quantifind tech blog post by Imran Rashid</li>
   <li><a href="http://blog.quantifind.com/posts/logging-post/">Configuring Spark logs</a> -- Quantifind tech blog by Imran Rashid</li>
