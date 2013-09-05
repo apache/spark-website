@@ -48,6 +48,7 @@ navigation:
   <li>
     <a href="{{site.url}}talks/overview.pptx">Overview of Spark</a> (<a href="{{site.url}}talks/overview.pptx">pptx</a>) (<a href="/talks/overview.pdf">pdf</a>)
   </li>
+  <li><a href="http://www.youtube.com/watch?v=49Hr5xZyTEA">Overview of Spark Internals [advanced]</a> (<a href="{{site.url}}talks/dev-meetup-dec-2012.pptx">pptx</a>) (<a href="http://www.youtube.com/watch?v=49Hr5xZyTEA">video</a>)</li>
   <li>Programming Spark tutorial at AMP Camp: <a href="http://ampcamp.berkeley.edu/wp-content/uploads/2012/06/matei-zaharia-part-1-amp-camp-2012-spark-intro.pdf">part 1 (pdf)</a>, <a href="http://ampcamp.berkeley.edu/wp-content/uploads/2012/06/matei-zaharia-part-2-amp-camp-2012-standalone-programs.pdf">part 2 (pdf)</a>, <a href="http://www.youtube.com/watch?v=7k4yDKBYOcw">video</a>.
   </li>
   <li><a href="{{site.url}}talks/strata_spark_streaming.ppt">Overview of Spark Streaming</a> (<a href="{{site.url}}talks/strata_spark_streaming.ppt">ppt</a>) (<a href="{{site.url}}talks/strata_spark_streaming.pdf">pdf</a>)</li>
