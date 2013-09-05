@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Spark user survey and Powered By page
+title: Spark user survey and "Powered By" page
 categories:
 - News
 tags: []
