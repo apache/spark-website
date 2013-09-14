@@ -1,6 +1,7 @@
 ---
 layout: global
 title: Home
+custom_title: Apache Spark - Lightning-Fast Cluster Computing
 type: page
 navigation:
   weight: 1
