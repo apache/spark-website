@@ -32,7 +32,7 @@ navigation:
 <h3>Hands-On Exercises</h3>
 
 <ul>
-  <li><a href="http://ampcamp.berkeley.edu/big-data-mini-course/">Hands-on exercises from Strata 2013</a> are available online. These exercises let you launch a small EC2 cluster, load a dataset, and query it with Spark, Shark, and Spark Streaming.</li>
+  <li><a href="http://ampcamp.berkeley.edu/3/exercises/">Hands-on exercises from Strata 2013</a> are available online. These exercises let you launch a small EC2 cluster, load a dataset, and query it with Spark, Shark, and Spark Streaming.</li>
 </ul>
 
 <h3>AMP Camp Slides and Videos</h3>
