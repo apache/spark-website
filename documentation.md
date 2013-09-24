@@ -38,11 +38,11 @@ navigation:
 <h3>AMP Camp Slides and Videos</h3>
 
 <ul>
-  <li>The AMP Lab regularly hosts two-day training camps on Spark and related "big data" components.
+  <li>The AMPLab regularly hosts two-day training camps on Spark and related "big data" components.
 Slides and videos from each camp are posted online:
     <br><a href="http://ampcamp.berkeley.edu/3/">AMP Camp Three</a> <em>Big Data Bootcamp Berkeley</em> (August 2013)
     <br><a href="http://ampcamp.berkeley.edu/amp-camp-two-strata-2013/">AMP Camp Two</a> <em>Big Data Bootcamp Strata</em> (February 2013)
-    <br><a href="http://ampcamp.berkeley.edu/agenda-2012/">AMP Camp One</a> <em>Big Data Bootcamp Berkeley</em>(August 2012)
+    <br><a href="http://ampcamp.berkeley.edu/agenda-2012/">AMP Camp One</a> <em>Big Data Bootcamp Berkeley</em> (August 2012)
   </li>
 </ul>
 
