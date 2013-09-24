@@ -32,13 +32,17 @@ navigation:
 <h3>Hands-On Exercises</h3>
 
 <ul>
-  <li><a href="http://ampcamp.berkeley.edu/3/exercises/">Hands-on exercises from Strata 2013</a> are available online. These exercises let you launch a small EC2 cluster, load a dataset, and query it with Spark, Shark, and Spark Streaming.</li>
+  <li><a href="http://ampcamp.berkeley.edu/3/exercises/">Hands-on exercises</a> are available online. These exercises let you launch a small EC2 cluster, load a dataset, and query it with Spark, Shark, Spark Streaming, and MLLib.</li>
 </ul>
 
 <h3>AMP Camp Slides and Videos</h3>
 
 <ul>
-  <li>The AMP Lab hosted a <a href="http://ampcamp.berkeley.edu/agenda-2012/">two-day training camp</a> on Spark, Shark and "big data" analysis in August 2012. <a href="http://ampcamp.berkeley.edu/agenda-2012/">Slides and videos</a> are available online for free.
+  <li>The AMP Lab regularly hosts two-day training camps on Spark and related "big data" components.
+Slides and videos from each camp are posted online:
+    <br><a href="http://ampcamp.berkeley.edu/3/">AMP Camp Three</a> <em>Big Data Bootcamp Berkeley</em> (August 2013)
+    <br><a href="http://ampcamp.berkeley.edu/amp-camp-two-strata-2013/">AMP Camp Two</a> <em>Big Data Bootcamp Strata</em> (February 2013)
+    <br><a href="http://ampcamp.berkeley.edu/agenda-2012/">AMP Camp One</a> <em>Big Data Bootcamp Berkeley</em>(August 2012)
   </li>
 </ul>
 
