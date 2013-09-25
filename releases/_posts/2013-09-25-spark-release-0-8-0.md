@@ -10,7 +10,7 @@ meta:
   _edit_last: '4'
   _wpas_done_all: '1'
 ---
-Spark 0.8.0 is a major release that includes many new capabilities and usability improvements. It’s also our first release under the Apache incubator. It is the largest Spark release yet, with contributions from 68 developers and 24 companies.
+Spark 0.8.0 is a major release that includes many new capabilities and usability improvements. It’s also our first release under the Apache incubator. It is the largest Spark release yet, with contributions from 67 developers and 24 companies.
 
 You can download Spark 0.8.0 as either a <a href="http://spark-project.org/download/spark-0.8.0-incubating.tgz">source package</a> (4 MB tar.gz) or a prebuilt pacakge for <a href="http://spark-project.org/download/spark-0.8.0-incubating-bin-hadoop1.tgz">Hadoop 1 / CDH3</a> or <a href="http://spark-project.org/download/spark-0.8.0-incubating-bin-cdh4.tgz">CDH4</a> (125 MB tar.gz).
 
@@ -74,10 +74,12 @@ Spark 0.8.0 was the result of the largest team of contributors yet. The followin
 * Lian Cheng -- bug fix
 * Tathagata Das -- performance improvement in streaming receiver and streaming bug fix
 * Aaron Davidson -- Python improvements, bug fix, and unit tests
+* Giovanni Delussu -- coalesced RDD feature
 * Joseph E. Gonzalez -- improvement to zipPartitions
 * Karen Feng -- several improvements to web UI
 * Andy Feng -- HDFS metrics
 * Ali Ghodsi -- configuration improvements and locality-aware coalesce
+* Christoph Grothaus -- bug fix
 * Thomas Graves -- support for secure YARN cluster and various YARN-related improvements
 * Stephen Haberman -- bug fix, documentation, and code cleanup
 * Mark Hamstra -- bug fixes and Maven build
@@ -86,24 +88,31 @@ Spark 0.8.0 was the result of the largest team of contributors yet. The followin
 * Shane Huang -- shuffle improvements, bug fix
 * Ethan Jewett -- Spark/HBase example
 * Holden Karau -- bug fix and EC2 improvement
+* Kody Koeniger -- JDBV RDD implementation
 * Andy Konwinski -- documentation
 * Jey Kottalam -- PySpark optimizations, Hadoop agnostic build (lead), and bug fixes
+* Andrey Kouznetsov -- Bug fix
 * S. Kumar -- Spark Streaming example
 * Ryan LeCompte -- topK method optimization and serialization improvements
 * Gavin Li -- compression codecs and pipe support
 * Harold Lim -- fair scheduler
 * Dmitriy Lyubimov -- bug fix
 * Chris Mattman -- Apache mentor
+* David McCauley -- JSON API improvement
 * Sean McNamara -- added `takeOrdered` function, bug fixes, and a build fix
 * Mridul Muralidharan -- YARN integration (lead) and scheduler improvements
 * Marc Mercer -- improvements to UI json output
 * Christopher Nguyen -- bug fixes
+* Erik van Oosten -- example fix
 * Kay Ousterhout -- fix for scheduler regression and bug fixes
 * Xinghao Pan -- MLLib contributions
-* Nick Pentreath -- scala pageRank example
+* Hiral Patel -- bug fix
+* James Phillpotts -- updated Twitter API for Spark streaming
+* Nick Pentreath -- scala pageRank example, bagel improvement, and several Java examples
 * Alexander Pivovarov -- logging improvement and Maven build
 * Mike Potts -- configuration improvement
-* Imran Rashid -- bug fix and UI improvement
+* Rohit Rai -- Spark/Cassandra example
+* Imran Rashid -- bug fixes and UI improvement
 * Charles Reiss -- bug fixes, code cleanup, performance improvements
 * Josh Rosen -- Python API improvements, Java API improvements, EC2 scripts and bug fixes
 * Henry Saputra -- Apache mentor
