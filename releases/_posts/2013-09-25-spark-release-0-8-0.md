@@ -12,7 +12,7 @@ meta:
 ---
 Spark 0.8.0 is a major release that includes many new capabilities and usability improvements. It’s also our first release under the Apache incubator. It is the largest Spark release yet, with contributions from 67 developers and 24 companies.
 
-You can download Spark 0.8.0 as either a <a href="http://spark-project.org/download/spark-0.8.0-incubating.tgz">source package</a> (4 MB tar.gz) or a prebuilt pacakge for <a href="http://spark-project.org/download/spark-0.8.0-incubating-bin-hadoop1.tgz">Hadoop 1 / CDH3</a> or <a href="http://spark-project.org/download/spark-0.8.0-incubating-bin-cdh4.tgz">CDH4</a> (125 MB tar.gz).
+You can download Spark 0.8.0 as either a <a href="http://spark-project.org/download/spark-0.8.0-incubating.tgz">source package</a> (4 MB tar.gz) or a prebuilt pacakge for <a href="http://spark-project.org/download/spark-0.8.0-incubating-bin-hadoop1.tgz">Hadoop 1 / CDH3</a> or <a href="http://spark-project.org/download/spark-0.8.0-incubating-bin-cdh4.tgz">CDH4</a> (125 MB tar.gz). Download signatures and checksums are available at the official [Apache download site](http://www.apache.org/dist/incubator/spark/spark-0.8.0-incubating/).
 
 ### Monitoring UI and Metrics
 Spark now displays a variety of monitoring data in a web UI (by default at port 4040 on the driver node). A new job dashboard contains information about running, succeeded, and failed jobs, including percentile statistics covering task runtime, shuffled data, and garbage collection. The existing storage dashboard has been extended, and additional pages have been added to display total storage and task information per-executor. Finally, a new metrics library exposes internal Spark metrics through various API’s including JMX and Ganglia.
@@ -22,7 +22,7 @@ Spark now displays a variety of monitoring data in a web UI (by default at port 
 </p>
 
 ### Machine Learning Library
-This release introduces MLlib, a standard library of high-quality machine learning and optimization algorithms for Spark. MLlib was developed in collaboration with the [U.C. Berkeley MLBase project](http://www.mlbase.org/). The current library contains seven algorithms, including support vector machines (SVMs), logistic regression, several regularized variants of linear regression, a clustering algorithm (KMeans), and alternating least squares collaborative filtering.
+This release introduces MLlib, a standard library of high-quality machine learning and optimization algorithms for Spark. MLlib was developed in collaboration with the [UC Berkeley MLbase project](http://www.mlbase.org/). The current library contains seven algorithms, including support vector machines (SVMs), logistic regression, several regularized variants of linear regression, a clustering algorithm (KMeans), and alternating least squares collaborative filtering.
 
 ### Python Improvements
 The Python API has been extended with many previously missing features. This includes support for different storage levels, sampling, and various missing RDD operators. We’ve also added support for running Spark in [IPython](http://ipython.org/), including the IPython Notebook, and for running PySpark on Windows.
