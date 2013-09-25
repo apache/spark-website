@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Cluster Mode Overview - Spark 0.8.0 Documentation</title>
+        <meta name="description" content="">
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 60px;
+                padding-bottom: 40px;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+        
+        <link rel="stylesheet" href="css/pygments-default.css">
+
+        <!-- Google analytics script -->
+        <script type="text/javascript">
+          /*
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-32518208-1']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+          */
+        </script>
+
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
+
+        <div class="navbar navbar-fixed-top" id="topbar">
+            <div class="navbar-inner">
+                <div class="container">
+                    <div class="brand"><a href="index.html">
+                      <img src="img/spark-logo-hd.png" style="height:50px;"/></a><span class="version">0.8.0</span>
+                    </div>
+                    <ul class="nav">
+                        <!--TODO(andyk): Add class="active" attribute to li some how.-->
+                        <li><a href="index.html">Overview</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Programming Guides<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="quick-start.html">Quick Start</a></li>
+                                <li><a href="scala-programming-guide.html">Spark in Scala</a></li>
+                                <li><a href="java-programming-guide.html">Spark in Java</a></li>
+                                <li><a href="python-programming-guide.html">Spark in Python</a></li>
+                                <li class="divider"></li>
+                                <li><a href="streaming-programming-guide.html">Spark Streaming</a></li>
+                                <li><a href="mllib-guide.html">MLlib (Machine Learning)</a></li>
+                                <li><a href="bagel-programming-guide.html">Bagel (Pregel on Spark)</a></li>
+                            </ul>
+                        </li>
+                        
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">API Docs<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="api/core/index.html">Spark Core for Java/Scala</a></li>
+                                <li><a href="api/pyspark/index.html">Spark Core for Python</a></li>
+                                <li class="divider"></li>
+                                <li><a href="api/streaming/index.html">Spark Streaming</a></li>
+                                <li><a href="api/mllib/index.html">MLlib (Machine Learning)</a></li>
+                                <li><a href="api/bagel/index.html">Bagel (Pregel on Spark)</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Deploying<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="cluster-overview.html">Overview</a></li>
+                                <li><a href="ec2-scripts.html">Amazon EC2</a></li>
+                                <li><a href="spark-standalone.html">Standalone Mode</a></li>
+                                <li><a href="running-on-mesos.html">Mesos</a></li>
+                                <li><a href="running-on-yarn.html">YARN</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="api.html" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="configuration.html">Configuration</a></li>
+                                <li><a href="monitoring.html">Monitoring</a></li>
+                                <li><a href="tuning.html">Tuning Guide</a></li>
+                                <li><a href="hadoop-third-party-distributions.html">Running with CDH/HDP</a></li>
+                                <li><a href="hardware-provisioning.html">Hardware Provisioning</a></li>
+                                <li><a href="job-scheduling.html">Job Scheduling</a></li>
+                                <li class="divider"></li>
+                                <li><a href="building-with-maven.html">Building Spark with Maven</a></li>
+                                <li><a href="https://cwiki.apache.org/confluence/display/SPARK/Contributing+to+Spark">Contributing to Spark</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <!--<p class="navbar-text pull-right"><span class="version-text">v0.8.0</span></p>-->
+                </div>
+            </div>
+        </div>
+
+        <div class="container" id="content">
+          <h1 class="title">Cluster Mode Overview</h1>
+
+          <p>This document gives a short overview of how Spark runs on clusters, to make it easier to understand
+the components involved.</p>
+
+<h1 id="components">Components</h1>
+
+<p>Spark applications run as independent sets of processes on a cluster, coordinated by the SparkContext
+object in your main program (called the <em>driver program</em>).
+Specifically, to run on a cluster, the SparkContext can connect to several types of <em>cluster managers</em>
+(either Spark&#8217;s own standalone cluster manager or Mesos/YARN), which allocate resources across
+applications. Once connected, Spark acquires <em>executors</em> on nodes in the cluster, which are
+worker processes that run computations and store data for your application. 
+Next, it sends your application code (defined by JAR or Python files passed to SparkContext) to
+the executors. Finally, SparkContext sends <em>tasks</em> for the executors to run.</p>
+
+<p style="text-align: center;">
+  <img src="img/cluster-overview.png" title="Spark cluster components" alt="Spark cluster components" />
+</p>
+
+<p>There are several useful things to note about this architecture:</p>
+
+<ol>
+  <li>Each application gets its own executor processes, which stay up for the duration of the whole
+application and run tasks in multiple threads. This has the benefit of isolating applications
+from each other, on both the scheduling side (each driver schedules its own tasks) and executor
+side (tasks from different applications run in different JVMs). However, it also means that
+data cannot be shared across different Spark applications (instances of SparkContext) without
+writing it to an external storage system.</li>
+  <li>Spark is agnostic to the underlying cluster manager. As long as it can acquire executor
+processes, and these communicate with each other, it is relatively easy to run it even on a
+cluster manager that also supports other applications (e.g. Mesos/YARN).</li>
+  <li>Because the driver schedules tasks on the cluster, it should be run close to the worker
+nodes, preferably on the same local area network. If you&#8217;d like to send requests to the
+cluster remotely, it&#8217;s better to open an RPC to the driver and have it submit operations
+from nearby than to run a driver far away from the worker nodes.</li>
+</ol>
+
+<h1 id="cluster-manager-types">Cluster Manager Types</h1>
+
+<p>The system currently supports three cluster managers:</p>
+
+<ul>
+  <li><a href="spark-standalone.html">Standalone</a> &#8211; a simple cluster manager included with Spark that makes it
+easy to set up a cluster.</li>
+  <li><a href="running-on-mesos.html">Apache Mesos</a> &#8211; a general cluster manager that can also run Hadoop MapReduce
+and service applications.</li>
+  <li><a href="running-on-yarn.html">Hadoop YARN</a> &#8211; the resource manager in Hadoop 2.0.</li>
+</ul>
+
+<p>In addition, Spark&#8217;s <a href="ec2-scripts.html">EC2 launch scripts</a> make it easy to launch a standalone
+cluster on Amazon EC2.</p>
+
+<h1 id="shipping-code-to-the-cluster">Shipping Code to the Cluster</h1>
+
+<p>The recommended way to ship your code to the cluster is to pass it through SparkContext&#8217;s constructor,
+which takes a list of JAR files (Java/Scala) or .egg and .zip libraries (Python) to disseminate to
+worker nodes. You can also dynamically add new files to be sent to executors with <code>SparkContext.addJar</code>
+and <code>addFile</code>.</p>
+
+<h1 id="monitoring">Monitoring</h1>
+
+<p>Each driver program has a web UI, typically on port 4040, that displays information about running
+tasks, executors, and storage usage. Simply go to <code>http://&lt;driver-node&gt;:4040</code> in a web browser to
+access this UI. The <a href="monitoring.html">monitoring guide</a> also describes other monitoring options.</p>
+
+<h1 id="job-scheduling">Job Scheduling</h1>
+
+<p>Spark gives control over resource allocation both <em>across</em> applications (at the level of the cluster
+manager) and <em>within</em> applications (if multiple computations are happening on the same SparkContext).
+The <a href="job-scheduling.html">job scheduling overview</a> describes this in more detail.</p>
+
+<h1 id="glossary">Glossary</h1>
+
+<p>The following table summarizes terms you&#8217;ll see used to refer to cluster concepts:</p>
+
+<table class="table">
+  <thead>
+    <tr><th style="width: 130px;">Term</th><th>Meaning</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Application</td>
+      <td>User program built on Spark. Consists of a <em>driver program</em> and <em>executors</em> on the cluster.</td>
+    </tr>
+    <tr>
+      <td>Driver program</td>
+      <td>The process running the main() function of the application and creating the SparkContext</td>
+    </tr>
+    <tr>
+      <td>Cluster manager</td>
+      <td>An external service for acquiring resources on the cluster (e.g. standalone manager, Mesos, YARN)</td>
+    </tr>
+    <tr>
+      <td>Worker node</td>
+      <td>Any node that can run application code in the cluster</td>
+    </tr>
+    <tr>
+      <td>Executor</td>
+      <td>A process launched for an application on a worker node, that runs tasks and keeps data in memory
+        or disk storage across them. Each application has its own executors.</td>
+    </tr>
+    <tr>
+      <td>Task</td>
+      <td>A unit of work that will be sent to one executor</td>
+    </tr>
+    <tr>
+      <td>Job</td>
+      <td>A parallel computation consisting of multiple tasks that gets spawned in response to a Spark action
+        (e.g. <code>save</code>, <code>collect</code>); you'll see this term used in the driver's logs.</td>
+    </tr>
+    <tr>
+      <td>Stage</td>
+      <td>Each job gets divided into smaller sets of tasks called <em>stages</em> that depend on each other
+        (similar to the map and reduce stages in MapReduce); you'll see this term used in the driver's logs.</td>
+    </tr>
+  </tbody>
+</table>
+
+            <!-- Main hero unit for a primary marketing message or call to action -->
+            <!--<div class="hero-unit">
+                <h1>Hello, world!</h1>
+                <p>This is a template for a simple marketing or informational website. It includes a large callout called the hero unit and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
+                <p><a class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+            </div>-->
+
+            <!-- Example row of columns -->
+            <!--<div class="row">
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+                </div>
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+               </div>
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+                </div>
+            </div>
+
+            <hr>-->
+
+            <footer>
+              <hr>
+              <p style="text-align: center; veritcal-align: middle; color: #999;">
+                Apache Spark is an effort undergoing incubation at the Apache Software Foundation.
+                <a href="http://incubator.apache.org">
+                  <img style="margin-left: 20px;" src="img/incubator-logo.png" />
+                </a>
+              </p>
+            </footer>
+
+        </div> <!-- /container -->
+
+        <script src="js/vendor/jquery-1.8.0.min.js"></script>
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/main.js"></script>
+        
+        <!-- A script to fix internal hash links because we have an overlapping top bar.
+             Based on https://github.com/twitter/bootstrap/issues/193#issuecomment-2281510 -->
+        <script>
+          $(function() {
+            function maybeScrollToHash() {
+              if (window.location.hash && $(window.location.hash).length) {
+                var newTop = $(window.location.hash).offset().top - $('#topbar').height() - 5;
+                $(window).scrollTop(newTop);
+              }
+            }
+            $(window).bind('hashchange', function() {
+              maybeScrollToHash();
+            });
+            // Scroll now too in case we had opened the page on a hash, but wait 1 ms because some browsers
+            // will try to do *their* initial scroll after running the onReady handler.
+            setTimeout(function() { maybeScrollToHash(); }, 1)
+          })
+        </script>
+
+    </body>
+</html>
