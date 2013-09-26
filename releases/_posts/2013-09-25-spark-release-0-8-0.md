@@ -16,7 +16,7 @@ meta:
   </span>
 </div>
 
-Spark 0.8.0 is a major release that includes many new capabilities and usability improvements. It’s also our first release under the Apache incubator. It is the largest Spark release yet, with contributions from 67 developers and 24 companies.
+Apache Spark 0.8.0 is a major release that includes many new capabilities and usability improvements. It’s also our first release in the Apache incubator. It is the largest Spark release yet, with contributions from 67 developers and 24 companies.
 
 You can download Spark 0.8.0 as either a <a href="http://spark-project.org/download/spark-0.8.0-incubating.tgz">source package</a> (4 MB tar.gz) or a prebuilt pacakge for <a href="http://spark-project.org/download/spark-0.8.0-incubating-bin-hadoop1.tgz">Hadoop 1 / CDH3</a> or <a href="http://spark-project.org/download/spark-0.8.0-incubating-bin-cdh4.tgz">CDH4</a> (125 MB tar.gz). Release signatures and checksums are available at the official [Apache download site](http://www.apache.org/dist/incubator/spark/spark-0.8.0-incubating/).
 
@@ -24,7 +24,7 @@ You can download Spark 0.8.0 as either a <a href="http://spark-project.org/downl
 Spark now displays a variety of monitoring data in a web UI (by default at port 4040 on the driver node). A new job dashboard contains information about running, succeeded, and failed jobs, including percentile statistics covering task runtime, shuffled data, and garbage collection. The existing storage dashboard has been extended, and additional pages have been added to display total storage and task information per-executor. Finally, a new metrics library exposes internal Spark metrics through various API’s including JMX and Ganglia.
 
 <p style="text-align: center;">
-<img src="{{site.root}}/images/0.8.0-ui-screenshot.png" style="width:600px;">
+<img src="{{site.root}}/images/0.8.0-ui-screenshot.png" style="width:90%;">
 </p>
 
 ### Machine Learning Library
