@@ -8,7 +8,10 @@ navigation:
 ---
 <h2>Spark Examples</h2>
 
-Spark is built around <em>distributed datasets</em> that support types of parallel operations: transformations, which are lazy and yield another distributed dataset (e.g., <code>map</code>, <code>filter</code>, and <code>join</code>), and actions, which force the computation of a dataset and return a result (e.g., <code>count</code>). The following examples show off some of the available operations and features. Several additional examples are distributed with Spark, both for core Spark ([Scala examples](https://github.com/apache/incubator-spark/tree/master/examples/src/main/scala/org/apache/spark/examples), [Java examples](https://github.com/apache/incubator-spark/tree/master/examples/src/main/java/org/apache/spark/examples), [Python examples](https://github.com/apache/incubator-spark/tree/master/python/examples)) and streaming Spark ([Scala examples](https://github.com/apache/incubator-spark/tree/master/examples/src/main/scala/org/apache/spark/streaming/examples), [Java examples](https://github.com/apache/incubator-spark/tree/master/examples/src/main/java/org/apache/spark/streaming/examples)).
+Spark is built around <em>distributed datasets</em> that support types of parallel operations: transformations, which are lazy and yield another distributed dataset (e.g., <code>map</code>, <code>filter</code>, and <code>join</code>), and actions, which force the computation of a dataset and return a result (e.g., <code>count</code>). The following examples show off some of the available operations and features. Several additional examples are distributed with Spark:
+
+ * Core Spark: [Scala examples](https://github.com/apache/incubator-spark/tree/master/examples/src/main/scala/org/apache/spark/examples), [Java examples](https://github.com/apache/incubator-spark/tree/master/examples/src/main/java/org/apache/spark/examples), [Python examples](https://github.com/apache/incubator-spark/tree/master/python/examples)
+ * Streaming Spark: [Scala examples](https://github.com/apache/incubator-spark/tree/master/examples/src/main/scala/org/apache/spark/streaming/examples), [Java examples](https://github.com/apache/incubator-spark/tree/master/examples/src/main/java/org/apache/spark/streaming/examples)
 
 <h3>Text Search</h3>
 
