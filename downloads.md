@@ -11,14 +11,17 @@ navigation:
 The latest release is Spark 0.8.0 (September 25, 2013) [(release notes)]({{site.url}}releases/spark-release-0-8-0.html) (tag: [v0.8.0-incubating](https://git-wip-us.apache.org/repos/asf?p=incubator-spark.git;a=commit;h=3b85a8558da2c87873c85f227a189e45bf16b65d))
 
 * Download sources: 
-<a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-0.8.0-incubating/spark-0.8.0-incubating.tgz" onClick="trackOutboundLink(this, 'Outbound Links', 'apache_spark-0.8.0-incubating.tgz'); return false;"> find an Apache mirror </a>
-or [direct file download](http://spark-project.org/download/spark-0.8.0-incubating.tgz)
+<a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-0.8.0-incubating/spark-0.8.0-incubating.tgz" onClick="trackOutboundLink(this, 'Release Downlaod Links', 'apache_spark-0.8.0-incubating.tgz'); return false;"> find an Apache mirror </a>
+or
+<a href="http://spark-project.org/download/spark-0.8.0-incubating.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.8.0-incubating.tgz'); return false;"> direct file download </a>
 * Download binaries for Hadoop1/CDH3:
-<a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-0.8.0-incubating/spark-0.8.0-incubating-bin-hadoop1.tgz" onClick="trackOutboundLink(this, 'Outbound Links', 'apache_spark-0.8.0-incubating-bin-hadoop1.tgz'); return false;"> find an Apache mirror </a>
-or [direct file download](http://spark-project.org/download/spark-0.8.0-incubating-bin-hadoop1.tgz)
+<a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-0.8.0-incubating/spark-0.8.0-incubating-bin-hadoop1.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'apache_spark-0.8.0-incubating-bin-hadoop1.tgz'); return false;"> find an Apache mirror </a>
+or
+<a href="http://spark-project.org/download/spark-0.8.0-incubating-bin-hadoop1.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.8.0-incubating-bin-hadoop1.tgz'); return false;"> direct file download </a>
 * Download binaries for CDH4: 
-<a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-0.8.0-incubating/spark-0.8.0-incubating-bin-cdh4.tgz" onClick="trackOutboundLink(this, 'Outbound Links', 'apache_spark-0.8.0-incubating-bin-cdh4.tgz'); return false;"> find an Apache mirror </a>
-or [direct file download](http://spark-project.org/download/spark-0.8.0-incubating-bin-cdh4.tgz)
+<a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-0.8.0-incubating/spark-0.8.0-incubating-bin-cdh4.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'apache_spark-0.8.0-incubating-bin-cdh4.tgz'); return false;"> find an Apache mirror </a>
+or 
+<a href="http://spark-project.org/download/spark-0.8.0-incubating-bin-cdh4.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.8.0-incubating-bin-cdh4.tgz'); return false;"> direct file download </a>
 * Verify your download: [Apache signatures and checksums](http://www.apache.org/dist/incubator/spark/spark-0.8.0-incubating/)
 
 ### Link Against Spark
