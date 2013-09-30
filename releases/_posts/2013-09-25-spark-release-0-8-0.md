@@ -103,7 +103,7 @@ Spark 0.8.0 was the result of the largest team of contributors yet. The followin
 * Gavin Li -- compression codecs and pipe support
 * Harold Lim -- fair scheduler
 * Dmitriy Lyubimov -- bug fix
-* Chris Mattman -- Apache mentor
+* Chris Mattmann -- Apache mentor
 * David McCauley -- JSON API improvement
 * Sean McNamara -- added `takeOrdered` function, bug fixes, and a build fix
 * Mridul Muralidharan -- YARN integration (lead) and scheduler improvements
