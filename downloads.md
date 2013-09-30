@@ -37,10 +37,11 @@ If you are interested in working with the newest under-development code or contr
 Once you've downloaded Spark, you can find instructions for installing and building it on the <a href="{{site.url}}documentation.html">documentation page</a>.
 
 <h3 id="previous-releases">Previous Releases</h3>
+* [Spark 0.8.0](http://spark-project.org/download/spark-0.8.0-incubating.tgz) (Sept 25, 2013) [(release notes)]({{site.url}}releases/spark-release-0-8-0.html) (prebuilt: [Hadoop 1 / CDH3](http://spark-project.org/download/spark-0.8.0-incubating-bin-hadoop1.tgz), [CDH 4](http://spark-project.org/download/spark-0.8.0-incubating-bin-cdh4.tgz)) 
 * [Spark 0.7.3](http://spark-project.org/download/spark-0.7.3-sources.tgz) (July 16, 2013) [(release notes)]({{site.url}}releases/spark-release-0-7-3.html) (prebuilt:
-[Hadoop 1/ CDH3](http://spark-project.org/download/spark-0.7.3-prebuilt-hadoop1.tgz), [CDH 4](http://spark-project.org/download/spark-0.7.3-prebuilt-cdh4.tgz)) 
+[Hadoop 1 / CDH3](http://spark-project.org/download/spark-0.7.3-prebuilt-hadoop1.tgz), [CDH 4](http://spark-project.org/download/spark-0.7.3-prebuilt-cdh4.tgz)) 
 * [Spark 0.7.2](http://spark-project.org/download/spark-0.7.2-sources.tgz) (June 2, 2013) [(release notes)]({{site.url}}releases/spark-release-0-7-2.html) (prebuilt: 
-[Hadoop 1/ CDH3](http://spark-project.org/download/spark-0.7.2-prebuilt-hadoop1.tgz), [CDH 4](http://spark-project.org/download/spark-0.7.2-prebuilt-cdh4.tgz))
+[Hadoop 1 / CDH3](http://spark-project.org/download/spark-0.7.2-prebuilt-hadoop1.tgz), [CDH 4](http://spark-project.org/download/spark-0.7.2-prebuilt-cdh4.tgz))
 * [Spark 0.7.0](http://spark-project.org/download/spark-0.7.0-sources.tgz) (February 27, 2013) [(release notes)]({{site.url}}releases/spark-release-0-7-0.html)
 * [Spark 0.6.2](http://spark-project.org/download/spark-0.6.2-sources.tgz) (February 7, 2013) [(release notes)]({{site.url}}releases/spark-release-0-6-2.html)
 * [Spark 0.6.1](http://spark-project.org/download-spark-0.6.1-sources-tgz) (November 22, 2012) [(release notes)]({{site.url}}releases/spark-release-0-6-1.html)
