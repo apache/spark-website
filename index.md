@@ -28,9 +28,11 @@ Spark is also the engine behind <a href="http://shark.cs.berkeley.edu" onclick="
 While Spark is a new engine, it can access any data source supported by Hadoop, making it easy to run over existing data.
 
 ## Who uses it?
-Spark was initially developed in the <a href="https://amplab.cs.berkeley.edu" onclick="javascript:_gaq.push(['_trackEvent','outbound-article','http://amplab.cs.berkeley.edu']);">UC Berkeley AMPLab</a>, but is now being used and developed at a wide array of companies, including <a href="http://www.yahoo.com" onclick="javascript:_gaq.push(['_trackEvent','outbound-article','http://www.yahoo.com']);">Yahoo!</a>, <a href="http://www.conviva.com" onclick="javascript:_gaq.push(['_trackEvent','outbound-article','http://www.conviva.com']);">Conviva</a>, and <a href="http://www.quantifind.com" onclick="javascript:_gaq.push(['_trackEvent','outbound-article','http://www.quantifind.com']);">Quantifind</a>.
-In total, over 20 companies have contributed code to Spark.
-Spark is <a href="https://github.com/mesos/spark" onclick="javascript:_gaq.push(['_trackEvent','outbound-article','http://github.com']);">open source</a> under an Apache license, so <a href="{{site.url}}downloads.html" >download</a> it to check it out.
+Spark was initially created in the <a href="https://amplab.cs.berkeley.edu" onclick="javascript:_gaq.push(['_trackEvent','outbound-article','http://amplab.cs.berkeley.edu']);">UC Berkeley AMPLab</a>, but is now being used and developed at a wide array of companies.
+See our <a href="https://cwiki.apache.org/confluence/display/SPARK/Powered+By+Spark">powered by page</a> for a list of users,
+and our <a href="https://cwiki.apache.org/confluence/display/SPARK/Committers">list of committers</a>.
+In total, over 25 companies have contributed code to Spark.
+Spark is <a href="https://github.com/apache/incubator-spark" onclick="javascript:_gaq.push(['_trackEvent','outbound-article','http://github.com']);">open source</a> under an Apache license, so <a href="{{site.url}}downloads.html" >download</a> it to try it out.
 
 ## Apache Incubator notice
 Apache Spark is an effort undergoing incubation at The Apache Software Foundation (ASF), sponsored by the Apache Incubator. Incubation is required of all newly accepted projects until a further review indicates that the infrastructure, communications, and decision making process have stabilized in a manner consistent with other successful ASF projects. While incubation status is not necessarily a reflection of the completeness or stability of the code, it does indicate that the project has yet to be fully endorsed by the ASF.
