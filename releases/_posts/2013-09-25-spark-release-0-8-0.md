@@ -10,11 +10,6 @@ meta:
   _edit_last: '4'
   _wpas_done_all: '1'
 ---
-<div style="text-align: center; margin-bottom: 10px;">
-  <span style="background: #fff6d1; padding: 5px;">
-  Help us improve Spark by filling out the <a href="https://docs.google.com/forms/d/1eMXp4GjcIXglxJe5vYYBzXKVm-6AiYt1KThJwhCjJiY/viewform">Spark User Survey</a>!
-  </span>
-</div>
 
 Apache Spark 0.8.0 is a major release that includes many new capabilities and usability improvements. It’s also our first release in the Apache incubator. It is the largest Spark release yet, with contributions from 67 developers and 24 companies.
 

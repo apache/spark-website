@@ -30,7 +30,7 @@ navigation:
 
 <p class="question">What license is Spark under?</p>
 
-<p class="answer">Starting in version 0.8, Spark will be under the <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache 2.0 license</a>. Previous versions used the <a href="https://github.com/mesos/spark/blob/branch-0.7/LICENSE">BSD license</a>.</p>
+<p class="answer">Starting in version 0.8, Spark is under the <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache 2.0 license</a>. Previous versions used the <a href="https://github.com/mesos/spark/blob/branch-0.7/LICENSE">BSD license</a>.</p>
 
 <p class="question">How can I contribute to Spark?</p>
 <p class="answer">Contact the <a href="http://groups.google.com/group/spark-users">mailing list</a> or send us a pull request on GitHub.  We're glad to hear about your experience using Spark and to accept patches </p>
