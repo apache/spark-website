@@ -16,4 +16,4 @@ We are excited to announce the <b><a href="http://www.spark-summit.org">first Sp
 
 You can also sign up to attend a half-day <b>Spark Training on December 3</b>, the day after the summit.
 
-Visit <a href="http://www.spark-summit.org">spark-summit.org</a> to find more details, register to attend, sign up as a sponsor, or submit your own talk to the event.
+Visit <a href="http://www.spark-summit.org">spark-summit.org</a> to find a tentative agenda & list of speakers, sign up as a sponsor, or submit your own talk to the event. Or <a href="https://sparksummit.eventbrite.com/">register now</a> to reserve your spot!
