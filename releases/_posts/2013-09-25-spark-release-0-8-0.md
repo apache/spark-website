@@ -120,7 +120,7 @@ Spark 0.8.0 was the result of the largest team of contributors yet. The followin
 * Jerry Shao -- bug fixes, metrics system
 * Prashant Sharma -- documentation
 * Mingfei Shi -- joblogger and bug fix
-* Andre Shumacher -- several PySpark features
+* Andre Schumacher -- several PySpark features
 * Ginger Smith -- MLLib contribution
 * Evan Sparks -- contributions to MLLib
 * Ram Sriharsha -- bug fix and RDD removal feature
