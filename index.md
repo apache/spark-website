@@ -14,9 +14,9 @@ Apache Spark is an open source cluster computing system that aims to make data a
 To run programs faster, Spark offers a general execution model that can optimize arbitrary operator graphs, and supports in-memory computing, which lets it query data faster than disk-based engines like Hadoop.
 
 To make programming faster, Spark provides clean, concise APIs in
-<a href="{{site.url}}docs/latest/quick-start.html#a-standalone-job-in-python" >Python</a>,
-<a href="http://www.scala-lang.org" onclick="javascript:_gaq.push(['_trackEvent','outbound-article','http://www.scala-lang.org']);">Scala</a> and
-<a href="{{site.url}}docs/latest/quick-start.html#a-standalone-job-in-java">Java</a>.
+<a href="http://www.scala-lang.org" onclick="javascript:_gaq.push(['_trackEvent','outbound-article','http://www.scala-lang.org']);">Scala</a>,
+<a href="{{site.url}}docs/latest/quick-start.html#a-standalone-job-in-java">Java</a> and
+<a href="{{site.url}}docs/latest/quick-start.html#a-standalone-job-in-python" >Python</a>.
 You can also use Spark interactively from the Scala and Python shells to rapidly query big datasets.
 
 ## What can it do?
