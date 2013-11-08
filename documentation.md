@@ -56,6 +56,12 @@ Slides and videos from each camp are posted online:
   <li><a href="http://www.youtube.com/watch?v=49Hr5xZyTEA">Overview of Spark Internals [advanced]</a> (<a href="{{site.url}}talks/dev-meetup-dec-2012.pptx">pptx</a>) (<a href="http://www.youtube.com/watch?v=49Hr5xZyTEA">video</a>)</li>
 </ul>
 
+<h3>Books</h3>
+
+<ul>
+  <li><a href="http://www.packtpub.com/fast-data-processing-with-spark/book">Fast Data Processing with Spark</a>, by Holden Karau (Packt Publishing)</li>
+</ul>
+
 <h3>External Tutorials, Development Blogs, and Talks</h3>
 
 <ul>
@@ -67,12 +73,6 @@ Slides and videos from each camp are posted online:
   <li><a href="http://blog.quantifind.com/posts/spark-unit-test/">Unit testing with Spark</a> -- Quantifind tech blog post by Imran Rashid</li>
   <li><a href="http://blog.quantifind.com/posts/logging-post/">Configuring Spark logs</a> -- Quantifind tech blog by Imran Rashid</li>
   <li><a href="http://www.ibm.com/developerworks/library/os-spark/">Spark, an alternative for fast data analytics</a> -- IBM Developer Works article by M. Tim Jones</li>
-</ul>
-
-<h3>Books</h3>
-
-<ul>
-  <li><a href="http://www.packtpub.com/fast-data-processing-with-spark/book">Fast Data Processing with Spark</a>, by Holden Karau (Packt Publishing)</li>
 </ul>
 
 <h3>Research Papers</h3>
