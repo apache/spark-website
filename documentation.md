@@ -47,15 +47,6 @@ Slides and videos from each camp are posted online:
   </li>
 </ul>
 
-<h3>Presentations</h3>
-
-<ul>
-  <li>Programming Spark tutorial at AMP Camp: <a href="http://ampcamp.berkeley.edu/wp-content/uploads/2012/06/matei-zaharia-part-1-amp-camp-2012-spark-intro.pdf">part 1 (pdf)</a>, <a href="http://ampcamp.berkeley.edu/wp-content/uploads/2012/06/matei-zaharia-part-2-amp-camp-2012-standalone-programs.pdf">part 2 (pdf)</a>, <a href="http://www.youtube.com/watch?v=7k4yDKBYOcw">video</a>.
-  </li>
-  <li><a href="{{site.url}}talks/strata_spark_streaming.ppt">Overview of Spark Streaming</a> (<a href="{{site.url}}talks/strata_spark_streaming.ppt">ppt</a>) (<a href="{{site.url}}talks/strata_spark_streaming.pdf">pdf</a>)</li>
-  <li><a href="http://www.youtube.com/watch?v=49Hr5xZyTEA">Overview of Spark Internals [advanced]</a> (<a href="{{site.url}}talks/dev-meetup-dec-2012.pptx">pptx</a>) (<a href="http://www.youtube.com/watch?v=49Hr5xZyTEA">video</a>)</li>
-</ul>
-
 <h3>Books</h3>
 
 <ul>
@@ -73,6 +64,12 @@ Slides and videos from each camp are posted online:
   <li><a href="http://blog.quantifind.com/posts/spark-unit-test/">Unit testing with Spark</a> -- Quantifind tech blog post by Imran Rashid</li>
   <li><a href="http://blog.quantifind.com/posts/logging-post/">Configuring Spark logs</a> -- Quantifind tech blog by Imran Rashid</li>
   <li><a href="http://www.ibm.com/developerworks/library/os-spark/">Spark, an alternative for fast data analytics</a> -- IBM Developer Works article by M. Tim Jones</li>
+</ul>
+
+<h3>Spark Internals</h3>
+
+<ul>
+  <li><a href="http://www.youtube.com/watch?v=49Hr5xZyTEA">Overview of Spark Internals [advanced]</a> (<a href="{{site.url}}talks/dev-meetup-dec-2012.pptx">pptx</a>) (<a href="http://www.youtube.com/watch?v=49Hr5xZyTEA">video</a>)</li>
 </ul>
 
 <h3>Research Papers</h3>
