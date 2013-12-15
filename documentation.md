@@ -36,10 +36,15 @@ navigation:
   <li><a href="http://ampcamp.berkeley.edu/3/exercises/">Hands-on exercises</a> are available online. These exercises let you launch a small EC2 cluster, load a dataset, and query it with Spark, Shark, Spark Streaming, and MLLib.</li>
 </ul>
 
+<h3>Spark Summit Slides and Videos</h3>
+<ul>
+  <li><a href="http://spark-summit.org/2013">Spark Summit 2013</a> was held in downtown San Francisco in December 2013. Slides and Videos of all talks are available for free. Look for links next to talk titles on the event agenda.</li>
+</ul>
+
 <h3>AMP Camp Slides and Videos</h3>
 
 <ul>
-  <li>The AMPLab regularly hosts two-day training camps on Spark and related "big data" components.
+  <li>The <a href="https://amplab.cs.berkeley.edu/">UC Berkeley AMPLab</a> regularly hosts two-day training camps on Spark and related "big data" components.
 Slides and videos from each camp are posted online:
     <br><a href="http://ampcamp.berkeley.edu/3/">AMP Camp Three</a> <em>Big Data Bootcamp Berkeley</em> (August 2013)
     <br><a href="http://ampcamp.berkeley.edu/amp-camp-two-strata-2013/">AMP Camp Two</a> <em>Big Data Bootcamp Strata</em> (February 2013)
