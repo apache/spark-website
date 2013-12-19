@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Spark Streaming Custom Receivers - Spark 0.8.1 Documentation</title>
+        <meta name="description" content="">
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 60px;
+                padding-bottom: 40px;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+        
+        <link rel="stylesheet" href="css/pygments-default.css">
+
+        <!-- Google analytics script -->
+        <script type="text/javascript">
+          /*
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-32518208-1']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+          */
+        </script>
+
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
+
+        <div class="navbar navbar-fixed-top" id="topbar">
+            <div class="navbar-inner">
+                <div class="container">
+                    <div class="brand"><a href="index.html">
+                      <img src="img/spark-logo-hd.png" style="height:50px;"/></a><span class="version">0.8.1</span>
+                    </div>
+                    <ul class="nav">
+                        <!--TODO(andyk): Add class="active" attribute to li some how.-->
+                        <li><a href="index.html">Overview</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Programming Guides<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="quick-start.html">Quick Start</a></li>
+                                <li><a href="scala-programming-guide.html">Spark in Scala</a></li>
+                                <li><a href="java-programming-guide.html">Spark in Java</a></li>
+                                <li><a href="python-programming-guide.html">Spark in Python</a></li>
+                                <li class="divider"></li>
+                                <li><a href="streaming-programming-guide.html">Spark Streaming</a></li>
+                                <li><a href="mllib-guide.html">MLlib (Machine Learning)</a></li>
+                                <li><a href="bagel-programming-guide.html">Bagel (Pregel on Spark)</a></li>
+                            </ul>
+                        </li>
+                        
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">API Docs<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="api/core/index.html#org.apache.spark.package">Spark Core for Java/Scala</a></li>
+                                <li><a href="api/pyspark/index.html">Spark Core for Python</a></li>
+                                <li class="divider"></li>
+                                <li><a href="api/streaming/index.html#org.apache.spark.streaming.package">Spark Streaming</a></li>
+                                <li><a href="api/mllib/index.html#org.apache.spark.mllib.package">MLlib (Machine Learning)</a></li>
+                                <li><a href="api/bagel/index.html#org.apache.spark.bagel.package">Bagel (Pregel on Spark)</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Deploying<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="cluster-overview.html">Overview</a></li>
+                                <li><a href="ec2-scripts.html">Amazon EC2</a></li>
+                                <li><a href="spark-standalone.html">Standalone Mode</a></li>
+                                <li><a href="running-on-mesos.html">Mesos</a></li>
+                                <li><a href="running-on-yarn.html">YARN</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="api.html" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="configuration.html">Configuration</a></li>
+                                <li><a href="monitoring.html">Monitoring</a></li>
+                                <li><a href="tuning.html">Tuning Guide</a></li>
+                                <li><a href="hadoop-third-party-distributions.html">Running with CDH/HDP</a></li>
+                                <li><a href="hardware-provisioning.html">Hardware Provisioning</a></li>
+                                <li><a href="job-scheduling.html">Job Scheduling</a></li>
+                                <li class="divider"></li>
+                                <li><a href="building-with-maven.html">Building Spark with Maven</a></li>
+                                <li><a href="https://cwiki.apache.org/confluence/display/SPARK/Contributing+to+Spark">Contributing to Spark</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <!--<p class="navbar-text pull-right"><span class="version-text">v0.8.1</span></p>-->
+                </div>
+            </div>
+        </div>
+
+        <div class="container" id="content">
+          <h1 class="title">Spark Streaming Custom Receivers</h1>
+
+          <p>A &#8220;Spark Streaming&#8221; receiver can be a simple network stream, streams of messages from a message queue, files etc. A receiver can also assume roles more than just receiving data like filtering, preprocessing, to name a few of the possibilities. The api to plug-in any user defined custom receiver is thus provided to encourage development of receivers which may be well suited to ones specific need.</p>
+
+<p>This guide shows the programming model and features by walking through a simple sample receiver and corresponding Spark Streaming application.</p>
+
+<h3 id="writing-a-simple-receiver">Writing a Simple Receiver</h3>
+
+<p>This starts with implementing <a href="api/streaming/index.html#org.apache.spark.streaming.dstream.NetworkReceiver">NetworkReceiver</a>.</p>
+
+<p>The following is a simple socket text-stream receiver.</p>
+
+<div class="highlight"><pre><code class="scala">       <span class="k">class</span> <span class="nc">SocketTextStreamReceiver</span><span class="o">(</span><span class="n">host</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">port</span><span class="k">:</span> <span class="kt">Int</span><span class="o">(</span>
+         <span class="kt">extends</span> <span class="kt">NetworkReceiver</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span>
+       <span class="o">{</span>
+         <span class="kt">protected</span> <span class="kt">lazy</span> <span class="kt">val</span> <span class="kt">blocksGenerator:</span> <span class="kt">BlockGenerator</span> <span class="o">=</span>
+           <span class="kt">new</span> <span class="kt">BlockGenerator</span><span class="o">(</span><span class="kt">StorageLevel.MEMORY_ONLY_SER_2</span><span class="o">)</span>
+
+         <span class="kt">protected</span> <span class="kt">def</span> <span class="kt">onStart</span><span class="o">()</span> <span class="o">=</span> <span class="o">{</span>
+           <span class="n">blocksGenerator</span><span class="o">.</span><span class="n">start</span><span class="o">()</span>
+           <span class="k">val</span> <span class="n">socket</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Socket</span><span class="o">(</span><span class="n">host</span><span class="o">,</span> <span class="n">port</span><span class="o">)</span>
+           <span class="k">val</span> <span class="n">dataInputStream</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">BufferedReader</span><span class="o">(</span><span class="k">new</span> <span class="nc">InputStreamReader</span><span class="o">(</span><span class="n">socket</span><span class="o">.</span><span class="n">getInputStream</span><span class="o">(),</span> <span class="s">&quot;UTF-8&quot;</span><span class="o">))</span>
+           <span class="k">var</span> <span class="n">data</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="n">dataInputStream</span><span class="o">.</span><span class="n">readLine</span><span class="o">()</span>
+           <span class="k">while</span> <span class="o">(</span><span class="n">data</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+             <span class="n">blocksGenerator</span> <span class="o">+=</span> <span class="n">data</span>
+             <span class="n">data</span> <span class="k">=</span> <span class="n">dataInputStream</span><span class="o">.</span><span class="n">readLine</span><span class="o">()</span>
+           <span class="o">}</span>
+         <span class="o">}</span>
+
+         <span class="k">protected</span> <span class="k">def</span> <span class="n">onStop</span><span class="o">()</span> <span class="o">{</span>
+           <span class="n">blocksGenerator</span><span class="o">.</span><span class="n">stop</span><span class="o">()</span>
+         <span class="o">}</span>
+       <span class="o">}</span>
+</code></pre></div>
+
+<p>All we did here is extended NetworkReceiver and called blockGenerator&#8217;s API method (i.e. +=) to push our blocks of data. Please refer to scala-docs of NetworkReceiver for more details.</p>
+
+<h3 id="an-actor-as-receiver">An Actor as Receiver</h3>
+
+<p>This starts with implementing <a href="#References">Actor</a></p>
+
+<p>Following is a simple socket text-stream receiver, which is appearently overly simplified using Akka&#8217;s socket.io api.</p>
+
+<div class="highlight"><pre><code class="scala">       <span class="k">class</span> <span class="nc">SocketTextStreamReceiver</span> <span class="o">(</span><span class="n">host</span><span class="k">:</span><span class="kt">String</span><span class="o">,</span>
+         <span class="n">port</span><span class="k">:</span><span class="kt">Int</span><span class="o">,</span>
+         <span class="n">bytesToString</span><span class="k">:</span> <span class="kt">ByteString</span> <span class="o">=&gt;</span> <span class="nc">String</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">Actor</span> <span class="k">with</span> <span class="nc">Receiver</span> <span class="o">{</span>
+
+          <span class="k">override</span> <span class="k">def</span> <span class="n">preStart</span> <span class="k">=</span> <span class="nc">IOManager</span><span class="o">(</span><span class="n">context</span><span class="o">.</span><span class="n">system</span><span class="o">).</span><span class="n">connect</span><span class="o">(</span><span class="n">host</span><span class="o">,</span> <span class="n">port</span><span class="o">)</span>
+
+          <span class="k">def</span> <span class="n">receive</span> <span class="k">=</span> <span class="o">{</span>
+           <span class="k">case</span> <span class="nc">IO</span><span class="o">.</span><span class="nc">Read</span><span class="o">(</span><span class="n">socket</span><span class="o">,</span> <span class="n">bytes</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">pushBlock</span><span class="o">(</span><span class="n">bytesToString</span><span class="o">(</span><span class="n">bytes</span><span class="o">))</span>
+         <span class="o">}</span>
+
+       <span class="o">}</span>
+</code></pre></div>
+
+<p>All we did here is mixed in trait Receiver and called pushBlock api method to push our blocks of data. Please refer to scala-docs of Receiver for more details.</p>
+
+<h3 id="a-sample-spark-application">A Sample Spark Application</h3>
+
+<ul>
+  <li>First create a Spark streaming context with master url and batchduration.</li>
+</ul>
+
+<div class="highlight"><pre><code class="scala">    <span class="k">val</span> <span class="n">ssc</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">StreamingContext</span><span class="o">(</span><span class="n">master</span><span class="o">,</span> <span class="s">&quot;WordCountCustomStreamSource&quot;</span><span class="o">,</span>
+      <span class="nc">Seconds</span><span class="o">(</span><span class="n">batchDuration</span><span class="o">))</span>
+</code></pre></div>
+
+<ul>
+  <li>Plug-in the custom receiver into the spark streaming context and create a DStream.</li>
+</ul>
+
+<div class="highlight"><pre><code class="scala">    <span class="k">val</span> <span class="n">lines</span> <span class="k">=</span> <span class="n">ssc</span><span class="o">.</span><span class="n">networkStream</span><span class="o">[</span><span class="kt">String</span><span class="o">](</span><span class="k">new</span> <span class="nc">SocketTextStreamReceiver</span><span class="o">(</span>
+      <span class="s">&quot;localhost&quot;</span><span class="o">,</span> <span class="mi">8445</span><span class="o">))</span>
+</code></pre></div>
+
+<ul>
+  <li>OR Plug-in the actor as receiver into the spark streaming context and create a DStream.</li>
+</ul>
+
+<div class="highlight"><pre><code class="scala">    <span class="k">val</span> <span class="n">lines</span> <span class="k">=</span> <span class="n">ssc</span><span class="o">.</span><span class="n">actorStream</span><span class="o">[</span><span class="kt">String</span><span class="o">](</span><span class="nc">Props</span><span class="o">(</span><span class="k">new</span> <span class="nc">SocketTextStreamReceiver</span><span class="o">(</span>
+      <span class="s">&quot;localhost&quot;</span><span class="o">,</span><span class="mi">8445</span><span class="o">,</span> <span class="n">z</span> <span class="k">=&gt;</span> <span class="n">z</span><span class="o">.</span><span class="n">utf8String</span><span class="o">)),</span><span class="s">&quot;SocketReceiver&quot;</span><span class="o">)</span>
+</code></pre></div>
+
+<ul>
+  <li>Process it.</li>
+</ul>
+
+<div class="highlight"><pre><code class="scala">    <span class="k">val</span> <span class="n">words</span> <span class="k">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">flatMap</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="s">&quot; &quot;</span><span class="o">))</span>
+    <span class="k">val</span> <span class="n">wordCounts</span> <span class="k">=</span> <span class="n">words</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">x</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">x</span><span class="o">,</span> <span class="mi">1</span><span class="o">)).</span><span class="n">reduceByKey</span><span class="o">(</span><span class="k">_</span> <span class="o">+</span> <span class="k">_</span><span class="o">)</span>
+
+    <span class="n">wordCounts</span><span class="o">.</span><span class="n">print</span><span class="o">()</span>
+    <span class="n">ssc</span><span class="o">.</span><span class="n">start</span><span class="o">()</span>
+</code></pre></div>
+
+<ul>
+  <li>
+    <p>After processing it, stream can be tested using the netcat utility.</p>
+
+    <p>$ nc -l localhost 8445
+   hello world
+   hello hello</p>
+  </li>
+</ul>
+
+<h2 id="multiple-homogeneousheterogeneous-receivers">Multiple Homogeneous/Heterogeneous Receivers.</h2>
+
+<p>A DStream union operation is provided for taking union on multiple input streams.</p>
+
+<div class="highlight"><pre><code class="scala">    <span class="k">val</span> <span class="n">lines</span> <span class="k">=</span> <span class="n">ssc</span><span class="o">.</span><span class="n">actorStream</span><span class="o">[</span><span class="kt">String</span><span class="o">](</span><span class="nc">Props</span><span class="o">(</span><span class="k">new</span> <span class="nc">SocketTextStreamReceiver</span><span class="o">(</span>
+      <span class="s">&quot;localhost&quot;</span><span class="o">,</span><span class="mi">8445</span><span class="o">,</span> <span class="n">z</span> <span class="k">=&gt;</span> <span class="n">z</span><span class="o">.</span><span class="n">utf8String</span><span class="o">)),</span><span class="s">&quot;SocketReceiver&quot;</span><span class="o">)</span>
+
+    <span class="c1">// Another socket stream receiver</span>
+    <span class="k">val</span> <span class="n">lines2</span> <span class="k">=</span> <span class="n">ssc</span><span class="o">.</span><span class="n">actorStream</span><span class="o">[</span><span class="kt">String</span><span class="o">](</span><span class="nc">Props</span><span class="o">(</span><span class="k">new</span> <span class="nc">SocketTextStreamReceiver</span><span class="o">(</span>
+      <span class="s">&quot;localhost&quot;</span><span class="o">,</span><span class="mi">8446</span><span class="o">,</span> <span class="n">z</span> <span class="k">=&gt;</span> <span class="n">z</span><span class="o">.</span><span class="n">utf8String</span><span class="o">)),</span><span class="s">&quot;SocketReceiver&quot;</span><span class="o">)</span>
+
+    <span class="k">val</span> <span class="n">union</span> <span class="k">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">union</span><span class="o">(</span><span class="n">lines2</span><span class="o">)</span>
+</code></pre></div>
+
+<p>Above stream can be easily process as described earlier.</p>
+
+<p><em>A more comprehensive example is provided in the spark streaming examples</em></p>
+
+<h2 id="references">References</h2>
+
+<p>1.<a href="http://doc.akka.io/docs/akka/2.0.5/scala/actors.html">Akka Actor documentation</a>
+2.<a href="api/streaming/index.html#org.apache.spark.streaming.dstream.NetworkReceiver">NetworkReceiver</a></p>
+
+            <!-- Main hero unit for a primary marketing message or call to action -->
+            <!--<div class="hero-unit">
+                <h1>Hello, world!</h1>
+                <p>This is a template for a simple marketing or informational website. It includes a large callout called the hero unit and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
+                <p><a class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+            </div>-->
+
+            <!-- Example row of columns -->
+            <!--<div class="row">
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+                </div>
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. </p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+               </div>
+                <div class="span4">
+                    <h2>Heading</h2>
+                    <p>Donec sed odio dui. Cras justo odio, dapibus ac facilisis in, egestas eget quam. Vestibulum id ligula porta felis euismod semper. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
+                    <p><a class="btn" href="#">View details &raquo;</a></p>
+                </div>
+            </div>
+
+            <hr>-->
+
+            <footer>
+              <hr>
+              <p style="text-align: center; veritcal-align: middle; color: #999;">
+                Apache Spark is an effort undergoing incubation at the Apache Software Foundation.
+                <a href="http://incubator.apache.org">
+                  <img style="margin-left: 20px;" src="img/incubator-logo.png" />
+                </a>
+              </p>
+            </footer>
+
+        </div> <!-- /container -->
+
+        <script src="js/vendor/jquery-1.8.0.min.js"></script>
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/main.js"></script>
+        
+        <!-- A script to fix internal hash links because we have an overlapping top bar.
+             Based on https://github.com/twitter/bootstrap/issues/193#issuecomment-2281510 -->
+        <script>
+          $(function() {
+            function maybeScrollToHash() {
+              if (window.location.hash && $(window.location.hash).length) {
+                var newTop = $(window.location.hash).offset().top - $('#topbar').height() - 5;
+                $(window).scrollTop(newTop);
+              }
+            }
+            $(window).bind('hashchange', function() {
+              maybeScrollToHash();
+            });
+            // Scroll now too in case we had opened the page on a hash, but wait 1 ms because some browsers
+            // will try to do *their* initial scroll after running the onReady handler.
+            setTimeout(function() { maybeScrollToHash(); }, 1)
+          })
+        </script>
+
+    </body>
+</html>
