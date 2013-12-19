@@ -33,7 +33,7 @@ Spark artifacts are [hosted in Maven Central](http://search.maven.org/#browse%7C
 
     groupId: org.apache.spark
     artifactId: spark-core_2.9.3
-    version: 0.8.0-incubating
+    version: 0.8.1-incubating
 
 ### Development Version
 If you are interested in working with the newest under-development code or contributing to Spark development, you can also check out the master branch from Git: <tt>git clone git://github.com/apache/incubator-spark.git</tt>.
