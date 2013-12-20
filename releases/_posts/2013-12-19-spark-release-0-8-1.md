@@ -18,7 +18,7 @@ Apache Spark 0.8.1 is a maintenance and performance release for the Scala 2.9 ve
 Support has been added for running Spark on YARN 2.2 and newer. Due to a change in the YARN API between previous versions and 2.2+, this was not supported in Spark 0.8.0. See the <a href="{{site.url}}docs/0.8.1/running-on-yarn.html">YARN documentation</a> for specific instructions on how to build Spark for YARN 2.2+. We've also included a pre-compiled binary for YARN 2.2.
 
 ### High Availability Mode for Standalone Scheduler
-The standalone scheduler now has a High Availability (H/A) mode which can tolerate master failures. This is particularly useful for long-running applications such as streaming jobs and the shark server, where the scheduler master previously represented a single point of failure. Instructions for deploying H/A mode are included <a href="{{site.url}}docs/0.8.1/spark-standalone.html#high-availability">in the documentation</a>. The current implementation uses Zookeeper for coordination.
+The standalone cluster manager now has a high availability (H/A) mode which can tolerate master failures. This is particularly useful for long-running applications such as streaming jobs and the shark server, where the scheduler master previously represented a single point of failure. Instructions for deploying H/A mode are included <a href="{{site.url}}docs/0.8.1/spark-standalone.html#high-availability">in the documentation</a>. The current implementation uses Zookeeper for coordination.
 
 ### Performance Optimizations
 This release adds several performance optimizations:
