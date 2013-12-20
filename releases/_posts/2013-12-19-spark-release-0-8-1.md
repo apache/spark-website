@@ -58,7 +58,7 @@ This release adds several performance optimizations:
 * Ewen Cheslack-Postava -- `add` method for python accumulators, support for setting config properties in python
 * Mosharaf Chowdhury -- optimized broadcast implementation
 * Frank Dai -- documentation fix
-* Aaron Davidson -- shuffle file consolidation, H/A mode for standalone scheduler, cleaned up representation of block IDs, several small improvements and bug fixes
+* Aaron Davidson -- shuffle file consolidation, H/A mode for standalone scheduler, cleaned up representation of block IDs, several improvements and bug fixes
 * Tathagata Das -- new streaming operators, fix for kafka concurrency bug
 * Ankur Dave -- support for pausing spot clusters on EC2
 * Harvey Feng -- optimization to JobConf broadcasts, bug fixes, YARN 2.2 build
@@ -74,12 +74,12 @@ This release adds several performance optimizations:
 * Xi Liu -- bug fix and code clean-up
 * David McCauley -- bug fix in standalone mode JSON output
 * Michael (wannabeast) -- bug fix in memory store
-* Fabrizio Milo -- typos in documentation, minor clean-up in DAGScheduler, typo in scaladoc
+* Fabrizio Milo -- typos in documentation, clean-up in DAGScheduler, typo in scaladoc
 * Mridul Muralidharan -- fixes to metadata cleaner and speculative execution
-* Sundeep Narravula -- build fix, bug fixes in scheduler and tests, minor code clean-up
+* Sundeep Narravula -- build fix, bug fixes in scheduler and tests, code clean-up
 * Kay Ousterhout -- optimized result fetching, new information in UI, scheduler clean-up and bug fixes
 * Nick Pentreath -- implicit feedback variant of ALS algorithm
-* Imran Rashid -- small improvement to executor launch
+* Imran Rashid -- improvement to executor launch
 * Ahir Reddy -- spark support for SIMR
 * Josh Rosen -- memory use optimization, clean up of BlockManager code, Java and Python clean-up/fixes
 * Henry Saputra -- build fix
@@ -88,7 +88,7 @@ This release adds several performance optimizations:
 * Andre Schumacher -- sortByKey in PySpark and associated changes
 * Karthik Tunga -- bug fix in launch script
 * Patrick Wendell -- `repartition` operator, shuffle write metrics, various fixes and release management
-* Neal Wiggins -- minor import clean-up, documentation typo
+* Neal Wiggins -- import clean-up, documentation fixes
 * Andrew Xia -- bug fix in UI
 * Reynold Xin -- task killing, support for setting job properties in Spark shell, logging improvements, Kryo improvements, several bug fixes
 * Matei Zaharia -- optimized hashmap for shuffle data, PySpark documentation, optimizations to Kryo serializer
