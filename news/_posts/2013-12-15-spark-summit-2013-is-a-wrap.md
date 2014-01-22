@@ -13,7 +13,6 @@ meta:
 ---
 
 The <b><a href="http://www.spark-summit.org">Spark Summit 2013</a></b>, held in early December 2013 in downtown San Francisco, was a success!
-
 Over 450 Spark developers and enthusiasts from 13 countries and more than 180 companies came to learn from project leaders and production users of Spark, Shark, Spark Streaming and related projects about use cases, recent developments, and the Spark community roadmap.
 
 Videos for all talks are now available on the <a href="http://spark-summit.org/2013">Summit 2013 page</a>.

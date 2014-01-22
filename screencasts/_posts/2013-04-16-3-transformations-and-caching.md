@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 'Transformations and Caching - Spark Screencast #3'
-categories: []
+categories:
 - Screencasts
 tags: []
 status: publish

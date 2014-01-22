@@ -1,7 +1,7 @@
 ---
 layout: post
 title: 'A Standalone Job in Scala - Spark Screencast #4'
-categories: []
+categories:
 - Screencasts
 tags: []
 status: publish

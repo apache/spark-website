@@ -7,14 +7,14 @@ navigation:
   show: true
 ---
 
-### Download Spark
-The latest release is Spark 0.8.1 (December 19, 2013) [(release notes)]({{site.url}}releases/spark-release-0-8-1.html) (tag: [v0.8.1-incubating](https://git-wip-us.apache.org/repos/asf?p=incubator-spark.git;a=tag;h=c5167141dcc3facd053778caa9dc795bc180026a))
+## Download Spark
+The latest release is Spark 0.8.1, released December 19, 2013 [(release notes)]({{site.url}}releases/spark-release-0-8-1.html) [(git tag)](https://git-wip-us.apache.org/repos/asf?p=incubator-spark.git;a=tag;h=c5167141dcc3facd053778caa9dc795bc180026a)
 
 * Download sources: 
 <a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-0.8.1-incubating/spark-0.8.1-incubating.tgz" onClick="trackOutboundLink(this, 'Release Downlaod Links', 'apache_spark-0.8.1-incubating.tgz'); return false;"> find an Apache mirror </a>
 or
 <a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.8.1-incubating.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.8.1-incubating.tgz'); return false;"> direct file download </a>
-* Download binaries for Hadoop1 (HDP1, CDH3):
+* Download binaries for Hadoop 1 (HDP1, CDH3):
 <a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-0.8.1-incubating/spark-0.8.1-incubating-bin-hadoop1.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'apache_spark-0.8.1-incubating-bin-hadoop1.tgz'); return false;"> find an Apache mirror </a>
 or
 <a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.8.1-incubating-bin-hadoop1.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.8.1-incubating-bin-hadoop1.tgz'); return false;"> direct file download </a>
@@ -22,14 +22,25 @@ or
 <a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-0.8.1-incubating/spark-0.8.1-incubating-bin-cdh4.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'apache_spark-0.8.1-incubating-bin-cdh4.tgz'); return false;"> find an Apache mirror </a>
 or 
 <a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.8.1-incubating-bin-cdh4.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.8.1-incubating-bin-cdh4.tgz'); return false;"> direct file download </a>
-* Download binaries for Hadoop2 (HDP2, CDH5): 
+* Download binaries for Hadoop 2 (HDP2, CDH5): 
 <a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-0.8.1-incubating/spark-0.8.1-incubating-bin-hadoop2.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'apache_spark-0.8.1-incubating-bin-hadoop2.tgz'); return false;"> find an Apache mirror </a>
 or 
 <a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.8.1-incubating-bin-hadoop2.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.8.1-incubating-bin-hadoop2.tgz'); return false;"> direct file download </a>
-* Verify your download: [Apache signatures and checksums](http://www.apache.org/dist/incubator/spark/spark-0.8.1-incubating/)
+* Verify your download: [signatures and checksums](http://www.apache.org/dist/incubator/spark/spark-0.8.1-incubating/)
 
-### Link Against Spark
-Spark artifacts are [hosted in Maven Central](http://search.maven.org/#browse%7C1686516968). You can depend on them at the following coordinates:
+<!--
+The Spark download includes
+<a href="{{site.url}}streaming/">Spark Streaming</a>,
+<a href="{{site.url}}mllib/">MLlib</a>, and
+<a href="{{site.graphx_url}}">GraphX</a>.
+-->
+
+The Spark download includes
+<a href="{{site.url}}streaming/">Spark Streaming</a> and
+<a href="{{site.url}}mllib/">MLlib</a>.
+
+### Link with Spark
+Spark artifacts are [hosted in Maven Central](http://search.maven.org/#browse%7C1686516968). You can add a Maven dependency with the following coordinates:
 
     groupId: org.apache.spark
     artifactId: spark-core_2.9.3
@@ -54,7 +65,7 @@ Once you've downloaded Spark, you can find instructions for installing and build
 * [Spark 0.6.0](http://spark-project.org/download-spark-0.6.0-sources-tgz) (October 15, 2012) [(release notes)]({{site.url}}releases/spark-release-0-6-0.html)
 * [Spark 0.5.1](http://spark-project.org/download-spark-0.5.1-sources-tgz) (October 11, 2012) [(release notes)]({{site.url}}releases/spark-release-0-5-1.html)
 * [Spark 0.5.0](http://spark-project.org/download-spark-0.5.0-sources-tgz) (June 12, 2012) [(release notes)]({{site.url}}releases/spark-release-0-5-0.html)
-* [Spark 0.3 for Scala 2.9]("http://spark-project.org/download-spark-0.3-for-scala-2-9-sources-tgz") (July 14, 2011) [release notes]({{site.url}}releases/spark-release-0-3.html)
+* [Spark 0.3 for Scala 2.9]("http://spark-project.org/download-spark-0.3-for-scala-2-9-sources-tgz") (July 14, 2011) [(release notes)]({{site.url}}releases/spark-release-0-3.html)
 * [Spark 0.3 for Scala 2.8](http://spark-project.org/download-spark-0.3-for-scala-2-8-sources-tgz) (July 14, 2011) [(release notes)]({{site.url}}releases/spark-release-0-3.html)
 * [Spark 0.2](http://spark-project.org/download-spark-0.2-sources-tgz) (May 24, 2011)
 

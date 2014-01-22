@@ -13,13 +13,15 @@ navigation:
 
 <ul>
   <li><a href="{{site.url}}docs/latest/">Spark 0.8.1 (latest release)</a></li>
-  <li><a href="{{site.url}}docs/0.8.0/">Spark 0.8.0</a></li>
   <li><a href="{{site.url}}docs/0.7.3/">Spark 0.7.3</a></li>
   <li><a href="{{site.url}}docs/0.6.2/">Spark 0.6.2</a></li>
-  <li><a href="https://github.com/mesos/spark/wiki/Spark-0.5-Documentation">Spark 0.5.x</a> (hosted on GitHub)</li>
 </ul>
 
-<p>Read these documents to get started with Spark. In addition, this page lists some external resources for learning Spark.</p>
+<p>Read these documents to get started with Spark, as well as with the built-in components
+(<a href="{{site.url}}docs/latest/mllib-guide.html">MLlib</a> and
+<a href="{{site.url}}docs/latest/streaming-programming-guide.html">Spark Streaming</a>).</p>
+
+<p>In addition, this page lists some external resources for learning Spark.</p>
 
 <h3>Video Tutorials</h3>
 
@@ -34,23 +36,37 @@ navigation:
 <h3>Hands-On Exercises</h3>
 
 <ul>
-  <li><a href="http://ampcamp.berkeley.edu/3/exercises/">Hands-on exercises</a> are available online. These exercises let you launch a small EC2 cluster, load a dataset, and query it with Spark, Shark, Spark Streaming, and MLLib.</li>
+  <li><a href="http://spark-summit.org/2013/exercises/">Hands-on exercises</a> are available online from Spark Summit 2013. These exercises let you launch a small EC2 cluster, load a dataset, and query it with Spark, Shark, Spark Streaming, and MLLib.</li>
 </ul>
 
-<h3>Spark Summit Slides and Videos</h3>
+<a name="summit"></a>
+<h3>Training Materials</h3>
 <ul>
-  <li><a href="http://spark-summit.org/2013">Spark Summit 2013</a> was held in downtown San Francisco in December 2013. Slides and Videos of all talks are available for free. Look for links next to talk titles on the event agenda.</li>
-</ul>
-
-<h3>AMP Camp Slides and Videos</h3>
-
+  <li><a href="http://spark-summit.org/2013">Spark Summit 2013</a> contained a training session for which
+    <a href="http://spark-summit.org/summit-2013/#day2">slides and videos</a> are available for free online.
+    The session also included <a href="http://spark-summit.org/2013/exercises/">exercises</a> that you can run on Amazon EC2.</li>
+  <li>The <a href="https://amplab.cs.berkeley.edu/">UC Berkeley AMPLab</a> regularly hosts training camps on Spark and related projects.
+Slides and videos are available online:
 <ul>
-  <li>The <a href="https://amplab.cs.berkeley.edu/">UC Berkeley AMPLab</a> regularly hosts two-day training camps on Spark and related "big data" components.
-Slides and videos from each camp are posted online:
-    <br><a href="http://ampcamp.berkeley.edu/3/">AMP Camp Three</a> <em>Big Data Bootcamp Berkeley</em> (August 2013)
-    <br><a href="http://ampcamp.berkeley.edu/amp-camp-two-strata-2013/">AMP Camp Two</a> <em>Big Data Bootcamp Strata</em> (February 2013)
-    <br><a href="http://ampcamp.berkeley.edu/agenda-2012/">AMP Camp One</a> <em>Big Data Bootcamp Berkeley</em> (August 2012)
+    <li><a href="http://ampcamp.berkeley.edu/3/">AMP Camp Three</a> (Berkeley, CA, August 2013)</li>
+    <li><a href="http://ampcamp.berkeley.edu/amp-camp-two-strata-2013/">AMP Camp Two</a> (Strata Santa Clara, February 2013)</li>
+    <li><a href="http://ampcamp.berkeley.edu/agenda-2012/">AMP Camp One</a> (Berkeley, CA, August 2012)</li>
+    </ul>
   </li>
+</ul>
+
+<h3>External Tutorials, Blog Posts, and Talks</h3>
+
+<ul>
+  <li><a href="http://spark-summit.org/2013">Spark Summit 2013</a> &mdash; contained 30 talks about Spark use cases, available as slides and videos</li>
+  <li><a href="http://www.pwendell.com/2013/09/28/declarative-streams.html">Sampling Twitter Using Declarative Streams</a> &mdash; Spark Streaming tutorial by Patrick Wendell</li>
+  <li><a href="http://zenfractal.com/2013/08/21/a-powerful-big-data-trio/">A Powerful Big Data Trio: Spark, Parquet and Avro</a> &mdash; Using Parquet in Spark by Matt Massie</li>
+  <li><a href="http://www.slideshare.net/EvanChan2/cassandra2013-spark-talk-final">Real-time Analytics with Cassandra, Spark, and Shark</a> &mdash; Presentation by Evan Chan from Ooyala at 2013 Cassandra Summit</li>
+  <li><a href="http://syndeticlogic.net/?p=311">Getting Spark Setup in Eclipse</a> &mdash; Developer blog post by James Percent</li>
+  <li><a href="http://aws.amazon.com/articles/Elastic-MapReduce/4926593393724923">Run Spark and Shark on Amazon Elastic MapReduce</a> &mdash; Article by Amazon Elastic MapReduce team member Parviz Deyhim</li>
+  <li><a href="http://blog.quantifind.com/posts/spark-unit-test/">Unit testing with Spark</a> &mdash; Quantifind tech blog post by Imran Rashid</li>
+  <li><a href="http://blog.quantifind.com/posts/logging-post/">Configuring Spark logs</a> &mdash; Quantifind tech blog by Imran Rashid</li>
+  <li><a href="http://www.ibm.com/developerworks/library/os-spark/">Spark, an alternative for fast data analytics</a> &mdash; IBM Developer Works article by M. Tim Jones</li>
 </ul>
 
 <h3>Books</h3>
@@ -59,26 +75,26 @@ Slides and videos from each camp are posted online:
   <li><a href="http://www.packtpub.com/fast-data-processing-with-spark/book">Fast Data Processing with Spark</a>, by Holden Karau (Packt Publishing)</li>
 </ul>
 
-<h3>External Tutorials, Development Blogs, and Talks</h3>
+<h3>Examples</h3>
 
 <ul>
-  <li><a href="http://www.pwendell.com/2013/09/28/declarative-streams.html">Sampling Twitter Using Declarative Streams</a> -- Spark Streaming tutorial by Patrick Wendell</li>
-  <li><a href="http://zenfractal.com/2013/08/21/a-powerful-big-data-trio/">A Powerful Big Data Trio: Spark, Parquet and Avro</a> -- Using Parquet in Spark by Matt Massie</li>
-  <li><a href="http://www.slideshare.net/EvanChan2/cassandra2013-spark-talk-final">Real-time Analytics with Cassandra, Spark, and Shark</a> -- Presentation by Evan Chan from Ooyala at the 2013 Cassandra Summit</li>
-  <li><a href="http://syndeticlogic.net/?p=311">Getting Spark Setup in Eclipse</a> -- Developer blog post by James Percent</li>
-  <li><a href="http://aws.amazon.com/articles/Elastic-MapReduce/4926593393724923">Run Spark and Shark on Amazon Elastic MapReduce</a> -- Article by Amazon AWS Elastic MapReduce team member Parviz Deyhim</li>
-  <li><a href="http://blog.quantifind.com/posts/spark-unit-test/">Unit testing with Spark</a> -- Quantifind tech blog post by Imran Rashid</li>
-  <li><a href="http://blog.quantifind.com/posts/logging-post/">Configuring Spark logs</a> -- Quantifind tech blog by Imran Rashid</li>
-  <li><a href="http://www.ibm.com/developerworks/library/os-spark/">Spark, an alternative for fast data analytics</a> -- IBM Developer Works article by M. Tim Jones</li>
+  <li>The <a href="{{site.url}}examples.html">Spark examples page</a> shows the basic API in Scala, Java and Python.</li>
 </ul>
 
-<h3>Spark Internals</h3>
+<h3>Wiki</h3>
 
-<ul>
-  <li><a href="http://www.youtube.com/watch?v=49Hr5xZyTEA">Overview of Spark Internals [advanced]</a> (<a href="{{site.url}}talks/dev-meetup-dec-2012.pptx">pptx</a>) (<a href="http://www.youtube.com/watch?v=49Hr5xZyTEA">video</a>)</li>
-</ul>
+<ul><li>
+The <a href="https://cwiki.apache.org/confluence/display/SPARK/Wiki+Homepage">Spark wiki</a> contains
+information for developers, such as architecture documents and how to <a href="https://cwiki.apache.org/confluence/display/SPARK/Contributing+to+Spark">contribute</a> to Spark.
+</li></ul>
 
 <h3>Research Papers</h3>
+
+<p>
+Spark was initially developed as a UC Berkeley research project, and much of the design is documented in papers.
+The <a href="{{site.url}}research.html">research page</a> lists some of the original motivation and direction.
+The following papers have been published about Spark and related projects.
+</p>
 
 <ul>
   <li>

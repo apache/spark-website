@@ -19,7 +19,7 @@ You can download Spark 0.8.0 as either a <a href="http://spark-project.org/downl
 Spark now displays a variety of monitoring data in a web UI (by default at port 4040 on the driver node). A new job dashboard contains information about running, succeeded, and failed jobs, including percentile statistics covering task runtime, shuffled data, and garbage collection. The existing storage dashboard has been extended, and additional pages have been added to display total storage and task information per-executor. Finally, a new metrics library exposes internal Spark metrics through various API’s including JMX and Ganglia.
 
 <p style="text-align: center;">
-<img src="{{site.root}}/images/0.8.0-ui-screenshot.png" style="width:90%;">
+<img src="{{site.url}}/images/0.8.0-ui-screenshot.png" style="width:90%;">
 </p>
 
 ### Machine Learning Library

@@ -7,61 +7,208 @@ navigation:
   weight: 1
   show: true
 ---
-## What is Apache Spark?
 
-Apache Spark is an open source cluster computing system that aims to make data analytics <em>fast</em> — both fast to run and fast to write.
 
-To run programs faster, Spark offers a general execution model that can optimize arbitrary operator graphs, and supports in-memory computing, which lets it query data faster than disk-based engines like Hadoop.
+<div class="jumbotron">
+  <b>Apache Spark</b> is a fast and general engine for large-scale data processing.
+</div>
 
-To make programming faster, Spark provides clean, concise APIs in
-<a href="http://www.scala-lang.org" onclick="javascript:_gaq.push(['_trackEvent','outbound-article','http://www.scala-lang.org']);">Scala</a>,
-<a href="{{site.url}}docs/latest/quick-start.html#a-standalone-app-in-java">Java</a> and
-<a href="{{site.url}}docs/latest/quick-start.html#a-standalone-app-in-python" >Python</a>.
-You can also use Spark interactively from the Scala and Python shells to rapidly query big datasets.
+<div class="row row-padded">
+  <div class="col-md-7 col-sm-7">
+    <h2>Speed</h2>
 
-## What can it do?
+    <p class="lead">
+      Run programs up to 100x faster than
+      Hadoop MapReduce in memory, or 10x faster on disk.
+    </p>
 
-Spark was initially developed for two  applications where placing data in memory helps: <em>iterative</em> algorithms, which are common in machine learning, and <em>interactive</em> data mining. In both cases, Spark can run up to <b>100x</b> faster than Hadoop MapReduce. However, you can use Spark for general data processing too. Check out our <a href="{{site.url}}examples.html" >example jobs</a>.
+    <p>
+      Spark has an advanced DAG execution engine that supports cyclic data flow and
+      in-memory computing.
+    </p>
+  </div>
+  <div class="col-md-5 col-sm-5 col-padded-top col-center">
+    <div style="width: 100%; max-width: 272px; display: inline-block; text-align: center;">
+      <img src="{{site.url}}images/logistic-regression.png" style="width: 100%; max-width: 250px;">
+      <div class="caption" style="min-width: 272px;">Logistic regression in Hadoop and Spark</div>
+    </div>
+  </div>
+</div>
 
-Spark is also the engine behind <a href="http://shark.cs.berkeley.edu" onclick="javascript:_gaq.push(['_trackEvent','outbound-article','http://shark.cs.berkeley.edu']);">Shark</a>, a fully <a href="http://hive.apache.org" onclick="javascript:_gaq.push(['_trackEvent','outbound-article','http://hive.apache.org']);">Apache Hive</a>-compatible data warehousing system that can run 100x faster than Hive.
+<div class="row row-padded">
+  <div class="col-md-7 col-sm-7">
+    <h2>Ease of Use</h2>
 
-While Spark is a new engine, it can access any data source supported by Hadoop, making it easy to run over existing data.
+    <p class="lead">
+      Write applications quickly in Java, Scala or Python.
+    </p>
 
-## Who uses it?
-Spark was initially created in the <a href="https://amplab.cs.berkeley.edu" onclick="javascript:_gaq.push(['_trackEvent','outbound-article','http://amplab.cs.berkeley.edu']);">UC Berkeley AMPLab</a>, but is now being used and developed at a wide array of companies.
-See our <a href="https://cwiki.apache.org/confluence/display/SPARK/Powered+By+Spark">powered by page</a> for a list of users,
-and our <a href="https://cwiki.apache.org/confluence/display/SPARK/Committers">list of committers</a>.
-In total, over 25 companies have contributed code to Spark.
-Spark is <a href="https://github.com/apache/incubator-spark" onclick="javascript:_gaq.push(['_trackEvent','outbound-article','http://github.com']);">open source</a> under an Apache license, so <a href="{{site.url}}downloads.html" >download</a> it to try it out.
+    <p>
+      Spark offers over 80 high-level operators that make it easy to build parallel apps.
+      And you can use it <em>interactively</em>
+      from the Scala and Python shells.
+    </p>
+  </div>
+  <div class="col-md-5 col-sm-5 col-padded-top col-center">
+    <div style="text-align: left; display: inline-block;">
+      <div class="code">
+        file = spark.textFile(<span class="string">"hdfs://..."</span>)<br/>
+        &nbsp;<br/>
+        file.<span class="sparkop">flatMap</span>(<span class="closure">line =&gt; line.split(" ")</span>)<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">map</span>(<span class="closure">word =&gt; (word, 1)</span>)<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">reduceByKey</span>(<span class="closure">_ + _</span>)
+      </div>
+      <div class="caption">Word count in Spark</div>
+    </div>
+    <!--
+    <div class="code" style="margin-top: 20px; text-align: left; display: inline-block;">
+      file = spark.textFile(<span class="string">"hdfs://..."</span>)<br/>
+      &nbsp;<br/>
+      file.<span class="sparkop">filter</span>(<span class="closure">lambda line: "ERROR" in line</span>)<br/>
+      &nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">count</span>()
+    </div>
+    -->
+    <!--<div class="caption">Word count in Spark</div>-->
+  </div>
+</div>
 
-## Apache Incubator notice
-Apache Spark is an effort undergoing incubation at The Apache Software Foundation (ASF), sponsored by the Apache Incubator. Incubation is required of all newly accepted projects until a further review indicates that the infrastructure, communications, and decision making process have stabilized in a manner consistent with other successful ASF projects. While incubation status is not necessarily a reflection of the completeness or stability of the code, it does indicate that the project has yet to be fully endorsed by the ASF.
 
-{% sidebar %}
-  <h3 class="widget-title">Latest News</h3>
-  <div class="latestnewswidget">
-    {% for post in site.categories.news limit:4 %}
-      <div><a href="{{ post.url }}">{{ post.title }}</a> <span class="post-info">({{post.date| date:"%B %d, %Y"}})</span></div>
-    {% endfor %}
+<div class="row row-padded">
+  <div class="col-md-7 col-sm-7">
+    <h2>Generality</h2>
+
+    <p class="lead">
+      Combine SQL, streaming, and complex analytics.
+    </p>
+
+    <p>
+      Spark powers a stack of high-level tools including
+      <a href="{{site.shark_url}}">Shark</a> for SQL, <a href="{{site.url}}mllib/">MLlib</a> for machine learning,
+      <a href="{{site.graphx_url}}">GraphX</a>, and <a href="{{site.url}}streaming/">Spark Streaming</a>.
+      You can combine these frameworks seamlessly in the same application.
+    </p>
+  </div>
+  <div class="col-md-5 col-sm-5 col-padded-top col-center">
+    <img src="{{site.url}}images/spark-stack.png" style="margin-top: 15px; width: 100%; max-width: 296px;" usemap="#stack-map">
+    <map name="stack-map">
+      <area shape="rect" coords="0,0,74,95" href="{{site.shark_url}}"
+            alt="Shark (SQL)" title="Shark">
+      <area shape="rect" coords="74,0,150,95" href="{{site.url}}streaming/"
+            alt="Spark Streaming" title="Spark Streaming">
+      <area shape="rect" coords="150,0,224,95" href="{{site.url}}mllib/"
+            alt="MLlib (machine learning)" title="MLlib">
+      <area shape="rect" coords="225,0,300,95" href="{{site.graphx_url}}"
+            alt="GraphX" title="GraphX">
+    </map>
+  </div>
+</div>
+
+<div class="row row-padded" style="margin-bottom: 15px;">
+  <div class="col-md-7 col-sm-7">
+    <h2>Integrated with Hadoop</h2>
+
+    <p class="lead">
+      Spark can run on Hadoop 2's YARN cluster manager, and can read
+      any existing Hadoop data.
+    </p>
+
+    <p>
+      If you have a Hadoop 2 cluster, you can run Spark without any installation needed.
+      Otherwise, Spark is easy to run <a href="{{site.url}}docs/latest/spark-standalone.html">standalone</a>
+      or on <a href="{{site.url}}docs/latest/ec2-scripts.html">EC2</a> or <a href="http://mesos.apache.org">Mesos</a>.
+      It can read from <a href="http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html">HDFS</a>, <a href="http://hbase.apache.org">HBase</a>, <a href="http://cassandra.apache.org">Cassandra</a>,
+      and any Hadoop data source.
+    </p>
+  </div>
+  <div class="col-md-5 col-sm-5 col-padded-top col-center">
+    <img src="{{site.url}}images/hadoop.jpg" style="width: 100%; max-width: 280px;">
+  </div>
+</div>
+
+{% extra %}
+
+
+<div class="row">
+  <div class="col-md-4 col-padded">
+    <h3>Community</h3>
+
+    <p>
+      Spark is used at a wide range of organizations to process large datasets.
+      You can find example use cases at the <a href="http://spark-summit.org/summit-2013/">Spark Summit</a>
+      conference, or on the
+      <a href="https://cwiki.apache.org/confluence/display/SPARK/Powered+By+Spark">Powered By</a>
+      page.
+    </p>
+
+    <p>
+      There are many ways to reach the community:
+    </p>
+    <ul class="list-narrow">
+      <li>Use the <a href="{{site.url}}community.html#mailing-lists">mailing lists</a> to ask questions.</li>
+      <li>In-person events include the <a href="http://www.meetup.com/spark-users/">Bay Area Spark meetup</a> and
+      <a href="http://spark-summit.org/">Spark Summit</a>.</li>
+      <li>We use <a href="https://spark-project.atlassian.net">JIRA</a> for issue tracking.</li>
+    </ul>
   </div>
 
-  <div style="text-align:right"><a href="{{site.url}}news/index.html">News Archive</a></div>
+  <div class="col-md-4 col-padded">
+    <h3>Contributors</h3>
 
-  <!-- Not porting the following to Pygments since it becomes a lot less colorful -->
+    <p>
+      Apache Spark is built by a wide set of developers from over 25 companies.
+      Since the project started in 2010, more than 120 developers have contributed to Spark!
+    </p>
 
-  <div class="code" style="margin-top: 20px;">
-    file = spark.textFile(<span class="string">"hdfs://..."</span>)<br>
-    &nbsp;<br>
-    file.<span class="sparkop">flatMap</span>(<span class="closure">line =&gt; line.split(" ")</span>)<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">map</span>(<span class="closure">word =&gt; (word, 1)</span>)<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">reduceByKey</span>(<span class="closure">_ + _</span>)
+    <p>
+      The project's
+      <a href="https://cwiki.apache.org/confluence/display/SPARK/Committers">committers</a>
+      come from 12 organizations.
+    </p>
+
+    <p>
+      If you'd like to participate in Spark, or contribute to the libraries on top of it, learn
+      <a href="https://cwiki.apache.org/confluence/display/SPARK/Contributing+to+Spark">how to
+        contribute</a>.
+    </p>
   </div>
-  <div class="caption">Word Count implemented in Spark</div>
 
-  <div align="center" style="margin-top: 20px;">
-    <img src="{{site.url}}images/spark-lr.png" alt="Logistic regression performance in Spark vs Hadoop">
+  <div class="col-md-4 col-padded">
+    <h3>Getting Started</h3>
+
+    <p>Learning Spark is easy whether you come from a Java or Python background:</p>
+    <ul class="list-narrow">
+      <li><a href="{{site.url}}downloads.html">Download</a> the latest release &mdash; you can run Spark locally on your laptop.</li>
+      <li>Read the <a href="{{site.url}}docs/latest/quick-start.html">quick start guide</a>.</li>
+      <li>
+        Spark Summit 2013 contained free <a href="http://spark-summit.org/summit-2013/#day2">training videos</a> and <a href="http://spark-summit.org/2013/exercises/">exercises</a>
+        that you can run on Amazon EC2.
+      </li>
+      <li>Learn how to <a href="{{site.url}}docs/latest/#launching-on-a-cluster">deploy</a> Spark on a cluster.</li>
+    </ul>
   </div>
-  <div class="caption">Logistic regression in Spark vs Hadoop</div>
-  <h2 style="text-align:center"><a href="{{site.url}}downloads"><img src="{{site.url}}images/download.png" alt="Download" style="vertical-align: middle">&nbsp;&nbsp;Download Spark</a></h2>
-{% endsidebar %}
+</div>
 
+<div class="row">
+  <div class="col-sm-12 col-center">
+    <a href="{{site.url}}downloads.html" class="btn btn-success btn-lg" style="width: 262px;">Download Spark</a>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12 col-padded">
+    <h3>Apache Incubator Notice</h3>
+
+    <p>
+      <small>
+        Apache Spark is an effort undergoing incubation at The Apache Software Foundation (ASF),
+        sponsored by the Apache Incubator. Incubation is required of all newly accepted projects
+        until a further review indicates that the infrastructure, communications, and decision
+        making process have stabilized in a manner consistent with other successful ASF projects.
+        While incubation status is not necessarily a reflection of the completeness or stability
+        of the code, it does indicate that the project has yet to be fully endorsed by the ASF.
+      </small>
+    </p>
+  </div>
+</div>
+
+{% endextra %}

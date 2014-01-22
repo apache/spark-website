@@ -23,14 +23,14 @@ Our goal was to design a programming model that supports a much wider class of a
 </ul>
 
 <p>
-MapReduce and Dryad are suboptimal for these applications because they are based on acyclic data flow: an application has to run as a series of distinct jobs, each of which reads data from stable storage (e.g. a distributed file system) and writes it back to stable storage. They incur significant cost loading the data on each step and writing it back to replicated storage.
+Traditional MapReduce and DAG engines are suboptimal for these applications because they are based on acyclic data flow: an application has to run as a series of distinct jobs, each of which reads data from stable storage (e.g. a distributed file system) and writes it back to stable storage. They incur significant cost loading the data on each step and writing it back to replicated storage.
 </p>
 
 <p>
-Spark offers an abstraction called <a href="http://www.cs.berkeley.edu/~matei/papers/2012/nsdi_spark.pdf"><em>resilient distributed datasets (RDDs)</em></a> to support these applications efficiently. RDDs can be stored in memory between queries <em>without</em> requiring replication.  Instead, they rebuild lost data on failure using <em>lineage</em>: each RDD remembers how it was built from other datasets (by transformations like <em>map</em>, <em>join</em> or <em>group-by</em>) to rebuild itself.  RDDs allow Spark to outperform existing models by up to 100x in multi-pass analytics. We showed that RDDs can support a wide variety of iterative algorithms, as well as interactive data mining and a highly efficient SQL engine (the <a href="http://shark.cs.berkeley.edu">Shark</a> project).
+Spark offers an abstraction called <a href="http://www.cs.berkeley.edu/~matei/papers/2012/nsdi_spark.pdf"><em>resilient distributed datasets (RDDs)</em></a> to support these applications efficiently. RDDs can be stored in memory between queries <em>without</em> requiring replication.  Instead, they rebuild lost data on failure using <em>lineage</em>: each RDD remembers how it was built from other datasets (by transformations like <code>map</code>, <code>join</code> or <code>groupBy</code>) to rebuild itself.  RDDs allow Spark to outperform existing models by up to 100x in multi-pass analytics. We showed that RDDs can support a wide variety of iterative algorithms, as well as interactive data mining and a highly efficient SQL engine (<a href="http://shark.cs.berkeley.edu">Shark</a>).
 </p>
 
-<p class="noskip">You can find more about the research behind Spark in our papers:</p>
+<p class="noskip">You can find more about the research behind Spark in the following papers:</p>
 
 <ul>
   <li>
