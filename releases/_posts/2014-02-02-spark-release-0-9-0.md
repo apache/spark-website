@@ -90,166 +90,86 @@ We expect all of the current APIs and script locations in Spark 0.9 to remain st
 ### Contributors
 The following developers contributed to this release:
 
-Andrew Ash -- documentation improvements
-
-Pierre Borckmans -- documentation fix
-
-Russell Cardullo -- graphite sink for metrics
-
-Evan Chan -- local:// URI feature
-
-Vadim Chekan -- bug fix
-
-Lian Cheng -- refactoring and code clean-up in several locations, bug fixes
-
-Ewen Cheslack-Postava -- Spark EC2 and PySpark improvements
-
-Mosharaf Chowdhury -- optimized broadcast
-
-CodingCat -- documentation improvements
-
-Dan Crankshaw -- GraphX contributions
-
-Haider Haidi -- documentation fix
-
-Frank Dai -- Naive Bayes classifier in MLlib, documentation improvements
-
-Tathagata Das -- new operators, fixes, and improvements to Spark Streaming (lead)
-
-Ankur Dave -- GraphX contributions
-
-Henry Davidge -- warning for large tasks
-
-Aaron Davidson -- shuffle file consolidation, H/A mode for standalone scheduler, various improvements and fixes
-
-Kyle Ellrott -- GraphX contributions
-
-Hossein Falaki -- new statistical operators, Scala and Python examples in MLlib
-
-Harvey Feng -- hadoop file optimizations and YARN integration
-
-Ali Ghodsi -- support for SIMR
-
-Joseph E. Gonzalez -- GraphX contributions
-
-Thomas Graves -- fixes and improvements for YARN support (lead)
-
-Rong Gu -- documentation fix
-
-Stephen Haberman -- bug fixes
-
-Walker Hamilton -- bug fix
-
-Mark Hamstra -- scheduler improvements and fixes, build fixes
-
-Damien Hardy -- Debian build fix
-
-Nathan Howell -- sbt upgrade
-
-Grace Huang -- improvements to metrics code
-
-Shane Huang -- separation of admin and user scripts:
-
-Prabeesh K -- MQTT example
-
-Holden Karau -- sbt build improvements and Java API extensions
-
-KarthikTunga -- bug fix
-
-Grega Kespret -- bug fix
-
-Marek Kolodziej -- optimized random number generator
-
-Jey Kottalam -- EC2 script improvements
-
-Du Li -- bug fixes
-
-Haoyuan Li -- tachyon support in EC2
-
-LiGuoqiang -- fixes to build and YARN integration
-
-Raymond Liu -- build improvement and various fixes for YARN support
-
-George Loentiev -- Maven build fixes
-
-Akihiro Matsukawa -- GraphX contributions
-
-David McCauley -- improvements to json endpoint
-
-Mike -- bug fixes
-
-Fabrizio (Misto) Milo -- bug fix
-
-Mridul Muralidharan -- speculation improvements, several bug fixes
-
-Tor Myklebust -- Python mllib bindings, instrumentation for task serailization
-
-Sundeep Narravula -- bug fix
-
-Binh Nguyen -- Java API improvements and version upgrades
-
-Adam Novak -- bug fix
-
-Andrew Or -- external sorting
-
-Kay Ousterhout -- several bug fixes and improvements to Spark scheduler
-
-Sean Owen -- style fixes
-
-Nick Pentreath -- ALS implicit feedback algorithm
-
-Pillis -- `Vector.random()` method
-
-Imran Rashid -- bug fix
-
-Ahir Reddy -- support for SIMR
-
-Luca Rosellini -- script loading for Scala shell
-
-Josh Rosen -- fixes, clean-up, and extensions to scala and Java API’s
-
-Henry Saputra -- style improvements and clean-up
-
-Andre Schumacher -- Python improvements and bug fixes
-
-Jerry Shao -- multi-user support, various fixes and improvements
-
-Prashant Sharma -- Scala 2.10 support, configuration system, several smaller fixes
-
-Shiyun -- style fix
-
-Wangda Tan -- UI improvement and bug fixes
-
-Matthew Taylor -- bug fix
-
-Jyun-Fan Tsai -- documentation fix
-
-Takuya Ueshin -- bug fix
-
-Shivaram Venkataraman -- sbt build optimization, EC2 improvements, Java and Python API
-
-Jianping J Wang -- GraphX contributions
-
-Martin Weindel -- build fix
-
-Patrick Wendell -- standalone driver submission, various fixes, release manager
-
-Neal Wiggins -- bug fix
-
-Reynold Xin -- GraphX contributions, task killing, various fixes, improvements and optimizations
-
-Haitao Yao -- bug fix
-
-Xusen Yin -- bug fix
-
-Fengdong Yu -- documentation fixes
-
-Matei Zaharia -- new configuration system, Python MLlib bindings, scheduler improvements, various fixes and optimizations
-
-Wu Zeming -- bug fix
-
-Andrew Xia -- bug fixes and code cleanup
-
-Dong Yan -- bug fix
+ * Andrew Ash -- documentation improvements
+ * Pierre Borckmans -- documentation fix
+ * Russell Cardullo -- graphite sink for metrics
+ * Evan Chan -- local:// URI feature
+ * Vadim Chekan -- bug fix
+ * Lian Cheng -- refactoring and code clean-up in several locations, bug fixes
+ * Ewen Cheslack-Postava -- Spark EC2 and PySpark improvements
+ * Mosharaf Chowdhury -- optimized broadcast
+ * Dan Crankshaw -- GraphX contributions
+ * Haider Haidi -- documentation fix
+ * Frank Dai -- Naive Bayes classifier in MLlib, documentation improvements
+ * Tathagata Das -- new operators, fixes, and improvements to Spark Streaming (lead)
+ * Ankur Dave -- GraphX contributions
+ * Henry Davidge -- warning for large tasks
+ * Aaron Davidson -- shuffle file consolidation, H/A mode for standalone scheduler, various improvements and fixes
+ * Kyle Ellrott -- GraphX contributions
+ * Hossein Falaki -- new statistical operators, Scala and Python examples in MLlib
+ * Harvey Feng -- hadoop file optimizations and YARN integration
+ * Ali Ghodsi -- support for SIMR
+ * Joseph E. Gonzalez -- GraphX contributions
+ * Thomas Graves -- fixes and improvements for YARN support (lead)
+ * Rong Gu -- documentation fix
+ * Stephen Haberman -- bug fixes
+ * Walker Hamilton -- bug fix
+ * Mark Hamstra -- scheduler improvements and fixes, build fixes
+ * Damien Hardy -- Debian build fix
+ * Nathan Howell -- sbt upgrade
+ * Grace Huang -- improvements to metrics code
+ * Shane Huang -- separation of admin and user scripts:
+ * Prabeesh K -- MQTT example
+ * Holden Karau -- sbt build improvements and Java API extensions
+ * KarthikTunga -- bug fix
+ * Grega Kespret -- bug fix
+ * Marek Kolodziej -- optimized random number generator
+ * Jey Kottalam -- EC2 script improvements
+ * Du Li -- bug fixes
+ * Haoyuan Li -- tachyon support in EC2
+ * LiGuoqiang -- fixes to build and YARN integration
+ * Raymond Liu -- build improvement and various fixes for YARN support
+ * George Loentiev -- Maven build fixes
+ * Akihiro Matsukawa -- GraphX contributions
+ * David McCauley -- improvements to json endpoint
+ * Mike -- bug fixes
+ * Fabrizio (Misto) Milo -- bug fix
+ * Mridul Muralidharan -- speculation improvements, several bug fixes
+ * Tor Myklebust -- Python mllib bindings, instrumentation for task serailization
+ * Sundeep Narravula -- bug fix
+ * Binh Nguyen -- Java API improvements and version upgrades
+ * Adam Novak -- bug fix
+ * Andrew Or -- external sorting
+ * Kay Ousterhout -- several bug fixes and improvements to Spark scheduler
+ * Sean Owen -- style fixes
+ * Nick Pentreath -- ALS implicit feedback algorithm
+ * Pillis -- `Vector.random()` method
+ * Imran Rashid -- bug fix
+ * Ahir Reddy -- support for SIMR
+ * Luca Rosellini -- script loading for Scala shell
+ * Josh Rosen -- fixes, clean-up, and extensions to scala and Java API’s
+ * Henry Saputra -- style improvements and clean-up
+ * Andre Schumacher -- Python improvements and bug fixes
+ * Jerry Shao -- multi-user support, various fixes and improvements
+ * Prashant Sharma -- Scala 2.10 support, configuration system, several smaller fixes
+ * Shiyun -- style fix
+ * Wangda Tan -- UI improvement and bug fixes
+ * Matthew Taylor -- bug fix
+ * Jyun-Fan Tsai -- documentation fix
+ * Takuya Ueshin -- bug fix
+ * Shivaram Venkataraman -- sbt build optimization, EC2 improvements, Java and Python API
+ * Jianping J Wang -- GraphX contributions
+ * Martin Weindel -- build fix
+ * Patrick Wendell -- standalone driver submission, various fixes, release manager
+ * Neal Wiggins -- bug fix
+ * Andrew Xia -- bug fixes and code cleanup
+ * Reynold Xin -- GraphX contributions, task killing, various fixes, improvements and optimizations
+ * Dong Yan -- bug fix
+ * Haitao Yao -- bug fix
+ * Xusen Yin -- bug fix
+ * Fengdong Yu -- documentation fixes
+ * Matei Zaharia -- new configuration system, Python MLlib bindings, scheduler improvements, various fixes and optimizations
+ * Wu Zeming -- bug fix
+ * Nan Zhu -- documentation improvements
 
 _Thanks to everyone who contributed!_
