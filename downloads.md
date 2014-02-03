@@ -11,19 +11,19 @@ navigation:
 The latest release is Spark 0.9.0, released February 2, 2014 [(release notes)]({{site.url}}releases/spark-release-0-9-0.html) [(git tag)](https://git-wip-us.apache.org/repos/asf?p=incubator-spark.git;a=tag;h=cb95d8055aa534be86afcc8c6f73b99131a461dc)
 
 * Download sources: 
-<a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-0.8.1-incubating/spark-0.9.0-incubating.tgz" onClick="trackOutboundLink(this, 'Release Downlaod Links', 'apache_spark-0.9.0-incubating.tgz'); return false;"> find an Apache mirror </a>
+<a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-0.9.0-incubating/spark-0.9.0-incubating.tgz" onClick="trackOutboundLink(this, 'Release Downlaod Links', 'apache_spark-0.9.0-incubating.tgz'); return false;"> find an Apache mirror </a>
 or
 <a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.9.0-incubating.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.9.0-incubating.tgz'); return false;"> direct file download </a>
 * Download binaries for Hadoop 1 (HDP1, CDH3):
-<a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-0.8.1-incubating/spark-0.9.0-incubating-bin-hadoop1.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'apache_spark-0.9.0-incubating-bin-hadoop1.tgz'); return false;"> find an Apache mirror </a>
+<a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-0.9.0-incubating/spark-0.9.0-incubating-bin-hadoop1.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'apache_spark-0.9.0-incubating-bin-hadoop1.tgz'); return false;"> find an Apache mirror </a>
 or
 <a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.9.0-incubating-bin-hadoop1.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.9.0-incubating-bin-hadoop1.tgz'); return false;"> direct file download </a>
 * Download binaries for CDH4: 
-<a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-0.8.1-incubating/spark-0.9.0-incubating-bin-cdh4.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'apache_spark-0.9.0-incubating-bin-cdh4.tgz'); return false;"> find an Apache mirror </a>
+<a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-0.9.0-incubating/spark-0.9.0-incubating-bin-cdh4.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'apache_spark-0.9.0-incubating-bin-cdh4.tgz'); return false;"> find an Apache mirror </a>
 or 
 <a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.9.0-incubating-bin-cdh4.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.9.0-incubating-bin-cdh4.tgz'); return false;"> direct file download </a>
 * Download binaries for Hadoop 2 (HDP2, CDH5): 
-<a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-0.8.1-incubating/spark-0.9.0-incubating-bin-hadoop2.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'apache_spark-0.9.0-incubating-bin-hadoop2.tgz'); return false;"> find an Apache mirror </a>
+<a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-0.9.0-incubating/spark-0.9.0-incubating-bin-hadoop2.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'apache_spark-0.9.0-incubating-bin-hadoop2.tgz'); return false;"> find an Apache mirror </a>
 or 
 <a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.9.0-incubating-bin-hadoop2.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.9.0-incubating-bin-hadoop2.tgz'); return false;"> direct file download </a>
 * Verify your download: [signatures and checksums](http://www.apache.org/dist/incubator/spark/spark-0.9.0-incubating/)
