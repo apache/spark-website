@@ -14,14 +14,12 @@ meta:
 Spark 0.9.0 is a major release that adds significant new features. It updates Spark to Scala 2.10, simplifies high availability, and updates numerous components of the project. This release includes a first version of [GraphX](http://amplab.github.io/graphx/), a powerful new framework for graph processing that comes with a library of standard algorithms. In addition, [Spark Streaming]({{site.url}}streaming/) is now out of alpha, and includes significant optimizations and simplified high availability deployment.
 
 You can download Spark 0.9.0 as either a 
-<a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.9.0-incubating.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.9.0-incubating.tgz'); return false;"> source package </a>
-(5 MB tgz) or a prebuilt pacakge for 
-<a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.9.0-incubating-bin-hadoop1.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.9.0-incubating-bin-hadoop1.tgz'); return false;"> Hadoop 1/ CDH3 </a>
-(155 MB tgz), 
-<a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.9.0-incubating-bin-cdh4.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.9.0-incubating-bin-cdh4.tgz'); return false;"> CDH4 </a>
-(160 MB tgz), or
-<a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.9.0-incubating-bin-hadoop2.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.9.0-incubating-bin-hadoop2.tgz'); return false;"> Hadoop 2 / CDH5 / HDP2 </a>
-(167 MB tgz). Release signatures and checksums are available at the official [Apache download site](http://www.apache.org/dist/incubator/spark/spark-0.9.0-incubating/).
+<a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.9.0-incubating.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.9.0-incubating.tgz'); return false;">source package</a>
+(5 MB tgz) or a prebuilt package for 
+<a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.9.0-incubating-bin-hadoop1.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.9.0-incubating-bin-hadoop1.tgz'); return false;">Hadoop 1 / CDH3</a>, 
+<a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.9.0-incubating-bin-cdh4.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.9.0-incubating-bin-cdh4.tgz'); return false;">CDH4</a>, or
+<a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.9.0-incubating-bin-hadoop2.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.9.0-incubating-bin-hadoop2.tgz'); return false;">Hadoop 2 / CDH5 / HDP2</a>
+(160 MB tgz). Release signatures and checksums are available at the official [Apache download site](http://www.apache.org/dist/incubator/spark/spark-0.9.0-incubating/).
 
 ### Scala 2.10 Support
 
