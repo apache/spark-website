@@ -127,7 +127,7 @@ The following developers contributed to this release:
  * Nathan Howell -- sbt upgrade
  * Grace Huang -- improvements to metrics code
  * Shane Huang -- separation of admin and user scripts:
- * Prabeesh K -- MQTT example
+ * Prabeesh K -- MQTT integration for Spark Streaming and code fix
  * Holden Karau -- sbt build improvements and Java API extensions
  * KarthikTunga -- bug fix
  * Grega Kespret -- bug fix
