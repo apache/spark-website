@@ -1,7 +1,7 @@
 ---
 layout: global
 title: Home
-custom_title: Apache Spark - Lightning-Fast Cluster Computing
+custom_title: Apache Spark&trade; - Lightning-Fast Cluster Computing
 type: page
 navigation:
   weight: 1
@@ -10,7 +10,7 @@ navigation:
 
 
 <div class="jumbotron">
-  <b>Apache Spark</b> is a fast and general engine for large-scale data processing.
+  <b>Apache Spark&trade;</b> is a fast and general engine for large-scale data processing.
 </div>
 
 <div class="row row-padded">
@@ -191,23 +191,6 @@ navigation:
 <div class="row">
   <div class="col-sm-12 col-center">
     <a href="{{site.url}}downloads.html" class="btn btn-success btn-lg" style="width: 262px;">Download Spark</a>
-  </div>
-</div>
-
-<div class="row">
-  <div class="col-md-12 col-padded">
-    <h3>Apache Incubator Notice</h3>
-
-    <p>
-      <small>
-        Apache Spark is an effort undergoing incubation at The Apache Software Foundation (ASF),
-        sponsored by the Apache Incubator. Incubation is required of all newly accepted projects
-        until a further review indicates that the infrastructure, communications, and decision
-        making process have stabilized in a manner consistent with other successful ASF projects.
-        While incubation status is not necessarily a reflection of the completeness or stability
-        of the code, it does indicate that the project has yet to be fully endorsed by the ASF.
-      </small>
-    </p>
   </div>
 </div>
 
