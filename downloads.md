@@ -48,7 +48,7 @@ Spark artifacts are [hosted in Maven Central](http://search.maven.org/#browse%7C
     version: 0.9.0-incubating
 
 ### Development Version
-If you are interested in working with the newest under-development code or contributing to Spark development, you can also check out the master branch from Git: <tt>git clone git://github.com/apache/incubator-spark.git</tt>.
+If you are interested in working with the newest under-development code or contributing to Spark development, you can also check out the master branch from Git: <tt>git clone git://github.com/apache/spark.git</tt>.
 
 Once you've downloaded Spark, you can find instructions for installing and building it on the <a href="{{site.url}}documentation.html">documentation page</a>.
 
