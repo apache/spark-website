@@ -15,10 +15,10 @@ navigation:
 <p>Get help using Spark or contribute to the project on our mailing lists:</p>
 <ul>
   <li>
-    <a href="http://apache-spark-user-list.1001560.n3.nabble.com">user@spark.incubator.apache.org</a> is for usage questions, help, and announcements. <a href="mailto:user-subscribe@spark.incubator.apache.org?subject=(send%20this%20email%20to%20subscribe)">(subscribe)</a> <a href="http://apache-spark-user-list.1001560.n3.nabble.com">(archives)</a>
+    <a href="http://apache-spark-user-list.1001560.n3.nabble.com">user@spark.apache.org</a> is for usage questions, help, and announcements. <a href="mailto:user-subscribe@spark.apache.org?subject=(send%20this%20email%20to%20subscribe)">(subscribe)</a> <a href="http://apache-spark-user-list.1001560.n3.nabble.com">(archives)</a>
   </li>
   <li>
-    <a href="http://apache-spark-developers-list.1001551.n3.nabble.com">dev@spark.incubator.apache.org</a> is for people who want to contribute code to Spark. <a href="mailto:dev-subscribe@spark.incubator.apache.org?subject=(send%20this%20email%20to%20subscribe)">(subscribe)</a> <a href="http://apache-spark-developers-list.1001551.n3.nabble.com">(archives)</a>
+    <a href="http://apache-spark-developers-list.1001551.n3.nabble.com">dev@spark.apache.org</a> is for people who want to contribute code to Spark. <a href="mailto:dev-subscribe@spark.apache.org?subject=(send%20this%20email%20to%20subscribe)">(subscribe)</a> <a href="http://apache-spark-developers-list.1001551.n3.nabble.com">(archives)</a>
   </li>
 </ul>
 
@@ -45,7 +45,7 @@ navigation:
   </li>
 </ul>
 
-<p>If you'd like your meetup added, email <a href="mailto:user@spark.incubator.apache.org">user@spark.incubator.apache.org</a>.</p>
+<p>If you'd like your meetup added, email <a href="mailto:user@spark.apache.org">user@spark.apache.org</a>.</p>
 
 <a name="issue-tracker"></a>
 <h3>Issue Tracker</h3>
