@@ -10,7 +10,7 @@ published: true
 ---
 This is our 2nd Spark screencast. In it, we take a tour of the documentation available for Spark users online.
 
-<div class="video-container video-square shadow"><iframe width="755" height="705" src="http://www.youtube.com/embed/TikdEfsrFnw?autohide=0&showinfo=0" frameborder="0" allowfullscreen></iframe></div>
+<div class="video-container video-square shadow"><iframe width="755" height="705" src="http://www.youtube.com/embed/Dbqe_rv-NJQ?autohide=0&showinfo=0&list=PL-x35fyliRwhKT-NpTKprPW1bkbdDcTTW" frameborder="0" allowfullscreen></iframe></div>
 
 Check out the next spark screencast in the series, <a href="{{site.url}}screencasts/3-transformations-and-caching.html">Spark Screencast #3 - Transformations and Caching</a>.
 
