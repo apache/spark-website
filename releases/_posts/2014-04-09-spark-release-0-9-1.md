@@ -59,7 +59,7 @@ Several bug fixes were made to YARN deployment mode:
 * Fixed bug in Python de-pickling [[SPARK-1135](https://issues.apache.org/jira/browse/SPARK-1135)]
 * Fixed bug in serialization of strings longer than 64K [[SPARK-1043](https://issues.apache.org/jira/browse/SPARK-1043)] 
 * Fixed bug that made jobs hang when base file is not available [[SPARK-1025](https://issues.apache.org/jira/browse/SPARK-1025)] 
-* Added Missing RDD operations to PySpark - top, zip, foldByKey, repartition, coallesce, getStorageLevel, setName and toDebugString
+* Added Missing RDD operations to PySpark - top, zip, foldByKey, repartition, coalesce, getStorageLevel, setName and toDebugString
 
 ### Improvements to documentation
 * Streaming: Added documentation on running streaming application from spark-shell
