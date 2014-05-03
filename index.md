@@ -54,11 +54,11 @@ navigation:
       <div class="code">
         file = spark.textFile(<span class="string">"hdfs://..."</span>)<br/>
         &nbsp;<br/>
-        file.<span class="sparkop">flatMap</span>(<span class="closure">line =&gt; line.split(" ")</span>)<br/>
-        &nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">map</span>(<span class="closure">word =&gt; (word, 1)</span>)<br/>
-        &nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">reduceByKey</span>(<span class="closure">_ + _</span>)
+        file.<span class="sparkop">flatMap</span>(<span class="closure">lambda line: line.split()</span>)<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">map</span>(<span class="closure">lambda word: (word, 1)</span>)<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">reduceByKey</span>(<span class="closure">lambda a, b: a+b</span>)
       </div>
-      <div class="caption">Word count in Spark</div>
+      <div class="caption">Word count in Spark's Python API</div>
     </div>
     <!--
     <div class="code" style="margin-top: 20px; text-align: left; display: inline-block;">

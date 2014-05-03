@@ -19,12 +19,24 @@ previous ones, and <em>actions</em>, which kick off a job to execute on a cluste
 In this example, we search through the error messages in a log file:
 
 <ul class="nav nav-tabs">
-  <li class="lang-tab lang-tab-scala active"><a href="#">Scala</a></li>
+  <li class="lang-tab lang-tab-python active"><a href="#">Python</a></li>
+  <li class="lang-tab lang-tab-scala"><a href="#">Scala</a></li>
   <li class="lang-tab lang-tab-java"><a href="#">Java</a></li>
-  <li class="lang-tab lang-tab-python"><a href="#">Python</a></li>
 </ul>
 <div class="tab-content">
-  <div class="tab-pane tab-pane-scala active">
+  <div class="tab-pane tab-pane-python active">
+    <div class="code code-tab">
+    file = spark.textFile(<span class="string">"hdfs://..."</span>)<br>
+    errors = file.<span class="sparkop">filter</span>(<span class="closure">lambda line: "ERROR" in line</span>)<br>
+    <span class="comment"># Count all the errors</span><br>
+    errors.<span class="sparkop">count</span>()<br>
+    <span class="comment"># Count errors mentioning MySQL</span><br>
+    errors.<span class="sparkop">filter</span>(<span class="closure">lambda line: "MySQL" in line</span>).<span class="sparkop">count</span>()<br>
+    <span class="comment"># Fetch the MySQL errors as an array of strings</span><br>
+    errors.<span class="sparkop">filter</span>(<span class="closure">lambda line: "MySQL" in line</span>).<span class="sparkop">collect</span>()<br>
+    </div>
+  </div>
+  <div class="tab-pane tab-pane-scala">
     <div class="code code-tab">
     <span class="keyword">val</span> file = spark.textFile(<span class="string">"hdfs://..."</span>)<br>
     <span class="keyword">val</span> errors = file.<span class="sparkop">filter</span>(<span class="closure">line =&gt; line.contains("ERROR")</span>)<br>
@@ -54,18 +66,6 @@ In this example, we search through the error messages in a log file:
     }</span>).<span class="sparkop">collect</span>();<br>
     </div>
   </div>
-  <div class="tab-pane tab-pane-python">
-    <div class="code code-tab">
-    file = spark.textFile(<span class="string">"hdfs://..."</span>)<br>
-    errors = file.<span class="sparkop">filter</span>(<span class="closure">lambda line: "ERROR" in line</span>)<br>
-    <span class="comment"># Count all the errors</span><br>
-    errors.<span class="sparkop">count</span>()<br>
-    <span class="comment"># Count errors mentioning MySQL</span><br>
-    errors.<span class="sparkop">filter</span>(<span class="closure">lambda line: "MySQL" in line</span>).<span class="sparkop">count</span>()<br>
-    <span class="comment"># Fetch the MySQL errors as an array of strings</span><br>
-    errors.<span class="sparkop">filter</span>(<span class="closure">lambda line: "MySQL" in line</span>).<span class="sparkop">collect</span>()<br>
-    </div>
-  </div>
 </div>
 
 <p>The red code fragments are function literals (closures) that get passed automatically to the cluster. The blue ones are Spark operations.</p>
@@ -75,12 +75,17 @@ In this example, we search through the error messages in a log file:
 <p>Spark can <em>cache</em> datasets in memory to speed up reuse. In the example above, we can load just the error messages in RAM using:</p>
 
 <ul class="nav nav-tabs">
-  <li class="lang-tab lang-tab-scala active"><a href="#">Scala</a></li>
+  <li class="lang-tab lang-tab-python active"><a href="#">Python</a></li>
+  <li class="lang-tab lang-tab-scala"><a href="#">Scala</a></li>
   <li class="lang-tab lang-tab-java"><a href="#">Java</a></li>
-  <li class="lang-tab lang-tab-python"><a href="#">Python</a></li>
 </ul>
 <div class="tab-content">
-  <div class="tab-pane tab-pane-scala active">
+  <div class="tab-pane tab-pane-python active">
+    <div class="code code-tab">
+    errors.<span class="sparkop">cache</span>()
+    </div>
+  </div>
+  <div class="tab-pane tab-pane-scala">
     <div class="code code-tab">
     errors.<span class="sparkop">cache</span>()
     </div>
@@ -88,11 +93,6 @@ In this example, we search through the error messages in a log file:
   <div class="tab-pane tab-pane-java">
     <div class="code code-tab">
     errors.<span class="sparkop">cache</span>();
-    </div>
-  </div>
-  <div class="tab-pane tab-pane-python">
-    <div class="code code-tab">
-    errors.<span class="sparkop">cache</span>()
     </div>
   </div>
 </div>
@@ -105,12 +105,21 @@ In this example, we search through the error messages in a log file:
 <p>In this example, we use a few more transformations to build a dataset of (String, Int) pairs called <code>counts</code> and then save it to a file.</p>
 
 <ul class="nav nav-tabs">
-  <li class="lang-tab lang-tab-scala active"><a href="#">Scala</a></li>
+  <li class="lang-tab lang-tab-python active"><a href="#">Python</a></li>
+  <li class="lang-tab lang-tab-scala"><a href="#">Scala</a></li>
   <li class="lang-tab lang-tab-java"><a href="#">Java</a></li>
-  <li class="lang-tab lang-tab-python"><a href="#">Python</a></li>
 </ul>
 <div class="tab-content">
-  <div class="tab-pane tab-pane-scala active">
+  <div class="tab-pane tab-pane-python active">
+    <div class="code code-tab">
+    file = spark.textFile(<span class="string">"hdfs://..."</span>)<br>
+    counts = file.<span class="sparkop">flatMap</span>(<span class="closure">lambda line: line.split(" ")</span>) \<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">map</span>(<span class="closure">lambda word: (word, 1)</span>) \<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">reduceByKey</span>(<span class="closure">lambda a, b: a + b</span>)<br>
+    counts.<span class="sparkop">saveAsTextFile</span>(<span class="string">"hdfs://..."</span>)
+    </div>
+  </div>
+  <div class="tab-pane tab-pane-scala">
     <div class="code code-tab">
     <span class="keyword">val</span> file = spark.textFile(<span class="string">"hdfs://..."</span>)<br>
     <span class="keyword">val</span> counts = file.<span class="sparkop">flatMap</span>(<span class="closure">line =&gt; line.split(" ")</span>)<br>
@@ -134,15 +143,6 @@ In this example, we search through the error messages in a log file:
     counts.<span class="sparkop">saveAsTextFile</span>(<span class="string">"hdfs://..."</span>);
     </div>
   </div>
-  <div class="tab-pane tab-pane-python">
-    <div class="code code-tab">
-    file = spark.textFile(<span class="string">"hdfs://..."</span>)<br>
-    counts = file.<span class="sparkop">flatMap</span>(<span class="closure">lambda line: line.split(" ")</span>) \<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">map</span>(<span class="closure">lambda word: (word, 1)</span>) \<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">reduceByKey</span>(<span class="closure">lambda a, b: a + b</span>)<br>
-    counts.<span class="sparkop">saveAsTextFile</span>(<span class="string">"hdfs://..."</span>)
-    </div>
-  </div>
 </div>
 
 <h3>Estimating Pi</h3>
@@ -150,12 +150,22 @@ In this example, we search through the error messages in a log file:
 <p>Spark can also be used for compute-intensive tasks. This code estimates <span style="font-family: serif; font-size: 120%;">π</span> by "throwing darts" at a circle. We pick random points in the unit square ((0, 0) to (1,1)) and see how many fall in the unit circle. The fraction should be <span style="font-family: serif; font-size: 120%;">π / 4</span>, so we use this to get our estimate.</p>
 
 <ul class="nav nav-tabs">
-  <li class="lang-tab lang-tab-scala active"><a href="#">Scala</a></li>
+  <li class="lang-tab lang-tab-python active"><a href="#">Python</a></li>
+  <li class="lang-tab lang-tab-scala"><a href="#">Scala</a></li>
   <li class="lang-tab lang-tab-java"><a href="#">Java</a></li>
-  <li class="lang-tab lang-tab-python"><a href="#">Python</a></li>
 </ul>
 <div class="tab-content">
-  <div class="tab-pane tab-pane-scala active">
+  <div class="tab-pane tab-pane-python active">
+    <div class="code code-tab">
+    <span class="keyword">def</span> sample(p):<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;x, y = random(), random()<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> 1 <span class="keyword">if</span> x*x + y*y < 1 <span class="keyword">else</span> 0<br><br>
+    count = spark.parallelize(xrange(0, NUM_SAMPLES)).<span class="sparkop">map</span>(<span class="closure">sample</span>) \<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">reduce</span>(<span class="closure">lambda a, b: a + b</span>)<br>
+    print <span class="string">"Pi is roughly %f"</span> % (4.0 * count / NUM_SAMPLES)<br>
+    </div>
+  </div>
+  <div class="tab-pane tab-pane-scala">
     <div class="code code-tab">
     <span class="keyword">val</span> count = spark.parallelize(1 to NUM_SAMPLES).<span class="sparkop">map</span>(<span class="closure">i =&gt;<br>
     &nbsp;&nbsp;val x = Math.random()<br>
@@ -177,16 +187,6 @@ In this example, we search through the error messages in a log file:
     System.out.println(<span class="string">"Pi is roughly "</span> + 4 * count / NUM_SAMPLES);<br>
     </div>
   </div>
-  <div class="tab-pane tab-pane-python">
-    <div class="code code-tab">
-    <span class="keyword">def</span> sample(p):<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;x, y = random(), random()<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> 1 <span class="keyword">if</span> x*x + y*y < 1 <span class="keyword">else</span> 0<br><br>
-    count = spark.parallelize(xrange(0, NUM_SAMPLES)).<span class="sparkop">map</span>(<span class="closure">sample</span>) \<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">reduce</span>(<span class="closure">lambda a, b: a + b</span>)<br>
-    print <span class="string">"Pi is roughly %f"</span> % (4.0 * count / NUM_SAMPLES)<br>
-    </div>
-  </div>
 </div>
 
 <h3>Logistic Regression</h3>
@@ -194,12 +194,24 @@ In this example, we search through the error messages in a log file:
 <p>This is an iterative machine learning algorithm that seeks to find the best hyperplane that separates two sets of points in a multi-dimensional feature space. It can be used to classify messages into spam vs non-spam, for example. Because the algorithm applies the same MapReduce operation repeatedly to the same dataset, it benefits greatly from caching the input in RAM across iterations.</p>
 
 <ul class="nav nav-tabs">
-  <li class="lang-tab lang-tab-scala active"><a href="#">Scala</a></li>
+  <li class="lang-tab lang-tab-python active"><a href="#">Python</a></li>
+  <li class="lang-tab lang-tab-scala"><a href="#">Scala</a></li>
   <li class="lang-tab lang-tab-java"><a href="#">Java</a></li>
-  <li class="lang-tab lang-tab-python"><a href="#">Python</a></li>
 </ul>
 <div class="tab-content">
-  <div class="tab-pane tab-pane-scala active">
+  <div class="tab-pane tab-pane-python active">
+    <div class="code code-tab">
+    points = spark.textFile(...).<span class="sparkop">map</span>(parsePoint).<span class="sparkop">cache</span>()<br>
+    w = numpy.random.ranf(size = D) <span class="comment"># current separating plane</span><br>
+    <span class="keyword">for</span> i <span class="keyword">in</span> range(ITERATIONS):<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;gradient = points.<span class="sparkop">map</span>(<span class="closure"><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lambda p: (1 / (1 + exp(-p.y*(w.dot(p.x)))) - 1) * p.y * p.x<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;</span>).<span class="sparkop">reduce</span>(<span class="closure">lambda a, b: a + b</span>)<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;w -= gradient<br>
+    print <span class="string">"Final separating plane: %s"</span> % w<br>
+    </div>
+  </div>
+  <div class="tab-pane tab-pane-scala">
     <div class="code code-tab">
     <span class="keyword">val</span> points = spark.textFile(...).<span class="sparkop">map</span>(parsePoint).<span class="sparkop">cache</span>()<br>
     <span class="keyword">var</span> w = Vector.random(D) <span class="comment">// current separating plane</span><br>
@@ -229,18 +241,6 @@ In this example, we search through the error messages in a log file:
     &nbsp;&nbsp;w = w.subtract(gradient);<br>
     }<br>
     System.out.println(<span class="string">"Final separating plane: "</span> + w);<br>
-    </div>
-  </div>
-  <div class="tab-pane tab-pane-python">
-    <div class="code code-tab">
-    points = spark.textFile(...).<span class="sparkop">map</span>(parsePoint).<span class="sparkop">cache</span>()<br>
-    w = numpy.random.ranf(size = D) <span class="comment"># current separating plane</span><br>
-    <span class="keyword">for</span> i <span class="keyword">in</span> range(ITERATIONS):<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;gradient = points.<span class="sparkop">map</span>(<span class="closure"><br>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lambda p: (1 / (1 + exp(-p.y*(w.dot(p.x)))) - 1) * p.y * p.x<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;</span>).<span class="sparkop">reduce</span>(<span class="closure">lambda a, b: a + b</span>)<br>
-    &nbsp;&nbsp;&nbsp;&nbsp;w -= gradient<br>
-    print <span class="string">"Final separating plane: %s"</span> % w<br>
     </div>
   </div>
 </div>
