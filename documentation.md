@@ -50,9 +50,14 @@ See the <a href="http://www.youtube.com/channel/UCRzsq7k4-kT-h3TDUBQ82-w">Apache
 
 <h4>Meetup Talk Videos</h4>
 <ul>
+  <li><a href="http://www.youtube.com/watch?v=NUQ-8to2XAk&list=PL-x35fyliRwiP3YteXbnhk0QGOtYLBT3a">Spark 1.0 and Beyond - Patrick Wendell</a> (<a href="http://files.meetup.com/3138542/Spark%201.0%20Meetup.ppt">slides</a>) by Patrick Wendell, at Cisco in San Jose, 2014-04-23</li>
+
   <li><a href="http://www.youtube.com/watch?v=ju2OQEXqONU&list=PL-x35fyliRwiP3YteXbnhk0QGOtYLBT3a">Adding Native SQL Support to Spark with Catalyst</a> (<a href="http://files.meetup.com/3138542/Spark%20SQL%20Meetup%20-%204-8-2012.pdf">slides</a>) by Michael Armbrust, at Tagged in San Francisco, 2014-04-08</li>
+
   <li><a href="http://www.youtube.com/watch?v=MY0NkZY_tJw&list=PL-x35fyliRwiP3YteXbnhk0QGOtYLBT3a">SparkR and GraphX</a> (<a href="http://files.meetup.com/3138542/SparkR-meetup.pdf">SparkR slides</a>, <a href="http://files.meetup.com/3138542/graphx%40spark_meetup03_2014.pdf">GraphX slides</a>) by Shivaram Venkataraman &amp; Dan Crankshaw, at SkyDeck in Berkeley, 2014-03-25</li>
+
   <li><a href="http://www.youtube.com/watch?v=5niXiiEX5pE&list=PL-x35fyliRwiP3YteXbnhk0QGOtYLBT3a">Simple deployment with SIMR and Advanced Shark Analytics with TGFs</a> (<a href="http://files.meetup.com/3138542/tgf.pptx">slides</a>) by Ali Ghodsi, at Huawei in Santa Clara, 2014-02-05</li>
+
   <li><a href="http://www.youtube.com/watch?v=C7gWtxelYNM&list=PL-x35fyliRwiP3YteXbnhk0QGOtYLBT3a">Stores, Monoids and Dependency Injection - Abstractions for Spark</a> (<a href="http://files.meetup.com/3138542/Abstractions%20for%20spark%20streaming%20-%20spark%20meetup%20presentation.pdf">slides</a>) by Ryan Weald, at Sharethrough in San Francisco, 2014-01-17</li>
 </ul>
 
