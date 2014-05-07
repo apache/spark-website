@@ -59,6 +59,9 @@ See the <a href="http://www.youtube.com/channel/UCRzsq7k4-kT-h3TDUBQ82-w">Apache
   <li><a href="http://www.youtube.com/watch?v=5niXiiEX5pE&list=PL-x35fyliRwiP3YteXbnhk0QGOtYLBT3a">Simple deployment with SIMR and Advanced Shark Analytics with TGFs</a> (<a href="http://files.meetup.com/3138542/tgf.pptx">slides</a>) by Ali Ghodsi, at Huawei in Santa Clara, 2014-02-05</li>
 
   <li><a href="http://www.youtube.com/watch?v=C7gWtxelYNM&list=PL-x35fyliRwiP3YteXbnhk0QGOtYLBT3a">Stores, Monoids and Dependency Injection - Abstractions for Spark</a> (<a href="http://files.meetup.com/3138542/Abstractions%20for%20spark%20streaming%20-%20spark%20meetup%20presentation.pdf">slides</a>) by Ryan Weald, at Sharethrough in San Francisco, 2014-01-17</li>
+
+  <li><a href="https://www.youtube.com/watch?v=49Hr5xZyTEA">Introduction to Spark Internals</a> (<a href="http://files.meetup.com/3138542/dev-meetup-dec-2012.pptx">slides</a>) by Matei Zaharia, at Yahoo in Sunnyvale, 2012-12-18</li>
+
 </ul>
 
 
