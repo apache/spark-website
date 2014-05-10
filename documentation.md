@@ -48,7 +48,7 @@ See the <a href="http://www.youtube.com/channel/UCRzsq7k4-kT-h3TDUBQ82-w">Apache
   </li>
 </ul>
 
-<h4>Meetup Talk Videos</h4>
+<h4><a name="meetup-videos"></a>Meetup Talk Videos</h4>
 In addition to the videos listed below, you can also view <a href="http://www.meetup.com/spark-users/files/">all slides from Bay Area meetups here</a>.
 <style type="text/css">
   .video-meta-info {
