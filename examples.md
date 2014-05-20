@@ -167,11 +167,11 @@ In this example, we search through the error messages in a log file:
   </div>
   <div class="tab-pane tab-pane-scala">
     <div class="code code-tab">
-    <span class="keyword">val</span> count = spark.parallelize(1 to NUM_SAMPLES).<span class="sparkop">map</span>(<span class="closure">i =&gt;<br>
+    <span class="keyword">val</span> count = spark.parallelize(1 to NUM_SAMPLES).<span class="sparkop">map</span>{<span class="closure">i =&gt;<br>
     &nbsp;&nbsp;val x = Math.random()<br>
     &nbsp;&nbsp;val y = Math.random()<br>
     &nbsp;&nbsp;if (x*x + y*y &lt; 1) 1 else 0<br>
-    </span>).<span class="sparkop">reduce</span>(<span class="closure">_ + _</span>)<br>
+    </span>}.<span class="sparkop">reduce</span>(<span class="closure">_ + _</span>)<br>
     println(<span class="string">"Pi is roughly "</span> + 4.0 * count / NUM_SAMPLES)<br>
     </div>
   </div>
