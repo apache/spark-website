@@ -15,10 +15,16 @@ navigation:
 <p>Get help using Spark or contribute to the project on our mailing lists:</p>
 <ul>
   <li>
-    <a href="http://apache-spark-user-list.1001560.n3.nabble.com">user@spark.apache.org</a> is for usage questions, help, and announcements. <a href="mailto:user-subscribe@spark.apache.org?subject=(send%20this%20email%20to%20subscribe)">(subscribe)</a> <a href="http://apache-spark-user-list.1001560.n3.nabble.com">(archives)</a>
+    <a href="http://apache-spark-user-list.1001560.n3.nabble.com">user@spark.apache.org</a> is for usage questions, help, and announcements.
+    <a href="mailto:user-subscribe@spark.apache.org?subject=(send%20this%20email%20to%20subscribe)">(subscribe)</a>
+    <a href="mailto:user-unsubscribe@spark.apache.org?subject=(send%20this%20email%20to%20unsubscribe)">(unsubscribe)</a>
+    <a href="http://apache-spark-user-list.1001560.n3.nabble.com">(archives)</a>
   </li>
   <li>
-    <a href="http://apache-spark-developers-list.1001551.n3.nabble.com">dev@spark.apache.org</a> is for people who want to contribute code to Spark. <a href="mailto:dev-subscribe@spark.apache.org?subject=(send%20this%20email%20to%20subscribe)">(subscribe)</a> <a href="http://apache-spark-developers-list.1001551.n3.nabble.com">(archives)</a>
+    <a href="http://apache-spark-developers-list.1001551.n3.nabble.com">dev@spark.apache.org</a> is for people who want to contribute code to Spark.
+    <a href="mailto:dev-subscribe@spark.apache.org?subject=(send%20this%20email%20to%20subscribe)">(subscribe)</a>
+    <a href="mailto:dev-unsubscribe@spark.apache.org?subject=(send%20this%20email%20to%20unsubscribe)">(unsubscribe)</a>
+    <a href="http://apache-spark-developers-list.1001551.n3.nabble.com">(archives)</a>
   </li>
 </ul>
 
