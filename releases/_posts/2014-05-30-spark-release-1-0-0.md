@@ -14,12 +14,12 @@ meta:
 Spark 1.0.0 is a major release marking the start of the 1.X line. This release brings both a variety of new features and strong API compatibility guarantees throughout the 1.X line. Spark 1.0 adds a new major component, [Spark SQL]({{site.url}}docs/1.0.0/sql-programming-guide.html), for loading and manipulating structured data in Spark. It includes major extensions to all of Spark’s existing standard libraries ([ML]({{site.url}}docs/1.0.0/mllib-guide.html), [Streaming]({{site.url}}docs/1.0.0/streaming-programming-guide.html), and [GraphX]({{site.url}}docs/1.0.0/graphx-programming-guide.html)) while also enhancing language support in Java and Python. Finally, Spark 1.0 brings operational improvements including full support for the Hadoop/YARN security model and a unified submission process for all supported cluster managers.
 
 You can download Spark 1.0.0 as either a 
-<a href="http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0-incubating.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-1.0.0-incubating.tgz'); return false;">source package</a>
+<a href="http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-1.0.0.tgz'); return false;">source package</a>
 (5 MB tgz) or a prebuilt package for 
-<a href="http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0-incubating-bin-hadoop1.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-1.0.0-incubating-bin-hadoop1.tgz'); return false;">Hadoop 1 / CDH3</a>, 
-<a href="http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0-incubating-bin-cdh4.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-1.0.0-incubating-bin-cdh4.tgz'); return false;">CDH4</a>, or
-<a href="http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0-incubating-bin-hadoop2.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-1.0.0-incubating-bin-hadoop2.tgz'); return false;">Hadoop 2 / CDH5 / HDP2</a>
-(160 MB tgz). Release signatures and checksums are available at the official [Apache download site](http://www.apache.org/dist/incubator/spark/spark-1.0.0-incubating/).
+<a href="http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0-bin-hadoop1.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-1.0.0-bin-hadoop1.tgz'); return false;">Hadoop 1 / CDH3</a>, 
+<a href="http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0-bin-cdh4.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-1.0.0-bin-cdh4.tgz'); return false;">CDH4</a>, or
+<a href="http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0-bin-hadoop2.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-1.0.0-bin-hadoop2.tgz'); return false;">Hadoop 2 / CDH5 / HDP2</a>
+(160 MB tgz). Release signatures and checksums are available at the official [Apache download site](http://www.apache.org/dist/incubator/spark/spark-1.0.0/).
 
 ### API Stability
 Spark 1.0.0 is the first release in the 1.X major line. Spark is guaranteeing stability of its core API for all 1.X releases. Historically Spark has already been very conservative with API changes, but this guarantee codifies our commitment to application writers. The project has also clearly annotated experimental, alpha, and developer API’s to provide guidance on future API changes of newer components.
