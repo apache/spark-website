@@ -8,29 +8,29 @@ navigation:
 ---
 
 ## Download Spark
-The latest release is Spark 0.9.1, released April 9, 2014 [(release notes)]({{site.url}}releases/spark-release-0-9-1.html) [(git tag)](https://git-wip-us.apache.org/repos/asf?p=spark.git;a=commit;h=4c43182b6d1b0b7717423f386c0214fe93073208)
+The latest release is Spark 1.0.0, released May 30, 2014 [(release notes)]({{site.url}}releases/spark-release-1-0-0.html) [(git tag)](https://git-wip-us.apache.org/repos/asf?p=spark.git;a=commit;h=2f1dc868e5714882cf40d2633fb66772baf34789)
 
 Pre-built packages:
 
 * For Hadoop 1 (HDP1, CDH3):
-<a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-0.9.1/spark-0.9.1-bin-hadoop1.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'apache_spark-0.9.1-bin-hadoop1.tgz'); return false;"> find an Apache mirror </a>
+<a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-1.0.0/spark-1.0.0-bin-hadoop1.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'apache_spark-1.0.0-bin-hadoop1.tgz'); return false;"> find an Apache mirror </a>
 or
-<a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.9.1-bin-hadoop1.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.9.1-bin-hadoop1.tgz'); return false;"> direct file download </a>
+<a href="http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0-bin-hadoop1.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-1.0.0-bin-hadoop1.tgz'); return false;"> direct file download </a>
 * For CDH4: 
-<a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-0.9.1/spark-0.9.1-bin-cdh4.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'apache_spark-0.9.1-bin-cdh4.tgz'); return false;"> find an Apache mirror </a>
+<a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-1.0.0/spark-1.0.0-bin-cdh4.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'apache_spark-1.0.0-bin-cdh4.tgz'); return false;"> find an Apache mirror </a>
 or 
-<a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.9.1-bin-cdh4.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.9.1-bin-cdh4.tgz'); return false;"> direct file download </a>
+<a href="http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0-bin-cdh4.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-1.0.0-bin-cdh4.tgz'); return false;"> direct file download </a>
 * For Hadoop 2 (HDP2, CDH5): 
-<a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-0.9.1/spark-0.9.1-bin-hadoop2.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'apache_spark-0.9.1-bin-hadoop2.tgz'); return false;"> find an Apache mirror </a>
+<a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-1.0.0/spark-1.0.0-bin-hadoop2.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'apache_spark-1.0.0-bin-hadoop2.tgz'); return false;"> find an Apache mirror </a>
 or 
-<a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.9.1-bin-hadoop2.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.9.1-bin-hadoop2.tgz'); return false;"> direct file download </a>
+<a href="http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0-bin-hadoop2.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-1.0.0-bin-hadoop2.tgz'); return false;"> direct file download </a>
 
 Sources:
-<a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-0.9.1/spark-0.9.1.tgz" onClick="trackOutboundLink(this, 'Release Downlaod Links', 'apache_spark-0.9.1.tgz'); return false;"> find an Apache mirror </a>
+<a href="http://www.apache.org/dyn/closer.cgi/incubator/spark/spark-1.0.0/spark-1.0.0.tgz" onClick="trackOutboundLink(this, 'Release Downlaod Links', 'apache_spark-1.0.0.tgz'); return false;"> find an Apache mirror </a>
 or
-<a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.9.1.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.9.1.tgz'); return false;"> direct file download </a>
+<a href="http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-1.0.0.tgz'); return false;"> direct file download </a>
 
-Verify your download: [signatures and checksums](http://www.apache.org/dist/incubator/spark/spark-0.9.1/)
+Verify your download: [signatures and checksums](http://www.apache.org/dist/spark/spark-1.0.0/)
 
 <!--
 The Spark download includes
@@ -44,14 +44,15 @@ Spark artifacts are [hosted in Maven Central](http://search.maven.org/#browse%7C
 
     groupId: org.apache.spark
     artifactId: spark-core_2.10
-    version: 0.9.1
+    version: 1.0.0
 
 ### Development Version
 If you are interested in working with the newest under-development code or contributing to Spark development, you can also check out the master branch from Git: <tt>git clone git://github.com/apache/spark.git</tt>.
 
 Once you've downloaded Spark, you can find instructions for installing and building it on the <a href="{{site.url}}documentation.html">documentation page</a>.
 
-<h3 id="all-releases">Older Releases</h3>
+<h3 id="all-releases">All Releases</h3>
+* [Spark 1.0.0](http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0.tgz) (May 30, 2014) [(release notes)]({{site.url}}releases/spark-release-1.0.0.html) (prebuilt: [Hadoop1 [HDP1, CDH3]](http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0-bin-hadoop1.tgz), [CDH4](http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0-bin-cdh4.tgz), [Hadoop2 [HDP2, CDH5]](http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0-bin-hadoop2.tgz)) 
 * [Spark 0.9.1](http://d3kbcqa49mib13.cloudfront.net/spark-0.9.1.tgz) (Apr 9, 2014) [(release notes)]({{site.url}}releases/spark-release-0-9-1.html) (prebuilt: [Hadoop1 [HDP1, CDH3]](http://d3kbcqa49mib13.cloudfront.net/spark-0.9.1-bin-hadoop1.tgz), [CDH4](http://d3kbcqa49mib13.cloudfront.net/spark-0.9.1-bin-cdh4.tgz), [Hadoop2 [HDP2, CDH5]](http://d3kbcqa49mib13.cloudfront.net/spark-0.9.1-bin-hadoop2.tgz)) 
 * [Spark 0.9.0](http://d3kbcqa49mib13.cloudfront.net/spark-0.9.0-incubating.tgz) (Feb 2, 2014) [(release notes)]({{site.url}}releases/spark-release-0-9-0.html) (prebuilt: [Hadoop1 [HDP1, CDH3]](http://d3kbcqa49mib13.cloudfront.net/spark-0.9.0-incubating-bin-hadoop1.tgz), [CDH4](http://d3kbcqa49mib13.cloudfront.net/spark-0.9.0-incubating-bin-cdh4.tgz), [Hadoop2 [HDP2, CDH5]](http://d3kbcqa49mib13.cloudfront.net/spark-0.9.0-incubating-bin-hadoop2.tgz)) 
 * [Spark 0.8.1](http://d3kbcqa49mib13.cloudfront.net/spark-0.8.1-incubating.tgz) (Dec 19, 2013) [(release notes)]({{site.url}}releases/spark-release-0-8-1.html) (prebuilt: [Hadoop1 [HDP1, CDH3]](http://d3kbcqa49mib13.cloudfront.net/spark-0.8.1-incubating-bin-hadoop1.tgz), [CDH4](http://d3kbcqa49mib13.cloudfront.net/spark-0.8.1-incubating-bin-cdh4.tgz), [Hadoop2 [HDP2, CDH5]](http://d3kbcqa49mib13.cloudfront.net/spark-0.8.1-incubating-bin-hadoop2.tgz)) 
