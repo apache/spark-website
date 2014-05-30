@@ -19,7 +19,7 @@ You can download Spark 1.0.0 as either a
 <a href="http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0-bin-hadoop1.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-1.0.0-bin-hadoop1.tgz'); return false;">Hadoop 1 / CDH3</a>, 
 <a href="http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0-bin-cdh4.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-1.0.0-bin-cdh4.tgz'); return false;">CDH4</a>, or
 <a href="http://d3kbcqa49mib13.cloudfront.net/spark-1.0.0-bin-hadoop2.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-1.0.0-bin-hadoop2.tgz'); return false;">Hadoop 2 / CDH5 / HDP2</a>
-(160 MB tgz). Release signatures and checksums are available at the official [Apache download site](http://www.apache.org/dist/incubator/spark/spark-1.0.0/).
+(160 MB tgz). Release signatures and checksums are available at the official [Apache download site](http://www.apache.org/dist/spark/spark-1.0.0/).
 
 ### API Stability
 Spark 1.0.0 is the first release in the 1.X major line. Spark is guaranteeing stability of its core API for all 1.X releases. Historically Spark has already been very conservative with API changes, but this guarantee codifies our commitment to application writers. The project has also clearly annotated experimental, alpha, and developer API’s to provide guidance on future API changes of newer components.
