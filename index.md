@@ -155,8 +155,8 @@ navigation:
     <h3>Contributors</h3>
 
     <p>
-      Apache Spark is built by a wide set of developers from over 40 companies.
-      Since the project started in 2009, more than 170 developers have contributed to Spark!
+      Apache Spark is built by a wide set of developers from over 50 companies.
+      Since the project started in 2009, more than 200 developers have contributed to Spark!
     </p>
 
     <p>
