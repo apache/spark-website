@@ -11,12 +11,12 @@ meta:
   _wpas_done_all: '1'
 ---
 
-Spark 0.9.0 is a major release that adds significant new features. It updates Spark to Scala 2.10, simplifies high availability, and updates numerous components of the project. This release includes a first version of [GraphX](http://amplab.github.io/graphx/), a powerful new framework for graph processing that comes with a library of standard algorithms. In addition, [Spark Streaming]({{site.url}}streaming/) is now out of alpha, and includes significant optimizations and simplified high availability deployment.
+Spark 0.9.0 is a major release that adds significant new features. It updates Spark to Scala 2.10, simplifies high availability, and updates numerous components of the project. This release includes a first version of [GraphX]({{site.url}}graphx/), a powerful new framework for graph processing that comes with a library of standard algorithms. In addition, [Spark Streaming]({{site.url}}streaming/) is now out of alpha, and includes significant optimizations and simplified high availability deployment.
 
-You can download Spark 0.9.0 as either a 
+You can download Spark 0.9.0 as either a
 <a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.9.0-incubating.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.9.0-incubating.tgz'); return false;">source package</a>
-(5 MB tgz) or a prebuilt package for 
-<a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.9.0-incubating-bin-hadoop1.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.9.0-incubating-bin-hadoop1.tgz'); return false;">Hadoop 1 / CDH3</a>, 
+(5 MB tgz) or a prebuilt package for
+<a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.9.0-incubating-bin-hadoop1.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.9.0-incubating-bin-hadoop1.tgz'); return false;">Hadoop 1 / CDH3</a>,
 <a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.9.0-incubating-bin-cdh4.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.9.0-incubating-bin-cdh4.tgz'); return false;">CDH4</a>, or
 <a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.9.0-incubating-bin-hadoop2.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.9.0-incubating-bin-hadoop2.tgz'); return false;">Hadoop 2 / CDH5 / HDP2</a>
 (160 MB tgz). Release signatures and checksums are available at the official [Apache download site](http://www.apache.org/dist/incubator/spark/spark-0.9.0-incubating/).
@@ -45,7 +45,7 @@ Spark Streaming is now out of alpha, and comes with simplified high availability
 
 ### GraphX Alpha
 
-[GraphX](http://amplab.github.io/graphx/) is a new framework for graph processing that uses recent advances in graph-parallel computation. It lets you build a graph within a Spark program using the standard Spark operators, then process it with new graph operators that are optimized for distributed computation. It includes [basic transformations]({{site.url}}docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.Graph), a [Pregel API]({{site.url}}docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.Pregel$) for iterative computation, and a standard library of [graph loaders]({{site.url}}docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.util.GraphGenerators$) and [analytics algorithms]({{site.url}}docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.lib.package). By offering these features *within* the Spark engine, GraphX can significantly speed up processing pipelines compared to workflows that use different engines.
+[GraphX]({{site.url}}graphx/) is a new framework for graph processing that uses recent advances in graph-parallel computation. It lets you build a graph within a Spark program using the standard Spark operators, then process it with new graph operators that are optimized for distributed computation. It includes [basic transformations]({{site.url}}docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.Graph), a [Pregel API]({{site.url}}docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.Pregel$) for iterative computation, and a standard library of [graph loaders]({{site.url}}docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.util.GraphGenerators$) and [analytics algorithms]({{site.url}}docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.lib.package). By offering these features *within* the Spark engine, GraphX can significantly speed up processing pipelines compared to workflows that use different engines.
 
 GraphX features in this release include:
 

@@ -73,7 +73,7 @@ in 2009, and was open sourced in early 2010.
 Many of the ideas behind the system are presented in various
 <a href="{{site.url}}research.html">research papers</a>.
 The AMPLab continues to perform research on both improving Spark and on systems built on top, such as
-<a href="{{site.shark_url}}">Shark</a>, <a href="{{site.graphx_url}}">GraphX</a>, and
+<a href="{{site.shark_url}}">Shark</a>, <a href="{{site.url}}graphx/">GraphX</a>, and
 <a href="{{site.url}}streaming/">Spark Streaming</a>.
 </p>
 
