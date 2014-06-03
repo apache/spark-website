@@ -316,7 +316,7 @@ provided for a particular vertex in the graph, the map function receives <code>N
   (vid, data, optDeg) <span class="kw">=&gt;</span> optDeg.getOrElse(<span class="num">0</span>)
 }</pre></li></ol>
             </div></dl></div>
-    </li><li name="org.apache.spark.graphx.Graph#partitionBy" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+    </li><li name="org.apache.spark.graphx.Graph#partitionBy" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="partitionBy(partitionStrategy:org.apache.spark.graphx.PartitionStrategy):org.apache.spark.graphx.Graph[VD,ED]"></a>
       <a id="partitionBy(PartitionStrategy):Graph[VD,ED]"></a>
       <h4 class="signature">
@@ -328,7 +328,28 @@ provided for a particular vertex in the graph, the map function receives <code>N
         <span class="name">partitionBy</span><span class="params">(<span name="partitionStrategy">partitionStrategy: <a href="PartitionStrategy.html" class="extype" name="org.apache.spark.graphx.PartitionStrategy">PartitionStrategy</a></span>)</span><span class="result">: <a href="" class="extype" name="org.apache.spark.graphx.Graph">Graph</a>[<span class="extype" name="org.apache.spark.graphx.Graph.VD">VD</span>, <span class="extype" name="org.apache.spark.graphx.Graph.ED">ED</span>]</span>
       </span>
       </h4>
-      <p class="shortcomment cmt">Repartitions the edges in the graph according to <code>partitionStrategy</code>.</p>
+      <p class="shortcomment cmt">Repartitions the edges in the graph according to <code>partitionStrategy</code> (WARNING: broken in
+Spark 1․0․0).</p><div class="fullcomment"><div class="comment cmt"><p>Repartitions the edges in the graph according to <code>partitionStrategy</code> (WARNING: broken in
+Spark 1․0․0).</p><p>To use this function in Spark 1.0.0, either build the latest version of Spark from the master
+branch, or apply the following workaround:</p><pre><span class="cmt">// Define our own version of partitionBy to work around SPARK-1931</span>
+<span class="kw">import</span> org.apache.spark.HashPartitioner
+<span class="kw">def</span> partitionBy[ED](
+    edges: RDD[Edge[ED]], partitionStrategy: PartitionStrategy): RDD[Edge[ED]] = {
+  <span class="kw">val</span> numPartitions = edges.partitions.size
+  edges.map(e <span class="kw">=&gt;</span> (partitionStrategy.getPartition(e.srcId, e.dstId, numPartitions), e))
+    .partitionBy(<span class="kw">new</span> HashPartitioner(numPartitions))
+    .mapPartitions(_.map(_._2), preservesPartitioning = <span class="kw">true</span>)
+}
+
+<span class="kw">val</span> vertices = ...
+<span class="kw">val</span> edges = ...
+
+<span class="cmt">// Instead of:</span>
+<span class="kw">val</span> g = Graph(vertices, edges)
+  .partitionBy(PartitionStrategy.EdgePartition2D) <span class="cmt">// broken in Spark 1.0.0</span>
+
+<span class="cmt">// Use:</span>
+<span class="kw">val</span> g = Graph(vertices, partitionBy(edges, PartitionStrategy.EdgePartition2D))</pre></div></div>
     </li><li name="org.apache.spark.graphx.Graph#persist" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
       <a id="persist(newLevel:org.apache.spark.storage.StorageLevel):org.apache.spark.graphx.Graph[VD,ED]"></a>
       <a id="persist(StorageLevel):Graph[VD,ED]"></a>
