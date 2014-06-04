@@ -22,8 +22,8 @@ streaming, interactive queries, and machine learning.
 <p class="question">Which languages does Spark support?</p>
 <p class="answer">Spark supports Scala, Java and Python.</p>
 
-<p class="question">Does Spark require modified versions of Scala or Python?</p>
-<p class="answer">No. Spark requires no changes to Scala or compiler plugins. The Python API uses the standard CPython implementation, and can call into existing C libraries for Python such as NumPy.</p>
+<p class="question">How large a cluster can Spark scale to?</p>
+<p class="answer">We are aware of multiple deployments on over 1000 nodes.</p>
 
 <p class="question">What happens when a cached dataset does not fit in memory?</p>
 <p class="answer">Spark can either spill it to disk or recompute the partitions that don't fit in RAM each time they are requested. By default, it uses recomputation, but you can set a dataset's <a href="{{site.url}}docs/latest/scala-programming-guide.html#rdd-persistence">storage level</a> to <code>MEMORY_AND_DISK</code> to avoid this.  </p>
@@ -38,6 +38,9 @@ streaming, interactive queries, and machine learning.
 
 <p class="question">How can I access data in S3?</p>
 <p class="answer">Use the <code>s3n://</code> URI scheme (<code>s3n://bucket/path</code>). You will also need to set your Amazon security credentials, either by setting the environment variables <code>AWS_ACCESS_KEY_ID</code> and <code>AWS_SECRET_ACCESS_KEY</code> before your program runs, or by setting <code>fs.s3.awsAccessKeyId</code> and <code>fs.s3.awsSecretAccessKey</code> in <code>SparkContext.hadoopConfiguration</code>.</p>
+
+<p class="question">Does Spark require modified versions of Scala or Python?</p>
+<p class="answer">No. Spark requires no changes to Scala or compiler plugins. The Python API uses the standard CPython implementation, and can call into existing C libraries for Python such as NumPy.</p>
 
 <p class="question">What are good resources for learning Scala?</p>
 <p class="answer">Check out <a href="http://www.artima.com/scalazine/articles/steps.html">First Steps to Scala</a> for a quick introduction, the <a href="http://www.scala-lang.org/docu/files/ScalaTutorial.pdf">Scala tutorial for Java programmers</a>, or the free online book <a href="http://www.artima.com/pins1ed/">Programming in Scala</a>. Scala is easy to transition to if you have Java experience or experience in a similarly high-level language (e.g. Ruby).</p>
