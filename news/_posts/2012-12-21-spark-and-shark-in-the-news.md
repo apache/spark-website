@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Spark and Shark in the news
+title: Spark in the news
 categories:
 - In-The-News
 - News
@@ -12,7 +12,7 @@ meta:
   _edit_last: '4'
   _wpas_done_all: '1'
 ---
-Recently, we've seen quite a bit of coverage of both Spark and <a href="http://shark.cs.berkeley.edu">Shark</a> in the news. I wanted to list some of the more recent articles, for readers interested in learning more.
+Recently, we've seen quite a bit of coverage of Spark in the news. I wanted to list some of the more recent articles, for readers interested in learning more.
 
 <ul>
 <li>Curt Monash, editor of the popular DBMS2 blog, wrote a great <a href="http://www.dbms2.com/2012/12/13/introduction-to-spark-shark-bdas-and-amplab/">introduction to Spark and Shark</a>, as well as a more detailed <a href="http://www.dbms2.com/2012/12/13/spark-shark-and-rdds-technology-notes/">technical overview</a>.</li>

@@ -83,7 +83,7 @@ navigation:
 
     <p>
       Spark powers a stack of high-level tools including
-      <a href="{{site.shark_url}}">Shark</a> for SQL, <a href="{{site.url}}mllib/">MLlib</a> for machine learning,
+      <a href="{{site.url}}sql/">Spark SQL</a>, <a href="{{site.url}}mllib/">MLlib</a> for machine learning,
       <a href="{{site.url}}graphx/">GraphX</a>, and <a href="{{site.url}}streaming/">Spark Streaming</a>.
       You can combine these frameworks seamlessly in the same application.
     </p>
@@ -91,8 +91,8 @@ navigation:
   <div class="col-md-5 col-sm-5 col-padded-top col-center">
     <img src="{{site.url}}images/spark-stack.png" style="margin-top: 15px; width: 100%; max-width: 296px;" usemap="#stack-map">
     <map name="stack-map">
-      <area shape="rect" coords="0,0,74,95" href="{{site.shark_url}}"
-            alt="Shark (SQL)" title="Shark">
+      <area shape="rect" coords="0,0,74,95" href="{{site.url}}sql/"
+            alt="Spark SQL" title="Spark SQL">
       <area shape="rect" coords="74,0,150,95" href="{{site.url}}streaming/"
             alt="Spark Streaming" title="Spark Streaming">
       <area shape="rect" coords="150,0,224,95" href="{{site.url}}mllib/"
