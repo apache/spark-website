@@ -25,7 +25,7 @@ or
 or
 <a href="http://d3kbcqa49mib13.cloudfront.net/spark-1.0.1-bin-hadoop2.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-1.0.1-bin-hadoop2.tgz'); return false;"> direct file download </a>
 
-Pre-build packages, third-party (NOTE: may include non ASF-compatible licenses):
+Pre-built packages, third-party (NOTE: may include non ASF-compatible licenses):
 
  * For MapR: <a href="http://package.mapr.com/tools/apache-spark/1.0.1/spark-1.0.1.tgz" onClick="trackOutboundLink(this, 'Release Downlaod Links', 'mapr_spark-1.0.1.tgz'); return false;">direct file download</a>
 
