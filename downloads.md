@@ -27,7 +27,7 @@ or
 
 Pre-build packages, third-party (NOTE: may include non ASF-compatible licenses):
 
- * For MapR <a href="http://package.mapr.com/tools/apache-spark/1.0.1/spark-1.0.1.tgz" onClick="trackOutboundLink(this, 'Release Downlaod Links', 'mapr_spark-1.0.1.tgz'); return false;">direct file download</a>
+ * For MapR: <a href="http://package.mapr.com/tools/apache-spark/1.0.1/spark-1.0.1.tgz" onClick="trackOutboundLink(this, 'Release Downlaod Links', 'mapr_spark-1.0.1.tgz'); return false;">direct file download</a>
 
 Sources:
 <a href="http://www.apache.org/dyn/closer.cgi/spark/spark-1.0.1/spark-1.0.1.tgz" onClick="trackOutboundLink(this, 'Release Downlaod Links', 'apache_spark-1.0.1.tgz'); return false;"> find an Apache mirror </a>
