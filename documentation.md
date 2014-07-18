@@ -94,7 +94,7 @@ In addition to the videos listed below, you can also view <a href="http://www.me
 <a name="summit"></a>
 <h3>Training Materials</h3>
 <ul>
-  <li><a href="http://spark-summit.org/2014/training">Training materials from Spark Summit 2014</a> are available online. These include videos and slides of talks as well as exercises you can run on your laptop. Topics include Spark core, tuning and debugging, Spark SQL, Spark Streaming, GraphX and MLlib.</li>
+  <li><a href="http://spark-summit.org/2014/training">Training materials and exercises from Spark Summit 2014</a> are available online. These include videos and slides of talks as well as exercises you can run on your laptop. Topics include Spark core, tuning and debugging, Spark SQL, Spark Streaming, GraphX and MLlib.</li>
   <li><a href="http://spark-summit.org/2013">Spark Summit 2013</a> included a training session, with slides and videos available on <a href="http://spark-summit.org/summit-2013/#agendapluginwidget-5">the training day agenda</a>.
     The session also included <a href="http://spark-summit.org/2013/exercises/">exercises</a> that you can walk through on Amazon EC2.</li>
   <li>The <a href="https://amplab.cs.berkeley.edu/">UC Berkeley AMPLab</a> regularly hosts training camps on Spark and related projects.
