@@ -23,7 +23,7 @@ streaming, interactive queries, and machine learning.
 <p class="answer">Spark supports Scala, Java and Python.</p>
 
 <p class="question">How large a cluster can Spark scale to?</p>
-<p class="answer">We are aware of multiple deployments on over 1000 nodes.</p>
+<p class="answer">We have seen multiple deployments on over 1000 nodes.</p>
 
 <p class="question">What happens when a cached dataset does not fit in memory?</p>
 <p class="answer">Spark can either spill it to disk or recompute the partitions that don't fit in RAM each time they are requested. By default, it uses recomputation, but you can set a dataset's <a href="{{site.url}}docs/latest/scala-programming-guide.html#rdd-persistence">storage level</a> to <code>MEMORY_AND_DISK</code> to avoid this.  </p>
