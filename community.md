@@ -107,5 +107,5 @@ The AMPLab continues to perform research on both improving Spark and on systems 
 <p>
 After being released, Spark grew a developer community on GitHub and entered Apache in 2013
 as its permanent home.
-A wide range of contributors now develop the project (over 120 developers from 25 companies).
+A wide range of contributors now develop the project (over 250 developers from 50 companies).
 </p>
