@@ -34,7 +34,7 @@ navigation:
 <h4>Conferences</h4>
 <ul>
   <li>
-    <a href="http://spark-summit.org/2014">Spark Summit 2014.</a> June 30 - July 1 2014 in San Francisco. Two days of keynotes and over 50 talks and technology demos presented by active Spark community members. Free live streaming and video archive. Attached to the summit, on July 2, Databricks will be hosting a day of introductory training.
+    <a href="http://spark-summit.org/2014">Spark Summit 2014.</a> June 30 - July 1 2014 in San Francisco. Two days of keynotes and over 50 talks and technology demos by Spark community members. Slides, videos and training materials are available for free at <a href="http://spark-summit.org/2014/">the summit website</a>.
   </li>
   <li>
     <a href="http://spark-summit.org/2013">Spark Summit 2013.</a> In December 2013, the community held the first Spark Summit, with 30 talks from organizations using Apache Spark.  Slides and videos of all talks are available for free at <a href="http://spark-summit.org/2013/">the summit website</a>.

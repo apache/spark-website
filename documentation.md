@@ -38,9 +38,15 @@ See the <a href="http://www.youtube.com/channel/UCRzsq7k4-kT-h3TDUBQ82-w">Apache
 
 <h4>Spark Summit Videos</h4>
 <ul>
+  <li>Videos from Spark Summit 2014, San Francisco, June 30 - July 2 2013
+    <ul>
+      <li><a href="http://spark-summit.org/2014/agenda">Full agenda with links to all videos and slides</a></li>
+      <li><a href="http://spark-summit.org/2014/training">Training videos and slides</a></li>
+    </ul>
+  </li>
   <li>Videos from Spark Summit 2013, San Francisco, Dec 2-3 2013
     <ul>
-      <li>See the <a href="http://spark-summit.org/2013#agendapluginwidget-4">event agenda</a> for the full agenda with inline links to all videos and slides</li>
+      <li><a href="http://spark-summit.org/2013#agendapluginwidget-4">Full agenda with links to all videos and slides</a></li>
       <li><a href="http://www.youtube.com/playlist?list=PL-x35fyliRwjXj33QvAXN0Vlx0gc6u0je">YouTube playist of all Keynotes</a></li>
       <li><a href="http://www.youtube.com/playlist?list=PL-x35fyliRwiNcKwIkDEQZBejiqxEJ79U">YouTube playist of Track A (Spark Applications)</a></li>
       <li><a href="http://www.youtube.com/playlist?list=PL-x35fyliRwiNcKwIkDEQZBejiqxEJ79U">YouTube playist of Track B (Spark Deployment, Scheduling & Perf, Related projects)</a></li>
