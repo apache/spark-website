@@ -8,21 +8,27 @@ function addRelease(version, releaseDate, packages, downloadable) {
 }
 
 var sources = ["sources"];
+// 0.7+
 var packagesV1 = sources.concat(["hadoop1", "cdh4"]);
+// 0.8.1+
 var packagesV2 = packagesV1.concat(["hadoop2"]);
+// 1.0.1+
 var packagesV3 = packagesV2.concat(["mapr3", "mapr4"]);
+// 1.1.0+
+var packagesV4 = packagesV1.concat(["hadoop2.3", "hadoop2.4", "mapr3", "mapr4"]);
 
-addRelease("1.0.2", new Date(2014, 8, 5), packagesV3, true);
-addRelease("1.0.1", new Date(2014, 7, 11), packagesV3);
-addRelease("1.0.0", new Date(2014, 5, 30), packagesV2);
-addRelease("0.9.2", new Date(2014, 7, 23), packagesV2, true);
-addRelease("0.9.1", new Date(2014, 4, 9), packagesV2);
-addRelease("0.9.0-incubating", new Date(2014, 2, 2), packagesV2);
-addRelease("0.8.1-incubating", new Date(2013, 12, 19), packagesV2, true);
-addRelease("0.8.0-incubating", new Date(2013, 9, 25), packagesV1, true);
-addRelease("0.7.3", new Date(2013, 7, 16), packagesV1, true);
-addRelease("0.7.2", new Date(2013, 6, 2), packagesV1);
-addRelease("0.7.0", new Date(2013, 2, 27), sources);
+addRelease("1.1.0", new Date("9/11/2014"), packagesV4, true);
+addRelease("1.0.2", new Date("8/5/2014"), packagesV3, true);
+addRelease("1.0.1", new Date("7/11/2014"), packagesV3);
+addRelease("1.0.0", new Date("5/30/2014"), packagesV2);
+addRelease("0.9.2", new Date("7/23/2014"), packagesV2, true);
+addRelease("0.9.1", new Date("4/9/2014"), packagesV2);
+addRelease("0.9.0-incubating", new Date("2/2/2014"), packagesV2);
+addRelease("0.8.1-incubating", new Date("12/19/2013"), packagesV2, true);
+addRelease("0.8.0-incubating", new Date("9/25/2013"), packagesV1, true);
+addRelease("0.7.3", new Date("7/16/2013"), packagesV1, true);
+addRelease("0.7.2", new Date("2/6/2013"), packagesV1);
+addRelease("0.7.0", new Date("2/27/2013"), sources);
 
 function append(el, contents) {
   el.innerHTML = el.innerHTML + contents;
@@ -127,21 +133,30 @@ function updateDownloadLink() {
   var pkg = getSelectedValue(packageSelect);
   var download = getSelectedValue(downloadSelect);
 
-  var link = "http://d3kbcqa49mib13.cloudfront.net/spark-$ver-bin-$pkg.tgz";
+
+  var artifactName = "spark-$ver-bin-$pkg.tgz"
+    .replace(/\$ver/g, version)
+    .replace(/\$pkg/g, pkg)
+    .replace(/-bin-sources/, ""); // special case for source packages
+
+  var link = "http://d3kbcqa49mib13.cloudfront.net/$artifact";
   if (version <= "0.7.3") {
-    link = "http://spark-project.org/download/spark-$ver-bin-$pkg.tgz";
+    link = "http://spark-project.org/download/$artifact";
   }
   if (pkg.toLowerCase().indexOf("mapr") > -1) {
-    link = "http://package.mapr.com/tools/apache-spark/$ver/spark-$ver-bin-$pkg.tgz"
+    link = "http://package.mapr.com/tools/apache-spark/$ver/$artifact"
   } else if (download == "apache") {
-    link = "http://www.apache.org/dyn/closer.cgi/spark/spark-$ver/spark-$ver-bin-$pkg.tgz";
+    link = "http://www.apache.org/dyn/closer.cgi/spark/spark-$ver/$artifact";
   }
-  link = link.replace(/\$ver/g, version).replace(/\$pkg/g, pkg);
-
-  // Sources are handled as a special case here, since they don't follow the bin-[package] syntax
-  link = link.replace(/-bin-sources/, "");
-
+  link = link
+    .replace(/\$ver/, version)
+    .replace(/\$artifact/, artifactName);
   var text = link.split("/").reverse()[0];
+
+  var onClick = "trackOutboundLink(this, 'Release Download Links', " +
+    "'$download_$artifact'); return false;"
+      .replace(/\$download/, download)
+      .replace(/\$artifact/, artifactName);
 
   var contents = "<a href=\"" + link + "\">" + text + "</a>";
   append(downloadLink, contents);
