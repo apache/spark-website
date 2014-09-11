@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>pyspark.serializers</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="pyspark-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://spark.apache.org">Spark 1.1.0 Python API Docs</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="pyspark-module.html">Package&nbsp;pyspark</a> ::
+        Module&nbsp;serializers
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="pyspark.serializers-module.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<!-- ==================== MODULE DESCRIPTION ==================== -->
+<h1 class="epydoc">Module serializers</h1><p class="nomargin-top"><span class="codelink"><a href="pyspark.serializers-pysrc.html">source&nbsp;code</a></span></p>
+<p>PySpark supports custom serializers for transferring data; this can 
+  improve performance.</p>
+  <p>By default, PySpark uses <a 
+  href="pyspark.serializers.PickleSerializer-class.html" 
+  class="link">PickleSerializer</a> to serialize objects using Python's 
+  <code>cPickle</code> serializer, which can serialize nearly any Python 
+  object. Other serializers, like <a 
+  href="pyspark.serializers.MarshalSerializer-class.html" 
+  class="link">MarshalSerializer</a>, support fewer datatypes but can be 
+  faster.</p>
+  <p>The serializer is chosen when creating <a 
+  href="pyspark-module.html#SparkContext" 
+  class="link">SparkContext</a>:</p>
+<pre class="py-doctest">
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">from</span> pyspark.context <span class="py-keyword">import</span> SparkContext
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">from</span> pyspark.serializers <span class="py-keyword">import</span> MarshalSerializer
+<span class="py-prompt">&gt;&gt;&gt; </span>sc = SparkContext(<span class="py-string">'local'</span>, <span class="py-string">'test'</span>, serializer=MarshalSerializer())
+<span class="py-prompt">&gt;&gt;&gt; </span>sc.parallelize(list(range(1000))).map(<span class="py-keyword">lambda</span> x: 2 * x).take(10)
+<span class="py-output">[0, 2, 4, 6, 8, 10, 12, 14, 16, 18]</span>
+<span class="py-output"></span><span class="py-prompt">&gt;&gt;&gt; </span>sc.stop()</pre>
+  <p>By default, PySpark serialize objects in batches; the batch size can 
+  be controlled through SparkContext's <code>batchSize</code> parameter 
+  (the default size is 1024 objects):</p>
+<pre class="py-doctest">
+<span class="py-prompt">&gt;&gt;&gt; </span>sc = SparkContext(<span class="py-string">'local'</span>, <span class="py-string">'test'</span>, batchSize=2)
+<span class="py-prompt">&gt;&gt;&gt; </span>rdd = sc.parallelize(range(16), 4).map(<span class="py-keyword">lambda</span> x: x)</pre>
+  <p>Behind the scenes, this creates a JavaRDD with four partitions, each 
+  of which contains two batches of two objects:</p>
+<pre class="py-doctest">
+<span class="py-prompt">&gt;&gt;&gt; </span>rdd.glom().collect()
+<span class="py-output">[[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15]]</span>
+<span class="py-output"></span><span class="py-prompt">&gt;&gt;&gt; </span>rdd._jrdd.count()
+<span class="py-output">8L</span>
+<span class="py-output"></span><span class="py-prompt">&gt;&gt;&gt; </span>sc.stop()</pre>
+  <p>A batch size of -1 uses an unlimited batch size, and a size of 1 
+  disables batching:</p>
+<pre class="py-doctest">
+<span class="py-prompt">&gt;&gt;&gt; </span>sc = SparkContext(<span class="py-string">'local'</span>, <span class="py-string">'test'</span>, batchSize=1)
+<span class="py-prompt">&gt;&gt;&gt; </span>rdd = sc.parallelize(range(16), 4).map(<span class="py-keyword">lambda</span> x: x)
+<span class="py-prompt">&gt;&gt;&gt; </span>rdd.glom().collect()
+<span class="py-output">[[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15]]</span>
+<span class="py-output"></span><span class="py-prompt">&gt;&gt;&gt; </span>rdd._jrdd.count()
+<span class="py-output">16L</span></pre>
+
+<!-- ==================== CLASSES ==================== -->
+<a name="section-Classes"></a>
+<table class="summary" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="table-header">
+  <td align="left" colspan="2" class="table-header">
+    <span class="table-header">Classes</span></td>
+</tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="pyspark.serializers.PickleSerializer-class.html" class="summary-name">PickleSerializer</a><br />
+      Serializes objects using Python's cPickle serializer:
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="pyspark.serializers.MarshalSerializer-class.html" class="summary-name">MarshalSerializer</a><br />
+      Serializes objects using Python's Marshal serializer:
+    </td>
+  </tr>
+</table>
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+  <!-- Home link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="pyspark-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Project homepage -->
+      <th class="navbar" align="right" width="100%">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr><th class="navbar" align="center"
+            ><a class="navbar" target="_top" href="http://spark.apache.org">Spark 1.1.0 Python API Docs</a></th>
+          </tr></table></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0.1 on Thu Sep 11 01:19:40 2014
+    </td>
+    <td align="right" class="footer">
+      <a target="mainFrame" href="http://epydoc.sourceforge.net"
+        >http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie();
+  // -->
+</script>
+</body>
+</html>
