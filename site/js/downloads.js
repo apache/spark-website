@@ -158,6 +158,6 @@ function updateDownloadLink() {
       .replace(/\$download/, download)
       .replace(/\$artifact/, artifactName);
 
-  var contents = "<a href=\"" + link + "\">" + text + "</a>";
+  var contents = "<a href=\"" + link + "\" onClick=\"" + onClick + "\">" + text + "</a>";
   append(downloadLink, contents);
 }
