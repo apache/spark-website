@@ -7,15 +7,24 @@ function addRelease(version, releaseDate, packages, downloadable) {
   releases[version] = {released: releaseDate, packages: packages, downloadable: downloadable};
 }
 
-var sources = ["sources"];
+var sources = {pretty: "Source Code [can build several Hadoop versions]", tag: "sources"};
+var hadoop1 = {pretty: "Pre-built for Hadoop 1.X", tag: "hadoop1"};
+var cdh4 = {pretty: "Pre-built for CDH 4", tag: "cdh4"};
+var hadoop2 = {pretty: "Pre-built for Hadoop 2.2", tag: "hadoop2"};
+var hadoop2p3 = {pretty: "Pre-built for Hadoop 2.3", tag: "hadoop2.3"};
+var hadoop2p4 = {pretty: "Pre-built for Hadoop 2.4", tag: "hadoop2.4"};
+var mapr3 = {pretty: "Pre-built for MapR 3.X", tag: "mapr3"};
+var mapr4 = {pretty: "Pre-built for MapR 4.X", tag: "mapr4"};
+
+var sourcePackage = [sources];
 // 0.7+
-var packagesV1 = sources.concat(["hadoop1", "cdh4"]);
+var packagesV1 = sourcePackage.concat([hadoop1, cdh4]);
 // 0.8.1+
-var packagesV2 = packagesV1.concat(["hadoop2"]);
+var packagesV2 = packagesV1.concat([hadoop2]);
 // 1.0.1+
-var packagesV3 = packagesV2.concat(["mapr3", "mapr4"]);
+var packagesV3 = packagesV2.concat([mapr3, mapr4]);
 // 1.1.0+
-var packagesV4 = packagesV1.concat(["hadoop2.3", "hadoop2.4", "mapr3", "mapr4"]);
+var packagesV4 = packagesV1.concat([hadoop2p3, hadoop2p4, mapr3, mapr4]);
 
 addRelease("1.1.0", new Date("9/11/2014"), packagesV4, true);
 addRelease("1.0.2", new Date("8/5/2014"), packagesV3, true);
@@ -87,7 +96,10 @@ function onVersionSelect() {
   var version = getSelectedValue(versionSelect);
   var packages = releases[version]["packages"];
   for (var idx in packages) {
-    append(packageSelect, "<option>" + packages[idx] + "</option>")
+    var option = "<option value=$tag> $pretty </option>"
+      .replace(/\$tag/, packages[idx].tag)
+      .replace(/\$pretty/, packages[idx].pretty);
+    append(packageSelect, option);
   }
 
   var href = "http://www.apache.org/dist/spark/spark-" + version + "/";
