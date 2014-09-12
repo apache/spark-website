@@ -141,6 +141,7 @@ Spark 1.1.0 is backwards compatible with Spark 1.0.X. Some configuration option 
  * Lu Luorta -- graphX fix
  * Luogan Kun -- SQL test fix
  * Ly Lai -- bug fix in Spark SQL
+ * Madhu Siddalingaiah -- external sorting feature
  * Manish Amde -- Multiclass support for decision trees
  * Manuel Laflamme -- streaming fix
  * Marcelo Vanzin -- fixes and improvements in YARN code
