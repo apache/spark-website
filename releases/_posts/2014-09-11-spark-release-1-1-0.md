@@ -11,7 +11,7 @@ meta:
   _wpas_done_all: '1'
 ---
 
-Spark 1.1.0 is the first minor release on the 1.X line. This release brings operational and performance improvements in Spark core along with significant extensions to Spark’s newest libraries: MLlib and Spark SQL. It also builds out Spark’s Python support and adds new components to the Spark Streaming module. Spark 1.1 represents the work of 173 contributors, the most to ever contribute to a Spark release!
+Spark 1.1.0 is the first minor release on the 1.X line. This release brings operational and performance improvements in Spark core along with significant extensions to Spark’s newest libraries: MLlib and Spark SQL. It also builds out Spark’s Python support and adds new components to the Spark Streaming module. Spark 1.1 represents the work of 171 contributors, the most to ever contribute to a Spark release!
 
 ### Performance and Usability Improvements
 Across the board, Spark 1.1 adds features for improved stability and performance, particularly for large-scale workloads. Spark now performs [disk spilling for skewed blocks](https://issues.apache.org/jira/browse/SPARK-1777) during cache operations, guarding against memory overflows if a single RDD partition is large. Disk spilling during aggregations, introduced in Spark 1.0, has been [ported to PySpark](https://issues.apache.org/jira/browse/SPARK-2538). This release introduces a [new shuffle implementation](https://issues.apache.org/jira/browse/SPARK-2045]) optimized for very large scale shuffles. This “sort-based shuffle” will be become the default in the next release, and is now available to users. For jobs with large numbers of reducers, we recommend turning this on. This release also adds several usability improvements for monitoring the performance of long running or complex jobs. Among the changes are better [named accumulators](https://issues.apache.org/jira/browse/SPARK-2380) that display in Spark’s UI, [dynamic updating of metrics](https://issues.apache.org/jira/browse/SPARK-2099) for progress tasks, and [reporting of input metrics](https://issues.apache.org/jira/browse/SPARK-1683) for tasks that read input data.
@@ -101,7 +101,6 @@ Spark 1.1.0 is backwards compatible with Spark 1.0.X. Some configuration options
  * Guancheng Chen -- doc fix
  * Guillaume Ballet -- build fix
  * GuoQiang Li -- bug fixes in Spark core and MLlib
- * Guoquiang Li -- bug fixes throughout Spark core
  * Guo Wei -- bug fix in Spark SQL
  * Haoyuan Li -- Tachyon fix
  * Hari Shreeharan -- Flume polling source for Spark Streaming
@@ -206,7 +205,6 @@ Spark 1.1.0 is backwards compatible with Spark 1.0.X. Some configuration options
  * Xi Lui -- UDF improvement in Spark SQL
  * Ximo Guanter Gonzalbez -- SQL DSL support for aggregations
  * Yadid Ayzenberg -- doc fixes
- * Yadong -- code clean-up
  * Yadong Qi -- code clean-up
  * Yanjie Gao -- Spark SQL enhancement
  * Yantangz Hai -- bug fix
