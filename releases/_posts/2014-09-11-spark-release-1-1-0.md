@@ -48,11 +48,11 @@ Spark 1.1.0 is backwards compatible with Spark 1.0.X. Some configuration options
 
 ### Contributors:
  * Aaron Davidson -- PySpark optimizations, fixes and optimizations in Spark core
- * Aaron Staple -- Fixes in Spark core Spark SQL
+ * Aaron Staple -- fixes in Spark core Spark SQL
  * Ahir Reddy -- Spark SQL fix
- * Albert Chu -- Config fix
+ * Albert Chu -- config fix
  * Alexander Ulanov -- Multiclass evaluation metrics in MLlib
- * Alex Liu -- Bug fix
+ * Alex Liu -- bug fix
  * Ali Ghodsi -- doc fix
  * Allan Douglas R. de Oliveira -- EC2 script enhancements and coGroup fix
  * Ameet Talwalker -- MLlib docs
@@ -174,7 +174,7 @@ Spark 1.1.0 is backwards compatible with Spark 1.0.X. Some configuration options
  * Rishi Verma -- doc fix
  * RJ Nowling -- code clean-up
  * Rui Li -- bug fixes
- * Sameer Agarwal -- but fix
+ * Sameer Agarwal -- bug fix
  * Sandy Ryza -- performance improvements, spark configs, and YARN fixes
  * Sarah Gerweck -- bug fix
  * Sean Owen -- bug fixes and build fixes in core and MLlib
@@ -197,7 +197,7 @@ Spark 1.1.0 is backwards compatible with Spark 1.0.X. Some configuration options
  * Vida Ha -- EC2 fixes
  * Vlad -- doc fix
  * Wangfei Shi -- bug and build fixes
- * Wang Lianhui bug fixes
+ * Wang Lianhui -- bug fixes
  * Wang Tao -- bug fix
  * Wenchen Fan -- memory leak fix
  * William Benton -- bug fixes in core and SQL, improvements in Spark SQL
@@ -212,7 +212,7 @@ Spark 1.1.0 is backwards compatible with Spark 1.0.X. Some configuration options
  * Yantangz Hai -- bug fix
  * Ye Xianjin -- bug fix
  * Yijie Shen -- bug fix
- * Yin Huai -- several additions to Spark SQL. lead on JSON support and types API.
+ * Yin Huai -- several additions to Spark SQL, lead on JSON support and types API.
  * Yi Tian -- SQL fix
  * Zhang Liye -- bug fix
  * Zhen Peng -- bug fixes
