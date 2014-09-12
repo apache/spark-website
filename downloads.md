@@ -24,7 +24,10 @@ The latest release of Spark is Spark 1.1.0, released on September 11, 2014
   <select id="sparkVersionSelect" onChange="javascript:onVersionSelect();"></select><br>
 
 2. Chose a package type:
-  <select id="sparkPackageSelect" onChange="javascript:onPackageSelect();"></select><br>
+  <select id="sparkPackageSelect" onChange="javascript:onPackageSelect();"></select>
+  <br><em>Note: Spark can be <a href="{{site.url}}docs/latest/building-with-maven.html"> 
+  built from source</a> for many other Hadoop versions.</em>
+  <br>
 
 3. Chose a download type:
   <select id="sparkDownloadSelect" onChange="javascript:onDownloadSelect()"></select><br>
