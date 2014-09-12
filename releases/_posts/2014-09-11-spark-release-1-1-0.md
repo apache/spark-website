@@ -63,6 +63,7 @@ Spark 1.1.0 is backwards compatible with Spark 1.0.X. Some configuration option 
  * Anant -- Python and doc fixes
  * Anatoli Fomenko -- MLlib doc fix
  * Andrew Ash -- doc improvements and bug fixes
+ * Andrew Xia -- external sorting feature
  * Andrew Or -- external spilling feature, bug fixes, and optimizations
  * Andrew Schumacher -- Parquet support in Spark SQL
  * Ankit Bhardwaj -- bug fix
