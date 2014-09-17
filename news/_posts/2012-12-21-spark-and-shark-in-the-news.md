@@ -2,7 +2,6 @@
 layout: post
 title: Spark in the news
 categories:
-- In-The-News
 - News
 tags: []
 status: publish

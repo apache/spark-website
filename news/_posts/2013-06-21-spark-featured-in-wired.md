@@ -2,7 +2,6 @@
 layout: post
 title: Spark featured in Wired
 categories:
-- In-The-News
 - News
 tags: []
 status: publish
