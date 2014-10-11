@@ -60,6 +60,9 @@ Spark Meetups are grass-roots events organized and hosted by leaders and champio
     <a href="http://www.meetup.com/Spark-London/">London Spark Meetup</a>
   </li>
   <li>
+    <a href="http://www.meetup.com/spark-user-beijing-Meetup/">Beijing Spark Meetup</a>
+  </li>
+  <li>
     <a href="http://www.meetup.com/Spark-Barcelona/">Barcelona Spark Meetup</a>
   </li>
   <li>
