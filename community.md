@@ -109,12 +109,12 @@ in 2009, and was open sourced in early 2010.
 Many of the ideas behind the system are presented in various
 <a href="{{site.url}}research.html">research papers</a>.
 The AMPLab continues to perform research on both improving Spark and on systems built on top, such as
-<a href="{{site.shark_url}}">Shark</a>, <a href="{{site.url}}graphx/">GraphX</a>, and
+<a href="{{site.url}}sql/">Spark SQL</a>, <a href="{{site.url}}graphx/">GraphX</a>, and
 <a href="{{site.url}}streaming/">Spark Streaming</a>.
 </p>
 
 <p>
 After being released, Spark grew a developer community on GitHub and entered Apache in 2013
 as its permanent home.
-A wide range of contributors now develop the project (over 250 developers from 50 companies).
+A wide range of contributors now develop the project (over 300 developers from 50 companies).
 </p>

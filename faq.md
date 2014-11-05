@@ -10,20 +10,21 @@ navigation:
 
 <p class="question">How does Spark relate to Hadoop?</p>
 <p class="answer">
-Spark is a fast and powerful engine for processing Hadoop data.
-It runs in Hadoop clusters through
-<a href="http://hadoop.apache.org/docs/current2/hadoop-yarn/hadoop-yarn-site/YARN.html">Hadoop YARN</a> 
-or Spark's <a href="{{site.url}}docs/latest/spark-standalone.html">standalone mode</a>, and it can process
-data in HDFS, HBase, Cassandra, Hive, and any Hadoop InputFormat.
-It is designed to perform both general data processing (similar to MapReduce) and new workloads like
-streaming, interactive queries, and machine learning.
+Spark is a fast and general processing engine compatible with Hadoop data. It can run in Hadoop clusters through YARN or Spark's standalone mode, and it can process data in HDFS, HBase, Cassandra, Hive, and any Hadoop InputFormat. It is designed to perform both batch processing (similar to MapReduce) and new workloads like streaming, interactive queries, and machine learning.
 </p>
 
 <p class="question">Which languages does Spark support?</p>
 <p class="answer">Spark supports Scala, Java and Python.</p>
 
+<p class="question">What is the largest data size Spark can scale to?</p>
+<p class="answer">Spark has been shown to work well from megabytes of data to petabytes. It has been used to sort 100 TB of data 3X faster than Hadoop MapReduce on 1/10th of the machines, <a href="http://databricks.com/blog/2014/11/05/spark-officially-sets-a-new-record-in-large-scale-sorting.html">winning the 2014 Daytona GraySort Benchmark</a>. It has also been used to <a href="http://databricks.com/blog/2014/10/10/spark-petabyte-sort.html">sort 1 PB of data</a>. There are also production workloads that <a href="http://databricks.com/blog/2014/08/14/mining-graph-data-with-spark-at-alibaba-taobao.html">use Spark to do ETL and data analysis on PBs of data</a>. 
+</p>
+
 <p class="question">How large a cluster can Spark scale to?</p>
-<p class="answer">We have seen multiple deployments on over 1000 nodes.</p>
+<p class="answer">Many organizations run Spark on clusters with thousands of nodes.</p>
+
+<p class="question">What happens if my dataset does not fit in memory?</p>
+<p class="answer">Often each partition of data is small and does fit in memory, and these partitions are processed a few at a time. For very large partitions that do not fit in memory, Spark's built-in operators perform external operations on datasets.</p>
 
 <p class="question">What happens when a cached dataset does not fit in memory?</p>
 <p class="answer">Spark can either spill it to disk or recompute the partitions that don't fit in RAM each time they are requested. By default, it uses recomputation, but you can set a dataset's <a href="{{site.url}}docs/latest/scala-programming-guide.html#rdd-persistence">storage level</a> to <code>MEMORY_AND_DISK</code> to avoid this.  </p>
