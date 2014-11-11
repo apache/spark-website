@@ -108,7 +108,7 @@ navigation:
     <h2>Runs Everywhere</h2>
 
     <p class="lead">
-      Spark runs on Hadoop YARN, Apache Mesos, standalone, or in the cloud. It can talk to and read from many different data sources such as HDFS, Cassandra, HBase, S3.
+      Spark runs on Hadoop, Mesos, standalone, or in the cloud. It can access diverse data sources including HDFS, Cassandra, HBase, S3.
     </p>
 
     <p>
@@ -153,13 +153,13 @@ navigation:
 
     <p>
       Apache Spark is built by a wide set of developers from over 50 companies.
-      Since the project started in 2009, more than 250 developers have contributed to Spark!
+      Since the project started in 2009, more than 400 developers have contributed to Spark!
     </p>
 
     <p>
       The project's
       <a href="https://cwiki.apache.org/confluence/display/SPARK/Committers">committers</a>
-      come from 12 organizations.
+      come from 16 organizations.
     </p>
 
     <p>
@@ -177,8 +177,7 @@ navigation:
       <li><a href="{{site.url}}downloads.html">Download</a> the latest release &mdash; you can run Spark locally on your laptop.</li>
       <li>Read the <a href="{{site.url}}docs/latest/quick-start.html">quick start guide</a>.</li>
       <li>
-        Spark Summit 2013 contained free <a href="http://spark-summit.org/summit-2013/#day2">training videos</a> and <a href="http://spark-summit.org/2013/exercises/">exercises</a>
-        that you can run on Amazon EC2.
+        Spark Summit 2014 contained free <a href="http://spark-summit.org/2014/training">training videos and exercises</a>.
       </li>
       <li>Learn how to <a href="{{site.url}}docs/latest/#launching-on-a-cluster">deploy</a> Spark on a cluster.</li>
     </ul>

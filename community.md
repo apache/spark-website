@@ -34,6 +34,12 @@ navigation:
 <h4>Conferences</h4>
 <ul>
   <li>
+    <a href="http://spark-summit.org/2015">Spark Summit 2015.</a> June 15 - 17 in San Francisco.
+  </li>
+  <li>
+    <a href="http://spark-summit.org/east">Spark Summit East 2015.</a> March 18 - 19 in New York City.
+  </li>
+  <li>
     <a href="http://spark-summit.org/2014">Spark Summit 2014.</a> June 30 - July 1 2014 in San Francisco. Two days of keynotes and over 50 talks and technology demos by Spark community members. Slides, videos and training materials are available for free at <a href="http://spark-summit.org/2014/">the summit website</a>.
   </li>
   <li>
@@ -51,12 +57,6 @@ Spark Meetups are grass-roots events organized and hosted by leaders and champio
     You can also find links to videos from past meetups on the <a href="documentation.html#meetup-videos">Documentation Page</a>.
   </li>
   <li>
-    <a href="http://www.meetup.com/Seattle-Spark-Meetup/">Seattle Spark Meetup</a>
-  </li>
-  <li>
-    <a href="http://www.meetup.com/Spark-NYC/">NYC Spark Meetup</a>
-  </li>
-  <li>
     <a href="http://www.meetup.com/Spark-London/">London Spark Meetup</a>
   </li>
   <li>
@@ -69,24 +69,39 @@ Spark Meetups are grass-roots events organized and hosted by leaders and champio
     <a href="http://www.meetup.com/Spark_big_data_analytics/">Bangalore Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Washington-DC-Area-Spark-Interactive/">DC Area Spark Meetup</a>
-  </li>
-  <li>
     <a href="http://www.meetup.com/Boston-Apache-Spark-User-Group/">Boston Spark Meetup</a>
   </li>
   <li>
     <a href="http://www.meetup.com/Boulder-Denver-Spark-Meetup/">Boulder/Denver Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Apache-Spark-Maryland/">Maryland Spark Meetup</a>
+    <a href="http://www.meetup.com/Washington-DC-Area-Spark-Interactive/">DC Area Spark Meetup</a>
+  </li>
+  <li>
+    <a href="http://www.meetup.com/Hangzhou-Apache-Spark-Meetup/">Hangzhou Spark Meetup</a>
   </li>
   <li>
     <a href="http://www.meetup.com/Spark-User-Group-Hyderabad/">Hyderabad Spark Meetup</a>
   </li>
   <li>
+    <a href="http://www.meetup.com/Apache-Spark-Maryland/">Maryland Spark Meetup</a>
+  </li>
+  <li>
+    <a href="http://www.meetup.com/Spark-NYC/">NYC Spark Meetup</a>
+  </li>
+  <li>
+    <a href="http://www.meetup.com/Seattle-Spark-Meetup/">Seattle Spark Meetup</a>
+  </li>
+  <li>
+    <a href="http://www.meetup.com/Shanghai-Apache-Spark-Meetup/">Shanghai Spark Meetup</a>
+  </li>
+  <li>
+    <a href="http://www.meetup.com/Shenzhen-Apache-Spark-Meetup/">Shenzhen Spark Meetup</a>
+  </li>
+  <li>
     <a href="http://www.meetup.com/Vancouver-Spark/">Vancouver Spark Meetup</a>
   </li>
-  </ul>
+</ul>
 
 <p>If you'd like your meetup added, email <a href="mailto:user@spark.apache.org">user@spark.apache.org</a>.</p>
 
@@ -116,5 +131,5 @@ The AMPLab continues to perform research on both improving Spark and on systems 
 <p>
 After being released, Spark grew a developer community on GitHub and entered Apache in 2013
 as its permanent home.
-A wide range of contributors now develop the project (over 300 developers from 50 companies).
+A wide range of contributors now develop the project (over 400 developers from 50 companies).
 </p>
