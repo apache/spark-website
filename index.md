@@ -85,7 +85,7 @@ navigation:
       Spark powers a stack of high-level tools including
       <a href="{{site.url}}sql/">Spark SQL</a>, <a href="{{site.url}}mllib/">MLlib</a> for machine learning,
       <a href="{{site.url}}graphx/">GraphX</a>, and <a href="{{site.url}}streaming/">Spark Streaming</a>.
-      You can combine these frameworks seamlessly in the same application.
+      You can combine these libraries seamlessly in the same application.
     </p>
   </div>
   <div class="col-md-5 col-sm-5 col-padded-top col-center">
