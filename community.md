@@ -31,14 +31,18 @@ navigation:
 <a name="events"></a>
 <h3>Events and Meetups</h3>
 
-<h4>Conferences</h4>
+<h4>Upcoming Conferences</h4>
 <ul>
-  <li>
-    <a href="http://spark-summit.org/2015">Spark Summit 2015.</a> June 15 - 17 in San Francisco.
-  </li>
   <li>
     <a href="http://spark-summit.org/east">Spark Summit East 2015.</a> March 18 - 19 in New York City.
   </li>
+  <li>
+    <a href="http://spark-summit.org/2015">Spark Summit 2015.</a> June 15 - 17 in San Francisco.
+  </li>
+</ul>
+
+<h4>Past Conferences</h4>
+<ul>
   <li>
     <a href="http://spark-summit.org/2014">Spark Summit 2014.</a> June 30 - July 1 2014 in San Francisco. Two days of keynotes and over 50 talks and technology demos by Spark community members. Slides, videos and training materials are available for free at <a href="http://spark-summit.org/2014/">the summit website</a>.
   </li>
@@ -123,13 +127,9 @@ Spark started as a research project at the <a href="https://amplab.cs.berkeley.e
 in 2009, and was open sourced in early 2010.
 Many of the ideas behind the system are presented in various
 <a href="{{site.url}}research.html">research papers</a>.
-The AMPLab continues to perform research on both improving Spark and on systems built on top, such as
-<a href="{{site.url}}sql/">Spark SQL</a>, <a href="{{site.url}}graphx/">GraphX</a>, and
-<a href="{{site.url}}streaming/">Spark Streaming</a>.
 </p>
 
 <p>
-After being released, Spark grew a developer community on GitHub and entered Apache in 2013
-as its permanent home.
-A wide range of contributors now develop the project (over 400 developers from 50 companies).
+After being released, Spark grew a developer community on GitHub and moved to Apache in 2013.
+A wide range of contributors now develop the project (over 400 developers from 100 companies).
 </p>
