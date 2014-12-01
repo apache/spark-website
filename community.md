@@ -31,7 +31,7 @@ navigation:
 <a name="events"></a>
 <h3>Events and Meetups</h3>
 
-<h4>Upcoming Conferences</h4>
+<h4>Conferences</h4>
 <ul>
   <li>
     <a href="http://spark-summit.org/east">Spark Summit East 2015.</a> March 18 - 19 in New York City.
@@ -39,10 +39,6 @@ navigation:
   <li>
     <a href="http://spark-summit.org/2015">Spark Summit 2015.</a> June 15 - 17 in San Francisco.
   </li>
-</ul>
-
-<h4>Past Conferences</h4>
-<ul>
   <li>
     <a href="http://spark-summit.org/2014">Spark Summit 2014.</a> June 30 - July 1 2014 in San Francisco. Two days of keynotes and over 50 talks and technology demos by Spark community members. Slides, videos and training materials are available for free at <a href="http://spark-summit.org/2014/">the summit website</a>.
   </li>
