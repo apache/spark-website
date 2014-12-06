@@ -21,7 +21,7 @@ Spark is a fast and general processing engine compatible with Hadoop data. It ca
 </p>
 
 <p class="question">How large a cluster can Spark scale to?</p>
-<p class="answer">Many organizations run Spark on clusters with thousands of nodes.</p>
+<p class="answer">Many organizations run Spark on clusters with thousands of nodes. The largest cluster we know has over 8000 nodes.</p>
 
 <p class="question">What happens if my dataset does not fit in memory?</p>
 <p class="answer">Often each partition of data is small and does fit in memory, and these partitions are processed a few at a time. For very large partitions that do not fit in memory, Spark's built-in operators perform external operations on datasets.</p>
