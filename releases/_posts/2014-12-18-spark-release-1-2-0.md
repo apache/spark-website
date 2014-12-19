@@ -159,7 +159,7 @@ A few smaller bugs did not make the release window. They will be fixed in Spark 
  * Mark Mims -- Improvements in Web UI
  * Martin Weindel -- Documentation in Core and Mesos
  * Masayoshi TSUZUKI -- Improvements in Windows, Core, and PySpark; bug fixes in Windows, Core, and PySpark
- * Matei Zaharia -- Improvement in SQL
+ * Matei Zaharia -- Improvement in Core and SQL; bug fixes in Core and SQL
  * Matthew Cheah -- Bug fixes in Core
  * Matthew Farrellee -- Improvements in Core; new features in PySpark; bug fixes in Core and PySpark
  * Matthew Rocklin -- Bug fixes in Core
