@@ -81,7 +81,6 @@ A few smaller bugs did not make the release window. They will be fixed in Spark 
  * Aniket Bhatnagar -- Bug fixes in Core and Streaming
  * Ankur Dave -- Improvements and bug fixes in GraphX
  * Arun Ahuja -- Documentation in Core
- * Bai Shou -- Improvements and bug fixes in SQL
  * Benoy Antony -- Bug fixes in Web UI and YARN
  * Bertrand Bossy -- Bug fixes in Core
  * Bill Bejeck -- Bug fixes in Core
@@ -168,6 +167,7 @@ A few smaller bugs did not make the release window. They will be fixed in Spark 
  * Michelangelo D'Agostino -- Improvements in MLlib and PySpark
  * Mike Timper -- Bug fixes in SQL
  * Min Shen -- Bug fixes in YARN
+ * Mingfei Shi -- Bug fixes in Core
  * Mubarak Seyed -- Improvements in Streaming
  * NamelessAnalyst -- Improvements in GraphX
  * Nan Zhu -- Bug fixes and Improvements in Core
@@ -196,10 +196,10 @@ A few smaller bugs did not make the release window. They will be fixed in Spark 
  * Santiago M. Mola -- Documentation in Core
  * Sean Owen -- Improvement in Streaming; improvements in Core and Streaming; new features in Core; bug fixes in Java API, Core, MLlib, and Streaming; documentation in Core
  * Shane Knapp -- Bug fixes in Core
- * Shiming Fei -- Bug fixes in Core
  * Shiti Saxena -- Improvement in Core
  * Shivaram Venkataraman -- Improvements in Core; bug fixes in Core and EC2
  * Shixiong Zhu -- Test in Core; improvements in Core and Web UI; bug fixes in Core, Web UI, and YARN; documentation in Streaming and Core
+ * Bai Shou -- Improvements and bug fixes in SQL
  * Shuo Xiang -- New features and bug fixes in MLlib
  * Su Yan -- Bug fixes in Core
  * Sung Chung -- Improvements in MLlib
