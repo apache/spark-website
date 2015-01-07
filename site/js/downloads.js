@@ -12,33 +12,33 @@ var hadoop1 = {pretty: "Pre-built for Hadoop 1.X", tag: "hadoop1"};
 var cdh4 = {pretty: "Pre-built for CDH 4", tag: "cdh4"};
 var hadoop2 = {pretty: "Pre-built for Hadoop 2.2", tag: "hadoop2"};
 var hadoop2p3 = {pretty: "Pre-built for Hadoop 2.3", tag: "hadoop2.3"};
-var hadoop2p4 = {pretty: "Pre-built for Hadoop 2.4", tag: "hadoop2.4"};
+var hadoop2p4 = {pretty: "Pre-built for Hadoop 2.4 and later", tag: "hadoop2.4"};
 var mapr3 = {pretty: "Pre-built for MapR 3.X", tag: "mapr3"};
 var mapr4 = {pretty: "Pre-built for MapR 4.X", tag: "mapr4"};
 
-var sourcePackage = [sources];
+var sources = [sources];
 // 0.7+
-var packagesV1 = sourcePackage.concat([hadoop1, cdh4]);
+var packagesV1 = [hadoop1, cdh4];
 // 0.8.1+
-var packagesV2 = packagesV1.concat([hadoop2]);
+var packagesV2 = [hadoop2].concat(packagesV1);
 // 1.0.1+
-var packagesV3 = packagesV2.concat([mapr3, mapr4]);
+var packagesV3 = [mapr3, mapr4].concat(packagesV2);
 // 1.1.0+
-var packagesV4 = packagesV1.concat([hadoop2p3, hadoop2p4, mapr3, mapr4]);
+var packagesV4 = [hadoop2p4, hadoop2p3, mapr3, mapr4].concat(packagesV1);
 
-addRelease("1.2.0", new Date("12/18/2014"), packagesV4, true);
-addRelease("1.1.1", new Date("11/26/2014"), packagesV4, true);
-addRelease("1.1.0", new Date("9/11/2014"), packagesV4, true);
-addRelease("1.0.2", new Date("8/5/2014"), packagesV3, true);
-addRelease("1.0.1", new Date("7/11/2014"), packagesV3);
-addRelease("1.0.0", new Date("5/30/2014"), packagesV2);
-addRelease("0.9.2", new Date("7/23/2014"), packagesV2, true);
-addRelease("0.9.1", new Date("4/9/2014"), packagesV2);
-addRelease("0.9.0-incubating", new Date("2/2/2014"), packagesV2);
-addRelease("0.8.1-incubating", new Date("12/19/2013"), packagesV2, true);
-addRelease("0.8.0-incubating", new Date("9/25/2013"), packagesV1, true);
-addRelease("0.7.3", new Date("7/16/2013"), packagesV1, true);
-addRelease("0.7.2", new Date("2/6/2013"), packagesV1);
+addRelease("1.2.0", new Date("12/18/2014"), sources.concat(packagesV4), true);
+addRelease("1.1.1", new Date("11/26/2014"), sources.concat(packagesV4), true);
+addRelease("1.1.0", new Date("9/11/2014"), sources.concat(packagesV4), true);
+addRelease("1.0.2", new Date("8/5/2014"), sources.concat(packagesV3), true);
+addRelease("1.0.1", new Date("7/11/2014"), sources.concat(packagesV3));
+addRelease("1.0.0", new Date("5/30/2014"), sources.concat(packagesV2));
+addRelease("0.9.2", new Date("7/23/2014"), sources.concat(packagesV2), true);
+addRelease("0.9.1", new Date("4/9/2014"), sources.concat(packagesV2));
+addRelease("0.9.0-incubating", new Date("2/2/2014"), sources.concat(packagesV2));
+addRelease("0.8.1-incubating", new Date("12/19/2013"), sources.concat(packagesV2), true);
+addRelease("0.8.0-incubating", new Date("9/25/2013"), sources.concat(packagesV1), true);
+addRelease("0.7.3", new Date("7/16/2013"), sources.concat(packagesV1), true);
+addRelease("0.7.2", new Date("2/6/2013"), sources.concat(packagesV1));
 addRelease("0.7.0", new Date("2/27/2013"), sources);
 
 function append(el, contents) {
@@ -125,8 +125,8 @@ function onPackageSelect() {
     var external = "External Download (MAY CONTAIN INCOMPATIBLE LICENSES)";
     append(downloadSelect, "<option value='external'>" + external + "</option>");
   } else {
-    append(downloadSelect, "<option value='direct'>Direct Download</option>")
     append(downloadSelect, "<option value='apache'>Select Apache Mirror</option>")
+    append(downloadSelect, "<option value='direct'>Direct Download</option>")
   }
   updateDownloadLink();
 }
