@@ -33,6 +33,9 @@ The latest release of Spark is Spark 1.2.0, released on December 18, 2014
 
 5. Verify this release using the <span id="sparkDownloadVerify"></span>.
 
+_Note: Scala 2.11 users should download the Spark source package and build
+[with Scala 2.11 support](http://spark.apache.org/docs/latest/building-spark.html#building-for-scala-211)._
+
 ### Link with Spark
 Spark artifacts are [hosted in Maven Central](http://search.maven.org/#browse%7C1686516968). You can add a Maven dependency with the following coordinates:
 
