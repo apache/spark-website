@@ -2,6 +2,7 @@
 layout: global
 type: "page singular"
 title: Spark Streaming
+description: Spark Streaming makes it easy to build scalable and fault-tolerant streaming applications.
 subproject: Streaming
 ---
 
@@ -22,8 +23,8 @@ subproject: Streaming
     <p>
       Spark Streaming brings <a href="{{site.url}}">Spark</a>'s
       language-integrated API to stream processing,
-      letting you write streaming applications the same way you write batch jobs.
-      It supports both Java and Scala.
+      letting you write streaming jobs the same way you write batch jobs.
+      It supports Java, Scala and Python.
     </p>
   </div>
   <div class="col-md-5 col-sm-5 col-padded-top col-center">

@@ -2,6 +2,7 @@
 layout: global
 type: "page singular"
 title: MLlib
+description: MLlib is Apache Spark's scalable machine learning library, with APIs in Java, Scala and Python.
 subproject: MLlib
 ---
 

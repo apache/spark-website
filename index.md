@@ -2,6 +2,7 @@
 layout: global
 title: Home
 custom_title: Apache Spark&trade; - Lightning-Fast Cluster Computing
+description: Apache Spark is a fast and general engine for big data processing, with built-in modules for streaming, SQL, machine learning and graph processing.
 type: page
 navigation:
   weight: 1

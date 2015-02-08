@@ -2,6 +2,7 @@
 layout: global
 type: "page singular"
 title: GraphX
+description: GraphX is Apache Spark's API for graphs and graph-parallel computation, with a built-in library of common algorithms.
 subproject: GraphX
 ---
 

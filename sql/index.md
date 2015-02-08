@@ -2,12 +2,13 @@
 layout: global
 type: "page singular"
 title: Spark SQL
+description: Spark SQL is Spark's module for working with structured data, either within Spark programs or through standard JDBC and ODBC connectors.
 subproject: SQL
 ---
 
 
 <div class="jumbotron">
-  <b>Spark SQL</b> unifies access to structured data.
+  <b>Spark SQL</b> is Spark's module for working with structured data.
 </div>
 
 
