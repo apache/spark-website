@@ -12,7 +12,7 @@ navigation:
 <p>Setup instructions, programming guides, and other documentation are available for each version of Spark below:</p>
 
 <ul>
-  <li><a href="{{site.url}}docs/latest/">Spark 1.2.0 (latest release)</a></li>
+  <li><a href="{{site.url}}docs/latest/">Spark 1.2.1 (latest release)</a></li>
   <li><a href="{{site.url}}docs/1.1.1/">Spark 1.1.1</a></li>
   <li><a href="{{site.url}}docs/1.0.2/">Spark 1.0.2</a></li>
   <li><a href="{{site.url}}docs/0.9.2/">Spark 0.9.2</a></li>

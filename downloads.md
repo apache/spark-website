@@ -16,9 +16,9 @@ $(document).ready(function() {
 
 ## Download Spark
 
-The latest release of Spark is Spark 1.2.0, released on December 18, 2014
-<a href="{{site.url}}releases/spark-release-1-2-0.html">(release notes)</a>
-<a href="https://git-wip-us.apache.org/repos/asf?p=spark.git;a=commit;h=a428c446e23e628b746e0626cc02b7b3cadf588e">(git tag)</a><br/>
+The latest release of Spark is Spark 1.2.1, released on February 9, 2015
+<a href="{{site.url}}releases/spark-release-1-2-1.html">(release notes)</a>
+<a href="https://git-wip-us.apache.org/repos/asf?p=spark.git;a=commit;h=b6eaf77d4332bfb0a698849b1f5f917d20d70e97">(git tag)</a><br/>
 
 1. Chose a Spark release:
   <select id="sparkVersionSelect" onChange="javascript:onVersionSelect();"></select><br>
@@ -41,7 +41,7 @@ Spark artifacts are [hosted in Maven Central](http://search.maven.org/#browse%7C
 
     groupId: org.apache.spark
     artifactId: spark-core_2.10
-    version: 1.2.0
+    version: 1.2.1
 
 ### Development and Maintenance Branches
 If you are interested in working with the newest under-development code or contributing to Spark development, you can also check out the master branch from Git:
@@ -49,7 +49,7 @@ If you are interested in working with the newest under-development code or contr
     # Master development branch
     git clone git://github.com/apache/spark.git
 
-    # 1.1 maintenance branch with stability fixes on top of Spark 1.2.0
+    # 1.2 maintenance branch with stability fixes on top of Spark 1.2.1
     git clone git://github.com/apache/spark.git -b branch-1.2
 
 Once you've downloaded Spark, you can find instructions for installing and building it on the <a href="{{site.url}}documentation.html">documentation page</a>.
