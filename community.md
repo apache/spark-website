@@ -52,21 +52,20 @@ Spark Meetups are grass-roots events organized and hosted by leaders and champio
 <ul>
   <li>
     <a href="http://www.meetup.com/spark-users/">Bay Area Spark Meetup.</a>
-    This group has been running monthly events since January 2012 in the San Francisco area.
-    The meetup page also contains an <a href="http://www.meetup.com/spark-users/events/past/">archive of past meetups</a>, including videos and <a href="http://www.meetup.com/spark-users/files/">slides</a> on most of the recent pages.
-    You can also find links to videos from past meetups on the <a href="documentation.html#meetup-videos">Documentation Page</a>.
-  </li>
-  <li>
-    <a href="http://www.meetup.com/Spark-London/">London Spark Meetup</a>
-  </li>
-  <li>
-    <a href="http://www.meetup.com/spark-user-beijing-Meetup/">Beijing Spark Meetup</a>
+    This group has been running since January 2012 in the San Francisco area.
+    The meetup page also contains an <a href="http://www.meetup.com/spark-users/events/past/">archive of past meetups</a>, including videos and <a href="http://www.meetup.com/spark-users/files/">slides</a> for most of the recent talks.
   </li>
   <li>
     <a href="http://www.meetup.com/Spark-Barcelona/">Barcelona Spark Meetup</a>
   </li>
   <li>
     <a href="http://www.meetup.com/Spark_big_data_analytics/">Bangalore Spark Meetup</a>
+  </li>
+  <li>
+    <a href="http://www.meetup.com/Berlin-Apache-Spark-Meetup/">Berlin Spark Meetup</a>
+  </li>
+  <li>
+    <a href="http://www.meetup.com/spark-user-beijing-Meetup/">Beijing Spark Meetup</a>
   </li>
   <li>
     <a href="http://www.meetup.com/Boston-Apache-Spark-User-Group/">Boston Spark Meetup</a>
@@ -82,6 +81,9 @@ Spark Meetups are grass-roots events organized and hosted by leaders and champio
   </li>
   <li>
     <a href="http://www.meetup.com/Spark-User-Group-Hyderabad/">Hyderabad Spark Meetup</a>
+  </li>
+  <li>
+    <a href="http://www.meetup.com/Spark-London/">London Spark Meetup</a>
   </li>
   <li>
     <a href="http://www.meetup.com/Apache-Spark-Maryland/">Maryland Spark Meetup</a>
