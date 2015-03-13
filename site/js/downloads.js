@@ -26,6 +26,7 @@ var packagesV3 = [mapr3, mapr4].concat(packagesV2);
 // 1.1.0+
 var packagesV4 = [hadoop2p4, hadoop2p3, mapr3, mapr4].concat(packagesV1);
 
+addRelease("1.3.0", new Date("3/13/2015"), sources.concat(packagesV4), true);
 addRelease("1.2.1", new Date("2/9/2015"), sources.concat(packagesV4), true);
 addRelease("1.2.0", new Date("12/18/2014"), sources.concat(packagesV4), true);
 addRelease("1.1.1", new Date("11/26/2014"), sources.concat(packagesV4), true);
