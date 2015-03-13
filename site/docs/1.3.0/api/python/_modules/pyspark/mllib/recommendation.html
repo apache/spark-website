@@ -1,0 +1,241 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyspark.mllib.recommendation &mdash; PySpark 1.3.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="PySpark 1.3.0 documentation" href="../../../index.html" />
+    <link rel="up" title="pyspark" href="../../pyspark.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li><a href="../../../index.html">PySpark 1.3.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../pyspark.html" accesskey="U">pyspark</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pyspark.mllib.recommendation</h1><div class="highlight"><pre>
+<span class="c">#</span>
+<span class="c"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c"># this work for additional information regarding copyright ownership.</span>
+<span class="c"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c"># the License.  You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+<span class="c">#</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="kn">import</span> <span class="n">SparkContext</span>
+<span class="kn">from</span> <span class="nn">pyspark.rdd</span> <span class="kn">import</span> <span class="n">RDD</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.common</span> <span class="kn">import</span> <span class="n">JavaModelWrapper</span><span class="p">,</span> <span class="n">callMLlibFunc</span><span class="p">,</span> <span class="n">inherit_doc</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.util</span> <span class="kn">import</span> <span class="n">JavaLoader</span><span class="p">,</span> <span class="n">JavaSaveable</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;MatrixFactorizationModel&#39;</span><span class="p">,</span> <span class="s">&#39;ALS&#39;</span><span class="p">,</span> <span class="s">&#39;Rating&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="Rating"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.recommendation.Rating">[docs]</a><span class="k">class</span> <span class="nc">Rating</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s">&quot;Rating&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;user&quot;</span><span class="p">,</span> <span class="s">&quot;product&quot;</span><span class="p">,</span> <span class="s">&quot;rating&quot;</span><span class="p">])):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a (user, product, rating) tuple.</span>
+
+<span class="sd">    &gt;&gt;&gt; r = Rating(1, 2, 5.0)</span>
+<span class="sd">    &gt;&gt;&gt; (r.user, r.product, r.rating)</span>
+<span class="sd">    (1, 2, 5.0)</span>
+<span class="sd">    &gt;&gt;&gt; (r[0], r[1], r[2])</span>
+<span class="sd">    (1, 2, 5.0)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__reduce__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Rating</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">product</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rating</span><span class="p">))</span>
+
+</div>
+<span class="nd">@inherit_doc</span>
+<div class="viewcode-block" id="MatrixFactorizationModel"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.recommendation.MatrixFactorizationModel">[docs]</a><span class="k">class</span> <span class="nc">MatrixFactorizationModel</span><span class="p">(</span><span class="n">JavaModelWrapper</span><span class="p">,</span> <span class="n">JavaSaveable</span><span class="p">,</span> <span class="n">JavaLoader</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;A matrix factorisation model trained by regularized alternating</span>
+<span class="sd">    least-squares.</span>
+
+<span class="sd">    &gt;&gt;&gt; r1 = (1, 1, 1.0)</span>
+<span class="sd">    &gt;&gt;&gt; r2 = (1, 2, 2.0)</span>
+<span class="sd">    &gt;&gt;&gt; r3 = (2, 1, 2.0)</span>
+<span class="sd">    &gt;&gt;&gt; ratings = sc.parallelize([r1, r2, r3])</span>
+<span class="sd">    &gt;&gt;&gt; model = ALS.trainImplicit(ratings, 1, seed=10)</span>
+<span class="sd">    &gt;&gt;&gt; model.predict(2, 2)</span>
+<span class="sd">    0.43...</span>
+
+<span class="sd">    &gt;&gt;&gt; testset = sc.parallelize([(1, 2), (1, 1)])</span>
+<span class="sd">    &gt;&gt;&gt; model = ALS.train(ratings, 2, seed=0)</span>
+<span class="sd">    &gt;&gt;&gt; model.predictAll(testset).collect()</span>
+<span class="sd">    [Rating(user=1, product=1, rating=1.0...), Rating(user=1, product=2, rating=1.9...)]</span>
+
+<span class="sd">    &gt;&gt;&gt; model = ALS.train(ratings, 4, seed=10)</span>
+<span class="sd">    &gt;&gt;&gt; model.userFeatures().collect()</span>
+<span class="sd">    [(1, array(&#39;d&#39;, [...])), (2, array(&#39;d&#39;, [...]))]</span>
+
+<span class="sd">    &gt;&gt;&gt; first_user = model.userFeatures().take(1)[0]</span>
+<span class="sd">    &gt;&gt;&gt; latents = first_user[1]</span>
+<span class="sd">    &gt;&gt;&gt; len(latents) == 4</span>
+<span class="sd">    True</span>
+
+<span class="sd">    &gt;&gt;&gt; model.productFeatures().collect()</span>
+<span class="sd">    [(1, array(&#39;d&#39;, [...])), (2, array(&#39;d&#39;, [...]))]</span>
+
+<span class="sd">    &gt;&gt;&gt; first_product = model.productFeatures().take(1)[0]</span>
+<span class="sd">    &gt;&gt;&gt; latents = first_product[1]</span>
+<span class="sd">    &gt;&gt;&gt; len(latents) == 4</span>
+<span class="sd">    True</span>
+
+<span class="sd">    &gt;&gt;&gt; model = ALS.train(ratings, 1, nonnegative=True, seed=10)</span>
+<span class="sd">    &gt;&gt;&gt; model.predict(2,2)</span>
+<span class="sd">    3.8...</span>
+
+<span class="sd">    &gt;&gt;&gt; model = ALS.trainImplicit(ratings, 1, nonnegative=True, seed=10)</span>
+<span class="sd">    &gt;&gt;&gt; model.predict(2,2)</span>
+<span class="sd">    0.43...</span>
+
+<span class="sd">    &gt;&gt;&gt; import os, tempfile</span>
+<span class="sd">    &gt;&gt;&gt; path = tempfile.mkdtemp()</span>
+<span class="sd">    &gt;&gt;&gt; model.save(sc, path)</span>
+<span class="sd">    &gt;&gt;&gt; sameModel = MatrixFactorizationModel.load(sc, path)</span>
+<span class="sd">    &gt;&gt;&gt; sameModel.predict(2,2)</span>
+<span class="sd">    0.43...</span>
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     os.removedirs(path)</span>
+<span class="sd">    ... except OSError:</span>
+<span class="sd">    ...     pass</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="MatrixFactorizationModel.predict"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.recommendation.MatrixFactorizationModel.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">product</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">user</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">product</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="MatrixFactorizationModel.predictAll"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.recommendation.MatrixFactorizationModel.predictAll">[docs]</a>    <span class="k">def</span> <span class="nf">predictAll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_product</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">user_product</span><span class="p">,</span> <span class="n">RDD</span><span class="p">),</span> <span class="s">&quot;user_product should be RDD of (user, product)&quot;</span>
+        <span class="n">first</span> <span class="o">=</span> <span class="n">user_product</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">first</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s">&quot;user_product should be RDD of (user, product)&quot;</span>
+        <span class="n">user_product</span> <span class="o">=</span> <span class="n">user_product</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">u</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">p</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&quot;predict&quot;</span><span class="p">,</span> <span class="n">user_product</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MatrixFactorizationModel.userFeatures"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.recommendation.MatrixFactorizationModel.userFeatures">[docs]</a>    <span class="k">def</span> <span class="nf">userFeatures</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&quot;getUserFeatures&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MatrixFactorizationModel.productFeatures"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.recommendation.MatrixFactorizationModel.productFeatures">[docs]</a>    <span class="k">def</span> <span class="nf">productFeatures</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&quot;getProductFeatures&quot;</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="ALS"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.recommendation.ALS">[docs]</a><span class="k">class</span> <span class="nc">ALS</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_prepare</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">ratings</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ratings</span><span class="p">,</span> <span class="n">RDD</span><span class="p">),</span> <span class="s">&quot;ratings should be RDD&quot;</span>
+        <span class="n">first</span> <span class="o">=</span> <span class="n">ratings</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">Rating</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+                <span class="n">ratings</span> <span class="o">=</span> <span class="n">ratings</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">Rating</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;rating should be RDD of Rating or tuple/list&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ratings</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ALS.train"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.recommendation.ALS.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">ratings</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">lambda_</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">blocks</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">nonnegative</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+              <span class="n">seed</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s">&quot;trainALSModel&quot;</span><span class="p">,</span> <span class="n">cls</span><span class="o">.</span><span class="n">_prepare</span><span class="p">(</span><span class="n">ratings</span><span class="p">),</span> <span class="n">rank</span><span class="p">,</span> <span class="n">iterations</span><span class="p">,</span>
+                              <span class="n">lambda_</span><span class="p">,</span> <span class="n">blocks</span><span class="p">,</span> <span class="n">nonnegative</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">MatrixFactorizationModel</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ALS.trainImplicit"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.recommendation.ALS.trainImplicit">[docs]</a>    <span class="k">def</span> <span class="nf">trainImplicit</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">ratings</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">lambda_</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">blocks</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span>
+                      <span class="n">nonnegative</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s">&quot;trainImplicitALSModel&quot;</span><span class="p">,</span> <span class="n">cls</span><span class="o">.</span><span class="n">_prepare</span><span class="p">(</span><span class="n">ratings</span><span class="p">),</span> <span class="n">rank</span><span class="p">,</span>
+                              <span class="n">iterations</span><span class="p">,</span> <span class="n">lambda_</span><span class="p">,</span> <span class="n">blocks</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">nonnegative</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">MatrixFactorizationModel</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+</div></div>
+<span class="k">def</span> <span class="nf">_test</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="kn">import</span> <span class="nn">pyspark.mllib.recommendation</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="n">pyspark</span><span class="o">.</span><span class="n">mllib</span><span class="o">.</span><span class="n">recommendation</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s">&#39;sc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="p">(</span><span class="s">&#39;local[4]&#39;</span><span class="p">,</span> <span class="s">&#39;PythonTest&#39;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span> <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span><span class="p">)</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s">&#39;sc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="nb">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">_test</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li><a href="../../../index.html">PySpark 1.3.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../pyspark.html" >pyspark</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright .
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

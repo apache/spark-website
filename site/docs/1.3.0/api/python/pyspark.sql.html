@@ -1,0 +1,1784 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyspark.sql module &mdash; PySpark 1.3.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.3.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="PySpark 1.3.0 documentation" href="index.html" />
+    <link rel="next" title="pyspark.streaming module" href="pyspark.streaming.html" />
+    <link rel="prev" title="pyspark.mllib package" href="pyspark.mllib.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="pyspark.streaming.html" title="pyspark.streaming module"
+             accesskey="N">next</a></li>
+        <li class="right" >
+          <a href="pyspark.mllib.html" title="pyspark.mllib package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">PySpark 1.3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pyspark-sql-module">
+<h1>pyspark.sql module<a class="headerlink" href="#pyspark-sql-module" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-pyspark.sql">
+<span id="module-context"></span><h2>Module Context<a class="headerlink" href="#module-pyspark.sql" title="Permalink to this headline">¶</a></h2>
+<p>public classes of Spark SQL:</p>
+<blockquote>
+<div><ul class="simple">
+<li><a class="reference internal" href="#pyspark.sql.SQLContext" title="pyspark.sql.SQLContext"><tt class="xref py py-class docutils literal"><span class="pre">SQLContext</span></tt></a>
+Main entry point for SQL functionality.</li>
+<li><a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a>
+A Resilient Distributed Dataset (RDD) with Schema information for the data contained. In
+addition to normal RDD operations, DataFrames also support SQL.</li>
+<li><a class="reference internal" href="#pyspark.sql.GroupedData" title="pyspark.sql.GroupedData"><tt class="xref py py-class docutils literal"><span class="pre">GroupedData</span></tt></a></li>
+<li><a class="reference internal" href="#pyspark.sql.Column" title="pyspark.sql.Column"><tt class="xref py py-class docutils literal"><span class="pre">Column</span></tt></a>
+Column is a DataFrame with a single column.</li>
+<li><a class="reference internal" href="#pyspark.sql.Row" title="pyspark.sql.Row"><tt class="xref py py-class docutils literal"><span class="pre">Row</span></tt></a>
+A Row of data returned by a Spark SQL query.</li>
+<li><a class="reference internal" href="#pyspark.sql.HiveContext" title="pyspark.sql.HiveContext"><tt class="xref py py-class docutils literal"><span class="pre">HiveContext</span></tt></a>
+Main entry point for accessing data stored in Apache Hive..</li>
+</ul>
+</div></blockquote>
+<dl class="class">
+<dt id="pyspark.sql.SQLContext">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.</tt><tt class="descname">SQLContext</tt><big>(</big><em>sparkContext</em>, <em>sqlContext=None</em><big>)</big><a class="headerlink" href="#pyspark.sql.SQLContext" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main entry point for Spark SQL functionality.</p>
+<p>A SQLContext can be used create <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a>, register <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> as
+tables, execute SQL over tables, cache tables, and read parquet files.</p>
+<dl class="method">
+<dt id="pyspark.sql.SQLContext.applySchema">
+<tt class="descname">applySchema</tt><big>(</big><em>rdd</em>, <em>schema</em><big>)</big><a class="headerlink" href="#pyspark.sql.SQLContext.applySchema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies the given schema to the given RDD of <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt> or <tt class="xref py py-class docutils literal"><span class="pre">list</span></tt>.</p>
+<dl class="docutils">
+<dt>::note:</dt>
+<dd>Deprecated in 1.3, use <a class="reference internal" href="#pyspark.sql.SQLContext.createDataFrame" title="pyspark.sql.SQLContext.createDataFrame"><tt class="xref py py-func docutils literal"><span class="pre">createDataFrame()</span></tt></a> instead</dd>
+</dl>
+<p>These tuples or lists can contain complex nested structures like
+lists, maps or nested rows.</p>
+<p>The schema should be a StructType.</p>
+<p>It is important that the schema matches the types of the objects
+in each row or exceptions could be thrown at runtime.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rdd2</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&quot;row1&quot;</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">&quot;row2&quot;</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s">&quot;row3&quot;</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">([</span><span class="n">StructField</span><span class="p">(</span><span class="s">&quot;field1&quot;</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">(),</span> <span class="bp">False</span><span class="p">),</span>
+<span class="gp">... </span>    <span class="n">StructField</span><span class="p">(</span><span class="s">&quot;field2&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="bp">False</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">sqlCtx</span><span class="o">.</span><span class="n">applySchema</span><span class="p">(</span><span class="n">rdd2</span><span class="p">,</span> <span class="n">schema</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(field1=1, field2=u&#39;row1&#39;),..., Row(field1=3, field2=u&#39;row3&#39;)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.SQLContext.cacheTable">
+<tt class="descname">cacheTable</tt><big>(</big><em>tableName</em><big>)</big><a class="headerlink" href="#pyspark.sql.SQLContext.cacheTable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Caches the specified table in-memory.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.SQLContext.clearCache">
+<tt class="descname">clearCache</tt><big>(</big><big>)</big><a class="headerlink" href="#pyspark.sql.SQLContext.clearCache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes all cached tables from the in-memory cache.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.SQLContext.createDataFrame">
+<tt class="descname">createDataFrame</tt><big>(</big><em>data</em>, <em>schema=None</em>, <em>samplingRatio=None</em><big>)</big><a class="headerlink" href="#pyspark.sql.SQLContext.createDataFrame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a DataFrame from an RDD of tuple/list, list or pandas.DataFrame.</p>
+<p><cite>schema</cite> could be <tt class="xref py py-class docutils literal"><span class="pre">StructType</span></tt> or a list of column names.</p>
+<p>When <cite>schema</cite> is a list of column names, the type of each column
+will be inferred from <cite>rdd</cite>.</p>
+<p>When <cite>schema</cite> is None, it will try to infer the column name and type
+from <cite>rdd</cite>, which should be an RDD of <a class="reference internal" href="#pyspark.sql.Row" title="pyspark.sql.Row"><tt class="xref py py-class docutils literal"><span class="pre">Row</span></tt></a>, or namedtuple,
+or dict.</p>
+<p>If referring needed, <cite>samplingRatio</cite> is used to determined how many
+rows will be used to do referring. The first row will be used if
+<cite>samplingRatio</cite> is None.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data</strong> &#8211; an RDD of Row/tuple/list/dict, list, or pandas.DataFrame</li>
+<li><strong>schema</strong> &#8211; a StructType or list of names of columns</li>
+<li><strong>samplingRatio</strong> &#8211; the sample ratio of rows used for inferring</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">l</span> <span class="o">=</span> <span class="p">[(</span><span class="s">&#39;Alice&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sqlCtx</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">l</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(_1=u&#39;Alice&#39;, _2=1)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sqlCtx</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;age&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(name=u&#39;Alice&#39;, age=1)]</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="p">[{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;Alice&#39;</span><span class="p">,</span> <span class="s">&#39;age&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sqlCtx</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age=1, name=u&#39;Alice&#39;)]</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">rdd</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sqlCtx</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">rdd</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(_1=u&#39;Alice&#39;, _2=1)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">sqlCtx</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">rdd</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;age&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(name=u&#39;Alice&#39;, age=1)]</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">Row</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Person</span> <span class="o">=</span> <span class="n">Row</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;age&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">person</span> <span class="o">=</span> <span class="n">rdd</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">Person</span><span class="p">(</span><span class="o">*</span><span class="n">r</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df2</span> <span class="o">=</span> <span class="n">sqlCtx</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">person</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df2</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(name=u&#39;Alice&#39;, age=1)]</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">([</span>
+<span class="gp">... </span>   <span class="n">StructField</span><span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="bp">True</span><span class="p">),</span>
+<span class="gp">... </span>   <span class="n">StructField</span><span class="p">(</span><span class="s">&quot;age&quot;</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">(),</span> <span class="bp">True</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df3</span> <span class="o">=</span> <span class="n">sqlCtx</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">rdd</span><span class="p">,</span> <span class="n">schema</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df3</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(name=u&#39;Alice&#39;, age=1)]</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">sqlCtx</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">toPandas</span><span class="p">())</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>  
+<span class="go">[Row(name=u&#39;Alice&#39;, age=1)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.SQLContext.createExternalTable">
+<tt class="descname">createExternalTable</tt><big>(</big><em>tableName</em>, <em>path=None</em>, <em>source=None</em>, <em>schema=None</em>, <em>**options</em><big>)</big><a class="headerlink" href="#pyspark.sql.SQLContext.createExternalTable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an external table based on the dataset in a data source.</p>
+<p>It returns the DataFrame associated with the external table.</p>
+<p>The data source is specified by the <cite>source</cite> and a set of <cite>options</cite>.
+If <cite>source</cite> is not specified, the default data source configured by
+spark.sql.sources.default will be used.</p>
+<p>Optionally, a schema can be provided as the schema of the returned DataFrame and
+created external table.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.SQLContext.getConf">
+<tt class="descname">getConf</tt><big>(</big><em>key</em>, <em>defaultValue</em><big>)</big><a class="headerlink" href="#pyspark.sql.SQLContext.getConf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the value of Spark SQL configuration property for the given key.</p>
+<p>If the key is not set, returns defaultValue.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.SQLContext.inferSchema">
+<tt class="descname">inferSchema</tt><big>(</big><em>rdd</em>, <em>samplingRatio=None</em><big>)</big><a class="headerlink" href="#pyspark.sql.SQLContext.inferSchema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Infer and apply a schema to an RDD of <a class="reference internal" href="#pyspark.sql.Row" title="pyspark.sql.Row"><tt class="xref py py-class docutils literal"><span class="pre">Row</span></tt></a>.</p>
+<dl class="docutils">
+<dt>::note:</dt>
+<dd>Deprecated in 1.3, use <a class="reference internal" href="#pyspark.sql.SQLContext.createDataFrame" title="pyspark.sql.SQLContext.createDataFrame"><tt class="xref py py-func docutils literal"><span class="pre">createDataFrame()</span></tt></a> instead</dd>
+</dl>
+<p>When samplingRatio is specified, the schema is inferred by looking
+at the types of each row in the sampled dataset. Otherwise, the
+first 100 rows of the RDD are inspected. Nested collections are
+supported, which can include array, dict, list, Row, tuple,
+namedtuple, or object.</p>
+<p>Each row could be <a class="reference internal" href="#pyspark.sql.Row" title="pyspark.sql.Row"><tt class="xref py py-class docutils literal"><span class="pre">pyspark.sql.Row</span></tt></a> object or namedtuple or objects.
+Using top level dicts is deprecated, as dict is used to represent Maps.</p>
+<p>If a single column has multiple distinct inferred types, it may cause
+runtime exceptions.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">rdd</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[</span><span class="n">Row</span><span class="p">(</span><span class="n">field1</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">field2</span><span class="o">=</span><span class="s">&quot;row1&quot;</span><span class="p">),</span>
+<span class="gp">... </span>     <span class="n">Row</span><span class="p">(</span><span class="n">field1</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">field2</span><span class="o">=</span><span class="s">&quot;row2&quot;</span><span class="p">),</span>
+<span class="gp">... </span>     <span class="n">Row</span><span class="p">(</span><span class="n">field1</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">field2</span><span class="o">=</span><span class="s">&quot;row3&quot;</span><span class="p">)])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">sqlCtx</span><span class="o">.</span><span class="n">inferSchema</span><span class="p">(</span><span class="n">rdd</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">collect</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">Row(field1=1, field2=u&#39;row1&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.SQLContext.jsonFile">
+<tt class="descname">jsonFile</tt><big>(</big><em>path</em>, <em>schema=None</em>, <em>samplingRatio=1.0</em><big>)</big><a class="headerlink" href="#pyspark.sql.SQLContext.jsonFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a text file storing one JSON object per line as a
+<a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a>.</p>
+<p>If the schema is provided, applies the given schema to this
+JSON dataset.</p>
+<p>Otherwise, it samples the dataset with ratio <cite>samplingRatio</cite> to
+determine the schema.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">tempfile</span><span class="o">,</span> <span class="nn">shutil</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">jsonFile</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">jsonFile</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">jsonFile</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">jsonStrings</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df1</span> <span class="o">=</span> <span class="n">sqlCtx</span><span class="o">.</span><span class="n">jsonFile</span><span class="p">(</span><span class="n">jsonFile</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df1</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
+<span class="go">root</span>
+<span class="go"> |-- field1: long (nullable = true)</span>
+<span class="go"> |-- field2: string (nullable = true)</span>
+<span class="go"> |-- field3: struct (nullable = true)</span>
+<span class="go"> |    |-- field4: long (nullable = true)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">([</span>
+<span class="gp">... </span>    <span class="n">StructField</span><span class="p">(</span><span class="s">&quot;field2&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">()),</span>
+<span class="gp">... </span>    <span class="n">StructField</span><span class="p">(</span><span class="s">&quot;field3&quot;</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="n">StructType</span><span class="p">([</span><span class="n">StructField</span><span class="p">(</span><span class="s">&quot;field5&quot;</span><span class="p">,</span> <span class="n">ArrayType</span><span class="p">(</span><span class="n">IntegerType</span><span class="p">()))]))])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df2</span> <span class="o">=</span> <span class="n">sqlCtx</span><span class="o">.</span><span class="n">jsonFile</span><span class="p">(</span><span class="n">jsonFile</span><span class="p">,</span> <span class="n">schema</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df2</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
+<span class="go">root</span>
+<span class="go"> |-- field2: string (nullable = true)</span>
+<span class="go"> |-- field3: struct (nullable = true)</span>
+<span class="go"> |    |-- field5: array (nullable = true)</span>
+<span class="go"> |    |    |-- element: integer (containsNull = true)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.SQLContext.jsonRDD">
+<tt class="descname">jsonRDD</tt><big>(</big><em>rdd</em>, <em>schema=None</em>, <em>samplingRatio=1.0</em><big>)</big><a class="headerlink" href="#pyspark.sql.SQLContext.jsonRDD" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads an RDD storing one JSON object per string as a <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a>.</p>
+<p>If the schema is provided, applies the given schema to this
+JSON dataset.</p>
+<p>Otherwise, it samples the dataset with ratio <cite>samplingRatio</cite> to
+determine the schema.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df1</span> <span class="o">=</span> <span class="n">sqlCtx</span><span class="o">.</span><span class="n">jsonRDD</span><span class="p">(</span><span class="n">json</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df1</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="go">Row(field1=1, field2=u&#39;row1&#39;, field3=Row(field4=11, field5=None), field6=None)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df2</span> <span class="o">=</span> <span class="n">sqlCtx</span><span class="o">.</span><span class="n">jsonRDD</span><span class="p">(</span><span class="n">json</span><span class="p">,</span> <span class="n">df1</span><span class="o">.</span><span class="n">schema</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df2</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="go">Row(field1=1, field2=u&#39;row1&#39;, field3=Row(field4=11, field5=None), field6=None)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">([</span>
+<span class="gp">... </span>    <span class="n">StructField</span><span class="p">(</span><span class="s">&quot;field2&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">()),</span>
+<span class="gp">... </span>    <span class="n">StructField</span><span class="p">(</span><span class="s">&quot;field3&quot;</span><span class="p">,</span>
+<span class="gp">... </span>                <span class="n">StructType</span><span class="p">([</span><span class="n">StructField</span><span class="p">(</span><span class="s">&quot;field5&quot;</span><span class="p">,</span> <span class="n">ArrayType</span><span class="p">(</span><span class="n">IntegerType</span><span class="p">()))]))</span>
+<span class="gp">... </span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df3</span> <span class="o">=</span> <span class="n">sqlCtx</span><span class="o">.</span><span class="n">jsonRDD</span><span class="p">(</span><span class="n">json</span><span class="p">,</span> <span class="n">schema</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df3</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="go">Row(field2=u&#39;row1&#39;, field3=Row(field5=None))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.SQLContext.load">
+<tt class="descname">load</tt><big>(</big><em>path=None</em>, <em>source=None</em>, <em>schema=None</em>, <em>**options</em><big>)</big><a class="headerlink" href="#pyspark.sql.SQLContext.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the dataset in a data source as a DataFrame.</p>
+<p>The data source is specified by the <cite>source</cite> and a set of <cite>options</cite>.
+If <cite>source</cite> is not specified, the default data source configured by
+spark.sql.sources.default will be used.</p>
+<p>Optionally, a schema can be provided as the schema of the returned DataFrame.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.SQLContext.parquetFile">
+<tt class="descname">parquetFile</tt><big>(</big><em>*paths</em><big>)</big><a class="headerlink" href="#pyspark.sql.SQLContext.parquetFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a Parquet file, returning the result as a <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">tempfile</span><span class="o">,</span> <span class="nn">shutil</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parquetFile</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">parquetFile</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">saveAsParquetFile</span><span class="p">(</span><span class="n">parquetFile</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df2</span> <span class="o">=</span> <span class="n">sqlCtx</span><span class="o">.</span><span class="n">parquetFile</span><span class="p">(</span><span class="n">parquetFile</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">collect</span><span class="p">())</span> <span class="o">==</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">df2</span><span class="o">.</span><span class="n">collect</span><span class="p">())</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.SQLContext.registerDataFrameAsTable">
+<tt class="descname">registerDataFrameAsTable</tt><big>(</big><em>rdd</em>, <em>tableName</em><big>)</big><a class="headerlink" href="#pyspark.sql.SQLContext.registerDataFrameAsTable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers the given RDD as a temporary table in the catalog.</p>
+<p>Temporary tables exist only during the lifetime of this instance of
+SQLContext.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">sqlCtx</span><span class="o">.</span><span class="n">registerDataFrameAsTable</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s">&quot;table1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.SQLContext.registerFunction">
+<tt class="descname">registerFunction</tt><big>(</big><em>name</em>, <em>f</em>, <em>returnType=StringType</em><big>)</big><a class="headerlink" href="#pyspark.sql.SQLContext.registerFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers a lambda function as a UDF so it can be used in SQL statements.</p>
+<p>In addition to a name and the function itself, the return type can be optionally specified.
+When the return type is not given it default to a string and conversion will automatically
+be done.  For any other return type, the produced object must match the specified type.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">sqlCtx</span><span class="o">.</span><span class="n">registerFunction</span><span class="p">(</span><span class="s">&quot;stringLengthString&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sqlCtx</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s">&quot;SELECT stringLengthString(&#39;test&#39;)&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(c0=u&#39;4&#39;)]</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="n">IntegerType</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sqlCtx</span><span class="o">.</span><span class="n">registerFunction</span><span class="p">(</span><span class="s">&quot;stringLengthInt&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">IntegerType</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sqlCtx</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s">&quot;SELECT stringLengthInt(&#39;test&#39;)&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(c0=4)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.SQLContext.setConf">
+<tt class="descname">setConf</tt><big>(</big><em>key</em>, <em>value</em><big>)</big><a class="headerlink" href="#pyspark.sql.SQLContext.setConf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the given Spark SQL configuration property.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.SQLContext.sql">
+<tt class="descname">sql</tt><big>(</big><em>sqlQuery</em><big>)</big><a class="headerlink" href="#pyspark.sql.SQLContext.sql" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> representing the result of the given query.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">sqlCtx</span><span class="o">.</span><span class="n">registerDataFrameAsTable</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s">&quot;table1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df2</span> <span class="o">=</span> <span class="n">sqlCtx</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s">&quot;SELECT field1 AS f1, field2 as f2 from table1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df2</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(f1=1, f2=u&#39;row1&#39;), Row(f1=2, f2=u&#39;row2&#39;), Row(f1=3, f2=u&#39;row3&#39;)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.SQLContext.table">
+<tt class="descname">table</tt><big>(</big><em>tableName</em><big>)</big><a class="headerlink" href="#pyspark.sql.SQLContext.table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the specified table as a <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">sqlCtx</span><span class="o">.</span><span class="n">registerDataFrameAsTable</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s">&quot;table1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df2</span> <span class="o">=</span> <span class="n">sqlCtx</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s">&quot;table1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">collect</span><span class="p">())</span> <span class="o">==</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">df2</span><span class="o">.</span><span class="n">collect</span><span class="p">())</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.SQLContext.tableNames">
+<tt class="descname">tableNames</tt><big>(</big><em>dbName=None</em><big>)</big><a class="headerlink" href="#pyspark.sql.SQLContext.tableNames" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of names of tables in the database <cite>dbName</cite>.</p>
+<p>If <cite>dbName</cite> is not specified, the current database will be used.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">sqlCtx</span><span class="o">.</span><span class="n">registerDataFrameAsTable</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s">&quot;table1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s">&quot;table1&quot;</span> <span class="ow">in</span> <span class="n">sqlCtx</span><span class="o">.</span><span class="n">tableNames</span><span class="p">()</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="s">&quot;table1&quot;</span> <span class="ow">in</span> <span class="n">sqlCtx</span><span class="o">.</span><span class="n">tableNames</span><span class="p">(</span><span class="s">&quot;db&quot;</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.SQLContext.tables">
+<tt class="descname">tables</tt><big>(</big><em>dbName=None</em><big>)</big><a class="headerlink" href="#pyspark.sql.SQLContext.tables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a DataFrame containing names of tables in the given database.</p>
+<p>If <cite>dbName</cite> is not specified, the current database will be used.</p>
+<p>The returned DataFrame has two columns, tableName and isTemporary
+(a column with BooleanType indicating if a table is a temporary one or not).</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">sqlCtx</span><span class="o">.</span><span class="n">registerDataFrameAsTable</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s">&quot;table1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df2</span> <span class="o">=</span> <span class="n">sqlCtx</span><span class="o">.</span><span class="n">tables</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df2</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s">&quot;tableName = &#39;table1&#39;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="go">Row(tableName=u&#39;table1&#39;, isTemporary=True)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.SQLContext.uncacheTable">
+<tt class="descname">uncacheTable</tt><big>(</big><em>tableName</em><big>)</big><a class="headerlink" href="#pyspark.sql.SQLContext.uncacheTable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes the specified table from the in-memory cache.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyspark.sql.HiveContext">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.</tt><tt class="descname">HiveContext</tt><big>(</big><em>sparkContext</em>, <em>hiveContext=None</em><big>)</big><a class="headerlink" href="#pyspark.sql.HiveContext" title="Permalink to this definition">¶</a></dt>
+<dd><p>A variant of Spark SQL that integrates with data stored in Hive.</p>
+<p>Configuration for Hive is read from hive-site.xml on the classpath.
+It supports running both SQL and HiveQL commands.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyspark.sql.DataFrame">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.</tt><tt class="descname">DataFrame</tt><big>(</big><em>jdf</em>, <em>sql_ctx</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame" title="Permalink to this definition">¶</a></dt>
+<dd><p>A collection of rows that have the same columns.</p>
+<p>A <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> is equivalent to a relational table in Spark SQL,
+and can be created using various functions in <a class="reference internal" href="#pyspark.sql.SQLContext" title="pyspark.sql.SQLContext"><tt class="xref py py-class docutils literal"><span class="pre">SQLContext</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">people</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">parquetFile</span><span class="p">(</span><span class="s">&quot;...&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Once created, it can be manipulated using the various domain-specific-language
+(DSL) functions defined in: <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a>, <a class="reference internal" href="#pyspark.sql.Column" title="pyspark.sql.Column"><tt class="xref py py-class docutils literal"><span class="pre">Column</span></tt></a>.</p>
+<p>To select a column from the data frame, use the apply method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">ageCol</span> <span class="o">=</span> <span class="n">people</span><span class="o">.</span><span class="n">age</span>
+</pre></div>
+</div>
+<p>Note that the <a class="reference internal" href="#pyspark.sql.Column" title="pyspark.sql.Column"><tt class="xref py py-class docutils literal"><span class="pre">Column</span></tt></a> type can also be manipulated
+through its various functions:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># The following creates a new column that increases everybody&#39;s age by 10.</span>
+<span class="n">people</span><span class="o">.</span><span class="n">age</span> <span class="o">+</span> <span class="mi">10</span>
+</pre></div>
+</div>
+<p>A more concrete example:</p>
+<div class="highlight-python"><pre># To create DataFrame using SQLContext
+people = sqlContext.parquetFile("...")
+department = sqlContext.parquetFile("...")
+
+people.filter(people.age &gt; 30).join(department, people.deptId == department.id))           .groupBy(department.name, "gender").agg({"salary": "avg", "age": "max"})</pre>
+</div>
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.agg">
+<tt class="descname">agg</tt><big>(</big><em>*exprs</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.agg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aggregate on the entire <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> without groups
+(shorthand for df.groupBy.agg()).</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s">&quot;age&quot;</span><span class="p">:</span> <span class="s">&quot;max&quot;</span><span class="p">})</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(MAX(age#0)=5)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">functions</span> <span class="k">as</span> <span class="n">F</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">age</span><span class="p">))</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(MIN(age#0)=2)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.cache">
+<tt class="descname">cache</tt><big>(</big><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Persist with the default storage level (<tt class="xref py py-class docutils literal"><span class="pre">MEMORY_ONLY_SER</span></tt>).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.collect">
+<tt class="descname">collect</tt><big>(</big><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.collect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list that contains all of the rows.</p>
+<p>Each object in the list is a Row, the fields can be accessed as
+attributes.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age=2, name=u&#39;Alice&#39;), Row(age=5, name=u&#39;Bob&#39;)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyspark.sql.DataFrame.columns">
+<tt class="descname">columns</tt><a class="headerlink" href="#pyspark.sql.DataFrame.columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all column names as a list.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+<span class="go">[u&#39;age&#39;, u&#39;name&#39;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.count">
+<tt class="descname">count</tt><big>(</big><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of elements in this RDD.</p>
+<p>Unlike the base RDD implementation of count, this implementation
+leverages the query optimizer to compute the count on the DataFrame,
+which supports features such as filter pushdown.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="go">2L</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.distinct">
+<tt class="descname">distinct</tt><big>(</big><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.distinct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> containing the distinct rows in this DataFrame.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="go">2L</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyspark.sql.DataFrame.dtypes">
+<tt class="descname">dtypes</tt><a class="headerlink" href="#pyspark.sql.DataFrame.dtypes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all column names and their data types as a list.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">dtypes</span>
+<span class="go">[(&#39;age&#39;, &#39;int&#39;), (&#39;name&#39;, &#39;string&#39;)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.explain">
+<tt class="descname">explain</tt><big>(</big><em>extended=False</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.explain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints the plans (logical and physical) to the console for
+debugging purpose.</p>
+<p>If extended is False, only prints the physical plan.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">explain</span><span class="p">()</span>
+<span class="go">PhysicalRDD [age#0,name#1], MapPartitionsRDD[...] at mapPartitions at SQLContext.scala:...</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">explain</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+<span class="go">== Parsed Logical Plan ==</span>
+<span class="gp">...</span>
+<span class="go">== Analyzed Logical Plan ==</span>
+<span class="gp">...</span>
+<span class="go">== Optimized Logical Plan ==</span>
+<span class="gp">...</span>
+<span class="go">== Physical Plan ==</span>
+<span class="gp">...</span>
+<span class="go">== RDD ==</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.filter">
+<tt class="descname">filter</tt><big>(</big><em>condition</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filtering rows using the given condition, which could be
+<a class="reference internal" href="#pyspark.sql.Column" title="pyspark.sql.Column"><tt class="xref py py-class docutils literal"><span class="pre">Column</span></tt></a> expression or string of SQL expression.</p>
+<p>where() is an alias for filter().</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">age</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age=5, name=u&#39;Bob&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">age</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age=2, name=u&#39;Alice&#39;)]</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s">&quot;age &gt; 3&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age=5, name=u&#39;Bob&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="s">&quot;age = 2&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age=2, name=u&#39;Alice&#39;)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.first">
+<tt class="descname">first</tt><big>(</big><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.first" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the first row.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="go">Row(age=2, name=u&#39;Alice&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.flatMap">
+<tt class="descname">flatMap</tt><big>(</big><em>f</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.flatMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new RDD by first applying a function to all elements of this,
+and then flattening the results.</p>
+<p>It&#8217;s a shorthand for df.rdd.flatMap()</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">flatMap</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[u&#39;A&#39;, u&#39;l&#39;, u&#39;i&#39;, u&#39;c&#39;, u&#39;e&#39;, u&#39;B&#39;, u&#39;o&#39;, u&#39;b&#39;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.foreach">
+<tt class="descname">foreach</tt><big>(</big><em>f</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.foreach" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies a function to all rows of this DataFrame.</p>
+<p>It&#8217;s a shorthand for df.rdd.foreach()</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">person</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">print</span> <span class="n">person</span><span class="o">.</span><span class="n">name</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">foreach</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.foreachPartition">
+<tt class="descname">foreachPartition</tt><big>(</big><em>f</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.foreachPartition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Applies a function to each partition of this DataFrame.</p>
+<p>It&#8217;s a shorthand for df.rdd.foreachPartition()</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">people</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="n">people</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="k">print</span> <span class="n">person</span><span class="o">.</span><span class="n">name</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">foreachPartition</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.groupBy">
+<tt class="descname">groupBy</tt><big>(</big><em>*cols</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.groupBy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Group the <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> using the specified columns,
+so we can run aggregation on them. See <a class="reference internal" href="#pyspark.sql.GroupedData" title="pyspark.sql.GroupedData"><tt class="xref py py-class docutils literal"><span class="pre">GroupedData</span></tt></a>
+for all the available aggregate functions.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">groupBy</span><span class="p">()</span><span class="o">.</span><span class="n">avg</span><span class="p">()</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(AVG(age#0)=3.5)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">groupBy</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s">&#39;age&#39;</span><span class="p">:</span> <span class="s">&#39;mean&#39;</span><span class="p">})</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(name=u&#39;Bob&#39;, AVG(age#0)=5.0), Row(name=u&#39;Alice&#39;, AVG(age#0)=2.0)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">groupBy</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">avg</span><span class="p">()</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(name=u&#39;Bob&#39;, AVG(age#0)=5.0), Row(name=u&#39;Alice&#39;, AVG(age#0)=2.0)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.head">
+<tt class="descname">head</tt><big>(</big><em>n=None</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.head" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the first <cite>n</cite> rows or the first row if n is None.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="go">Row(age=2, name=u&#39;Alice&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">[Row(age=2, name=u&#39;Alice&#39;)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.insertInto">
+<tt class="descname">insertInto</tt><big>(</big><em>tableName</em>, <em>overwrite=False</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.insertInto" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inserts the contents of this <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> into the specified table.</p>
+<p>Optionally overwriting any existing data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.intersect">
+<tt class="descname">intersect</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.intersect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> containing rows only in
+both this frame and another frame.</p>
+<p>This is equivalent to <cite>INTERSECT</cite> in SQL.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.isLocal">
+<tt class="descname">isLocal</tt><big>(</big><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.isLocal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if the <cite>collect</cite> and <cite>take</cite> methods can be run locally
+(without any Spark executors).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.join">
+<tt class="descname">join</tt><big>(</big><em>other</em>, <em>joinExprs=None</em>, <em>joinType=None</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.join" title="Permalink to this definition">¶</a></dt>
+<dd><p>Join with another <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a>, using the given join expression.
+The following performs a full outer join between <cite>df1</cite> and <cite>df2</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>other</strong> &#8211; Right side of the join</li>
+<li><strong>joinExprs</strong> &#8211; Join expression</li>
+<li><strong>joinType</strong> &#8211; One of <cite>inner</cite>, <cite>outer</cite>, <cite>left_outer</cite>, <cite>right_outer</cite>, <cite>semijoin</cite>.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df2</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">df2</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s">&#39;outer&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">df2</span><span class="o">.</span><span class="n">height</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(name=None, height=80), Row(name=u&#39;Bob&#39;, height=85), Row(name=u&#39;Alice&#39;, height=None)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.limit">
+<tt class="descname">limit</tt><big>(</big><em>num</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.limit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Limit the result count to the number specified.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age=2, name=u&#39;Alice&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.map">
+<tt class="descname">map</tt><big>(</big><em>f</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new RDD by applying a function to each Row</p>
+<p>It&#8217;s a shorthand for df.rdd.map()</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[u&#39;Alice&#39;, u&#39;Bob&#39;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.mapPartitions">
+<tt class="descname">mapPartitions</tt><big>(</big><em>f</em>, <em>preservesPartitioning=False</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.mapPartitions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new RDD by applying a function to each partition.</p>
+<p>It&#8217;s a shorthand for df.rdd.mapPartitions()</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">rdd</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">iterator</span><span class="p">):</span> <span class="k">yield</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rdd</span><span class="o">.</span><span class="n">mapPartitions</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="go">4</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.orderBy">
+<tt class="descname">orderBy</tt><big>(</big><em>*cols</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.orderBy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> sorted by the specified column(s).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cols</strong> &#8211; The columns or expressions used for sorting</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">age</span><span class="o">.</span><span class="n">desc</span><span class="p">())</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age=5, name=u&#39;Bob&#39;), Row(age=2, name=u&#39;Alice&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">orderBy</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">age</span><span class="o">.</span><span class="n">desc</span><span class="p">())</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age=5, name=u&#39;Bob&#39;), Row(age=2, name=u&#39;Alice&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">asc</span><span class="p">(</span><span class="s">&quot;age&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age=2, name=u&#39;Alice&#39;), Row(age=5, name=u&#39;Bob&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">orderBy</span><span class="p">(</span><span class="n">desc</span><span class="p">(</span><span class="s">&quot;age&quot;</span><span class="p">),</span> <span class="s">&quot;name&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age=5, name=u&#39;Bob&#39;), Row(age=2, name=u&#39;Alice&#39;)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.persist">
+<tt class="descname">persist</tt><big>(</big><em>storageLevel=StorageLevel(False</em>, <em>True</em>, <em>False</em>, <em>False</em>, <em>1)</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.persist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the storage level to persist its values across operations
+after the first time it is computed. This can only be used to assign
+a new storage level if the RDD does not have a storage level set yet.
+If no storage level is specified defaults to (<tt class="xref py py-class docutils literal"><span class="pre">MEMORY_ONLY_SER</span></tt>).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.printSchema">
+<tt class="descname">printSchema</tt><big>(</big><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.printSchema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints out the schema in the tree format.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
+<span class="go">root</span>
+<span class="go"> |-- age: integer (nullable = true)</span>
+<span class="go"> |-- name: string (nullable = true)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyspark.sql.DataFrame.rdd">
+<tt class="descname">rdd</tt><a class="headerlink" href="#pyspark.sql.DataFrame.rdd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the content of the <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> as an <tt class="xref py py-class docutils literal"><span class="pre">RDD</span></tt>
+of <a class="reference internal" href="#pyspark.sql.Row" title="pyspark.sql.Row"><tt class="xref py py-class docutils literal"><span class="pre">Row</span></tt></a> s.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.registerAsTable">
+<tt class="descname">registerAsTable</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.registerAsTable" title="Permalink to this definition">¶</a></dt>
+<dd><p>DEPRECATED: use registerTempTable() instead</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.registerTempTable">
+<tt class="descname">registerTempTable</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.registerTempTable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Registers this RDD as a temporary table using the given name.</p>
+<p>The lifetime of this temporary table is tied to the <a class="reference internal" href="#pyspark.sql.SQLContext" title="pyspark.sql.SQLContext"><tt class="xref py py-class docutils literal"><span class="pre">SQLContext</span></tt></a>
+that was used to create this DataFrame.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">registerTempTable</span><span class="p">(</span><span class="s">&quot;people&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df2</span> <span class="o">=</span> <span class="n">sqlCtx</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s">&quot;select * from people&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">collect</span><span class="p">())</span> <span class="o">==</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">df2</span><span class="o">.</span><span class="n">collect</span><span class="p">())</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.repartition">
+<tt class="descname">repartition</tt><big>(</big><em>numPartitions</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.repartition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> that has exactly <cite>numPartitions</cite>
+partitions.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">repartition</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">rdd</span><span class="o">.</span><span class="n">getNumPartitions</span><span class="p">()</span>
+<span class="go">10</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.sample">
+<tt class="descname">sample</tt><big>(</big><em>withReplacement</em>, <em>fraction</em>, <em>seed=None</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.sample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a sampled subset of this DataFrame.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="bp">False</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">97</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+<span class="go">1L</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.save">
+<tt class="descname">save</tt><big>(</big><em>path=None</em>, <em>source=None</em>, <em>mode='append'</em>, <em>**options</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the contents of the <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> to a data source.</p>
+<p>The data source is specified by the <cite>source</cite> and a set of <cite>options</cite>.
+If <cite>source</cite> is not specified, the default data source configured by
+spark.sql.sources.default will be used.</p>
+<p>Additionally, mode is used to specify the behavior of the save operation when
+data already exists in the data source. There are four modes:</p>
+<ul class="simple">
+<li>append: Contents of this <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> are expected to be appended to existing data.</li>
+<li>overwrite: Existing data is expected to be overwritten by the contents of this DataFrame.</li>
+<li>error: An exception is expected to be thrown.</li>
+<li>ignore: The save operation is expected to not save the contents of             the <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> and to not change the existing data.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.saveAsParquetFile">
+<tt class="descname">saveAsParquetFile</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.saveAsParquetFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the contents as a Parquet file, preserving the schema.</p>
+<p>Files that are written out using this method can be read back in as
+a <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> using the <a class="reference internal" href="#pyspark.sql.SQLContext.parquetFile" title="pyspark.sql.SQLContext.parquetFile"><tt class="xref py py-class docutils literal"><span class="pre">SQLContext.parquetFile</span></tt></a> method.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">tempfile</span><span class="o">,</span> <span class="nn">shutil</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parquetFile</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">parquetFile</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">saveAsParquetFile</span><span class="p">(</span><span class="n">parquetFile</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df2</span> <span class="o">=</span> <span class="n">sqlCtx</span><span class="o">.</span><span class="n">parquetFile</span><span class="p">(</span><span class="n">parquetFile</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">sorted</span><span class="p">(</span><span class="n">df2</span><span class="o">.</span><span class="n">collect</span><span class="p">())</span> <span class="o">==</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">collect</span><span class="p">())</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.saveAsTable">
+<tt class="descname">saveAsTable</tt><big>(</big><em>tableName</em>, <em>source=None</em>, <em>mode='append'</em>, <em>**options</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.saveAsTable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the contents of the <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> to a data source as a table.</p>
+<p>The data source is specified by the <cite>source</cite> and a set of <cite>options</cite>.
+If <cite>source</cite> is not specified, the default data source configured by
+spark.sql.sources.default will be used.</p>
+<p>Additionally, mode is used to specify the behavior of the saveAsTable operation when
+table already exists in the data source. There are four modes:</p>
+<ul class="simple">
+<li>append: Contents of this <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> are expected to be appended             to existing table.</li>
+<li>overwrite: Data in the existing table is expected to be overwritten by             the contents of  this DataFrame.</li>
+<li>error: An exception is expected to be thrown.</li>
+<li>ignore: The save operation is expected to not save the contents of the             <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> and to not change the existing table.</li>
+</ul>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pyspark.sql.DataFrame.schema">
+<tt class="descname">schema</tt><a class="headerlink" href="#pyspark.sql.DataFrame.schema" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the schema of this <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> (represented by
+a <tt class="xref py py-class docutils literal"><span class="pre">StructType</span></tt>).</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">schema</span>
+<span class="go">StructType(List(StructField(age,IntegerType,true),StructField(name,StringType,true)))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.select">
+<tt class="descname">select</tt><big>(</big><em>*cols</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.select" title="Permalink to this definition">¶</a></dt>
+<dd><p>Selecting a set of expressions.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&#39;*&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age=2, name=u&#39;Alice&#39;), Row(age=5, name=u&#39;Bob&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="s">&#39;age&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(name=u&#39;Alice&#39;, age=2), Row(name=u&#39;Bob&#39;, age=5)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">age</span> <span class="o">+</span> <span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s">&#39;age&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(name=u&#39;Alice&#39;, age=12), Row(name=u&#39;Bob&#39;, age=15)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.selectExpr">
+<tt class="descname">selectExpr</tt><big>(</big><em>*expr</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.selectExpr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Selects a set of SQL expressions. This is a variant of
+<cite>select</cite> that accepts SQL expressions.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">selectExpr</span><span class="p">(</span><span class="s">&quot;age * 2&quot;</span><span class="p">,</span> <span class="s">&quot;abs(age)&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row((age * 2)=4, Abs(age)=2), Row((age * 2)=10, Abs(age)=5)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.show">
+<tt class="descname">show</tt><big>(</big><em>n=20</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.show" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the first n rows.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span>
+<span class="go">DataFrame[age: int, name: string]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="go">age name</span>
+<span class="go">2   Alice</span>
+<span class="go">5   Bob</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.sort">
+<tt class="descname">sort</tt><big>(</big><em>*cols</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.sort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> sorted by the specified column(s).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>cols</strong> &#8211; The columns or expressions used for sorting</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">age</span><span class="o">.</span><span class="n">desc</span><span class="p">())</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age=5, name=u&#39;Bob&#39;), Row(age=2, name=u&#39;Alice&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">orderBy</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">age</span><span class="o">.</span><span class="n">desc</span><span class="p">())</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age=5, name=u&#39;Bob&#39;), Row(age=2, name=u&#39;Alice&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">asc</span><span class="p">(</span><span class="s">&quot;age&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age=2, name=u&#39;Alice&#39;), Row(age=5, name=u&#39;Bob&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">orderBy</span><span class="p">(</span><span class="n">desc</span><span class="p">(</span><span class="s">&quot;age&quot;</span><span class="p">),</span> <span class="s">&quot;name&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age=5, name=u&#39;Bob&#39;), Row(age=2, name=u&#39;Alice&#39;)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.subtract">
+<tt class="descname">subtract</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.subtract" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> containing rows in this frame
+but not in another frame.</p>
+<p>This is equivalent to <cite>EXCEPT</cite> in SQL.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.take">
+<tt class="descname">take</tt><big>(</big><em>num</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.take" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take the first num rows of the RDD.</p>
+<p>Each object in the list is a Row, the fields can be accessed as
+attributes.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">[Row(age=2, name=u&#39;Alice&#39;), Row(age=5, name=u&#39;Bob&#39;)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.toJSON">
+<tt class="descname">toJSON</tt><big>(</big><em>use_unicode=False</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.toJSON" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> into a MappedRDD of JSON documents; one document per row.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">toJSON</span><span class="p">()</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="go">&#39;{&quot;age&quot;:2,&quot;name&quot;:&quot;Alice&quot;}&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.toPandas">
+<tt class="descname">toPandas</tt><big>(</big><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.toPandas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collect all the rows and return a <cite>pandas.DataFrame</cite>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">toPandas</span><span class="p">()</span>  
+<span class="go">   age   name</span>
+<span class="go">0    2  Alice</span>
+<span class="go">1    5    Bob</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.unionAll">
+<tt class="descname">unionAll</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.unionAll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> containing union of rows in this
+frame and another frame.</p>
+<p>This is equivalent to <cite>UNION ALL</cite> in SQL.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.unpersist">
+<tt class="descname">unpersist</tt><big>(</big><em>blocking=True</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.unpersist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mark it as non-persistent, and remove all blocks for it from
+memory and disk.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.where">
+<tt class="descname">where</tt><big>(</big><em>condition</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.where" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filtering rows using the given condition, which could be
+<a class="reference internal" href="#pyspark.sql.Column" title="pyspark.sql.Column"><tt class="xref py py-class docutils literal"><span class="pre">Column</span></tt></a> expression or string of SQL expression.</p>
+<p>where() is an alias for filter().</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">age</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age=5, name=u&#39;Bob&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">age</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age=2, name=u&#39;Alice&#39;)]</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s">&quot;age &gt; 3&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age=5, name=u&#39;Bob&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="s">&quot;age = 2&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age=2, name=u&#39;Alice&#39;)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.withColumn">
+<tt class="descname">withColumn</tt><big>(</big><em>colName</em>, <em>col</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.withColumn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a> by adding a column.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="s">&#39;age2&#39;</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">age</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age=2, name=u&#39;Alice&#39;, age2=4), Row(age=5, name=u&#39;Bob&#39;, age2=7)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.DataFrame.withColumnRenamed">
+<tt class="descname">withColumnRenamed</tt><big>(</big><em>existing</em>, <em>new</em><big>)</big><a class="headerlink" href="#pyspark.sql.DataFrame.withColumnRenamed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rename an existing column to a new name</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">withColumnRenamed</span><span class="p">(</span><span class="s">&#39;age&#39;</span><span class="p">,</span> <span class="s">&#39;age2&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age2=2, name=u&#39;Alice&#39;), Row(age2=5, name=u&#39;Bob&#39;)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyspark.sql.GroupedData">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.</tt><tt class="descname">GroupedData</tt><big>(</big><em>jdf</em>, <em>sql_ctx</em><big>)</big><a class="headerlink" href="#pyspark.sql.GroupedData" title="Permalink to this definition">¶</a></dt>
+<dd><p>A set of methods for aggregations on a <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a>,
+created by DataFrame.groupBy().</p>
+<dl class="method">
+<dt id="pyspark.sql.GroupedData.agg">
+<tt class="descname">agg</tt><big>(</big><em>*exprs</em><big>)</big><a class="headerlink" href="#pyspark.sql.GroupedData.agg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute aggregates by specifying a map from column name
+to aggregate methods.</p>
+<p>The available aggregate methods are <cite>avg</cite>, <cite>max</cite>, <cite>min</cite>,
+<cite>sum</cite>, <cite>count</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>exprs</strong> &#8211; list or aggregate columns or a map from column
+name to aggregate methods.</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">gdf</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupBy</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gdf</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="s">&quot;*&quot;</span><span class="p">:</span> <span class="s">&quot;count&quot;</span><span class="p">})</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(name=u&#39;Bob&#39;, COUNT(1)=1), Row(name=u&#39;Alice&#39;, COUNT(1)=1)]</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">functions</span> <span class="k">as</span> <span class="n">F</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gdf</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">age</span><span class="p">))</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(MIN(age#0)=5), Row(MIN(age#0)=2)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.GroupedData.avg">
+<tt class="descname">avg</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#pyspark.sql.GroupedData.avg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the average value for each numeric columns
+for each group.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">groupBy</span><span class="p">()</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="s">&#39;age&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(AVG(age#0)=3.5)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df3</span><span class="o">.</span><span class="n">groupBy</span><span class="p">()</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="s">&#39;age&#39;</span><span class="p">,</span> <span class="s">&#39;height&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(AVG(age#4L)=3.5, AVG(height#5L)=82.5)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.GroupedData.count">
+<tt class="descname">count</tt><big>(</big><big>)</big><a class="headerlink" href="#pyspark.sql.GroupedData.count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Count the number of rows for each group.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">groupBy</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">age</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age=2, count=1), Row(age=5, count=1)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.GroupedData.max">
+<tt class="descname">max</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#pyspark.sql.GroupedData.max" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the max value for each numeric columns for
+each group.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">groupBy</span><span class="p">()</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="s">&#39;age&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(MAX(age#0)=5)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df3</span><span class="o">.</span><span class="n">groupBy</span><span class="p">()</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="s">&#39;age&#39;</span><span class="p">,</span> <span class="s">&#39;height&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(MAX(age#4L)=5, MAX(height#5L)=85)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.GroupedData.mean">
+<tt class="descname">mean</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#pyspark.sql.GroupedData.mean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the average value for each numeric columns
+for each group. This is an alias for <cite>avg</cite>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">groupBy</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="s">&#39;age&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(AVG(age#0)=3.5)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df3</span><span class="o">.</span><span class="n">groupBy</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="s">&#39;age&#39;</span><span class="p">,</span> <span class="s">&#39;height&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(AVG(age#4L)=3.5, AVG(height#5L)=82.5)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.GroupedData.min">
+<tt class="descname">min</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#pyspark.sql.GroupedData.min" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the min value for each numeric column for
+each group.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">groupBy</span><span class="p">()</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="s">&#39;age&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(MIN(age#0)=2)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df3</span><span class="o">.</span><span class="n">groupBy</span><span class="p">()</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="s">&#39;age&#39;</span><span class="p">,</span> <span class="s">&#39;height&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(MIN(age#4L)=2, MIN(height#5L)=80)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.GroupedData.sum">
+<tt class="descname">sum</tt><big>(</big><em>*args</em><big>)</big><a class="headerlink" href="#pyspark.sql.GroupedData.sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the sum for each numeric columns for each
+group.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">groupBy</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s">&#39;age&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(SUM(age#0)=7)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df3</span><span class="o">.</span><span class="n">groupBy</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s">&#39;age&#39;</span><span class="p">,</span> <span class="s">&#39;height&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(SUM(age#4L)=7, SUM(height#5L)=165)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyspark.sql.Column">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.</tt><tt class="descname">Column</tt><big>(</big><em>jc</em><big>)</big><a class="headerlink" href="#pyspark.sql.Column" title="Permalink to this definition">¶</a></dt>
+<dd><p>A column in a DataFrame.</p>
+<p><a class="reference internal" href="#pyspark.sql.Column" title="pyspark.sql.Column"><tt class="xref py py-class docutils literal"><span class="pre">Column</span></tt></a> instances can be created by:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># 1. Select a column out of a DataFrame</span>
+
+<span class="n">df</span><span class="o">.</span><span class="n">colName</span>
+<span class="n">df</span><span class="p">[</span><span class="s">&quot;colName&quot;</span><span class="p">]</span>
+
+<span class="c"># 2. Create from an expression</span>
+<span class="n">df</span><span class="o">.</span><span class="n">colName</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="mi">1</span> <span class="o">/</span> <span class="n">df</span><span class="o">.</span><span class="n">colName</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="pyspark.sql.Column.alias">
+<tt class="descname">alias</tt><big>(</big><em>alias</em><big>)</big><a class="headerlink" href="#pyspark.sql.Column.alias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a alias for this column</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">age</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s">&quot;age2&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(age2=2), Row(age2=5)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.Column.asc">
+<tt class="descname">asc</tt><big>(</big><big>)</big><a class="headerlink" href="#pyspark.sql.Column.asc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a sort expression based on the ascending order of the given column name.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.Column.cast">
+<tt class="descname">cast</tt><big>(</big><em>dataType</em><big>)</big><a class="headerlink" href="#pyspark.sql.Column.cast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the column into type <cite>dataType</cite></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">age</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s">&quot;string&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s">&#39;ages&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(ages=u&#39;2&#39;), Row(ages=u&#39;5&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">age</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">StringType</span><span class="p">())</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s">&#39;ages&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(ages=u&#39;2&#39;), Row(ages=u&#39;5&#39;)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.Column.desc">
+<tt class="descname">desc</tt><big>(</big><big>)</big><a class="headerlink" href="#pyspark.sql.Column.desc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a sort expression based on the descending order of the given column name.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.Column.endswith">
+<tt class="descname">endswith</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#pyspark.sql.Column.endswith" title="Permalink to this definition">¶</a></dt>
+<dd><p>binary operator</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.Column.getField">
+<tt class="descname">getField</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#pyspark.sql.Column.getField" title="Permalink to this definition">¶</a></dt>
+<dd><p>An expression that gets a field by name in a StructField.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.Column.isNotNull">
+<tt class="descname">isNotNull</tt><big>(</big><big>)</big><a class="headerlink" href="#pyspark.sql.Column.isNotNull" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if the current expression is not null.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.Column.isNull">
+<tt class="descname">isNull</tt><big>(</big><big>)</big><a class="headerlink" href="#pyspark.sql.Column.isNull" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if the current expression is null.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.Column.like">
+<tt class="descname">like</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#pyspark.sql.Column.like" title="Permalink to this definition">¶</a></dt>
+<dd><p>binary operator</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.Column.rlike">
+<tt class="descname">rlike</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#pyspark.sql.Column.rlike" title="Permalink to this definition">¶</a></dt>
+<dd><p>binary operator</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.Column.startswith">
+<tt class="descname">startswith</tt><big>(</big><em>other</em><big>)</big><a class="headerlink" href="#pyspark.sql.Column.startswith" title="Permalink to this definition">¶</a></dt>
+<dd><p>binary operator</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.Column.substr">
+<tt class="descname">substr</tt><big>(</big><em>startPos</em>, <em>length</em><big>)</big><a class="headerlink" href="#pyspark.sql.Column.substr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a <a class="reference internal" href="#pyspark.sql.Column" title="pyspark.sql.Column"><tt class="xref py py-class docutils literal"><span class="pre">Column</span></tt></a> which is a substring of the column</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>startPos</strong> &#8211; start position (int or Column)</li>
+<li><strong>length</strong> &#8211; length of the substring (int or Column)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">substr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s">&quot;col&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(col=u&#39;Ali&#39;), Row(col=u&#39;Bob&#39;)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyspark.sql.Row">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.</tt><tt class="descname">Row</tt><a class="headerlink" href="#pyspark.sql.Row" title="Permalink to this definition">¶</a></dt>
+<dd><p>A row in <a class="reference internal" href="#pyspark.sql.DataFrame" title="pyspark.sql.DataFrame"><tt class="xref py py-class docutils literal"><span class="pre">DataFrame</span></tt></a>. The fields in it can be accessed like attributes.</p>
+<p>Row can be used to create a row object by using named arguments,
+the fields will be sorted by names.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">row</span> <span class="o">=</span> <span class="n">Row</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Alice&quot;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">11</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">row</span>
+<span class="go">Row(age=11, name=&#39;Alice&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">row</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">age</span>
+<span class="go">(&#39;Alice&#39;, 11)</span>
+</pre></div>
+</div>
+<p>Row also can be used to create another Row like class, then it
+could be used to create Row objects, such as</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Person</span> <span class="o">=</span> <span class="n">Row</span><span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="s">&quot;age&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Person</span>
+<span class="go">&lt;Row(name, age)&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Person</span><span class="p">(</span><span class="s">&quot;Alice&quot;</span><span class="p">,</span> <span class="mi">11</span><span class="p">)</span>
+<span class="go">Row(name=&#39;Alice&#39;, age=11)</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="pyspark.sql.Row.asDict">
+<tt class="descname">asDict</tt><big>(</big><big>)</big><a class="headerlink" href="#pyspark.sql.Row.asDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return as an dict</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyspark.sql.types">
+<span id="pyspark-sql-types-module"></span><h2>pyspark.sql.types module<a class="headerlink" href="#module-pyspark.sql.types" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pyspark.sql.types.DataType">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.types.</tt><tt class="descname">DataType</tt><a class="reference internal" href="_modules/pyspark/sql/types.html#DataType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.DataType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spark SQL DataType</p>
+<dl class="method">
+<dt id="pyspark.sql.types.DataType.json">
+<tt class="descname">json</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#DataType.json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.DataType.json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.types.DataType.jsonValue">
+<tt class="descname">jsonValue</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#DataType.jsonValue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.DataType.jsonValue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.types.DataType.simpleString">
+<tt class="descname">simpleString</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#DataType.simpleString"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.DataType.simpleString" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pyspark.sql.types.DataType.typeName">
+<em class="property">classmethod </em><tt class="descname">typeName</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#DataType.typeName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.DataType.typeName" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyspark.sql.types.NullType">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.types.</tt><tt class="descname">NullType</tt><a class="reference internal" href="_modules/pyspark/sql/types.html#NullType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.NullType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spark SQL NullType</p>
+<p>The data type representing None, used for the types which has not
+been inferred.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyspark.sql.types.StringType">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.types.</tt><tt class="descname">StringType</tt><a class="reference internal" href="_modules/pyspark/sql/types.html#StringType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.StringType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spark SQL StringType</p>
+<p>The data type representing string values.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyspark.sql.types.BinaryType">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.types.</tt><tt class="descname">BinaryType</tt><a class="reference internal" href="_modules/pyspark/sql/types.html#BinaryType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.BinaryType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spark SQL BinaryType</p>
+<p>The data type representing bytearray values.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyspark.sql.types.BooleanType">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.types.</tt><tt class="descname">BooleanType</tt><a class="reference internal" href="_modules/pyspark/sql/types.html#BooleanType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.BooleanType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spark SQL BooleanType</p>
+<p>The data type representing bool values.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyspark.sql.types.DateType">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.types.</tt><tt class="descname">DateType</tt><a class="reference internal" href="_modules/pyspark/sql/types.html#DateType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.DateType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spark SQL DateType</p>
+<p>The data type representing datetime.date values.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyspark.sql.types.TimestampType">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.types.</tt><tt class="descname">TimestampType</tt><a class="reference internal" href="_modules/pyspark/sql/types.html#TimestampType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.TimestampType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spark SQL TimestampType</p>
+<p>The data type representing datetime.datetime values.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyspark.sql.types.DecimalType">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.types.</tt><tt class="descname">DecimalType</tt><big>(</big><em>precision=None</em>, <em>scale=None</em><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#DecimalType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.DecimalType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spark SQL DecimalType</p>
+<p>The data type representing decimal.Decimal values.</p>
+<dl class="method">
+<dt id="pyspark.sql.types.DecimalType.jsonValue">
+<tt class="descname">jsonValue</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#DecimalType.jsonValue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.DecimalType.jsonValue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.types.DecimalType.simpleString">
+<tt class="descname">simpleString</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#DecimalType.simpleString"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.DecimalType.simpleString" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyspark.sql.types.DoubleType">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.types.</tt><tt class="descname">DoubleType</tt><a class="reference internal" href="_modules/pyspark/sql/types.html#DoubleType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.DoubleType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spark SQL DoubleType</p>
+<p>The data type representing float values.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyspark.sql.types.FloatType">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.types.</tt><tt class="descname">FloatType</tt><a class="reference internal" href="_modules/pyspark/sql/types.html#FloatType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.FloatType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spark SQL FloatType</p>
+<p>The data type representing single precision floating-point values.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="pyspark.sql.types.ByteType">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.types.</tt><tt class="descname">ByteType</tt><a class="reference internal" href="_modules/pyspark/sql/types.html#ByteType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.ByteType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spark SQL ByteType</p>
+<p>The data type representing int values with 1 singed byte.</p>
+<dl class="method">
+<dt id="pyspark.sql.types.ByteType.simpleString">
+<tt class="descname">simpleString</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#ByteType.simpleString"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.ByteType.simpleString" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyspark.sql.types.IntegerType">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.types.</tt><tt class="descname">IntegerType</tt><a class="reference internal" href="_modules/pyspark/sql/types.html#IntegerType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.IntegerType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spark SQL IntegerType</p>
+<p>The data type representing int values.</p>
+<dl class="method">
+<dt id="pyspark.sql.types.IntegerType.simpleString">
+<tt class="descname">simpleString</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#IntegerType.simpleString"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.IntegerType.simpleString" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyspark.sql.types.LongType">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.types.</tt><tt class="descname">LongType</tt><a class="reference internal" href="_modules/pyspark/sql/types.html#LongType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.LongType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spark SQL LongType</p>
+<p>The data type representing long values. If the any value is
+beyond the range of [-9223372036854775808, 9223372036854775807],
+please use DecimalType.</p>
+<dl class="method">
+<dt id="pyspark.sql.types.LongType.simpleString">
+<tt class="descname">simpleString</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#LongType.simpleString"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.LongType.simpleString" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyspark.sql.types.ShortType">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.types.</tt><tt class="descname">ShortType</tt><a class="reference internal" href="_modules/pyspark/sql/types.html#ShortType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.ShortType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spark SQL ShortType</p>
+<p>The data type representing int values with 2 signed bytes.</p>
+<dl class="method">
+<dt id="pyspark.sql.types.ShortType.simpleString">
+<tt class="descname">simpleString</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#ShortType.simpleString"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.ShortType.simpleString" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyspark.sql.types.ArrayType">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.types.</tt><tt class="descname">ArrayType</tt><big>(</big><em>elementType</em>, <em>containsNull=True</em><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#ArrayType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.ArrayType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spark SQL ArrayType</p>
+<p>The data type representing list values. An ArrayType object
+comprises two fields, elementType (a DataType) and containsNull (a bool).
+The field of elementType is used to specify the type of array elements.
+The field of containsNull is used to specify if the array has None values.</p>
+<dl class="classmethod">
+<dt id="pyspark.sql.types.ArrayType.fromJson">
+<em class="property">classmethod </em><tt class="descname">fromJson</tt><big>(</big><em>json</em><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#ArrayType.fromJson"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.ArrayType.fromJson" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.types.ArrayType.jsonValue">
+<tt class="descname">jsonValue</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#ArrayType.jsonValue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.ArrayType.jsonValue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.types.ArrayType.simpleString">
+<tt class="descname">simpleString</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#ArrayType.simpleString"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.ArrayType.simpleString" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyspark.sql.types.MapType">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.types.</tt><tt class="descname">MapType</tt><big>(</big><em>keyType</em>, <em>valueType</em>, <em>valueContainsNull=True</em><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#MapType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.MapType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spark SQL MapType</p>
+<p>The data type representing dict values. A MapType object comprises
+three fields, keyType (a DataType), valueType (a DataType) and
+valueContainsNull (a bool).</p>
+<p>The field of keyType is used to specify the type of keys in the map.
+The field of valueType is used to specify the type of values in the map.
+The field of valueContainsNull is used to specify if values of this
+map has None values.</p>
+<p>For values of a MapType column, keys are not allowed to have None values.</p>
+<dl class="classmethod">
+<dt id="pyspark.sql.types.MapType.fromJson">
+<em class="property">classmethod </em><tt class="descname">fromJson</tt><big>(</big><em>json</em><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#MapType.fromJson"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.MapType.fromJson" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.types.MapType.jsonValue">
+<tt class="descname">jsonValue</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#MapType.jsonValue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.MapType.jsonValue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.types.MapType.simpleString">
+<tt class="descname">simpleString</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#MapType.simpleString"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.MapType.simpleString" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyspark.sql.types.StructField">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.types.</tt><tt class="descname">StructField</tt><big>(</big><em>name</em>, <em>dataType</em>, <em>nullable=True</em>, <em>metadata=None</em><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#StructField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.StructField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spark SQL StructField</p>
+<p>Represents a field in a StructType.
+A StructField object comprises three fields, name (a string),
+dataType (a DataType) and nullable (a bool). The field of name
+is the name of a StructField. The field of dataType specifies
+the data type of a StructField.</p>
+<p>The field of nullable specifies if values of a StructField can
+contain None values.</p>
+<dl class="classmethod">
+<dt id="pyspark.sql.types.StructField.fromJson">
+<em class="property">classmethod </em><tt class="descname">fromJson</tt><big>(</big><em>json</em><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#StructField.fromJson"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.StructField.fromJson" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.types.StructField.jsonValue">
+<tt class="descname">jsonValue</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#StructField.jsonValue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.StructField.jsonValue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.types.StructField.simpleString">
+<tt class="descname">simpleString</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#StructField.simpleString"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.StructField.simpleString" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pyspark.sql.types.StructType">
+<em class="property">class </em><tt class="descclassname">pyspark.sql.types.</tt><tt class="descname">StructType</tt><big>(</big><em>fields</em><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#StructType"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.StructType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spark SQL StructType</p>
+<p>The data type representing rows.
+A StructType object comprises a list of <a class="reference internal" href="#pyspark.sql.types.StructField" title="pyspark.sql.types.StructField"><tt class="xref py py-class docutils literal"><span class="pre">StructField</span></tt></a>.</p>
+<dl class="classmethod">
+<dt id="pyspark.sql.types.StructType.fromJson">
+<em class="property">classmethod </em><tt class="descname">fromJson</tt><big>(</big><em>json</em><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#StructType.fromJson"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.StructType.fromJson" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.types.StructType.jsonValue">
+<tt class="descname">jsonValue</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#StructType.jsonValue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.StructType.jsonValue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pyspark.sql.types.StructType.simpleString">
+<tt class="descname">simpleString</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/pyspark/sql/types.html#StructType.simpleString"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.types.StructType.simpleString" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pyspark.sql.functions">
+<span id="pyspark-sql-functions-module"></span><h2>pyspark.sql.functions module<a class="headerlink" href="#module-pyspark.sql.functions" title="Permalink to this headline">¶</a></h2>
+<p>A collections of builtin functions</p>
+<dl class="function">
+<dt id="pyspark.sql.functions.abs">
+<tt class="descclassname">pyspark.sql.functions.</tt><tt class="descname">abs</tt><big>(</big><em>col</em><big>)</big><a class="headerlink" href="#pyspark.sql.functions.abs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the absolutle value.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyspark.sql.functions.approxCountDistinct">
+<tt class="descclassname">pyspark.sql.functions.</tt><tt class="descname">approxCountDistinct</tt><big>(</big><em>col</em>, <em>rsd=None</em><big>)</big><a class="reference internal" href="_modules/pyspark/sql/functions.html#approxCountDistinct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.functions.approxCountDistinct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new Column for approximate distinct count of <cite>col</cite></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">approxCountDistinct</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">age</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s">&#39;c&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(c=2)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyspark.sql.functions.asc">
+<tt class="descclassname">pyspark.sql.functions.</tt><tt class="descname">asc</tt><big>(</big><em>col</em><big>)</big><a class="headerlink" href="#pyspark.sql.functions.asc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a sort expression based on the ascending order of the given column name.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyspark.sql.functions.avg">
+<tt class="descclassname">pyspark.sql.functions.</tt><tt class="descname">avg</tt><big>(</big><em>col</em><big>)</big><a class="headerlink" href="#pyspark.sql.functions.avg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aggregate function: returns the average of the values in a group.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyspark.sql.functions.col">
+<tt class="descclassname">pyspark.sql.functions.</tt><tt class="descname">col</tt><big>(</big><em>col</em><big>)</big><a class="headerlink" href="#pyspark.sql.functions.col" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <tt class="xref py py-class docutils literal"><span class="pre">Column</span></tt> based on the given column name.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyspark.sql.functions.column">
+<tt class="descclassname">pyspark.sql.functions.</tt><tt class="descname">column</tt><big>(</big><em>col</em><big>)</big><a class="headerlink" href="#pyspark.sql.functions.column" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <tt class="xref py py-class docutils literal"><span class="pre">Column</span></tt> based on the given column name.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyspark.sql.functions.count">
+<tt class="descclassname">pyspark.sql.functions.</tt><tt class="descname">count</tt><big>(</big><em>col</em><big>)</big><a class="headerlink" href="#pyspark.sql.functions.count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aggregate function: returns the number of items in a group.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyspark.sql.functions.countDistinct">
+<tt class="descclassname">pyspark.sql.functions.</tt><tt class="descname">countDistinct</tt><big>(</big><em>col</em>, <em>*cols</em><big>)</big><a class="reference internal" href="_modules/pyspark/sql/functions.html#countDistinct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.functions.countDistinct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new Column for distinct count of <cite>col</cite> or <cite>cols</cite></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">countDistinct</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">age</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s">&#39;c&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(c=2)]</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">countDistinct</span><span class="p">(</span><span class="s">&quot;age&quot;</span><span class="p">,</span> <span class="s">&quot;name&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s">&#39;c&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(c=2)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyspark.sql.functions.desc">
+<tt class="descclassname">pyspark.sql.functions.</tt><tt class="descname">desc</tt><big>(</big><em>col</em><big>)</big><a class="headerlink" href="#pyspark.sql.functions.desc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a sort expression based on the descending order of the given column name.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyspark.sql.functions.first">
+<tt class="descclassname">pyspark.sql.functions.</tt><tt class="descname">first</tt><big>(</big><em>col</em><big>)</big><a class="headerlink" href="#pyspark.sql.functions.first" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aggregate function: returns the first value in a group.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyspark.sql.functions.last">
+<tt class="descclassname">pyspark.sql.functions.</tt><tt class="descname">last</tt><big>(</big><em>col</em><big>)</big><a class="headerlink" href="#pyspark.sql.functions.last" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aggregate function: returns the last value in a group.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyspark.sql.functions.lit">
+<tt class="descclassname">pyspark.sql.functions.</tt><tt class="descname">lit</tt><big>(</big><em>col</em><big>)</big><a class="headerlink" href="#pyspark.sql.functions.lit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a <tt class="xref py py-class docutils literal"><span class="pre">Column</span></tt> of literal value.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyspark.sql.functions.lower">
+<tt class="descclassname">pyspark.sql.functions.</tt><tt class="descname">lower</tt><big>(</big><em>col</em><big>)</big><a class="headerlink" href="#pyspark.sql.functions.lower" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a string expression to upper case.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyspark.sql.functions.max">
+<tt class="descclassname">pyspark.sql.functions.</tt><tt class="descname">max</tt><big>(</big><em>col</em><big>)</big><a class="headerlink" href="#pyspark.sql.functions.max" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aggregate function: returns the maximum value of the expression in a group.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyspark.sql.functions.mean">
+<tt class="descclassname">pyspark.sql.functions.</tt><tt class="descname">mean</tt><big>(</big><em>col</em><big>)</big><a class="headerlink" href="#pyspark.sql.functions.mean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aggregate function: returns the average of the values in a group.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyspark.sql.functions.min">
+<tt class="descclassname">pyspark.sql.functions.</tt><tt class="descname">min</tt><big>(</big><em>col</em><big>)</big><a class="headerlink" href="#pyspark.sql.functions.min" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aggregate function: returns the minimum value of the expression in a group.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyspark.sql.functions.sqrt">
+<tt class="descclassname">pyspark.sql.functions.</tt><tt class="descname">sqrt</tt><big>(</big><em>col</em><big>)</big><a class="headerlink" href="#pyspark.sql.functions.sqrt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the square root of the specified float value.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyspark.sql.functions.sum">
+<tt class="descclassname">pyspark.sql.functions.</tt><tt class="descname">sum</tt><big>(</big><em>col</em><big>)</big><a class="headerlink" href="#pyspark.sql.functions.sum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aggregate function: returns the sum of all values in the expression.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyspark.sql.functions.sumDistinct">
+<tt class="descclassname">pyspark.sql.functions.</tt><tt class="descname">sumDistinct</tt><big>(</big><em>col</em><big>)</big><a class="headerlink" href="#pyspark.sql.functions.sumDistinct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aggregate function: returns the sum of distinct values in the expression.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyspark.sql.functions.udf">
+<tt class="descclassname">pyspark.sql.functions.</tt><tt class="descname">udf</tt><big>(</big><em>f</em>, <em>returnType=StringType</em><big>)</big><a class="reference internal" href="_modules/pyspark/sql/functions.html#udf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyspark.sql.functions.udf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a user defined function (UDF)</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="n">IntegerType</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">slen</span> <span class="o">=</span> <span class="n">udf</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">),</span> <span class="n">IntegerType</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">slen</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s">&#39;slen&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="go">[Row(slen=5), Row(slen=3)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="pyspark.sql.functions.upper">
+<tt class="descclassname">pyspark.sql.functions.</tt><tt class="descname">upper</tt><big>(</big><em>col</em><big>)</big><a class="headerlink" href="#pyspark.sql.functions.upper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a string expression to upper case.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">pyspark.sql module</a><ul>
+<li><a class="reference internal" href="#module-pyspark.sql">Module Context</a></li>
+<li><a class="reference internal" href="#module-pyspark.sql.types">pyspark.sql.types module</a></li>
+<li><a class="reference internal" href="#module-pyspark.sql.functions">pyspark.sql.functions module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pyspark.mllib.html"
+                        title="previous chapter">pyspark.mllib package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pyspark.streaming.html"
+                        title="next chapter">pyspark.streaming module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/pyspark.sql.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="pyspark.streaming.html" title="pyspark.streaming module"
+             >next</a></li>
+        <li class="right" >
+          <a href="pyspark.mllib.html" title="pyspark.mllib package"
+             >previous</a> |</li>
+        <li><a href="index.html">PySpark 1.3.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright .
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
