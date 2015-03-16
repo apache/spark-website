@@ -113,7 +113,7 @@
           <ul id="markdown-toc">
   <li><a href="#overview">Overview</a></li>
   <li><a href="#dataframes">DataFrames</a>    <ul>
-      <li><a href="#starting-point-sqlcontext">Starting Point: SQLContext</a></li>
+      <li><a href="#starting-point-sqlcontext">Starting Point: <code>SQLContext</code></a></li>
       <li><a href="#creating-dataframes">Creating DataFrames</a></li>
       <li><a href="#dataframe-operations">DataFrame Operations</a></li>
       <li><a href="#running-sql-queries-programmatically">Running SQL Queries Programmatically</a></li>
@@ -133,6 +133,8 @@
       </li>
       <li><a href="#parquet-files">Parquet Files</a>        <ul>
           <li><a href="#loading-data-programmatically">Loading Data Programmatically</a></li>
+          <li><a href="#partition-discovery">Partition discovery</a></li>
+          <li><a href="#schema-merging">Schema merging</a></li>
           <li><a href="#configuration">Configuration</a></li>
         </ul>
       </li>
@@ -158,7 +160,7 @@
           <li><a href="#unification-of-the-java-and-scala-apis">Unification of the Java and Scala APIs</a></li>
           <li><a href="#isolation-of-implicit-conversions-and-removal-of-dsl-package-scala-only">Isolation of Implicit Conversions and Removal of dsl Package (Scala-only)</a></li>
           <li><a href="#removal-of-the-type-aliases-in-orgapachesparksql-for-datatype-scala-only">Removal of the type aliases in org.apache.spark.sql for DataType (Scala-only)</a></li>
-          <li><a href="#udf-registration-moved-to-sqlcontextudf-java--scala">UDF Registration Moved to sqlContext.udf (Java &amp; Scala)</a></li>
+          <li><a href="#udf-registration-moved-to-sqlcontextudf-java--scala">UDF Registration Moved to <code>sqlContext.udf</code> (Java &amp; Scala)</a></li>
           <li><a href="#python-datatypes-no-longer-singletons">Python DataTypes No Longer Singletons</a></li>
         </ul>
       </li>
@@ -191,14 +193,14 @@
 
 <p>All of the examples on this page use sample data included in the Spark distribution and can be run in the <code>spark-shell</code> or the <code>pyspark</code> shell.</p>
 
-<h2 id="starting-point-sqlcontext">Starting Point: SQLContext</h2>
+<h2 id="starting-point-sqlcontext">Starting Point: <code>SQLContext</code></h2>
 
 <div class="codetabs">
 <div data-lang="scala">
 
     <p>The entry point into all functionality in Spark SQL is the
-<a href="api/scala/index.html#org.apache.spark.sql.SQLContext">SQLContext</a> class, or one of its
-descendants.  To create a basic SQLContext, all you need is a SparkContext.</p>
+<a href="api/scala/index.html#org.apache.spark.sql.`SQLContext`"><code>SQLContext</code></a> class, or one of its
+descendants.  To create a basic <code>SQLContext</code>, all you need is a SparkContext.</p>
 
     <div class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">val</span> <span class="n">sc</span><span class="k">:</span> <span class="kt">SparkContext</span> <span class="c1">// An existing SparkContext.</span>
 <span class="k">val</span> <span class="n">sqlContext</span> <span class="k">=</span> <span class="k">new</span> <span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="nc">SQLContext</span><span class="o">(</span><span class="n">sc</span><span class="o">)</span>
@@ -211,8 +213,8 @@ descendants.  To create a basic SQLContext, all you need is a SparkContext.</p>
 <div data-lang="java">
 
     <p>The entry point into all functionality in Spark SQL is the
-<a href="api/java/index.html#org.apache.spark.sql.SQLContext">SQLContext</a> class, or one of its
-descendants.  To create a basic SQLContext, all you need is a SparkContext.</p>
+<a href="api/java/index.html#org.apache.spark.sql.SQLContext"><code>SQLContext</code></a> class, or one of its
+descendants.  To create a basic <code>SQLContext</code>, all you need is a SparkContext.</p>
 
     <div class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">JavaSparkContext</span> <span class="n">sc</span> <span class="o">=</span> <span class="o">...;</span> <span class="c1">// An existing JavaSparkContext.</span>
 <span class="n">SQLContext</span> <span class="n">sqlContext</span> <span class="o">=</span> <span class="k">new</span> <span class="n">org</span><span class="o">.</span><span class="na">apache</span><span class="o">.</span><span class="na">spark</span><span class="o">.</span><span class="na">sql</span><span class="o">.</span><span class="na">SQLContext</span><span class="o">(</span><span class="n">sc</span><span class="o">);</span></code></pre></div>
@@ -222,8 +224,8 @@ descendants.  To create a basic SQLContext, all you need is a SparkContext.</p>
 <div data-lang="python">
 
     <p>The entry point into all relational functionality in Spark is the
-<a href="api/python/pyspark.sql.SQLContext-class.html">SQLContext</a> class, or one
-of its decedents.  To create a basic SQLContext, all you need is a SparkContext.</p>
+<a href="api/python/pyspark.sql.SQLContext-class.html"><code>SQLContext</code></a> class, or one
+of its decedents.  To create a basic <code>SQLContext</code>, all you need is a SparkContext.</p>
 
     <div class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">SQLContext</span>
 <span class="n">sqlContext</span> <span class="o">=</span> <span class="n">SQLContext</span><span class="p">(</span><span class="n">sc</span><span class="p">)</span></code></pre></div>
@@ -231,20 +233,20 @@ of its decedents.  To create a basic SQLContext, all you need is a SparkContext.
   </div>
 </div>
 
-<p>In addition to the basic SQLContext, you can also create a HiveContext, which provides a
-superset of the functionality provided by the basic SQLContext. Additional features include
+<p>In addition to the basic <code>SQLContext</code>, you can also create a <code>HiveContext</code>, which provides a
+superset of the functionality provided by the basic <code>SQLContext</code>. Additional features include
 the ability to write queries using the more complete HiveQL parser, access to Hive UDFs, and the
-ability to read data from Hive tables.  To use a HiveContext, you do not need to have an
-existing Hive setup, and all of the data sources available to a SQLContext are still available.
-HiveContext is only packaged separately to avoid including all of Hive&#8217;s dependencies in the default
-Spark build.  If these dependencies are not a problem for your application then using HiveContext
-is recommended for the 1.3 release of Spark.  Future releases will focus on bringing SQLContext up
-to feature parity with a HiveContext.</p>
+ability to read data from Hive tables.  To use a <code>HiveContext</code>, you do not need to have an
+existing Hive setup, and all of the data sources available to a <code>SQLContext</code> are still available.
+<code>HiveContext</code> is only packaged separately to avoid including all of Hive&#8217;s dependencies in the default
+Spark build.  If these dependencies are not a problem for your application then using <code>HiveContext</code>
+is recommended for the 1.3 release of Spark.  Future releases will focus on bringing <code>SQLContext</code> up
+to feature parity with a <code>HiveContext</code>.</p>
 
 <p>The specific variant of SQL that is used to parse queries can also be selected using the
 <code>spark.sql.dialect</code> option.  This parameter can be changed using either the <code>setConf</code> method on
-a SQLContext or by using a <code>SET key=value</code> command in SQL.  For a SQLContext, the only dialect
-available is &#8220;sql&#8221; which uses a simple SQL parser provided by Spark SQL.  In a HiveContext, the
+a <code>SQLContext</code> or by using a <code>SET key=value</code> command in SQL.  For a <code>SQLContext</code>, the only dialect
+available is &#8220;sql&#8221; which uses a simple SQL parser provided by Spark SQL.  In a <code>HiveContext</code>, the
 default is &#8220;hiveql&#8221;, though &#8220;sql&#8221; is also available.  Since the HiveQL parser is much more complete,
 this is recommended for most use cases.</p>
 
@@ -309,10 +311,10 @@ this is recommended for most use cases.</p>
 
 <span class="c1">// Show the content of the DataFrame</span>
 <span class="n">df</span><span class="o">.</span><span class="n">show</span><span class="o">()</span>
-<span class="c1">// age  name   </span>
+<span class="c1">// age  name</span>
 <span class="c1">// null Michael</span>
-<span class="c1">// 30   Andy   </span>
-<span class="c1">// 19   Justin </span>
+<span class="c1">// 30   Andy</span>
+<span class="c1">// 19   Justin</span>
 
 <span class="c1">// Print the schema in a tree format</span>
 <span class="n">df</span><span class="o">.</span><span class="n">printSchema</span><span class="o">()</span>
@@ -322,17 +324,17 @@ this is recommended for most use cases.</p>
 
 <span class="c1">// Select only the &quot;name&quot; column</span>
 <span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">).</span><span class="n">show</span><span class="o">()</span>
-<span class="c1">// name   </span>
+<span class="c1">// name</span>
 <span class="c1">// Michael</span>
-<span class="c1">// Andy   </span>
-<span class="c1">// Justin </span>
+<span class="c1">// Andy</span>
+<span class="c1">// Justin</span>
 
 <span class="c1">// Select everybody, but increment the age by 1</span>
 <span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">,</span> <span class="n">df</span><span class="o">(</span><span class="s">&quot;age&quot;</span><span class="o">)</span> <span class="o">+</span> <span class="mi">1</span><span class="o">).</span><span class="n">show</span><span class="o">()</span>
 <span class="c1">// name    (age + 1)</span>
-<span class="c1">// Michael null     </span>
-<span class="c1">// Andy    31       </span>
-<span class="c1">// Justin  20       </span>
+<span class="c1">// Michael null</span>
+<span class="c1">// Andy    31</span>
+<span class="c1">// Justin  20</span>
 
 <span class="c1">// Select people older than 21</span>
 <span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="o">(</span><span class="n">df</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">)</span> <span class="o">&gt;</span> <span class="mi">21</span><span class="o">).</span><span class="n">show</span><span class="o">()</span>
@@ -358,10 +360,10 @@ this is recommended for most use cases.</p>
 
 <span class="c1">// Show the content of the DataFrame</span>
 <span class="n">df</span><span class="o">.</span><span class="na">show</span><span class="o">();</span>
-<span class="c1">// age  name   </span>
+<span class="c1">// age  name</span>
 <span class="c1">// null Michael</span>
-<span class="c1">// 30   Andy   </span>
-<span class="c1">// 19   Justin </span>
+<span class="c1">// 30   Andy</span>
+<span class="c1">// 19   Justin</span>
 
 <span class="c1">// Print the schema in a tree format</span>
 <span class="n">df</span><span class="o">.</span><span class="na">printSchema</span><span class="o">();</span>
@@ -371,17 +373,17 @@ this is recommended for most use cases.</p>
 
 <span class="c1">// Select only the &quot;name&quot; column</span>
 <span class="n">df</span><span class="o">.</span><span class="na">select</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
-<span class="c1">// name   </span>
+<span class="c1">// name</span>
 <span class="c1">// Michael</span>
-<span class="c1">// Andy   </span>
-<span class="c1">// Justin </span>
+<span class="c1">// Andy</span>
+<span class="c1">// Justin</span>
 
 <span class="c1">// Select everybody, but increment the age by 1</span>
 <span class="n">df</span><span class="o">.</span><span class="na">select</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">,</span> <span class="n">df</span><span class="o">.</span><span class="na">col</span><span class="o">(</span><span class="s">&quot;age&quot;</span><span class="o">).</span><span class="na">plus</span><span class="o">(</span><span class="mi">1</span><span class="o">)).</span><span class="na">show</span><span class="o">();</span>
 <span class="c1">// name    (age + 1)</span>
-<span class="c1">// Michael null     </span>
-<span class="c1">// Andy    31       </span>
-<span class="c1">// Justin  20       </span>
+<span class="c1">// Michael null</span>
+<span class="c1">// Andy    31</span>
+<span class="c1">// Justin  20</span>
 
 <span class="c1">// Select people older than 21</span>
 <span class="n">df</span><span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">df</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">)</span> <span class="o">&gt;</span> <span class="mi">21</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>
@@ -407,10 +409,10 @@ this is recommended for most use cases.</p>
 
 <span class="c"># Show the content of the DataFrame</span>
 <span class="n">df</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-<span class="c">## age  name   </span>
+<span class="c">## age  name</span>
 <span class="c">## null Michael</span>
-<span class="c">## 30   Andy   </span>
-<span class="c">## 19   Justin </span>
+<span class="c">## 30   Andy</span>
+<span class="c">## 19   Justin</span>
 
 <span class="c"># Print the schema in a tree format</span>
 <span class="n">df</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
@@ -420,17 +422,17 @@ this is recommended for most use cases.</p>
 
 <span class="c"># Select only the &quot;name&quot; column</span>
 <span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-<span class="c">## name   </span>
+<span class="c">## name</span>
 <span class="c">## Michael</span>
-<span class="c">## Andy   </span>
-<span class="c">## Justin </span>
+<span class="c">## Andy</span>
+<span class="c">## Justin</span>
 
 <span class="c"># Select everybody, but increment the age by 1</span>
 <span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">age</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 <span class="c">## name    (age + 1)</span>
-<span class="c">## Michael null     </span>
-<span class="c">## Andy    31       </span>
-<span class="c">## Justin  20       </span>
+<span class="c">## Michael null</span>
+<span class="c">## Andy    31</span>
+<span class="c">## Justin  20</span>
 
 <span class="c"># Select people older than 21</span>
 <span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">name</span> <span class="o">&gt;</span> <span class="mi">21</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -509,7 +511,7 @@ registered as a table.  Tables can be used in subsequent SQL statements.</p>
 <span class="k">case</span> <span class="k">class</span> <span class="nc">Person</span><span class="o">(</span><span class="n">name</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">age</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span>
 
 <span class="c1">// Create an RDD of Person objects and register it as a table.</span>
-<span class="k">val</span> <span class="n">people</span> <span class="k">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="o">(</span><span class="s">&quot;examples/src/main/resources/people.txt&quot;</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="s">&quot;,&quot;</span><span class="o">)).</span><span class="n">map</span><span class="o">(</span><span class="n">p</span> <span class="k">=&gt;</span> <span class="nc">Person</span><span class="o">(</span><span class="n">p</span><span class="o">(</span><span class="mi">0</span><span class="o">),</span> <span class="n">p</span><span class="o">(</span><span class="mi">1</span><span class="o">).</span><span class="n">trim</span><span class="o">.</span><span class="n">toInt</span><span class="o">))</span>
+<span class="k">val</span> <span class="n">people</span> <span class="k">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="o">(</span><span class="s">&quot;examples/src/main/resources/people.txt&quot;</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="s">&quot;,&quot;</span><span class="o">)).</span><span class="n">map</span><span class="o">(</span><span class="n">p</span> <span class="k">=&gt;</span> <span class="nc">Person</span><span class="o">(</span><span class="n">p</span><span class="o">(</span><span class="mi">0</span><span class="o">),</span> <span class="n">p</span><span class="o">(</span><span class="mi">1</span><span class="o">).</span><span class="n">trim</span><span class="o">.</span><span class="n">toInt</span><span class="o">)).</span><span class="n">toDF</span><span class="o">()</span>
 <span class="n">people</span><span class="o">.</span><span class="n">registerTempTable</span><span class="o">(</span><span class="s">&quot;people&quot;</span><span class="o">)</span>
 
 <span class="c1">// SQL statements can be run by using the sql methods provided by sqlContext.</span>
@@ -917,7 +919,7 @@ new data.</p>
 contents of the dataframe and create a pointer to the data in the HiveMetastore.  Persistent tables
 will still exist even after your Spark program has restarted, as long as you maintain your connection
 to the same metastore.  A DataFrame for a persistent table can be created by calling the <code>table</code>
-method on a SQLContext with the name of the table.</p>
+method on a <code>SQLContext</code> with the name of the table.</p>
 
 <p>By default <code>saveAsTable</code> will create a &#8220;managed table&#8221;, meaning that the location of the data will
 be controlled by the metastore.  Managed tables will also have their data deleted automatically
@@ -1017,9 +1019,120 @@ of the original data.</p>
 
 </div>
 
+<h3 id="partition-discovery">Partition discovery</h3>
+
+<p>Table partitioning is a common optimization approach used in systems like Hive.  In a partitioned
+table, data are usually stored in different directories, with partitioning column values encoded in
+the path of each partition directory.  The Parquet data source is now able to discover and infer
+partitioning information automatically.  For exmaple, we can store all our previously used
+population data into a partitioned table using the following directory structure, with two extra
+columns, <code>gender</code> and <code>country</code> as partitioning columns:</p>
+
+<div class="highlight"><pre><code class="language-text" data-lang="text">path
+└── to
+    └── table
+        ├── gender=male
+        │   ├── ...
+        │   │
+        │   ├── country=US
+        │   │   └── data.parquet
+        │   ├── country=CN
+        │   │   └── data.parquet
+        │   └── ...
+        └── gender=female
+            ├── ...
+            │
+            ├── country=US
+            │   └── data.parquet
+            ├── country=CN
+            │   └── data.parquet
+            └── ...</code></pre></div>
+
+<p>By passing <code>path/to/table</code> to either <code>SQLContext.parquetFile</code> or <code>SQLContext.load</code>, Spark SQL will
+automatically extract the partitioning information from the paths.  Now the schema of the returned
+DataFrame becomes:</p>
+
+<div class="highlight"><pre><code class="language-text" data-lang="text">root
+|-- name: string (nullable = true)
+|-- age: long (nullable = true)
+|-- gender: string (nullable = true)
+|-- country: string (nullable = true)</code></pre></div>
+
+<p>Notice that the data types of the partitioning columns are automatically inferred.  Currently,
+numeric data types and string type are supported.</p>
+
+<h3 id="schema-merging">Schema merging</h3>
+
+<p>Like ProtocolBuffer, Avro, and Thrift, Parquet also supports schema evolution.  Users can start with
+a simple schema, and gradually add more columns to the schema as needed.  In this way, users may end
+up with multiple Parquet files with different but mutually compatible schemas.  The Parquet data
+source is now able to automatically detect this case and merge schemas of all these files.</p>
+
+<div class="codetabs">
+
+<div data-lang="scala">
+
+    <div class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="c1">// sqlContext from the previous example is used in this example.</span>
+<span class="c1">// This is used to implicitly convert an RDD to a DataFrame.</span>
+<span class="k">import</span> <span class="nn">sqlContext.implicits._</span>
+
+<span class="c1">// Create a simple DataFrame, stored into a partition directory</span>
+<span class="k">val</span> <span class="n">df1</span> <span class="k">=</span> <span class="n">sparkContext</span><span class="o">.</span><span class="n">makeRDD</span><span class="o">(</span><span class="mi">1</span> <span class="n">to</span> <span class="mi">5</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="n">i</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">i</span><span class="o">,</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">2</span><span class="o">)).</span><span class="n">toDF</span><span class="o">(</span><span class="s">&quot;single&quot;</span><span class="o">,</span> <span class="s">&quot;double&quot;</span><span class="o">)</span>
+<span class="n">df1</span><span class="o">.</span><span class="n">saveAsParquetFile</span><span class="o">(</span><span class="s">&quot;data/test_table/key=1&quot;</span><span class="o">)</span>
+
+<span class="c1">// Create another DataFrame in a new partition directory,</span>
+<span class="c1">// adding a new column and dropping an existing column</span>
+<span class="k">val</span> <span class="n">df2</span> <span class="k">=</span> <span class="n">sparkContext</span><span class="o">.</span><span class="n">makeRDD</span><span class="o">(</span><span class="mi">6</span> <span class="n">to</span> <span class="mi">10</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="n">i</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">i</span><span class="o">,</span> <span class="n">i</span> <span class="o">*</span> <span class="mi">3</span><span class="o">)).</span><span class="n">toDF</span><span class="o">(</span><span class="s">&quot;single&quot;</span><span class="o">,</span> <span class="s">&quot;triple&quot;</span><span class="o">)</span>
+<span class="n">df2</span><span class="o">.</span><span class="n">saveAsParquetFile</span><span class="o">(</span><span class="s">&quot;data/test_table/key=2&quot;</span><span class="o">)</span>
+
+<span class="c1">// Read the partitioned table</span>
+<span class="k">val</span> <span class="n">df3</span> <span class="k">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">parquetFile</span><span class="o">(</span><span class="s">&quot;data/test_table&quot;</span><span class="o">)</span>
+<span class="n">df3</span><span class="o">.</span><span class="n">printSchema</span><span class="o">()</span>
+
+<span class="c1">// The final schema consists of all 3 columns in the Parquet files together</span>
+<span class="c1">// with the partiioning column appeared in the partition directory paths.</span>
+<span class="c1">// root</span>
+<span class="c1">// |-- single: int (nullable = true)</span>
+<span class="c1">// |-- double: int (nullable = true)</span>
+<span class="c1">// |-- triple: int (nullable = true)</span>
+<span class="c1">// |-- key : int (nullable = true)</span></code></pre></div>
+
+  </div>
+
+<div data-lang="python">
+
+    <div class="highlight"><pre><code class="language-python" data-lang="python"><span class="c"># sqlContext from the previous example is used in this example.</span>
+
+<span class="c"># Create a simple DataFrame, stored into a partition directory</span>
+<span class="n">df1</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>\
+                                   <span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">Row</span><span class="p">(</span><span class="n">single</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">double</span><span class="o">=</span><span class="n">i</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)))</span>
+<span class="n">df1</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s">&quot;data/test_table/key=1&quot;</span><span class="p">,</span> <span class="s">&quot;parquet&quot;</span><span class="p">)</span>
+
+<span class="c"># Create another DataFrame in a new partition directory,</span>
+<span class="c"># adding a new column and dropping an existing column</span>
+<span class="n">df2</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">11</span><span class="p">))</span>
+                                   <span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="n">Row</span><span class="p">(</span><span class="n">single</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">triple</span><span class="o">=</span><span class="n">i</span> <span class="o">*</span> <span class="mi">3</span><span class="p">)))</span>
+<span class="n">df2</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s">&quot;data/test_table/key=2&quot;</span><span class="p">,</span> <span class="s">&quot;parquet&quot;</span><span class="p">)</span>
+
+<span class="c"># Read the partitioned table</span>
+<span class="n">df3</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">parquetFile</span><span class="p">(</span><span class="s">&quot;data/test_table&quot;</span><span class="p">)</span>
+<span class="n">df3</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
+
+<span class="c"># The final schema consists of all 3 columns in the Parquet files together</span>
+<span class="c"># with the partiioning column appeared in the partition directory paths.</span>
+<span class="c"># root</span>
+<span class="c"># |-- single: int (nullable = true)</span>
+<span class="c"># |-- double: int (nullable = true)</span>
+<span class="c"># |-- triple: int (nullable = true)</span>
+<span class="c"># |-- key : int (nullable = true)</span></code></pre></div>
+
+  </div>
+
+</div>
+
 <h3 id="configuration">Configuration</h3>
 
-<p>Configuration of Parquet can be done using the <code>setConf</code> method on SQLContext or by running
+<p>Configuration of Parquet can be done using the <code>setConf</code> method on <code>SQLContext</code> or by running
 <code>SET key=value</code> commands using SQL.</p>
 
 <table class="table">
@@ -1082,7 +1195,7 @@ of the original data.</p>
 
 <div data-lang="scala">
     <p>Spark SQL can automatically infer the schema of a JSON dataset and load it as a DataFrame.
-This conversion can be done using one of two methods in a SQLContext:</p>
+This conversion can be done using one of two methods in a <code>SQLContext</code>:</p>
 
     <ul>
       <li><code>jsonFile</code> - loads data from a directory of JSON files where each line of the files is a JSON object.</li>
@@ -1124,7 +1237,7 @@ a regular multi-line JSON file will most often fail.</p>
 
 <div data-lang="java">
     <p>Spark SQL can automatically infer the schema of a JSON dataset and load it as a DataFrame.
-This conversion can be done using one of two methods in a SQLContext :</p>
+This conversion can be done using one of two methods in a <code>SQLContext</code> :</p>
 
     <ul>
       <li><code>jsonFile</code> - loads data from a directory of JSON files where each line of the files is a JSON object.</li>
@@ -1167,7 +1280,7 @@ a regular multi-line JSON file will most often fail.</p>
 
 <div data-lang="python">
     <p>Spark SQL can automatically infer the schema of a JSON dataset and load it as a DataFrame.
-This conversion can be done using one of two methods in a SQLContext:</p>
+This conversion can be done using one of two methods in a <code>SQLContext</code>:</p>
 
     <ul>
       <li><code>jsonFile</code> - loads data from a directory of JSON files where each line of the files is a JSON object.</li>
@@ -1197,7 +1310,7 @@ a regular multi-line JSON file will most often fail.</p>
 <span class="c"># Register this DataFrame as a table.</span>
 <span class="n">people</span><span class="o">.</span><span class="n">registerTempTable</span><span class="p">(</span><span class="s">&quot;people&quot;</span><span class="p">)</span>
 
-<span class="c"># SQL statements can be run by using the sql methods provided by sqlContext.</span>
+<span class="c"># SQL statements can be run by using the sql methods provided by `sqlContext`.</span>
 <span class="n">teenagers</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s">&quot;SELECT name FROM people WHERE age &gt;= 13 AND age &lt;= 19&quot;</span><span class="p">)</span>
 
 <span class="c"># Alternatively, a DataFrame can be created for a JSON dataset represented by</span>
@@ -1239,7 +1352,7 @@ on all of the worker nodes, as they will need access to the Hive serialization a
 
     <p>When working with Hive one must construct a <code>HiveContext</code>, which inherits from <code>SQLContext</code>, and
 adds support for finding tables in the MetaStore and writing queries using HiveQL. Users who do
-not have an existing Hive deployment can still create a HiveContext.  When not configured by the
+not have an existing Hive deployment can still create a <code>HiveContext</code>.  When not configured by the
 hive-site.xml, the context automatically creates <code>metastore_db</code> and <code>warehouse</code> in the current
 directory.</p>
 
@@ -1403,7 +1516,7 @@ turning on some experimental options.</p>
 Then Spark SQL will scan only required columns and will automatically tune compression to minimize
 memory usage and GC pressure. You can call <code>sqlContext.uncacheTable("tableName")</code> to remove the table from memory.</p>
 
-<p>Configuration of in-memory caching can be done using the <code>setConf</code> method on SQLContext or by running
+<p>Configuration of in-memory caching can be done using the <code>setConf</code> method on <code>SQLContext</code> or by running
 <code>SET key=value</code> commands using SQL.</p>
 
 <table class="table">
@@ -1513,10 +1626,10 @@ your machine and a blank password. For secure mode, please follow the instructio
 
 <p>You may also use the beeline script that comes with Hive.</p>
 
-<p>Thrift JDBC server also supports sending thrift RPC messages over HTTP transport. 
-Use the following setting to enable HTTP mode as system property or in <code>hive-site.xml</code> file in <code>conf/</code>: </p>
+<p>Thrift JDBC server also supports sending thrift RPC messages over HTTP transport.
+Use the following setting to enable HTTP mode as system property or in <code>hive-site.xml</code> file in <code>conf/</code>:</p>
 
-<pre><code>hive.server2.transport.mode - Set this to value: http 
+<pre><code>hive.server2.transport.mode - Set this to value: http
 hive.server2.thrift.http.port - HTTP port number fo listen on; default is 10001
 hive.server2.http.endpoint - HTTP endpoint; default is cliservice
 </code></pre>
@@ -1591,7 +1704,7 @@ case classes or tuples) with a method <code>toDF</code>, instead of applying aut
 <p>Spark 1.3 removes the type aliases that were present in the base sql package for <code>DataType</code>. Users
 should instead import the classes in <code>org.apache.spark.sql.types</code></p>
 
-<h4 id="udf-registration-moved-to-sqlcontextudf-java--scala">UDF Registration Moved to sqlContext.udf (Java &amp; Scala)</h4>
+<h4 id="udf-registration-moved-to-sqlcontextudf-java--scala">UDF Registration Moved to <code>sqlContext.udf</code> (Java &amp; Scala)</h4>
 
 <p>Functions that are used to register UDFs, either for use in the DataFrame DSL or SQL, have been
 moved into the udf object in <code>SQLContext</code>.</p>
