@@ -13,6 +13,7 @@ var cdh4 = {pretty: "Pre-built for CDH 4", tag: "cdh4"};
 var hadoop2 = {pretty: "Pre-built for Hadoop 2.2", tag: "hadoop2"};
 var hadoop2p3 = {pretty: "Pre-built for Hadoop 2.3", tag: "hadoop2.3"};
 var hadoop2p4 = {pretty: "Pre-built for Hadoop 2.4 and later", tag: "hadoop2.4"};
+var hadoop2p6 = {pretty: "Pre-built for Hadoop 2.6 and later", tag: "hadoop2.6"};
 var mapr3 = {pretty: "Pre-built for MapR 3.X", tag: "mapr3"};
 var mapr4 = {pretty: "Pre-built for MapR 4.X", tag: "mapr4"};
 
@@ -25,8 +26,12 @@ var packagesV2 = [hadoop2].concat(packagesV1);
 var packagesV3 = [mapr3, mapr4].concat(packagesV2);
 // 1.1.0+
 var packagesV4 = [hadoop2p4, hadoop2p3, mapr3, mapr4].concat(packagesV1);
+// 1.3.1+
+var packagesV5 = [hadoop2p6].concat(packagesV4);
 
+addRelease("1.3.1", new Date("4/17/2015"), sources.concat(packagesV5), true);
 addRelease("1.3.0", new Date("3/13/2015"), sources.concat(packagesV4), true);
+addRelease("1.2.2", new Date("4/17/2015"), sources.concat(packagesV4), true);
 addRelease("1.2.1", new Date("2/9/2015"), sources.concat(packagesV4), true);
 addRelease("1.2.0", new Date("12/18/2014"), sources.concat(packagesV4), true);
 addRelease("1.1.1", new Date("11/26/2014"), sources.concat(packagesV4), true);
