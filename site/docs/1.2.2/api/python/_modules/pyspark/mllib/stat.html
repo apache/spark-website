@@ -1,0 +1,384 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyspark.mllib.stat &mdash; PySpark 1.2-SNAPSHOT documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.2-SNAPSHOT',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="PySpark 1.2-SNAPSHOT documentation" href="../../../index.html" />
+    <link rel="up" title="pyspark" href="../../pyspark.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li><a href="../../../index.html">PySpark 1.2-SNAPSHOT documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../pyspark.html" accesskey="U">pyspark</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pyspark.mllib.stat</h1><div class="highlight"><pre>
+<span class="c">#</span>
+<span class="c"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c"># this work for additional information regarding copyright ownership.</span>
+<span class="c"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c"># the License.  You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+<span class="c">#</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Python package for statistical functions in MLlib.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="kn">import</span> <span class="n">RDD</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.common</span> <span class="kn">import</span> <span class="n">callMLlibFunc</span><span class="p">,</span> <span class="n">JavaModelWrapper</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.linalg</span> <span class="kn">import</span> <span class="n">Matrix</span><span class="p">,</span> <span class="n">_convert_to_vector</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.regression</span> <span class="kn">import</span> <span class="n">LabeledPoint</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;MultivariateStatisticalSummary&#39;</span><span class="p">,</span> <span class="s">&#39;ChiSqTestResult&#39;</span><span class="p">,</span> <span class="s">&#39;Statistics&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="MultivariateStatisticalSummary"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.stat.MultivariateStatisticalSummary">[docs]</a><span class="k">class</span> <span class="nc">MultivariateStatisticalSummary</span><span class="p">(</span><span class="n">JavaModelWrapper</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Trait for multivariate statistical summary of a data matrix.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MultivariateStatisticalSummary.mean"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.stat.MultivariateStatisticalSummary.mean">[docs]</a>    <span class="k">def</span> <span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&quot;mean&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">toArray</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="MultivariateStatisticalSummary.variance"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.stat.MultivariateStatisticalSummary.variance">[docs]</a>    <span class="k">def</span> <span class="nf">variance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&quot;variance&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">toArray</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="MultivariateStatisticalSummary.count"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.stat.MultivariateStatisticalSummary.count">[docs]</a>    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&quot;count&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="MultivariateStatisticalSummary.numNonzeros"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.stat.MultivariateStatisticalSummary.numNonzeros">[docs]</a>    <span class="k">def</span> <span class="nf">numNonzeros</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&quot;numNonzeros&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">toArray</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="MultivariateStatisticalSummary.max"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.stat.MultivariateStatisticalSummary.max">[docs]</a>    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&quot;max&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">toArray</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="MultivariateStatisticalSummary.min"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.stat.MultivariateStatisticalSummary.min">[docs]</a>    <span class="k">def</span> <span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&quot;min&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">toArray</span><span class="p">()</span>
+
+</div></div>
+<div class="viewcode-block" id="ChiSqTestResult"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.stat.ChiSqTestResult">[docs]</a><span class="k">class</span> <span class="nc">ChiSqTestResult</span><span class="p">(</span><span class="n">JavaModelWrapper</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :: Experimental ::</span>
+
+<span class="sd">    Object containing the test results for the chi-squared hypothesis test.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="ChiSqTestResult.method"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.stat.ChiSqTestResult.method">[docs]</a>    <span class="k">def</span> <span class="nf">method</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Name of the test method</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_model</span><span class="o">.</span><span class="n">method</span><span class="p">()</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="ChiSqTestResult.pValue"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.stat.ChiSqTestResult.pValue">[docs]</a>    <span class="k">def</span> <span class="nf">pValue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The probability of obtaining a test statistic result at least as</span>
+<span class="sd">        extreme as the one that was actually observed, assuming that the</span>
+<span class="sd">        null hypothesis is true.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_model</span><span class="o">.</span><span class="n">pValue</span><span class="p">()</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="ChiSqTestResult.degreesOfFreedom"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.stat.ChiSqTestResult.degreesOfFreedom">[docs]</a>    <span class="k">def</span> <span class="nf">degreesOfFreedom</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the degree(s) of freedom of the hypothesis test.</span>
+<span class="sd">        Return type should be Number(e.g. Int, Double) or tuples of Numbers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_model</span><span class="o">.</span><span class="n">degreesOfFreedom</span><span class="p">()</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="ChiSqTestResult.statistic"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.stat.ChiSqTestResult.statistic">[docs]</a>    <span class="k">def</span> <span class="nf">statistic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Test statistic.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_model</span><span class="o">.</span><span class="n">statistic</span><span class="p">()</span>
+</div>
+    <span class="nd">@property</span>
+<div class="viewcode-block" id="ChiSqTestResult.nullHypothesis"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.stat.ChiSqTestResult.nullHypothesis">[docs]</a>    <span class="k">def</span> <span class="nf">nullHypothesis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Null hypothesis of the test.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_model</span><span class="o">.</span><span class="n">nullHypothesis</span><span class="p">()</span>
+</div>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_model</span><span class="o">.</span><span class="n">toString</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="Statistics"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.stat.Statistics">[docs]</a><span class="k">class</span> <span class="nc">Statistics</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Statistics.colStats"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.stat.Statistics.colStats">[docs]</a>    <span class="k">def</span> <span class="nf">colStats</span><span class="p">(</span><span class="n">rdd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes column-wise summary statistics for the input RDD[Vector].</span>
+
+<span class="sd">        :param rdd: an RDD[Vector] for which column-wise summary statistics</span>
+<span class="sd">                    are to be computed.</span>
+<span class="sd">        :return: :class:`MultivariateStatisticalSummary` object containing</span>
+<span class="sd">                 column-wise summary statistics.</span>
+
+<span class="sd">        &gt;&gt;&gt; from pyspark.mllib.linalg import Vectors</span>
+<span class="sd">        &gt;&gt;&gt; rdd = sc.parallelize([Vectors.dense([2, 0, 0, -2]),</span>
+<span class="sd">        ...                       Vectors.dense([4, 5, 0,  3]),</span>
+<span class="sd">        ...                       Vectors.dense([6, 7, 0,  8])])</span>
+<span class="sd">        &gt;&gt;&gt; cStats = Statistics.colStats(rdd)</span>
+<span class="sd">        &gt;&gt;&gt; cStats.mean()</span>
+<span class="sd">        array([ 4.,  4.,  0.,  3.])</span>
+<span class="sd">        &gt;&gt;&gt; cStats.variance()</span>
+<span class="sd">        array([  4.,  13.,   0.,  25.])</span>
+<span class="sd">        &gt;&gt;&gt; cStats.count()</span>
+<span class="sd">        3L</span>
+<span class="sd">        &gt;&gt;&gt; cStats.numNonzeros()</span>
+<span class="sd">        array([ 3.,  2.,  0.,  3.])</span>
+<span class="sd">        &gt;&gt;&gt; cStats.max()</span>
+<span class="sd">        array([ 6.,  7.,  0.,  8.])</span>
+<span class="sd">        &gt;&gt;&gt; cStats.min()</span>
+<span class="sd">        array([ 2.,  0.,  0., -2.])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cStats</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s">&quot;colStats&quot;</span><span class="p">,</span> <span class="n">rdd</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_convert_to_vector</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">MultivariateStatisticalSummary</span><span class="p">(</span><span class="n">cStats</span><span class="p">)</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Statistics.corr"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.stat.Statistics.corr">[docs]</a>    <span class="k">def</span> <span class="nf">corr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the correlation (matrix) for the input RDD(s) using the</span>
+<span class="sd">        specified method.</span>
+<span class="sd">        Methods currently supported: I{pearson (default), spearman}.</span>
+
+<span class="sd">        If a single RDD of Vectors is passed in, a correlation matrix</span>
+<span class="sd">        comparing the columns in the input RDD is returned. Use C{method=}</span>
+<span class="sd">        to specify the method to be used for single RDD inout.</span>
+<span class="sd">        If two RDDs of floats are passed in, a single float is returned.</span>
+
+<span class="sd">        :param x: an RDD of vector for which the correlation matrix is to be computed,</span>
+<span class="sd">                  or an RDD of float of the same cardinality as y when y is specified.</span>
+<span class="sd">        :param y: an RDD of float of the same cardinality as x.</span>
+<span class="sd">        :param method: String specifying the method to use for computing correlation.</span>
+<span class="sd">                       Supported: `pearson` (default), `spearman`</span>
+<span class="sd">        :return: Correlation matrix comparing columns in x.</span>
+
+<span class="sd">        &gt;&gt;&gt; x = sc.parallelize([1.0, 0.0, -2.0], 2)</span>
+<span class="sd">        &gt;&gt;&gt; y = sc.parallelize([4.0, 5.0, 3.0], 2)</span>
+<span class="sd">        &gt;&gt;&gt; zeros = sc.parallelize([0.0, 0.0, 0.0], 2)</span>
+<span class="sd">        &gt;&gt;&gt; abs(Statistics.corr(x, y) - 0.6546537) &lt; 1e-7</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; Statistics.corr(x, y) == Statistics.corr(x, y, &quot;pearson&quot;)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; Statistics.corr(x, y, &quot;spearman&quot;)</span>
+<span class="sd">        0.5</span>
+<span class="sd">        &gt;&gt;&gt; from math import isnan</span>
+<span class="sd">        &gt;&gt;&gt; isnan(Statistics.corr(x, zeros))</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.mllib.linalg import Vectors</span>
+<span class="sd">        &gt;&gt;&gt; rdd = sc.parallelize([Vectors.dense([1, 0, 0, -2]), Vectors.dense([4, 5, 0, 3]),</span>
+<span class="sd">        ...                       Vectors.dense([6, 7, 0,  8]), Vectors.dense([9, 0, 0, 1])])</span>
+<span class="sd">        &gt;&gt;&gt; pearsonCorr = Statistics.corr(rdd)</span>
+<span class="sd">        &gt;&gt;&gt; print str(pearsonCorr).replace(&#39;nan&#39;, &#39;NaN&#39;)</span>
+<span class="sd">        [[ 1.          0.05564149         NaN  0.40047142]</span>
+<span class="sd">         [ 0.05564149  1.                 NaN  0.91359586]</span>
+<span class="sd">         [        NaN         NaN  1.                 NaN]</span>
+<span class="sd">         [ 0.40047142  0.91359586         NaN  1.        ]]</span>
+<span class="sd">        &gt;&gt;&gt; spearmanCorr = Statistics.corr(rdd, method=&quot;spearman&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; print str(spearmanCorr).replace(&#39;nan&#39;, &#39;NaN&#39;)</span>
+<span class="sd">        [[ 1.          0.10540926         NaN  0.4       ]</span>
+<span class="sd">         [ 0.10540926  1.                 NaN  0.9486833 ]</span>
+<span class="sd">         [        NaN         NaN  1.                 NaN]</span>
+<span class="sd">         [ 0.4         0.9486833          NaN  1.        ]]</span>
+<span class="sd">        &gt;&gt;&gt; try:</span>
+<span class="sd">        ...     Statistics.corr(rdd, &quot;spearman&quot;)</span>
+<span class="sd">        ...     print &quot;Method name as second argument without &#39;method=&#39; shouldn&#39;t be allowed.&quot;</span>
+<span class="sd">        ... except TypeError:</span>
+<span class="sd">        ...     pass</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Check inputs to determine whether a single value or a matrix is needed for output.</span>
+        <span class="c"># Since it&#39;s legal for users to use the method name as the second argument, we need to</span>
+        <span class="c"># check if y is used to specify the method name instead.</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;Use &#39;method=&#39; to specify method name.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">y</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s">&quot;corr&quot;</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_convert_to_vector</span><span class="p">),</span> <span class="n">method</span><span class="p">)</span><span class="o">.</span><span class="n">toArray</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s">&quot;corr&quot;</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span> <span class="n">y</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span> <span class="n">method</span><span class="p">)</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="Statistics.chiSqTest"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.stat.Statistics.chiSqTest">[docs]</a>    <span class="k">def</span> <span class="nf">chiSqTest</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">expected</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :: Experimental ::</span>
+
+<span class="sd">        If `observed` is Vector, conduct Pearson&#39;s chi-squared goodness</span>
+<span class="sd">        of fit test of the observed data against the expected distribution,</span>
+<span class="sd">        or againt the uniform distribution (by default), with each category</span>
+<span class="sd">        having an expected frequency of `1 / len(observed)`.</span>
+<span class="sd">        (Note: `observed` cannot contain negative values)</span>
+
+<span class="sd">        If `observed` is matrix, conduct Pearson&#39;s independence test on the</span>
+<span class="sd">        input contingency matrix, which cannot contain negative entries or</span>
+<span class="sd">        columns or rows that sum up to 0.</span>
+
+<span class="sd">        If `observed` is an RDD of LabeledPoint, conduct Pearson&#39;s independence</span>
+<span class="sd">        test for every feature against the label across the input RDD.</span>
+<span class="sd">        For each feature, the (feature, label) pairs are converted into a</span>
+<span class="sd">        contingency matrix for which the chi-squared statistic is computed.</span>
+<span class="sd">        All label and feature values must be categorical.</span>
+
+<span class="sd">        :param observed: it could be a vector containing the observed categorical</span>
+<span class="sd">                         counts/relative frequencies, or the contingency matrix</span>
+<span class="sd">                         (containing either counts or relative frequencies),</span>
+<span class="sd">                         or an RDD of LabeledPoint containing the labeled dataset</span>
+<span class="sd">                         with categorical features. Real-valued features will be</span>
+<span class="sd">                         treated as categorical for each distinct value.</span>
+<span class="sd">        :param expected: Vector containing the expected categorical counts/relative</span>
+<span class="sd">                         frequencies. `expected` is rescaled if the `expected` sum</span>
+<span class="sd">                         differs from the `observed` sum.</span>
+<span class="sd">        :return: ChiSquaredTest object containing the test statistic, degrees</span>
+<span class="sd">                 of freedom, p-value, the method used, and the null hypothesis.</span>
+
+<span class="sd">        &gt;&gt;&gt; from pyspark.mllib.linalg import Vectors, Matrices</span>
+<span class="sd">        &gt;&gt;&gt; observed = Vectors.dense([4, 6, 5])</span>
+<span class="sd">        &gt;&gt;&gt; pearson = Statistics.chiSqTest(observed)</span>
+<span class="sd">        &gt;&gt;&gt; print pearson.statistic</span>
+<span class="sd">        0.4</span>
+<span class="sd">        &gt;&gt;&gt; pearson.degreesOfFreedom</span>
+<span class="sd">        2</span>
+<span class="sd">        &gt;&gt;&gt; print round(pearson.pValue, 4)</span>
+<span class="sd">        0.8187</span>
+<span class="sd">        &gt;&gt;&gt; pearson.method</span>
+<span class="sd">        u&#39;pearson&#39;</span>
+<span class="sd">        &gt;&gt;&gt; pearson.nullHypothesis</span>
+<span class="sd">        u&#39;observed follows the same distribution as expected.&#39;</span>
+
+<span class="sd">        &gt;&gt;&gt; observed = Vectors.dense([21, 38, 43, 80])</span>
+<span class="sd">        &gt;&gt;&gt; expected = Vectors.dense([3, 5, 7, 20])</span>
+<span class="sd">        &gt;&gt;&gt; pearson = Statistics.chiSqTest(observed, expected)</span>
+<span class="sd">        &gt;&gt;&gt; print round(pearson.pValue, 4)</span>
+<span class="sd">        0.0027</span>
+
+<span class="sd">        &gt;&gt;&gt; data = [40.0, 24.0, 29.0, 56.0, 32.0, 42.0, 31.0, 10.0, 0.0, 30.0, 15.0, 12.0]</span>
+<span class="sd">        &gt;&gt;&gt; chi = Statistics.chiSqTest(Matrices.dense(3, 4, data))</span>
+<span class="sd">        &gt;&gt;&gt; print round(chi.statistic, 4)</span>
+<span class="sd">        21.9958</span>
+
+<span class="sd">        &gt;&gt;&gt; data = [LabeledPoint(0.0, Vectors.dense([0.5, 10.0])),</span>
+<span class="sd">        ...         LabeledPoint(0.0, Vectors.dense([1.5, 20.0])),</span>
+<span class="sd">        ...         LabeledPoint(1.0, Vectors.dense([1.5, 30.0])),</span>
+<span class="sd">        ...         LabeledPoint(0.0, Vectors.dense([3.5, 30.0])),</span>
+<span class="sd">        ...         LabeledPoint(0.0, Vectors.dense([3.5, 40.0])),</span>
+<span class="sd">        ...         LabeledPoint(1.0, Vectors.dense([3.5, 40.0])),]</span>
+<span class="sd">        &gt;&gt;&gt; rdd = sc.parallelize(data, 4)</span>
+<span class="sd">        &gt;&gt;&gt; chi = Statistics.chiSqTest(rdd)</span>
+<span class="sd">        &gt;&gt;&gt; print chi[0].statistic</span>
+<span class="sd">        0.75</span>
+<span class="sd">        &gt;&gt;&gt; print chi[1].statistic</span>
+<span class="sd">        1.5</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">RDD</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">observed</span><span class="o">.</span><span class="n">first</span><span class="p">(),</span> <span class="n">LabeledPoint</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;observed should be an RDD of LabeledPoint&quot;</span><span class="p">)</span>
+            <span class="n">jmodels</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s">&quot;chiSqTest&quot;</span><span class="p">,</span> <span class="n">observed</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">ChiSqTestResult</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">jmodels</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">Matrix</span><span class="p">):</span>
+            <span class="n">jmodel</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s">&quot;chiSqTest&quot;</span><span class="p">,</span> <span class="n">observed</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">expected</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">expected</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">observed</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;`expected` should have same length with `observed`&quot;</span><span class="p">)</span>
+            <span class="n">jmodel</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s">&quot;chiSqTest&quot;</span><span class="p">,</span> <span class="n">_convert_to_vector</span><span class="p">(</span><span class="n">observed</span><span class="p">),</span> <span class="n">expected</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ChiSqTestResult</span><span class="p">(</span><span class="n">jmodel</span><span class="p">)</span>
+
+</div></div>
+<span class="k">def</span> <span class="nf">_test</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="kn">from</span> <span class="nn">pyspark</span> <span class="kn">import</span> <span class="n">SparkContext</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s">&#39;sc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="p">(</span><span class="s">&#39;local[4]&#39;</span><span class="p">,</span> <span class="s">&#39;PythonTest&#39;</span><span class="p">,</span> <span class="n">batchSize</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span> <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span><span class="p">)</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s">&#39;sc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="nb">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">_test</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li><a href="../../../index.html">PySpark 1.2-SNAPSHOT documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../pyspark.html" >pyspark</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Author.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
