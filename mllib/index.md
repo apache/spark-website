@@ -83,16 +83,20 @@ subproject: MLlib
   <div class="col-md-4 col-padded">
     <h3>Algorithms</h3>
     <p>
-      MLlib 1.1 contains the following algorithms:
+      MLlib 1.3 contains the following algorithms:
     </p>
     <ul class="list-narrow">
       <li>linear SVM and logistic regression</li>
       <li>classification and regression tree</li>
-      <li>k-means clustering</li>
+      <li>random forest and gradient-boosted trees</li>
       <li>recommendation via alternating least squares</li>
+      <li>clustering via k-means, Gaussian mixtures, and power iteration clustering</li>
+      <li>topic modeling via latent Dirichlet allocation</li>
       <li>singular value decomposition</li>
       <li>linear regression with L<sub>1</sub>- and L<sub>2</sub>-regularization</li>
+      <li>isotonic regression</li>
       <li>multinomial naive Bayes</li>
+      <li>frequent itemset mining via FP-growth</li>
       <li>basic statistics</li>
       <li>feature transformations</li>
     </ul>
