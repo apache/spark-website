@@ -13,21 +13,17 @@ navigation:
 Spark is a fast and general processing engine compatible with Hadoop data. It can run in Hadoop clusters through YARN or Spark's standalone mode, and it can process data in HDFS, HBase, Cassandra, Hive, and any Hadoop InputFormat. It is designed to perform both batch processing (similar to MapReduce) and new workloads like streaming, interactive queries, and machine learning.
 </p>
 
-<p class="question">Which languages does Spark support?</p>
-<p class="answer">Spark supports Scala, Java and Python.</p>
+<p class="question">Who is using Spark in production?</p>
 
-<p class="question">What is the largest data size Spark can scale to?</p>
-<p class="answer">Spark has been shown to work well from megabytes of data to petabytes. It has been used to sort 100 TB of data 3X faster than Hadoop MapReduce on 1/10th of the machines, <a href="http://databricks.com/blog/2014/11/05/spark-officially-sets-a-new-record-in-large-scale-sorting.html">winning the 2014 Daytona GraySort Benchmark</a>. It has also been used to <a href="http://databricks.com/blog/2014/10/10/spark-petabyte-sort.html">sort 1 PB of data</a>. There are also production workloads that <a href="http://databricks.com/blog/2014/08/14/mining-graph-data-with-spark-at-alibaba-taobao.html">use Spark to do ETL and data analysis on PBs of data</a>. 
-</p>
+<p class="answer">As of early 2015, <a href="http://java.dzone.com/articles/apache-spark-survey-typesafe-0">surveys</a> show that more than 500 organizations are using Spark in production. Some of them are listed on the <a href="https://cwiki.apache.org/confluence/display/SPARK/Powered+By+Spark">Powered By page</a> and at the <a href="http://spark-summit.org">Spark Summit</a>.</p>
+
 
 <p class="question">How large a cluster can Spark scale to?</p>
-<p class="answer">Many organizations run Spark on clusters with thousands of nodes. The largest cluster we know has over 8000 nodes.</p>
+<p class="answer">Many organizations run Spark on clusters of thousands of nodes. The largest cluster we are know has 8000. In terms of data size, Spark has been shown to work well up to petabytes. It has been used to sort 100 TB of data 3X faster than Hadoop MapReduce on 1/10th of the machines, <a href="http://databricks.com/blog/2014/11/05/spark-officially-sets-a-new-record-in-large-scale-sorting.html">winning the 2014 Daytona GraySort Benchmark</a>, as well as to <a href="https://databricks.com/blog/2014/10/10/spark-petabyte-sort.html">sort 1 PB</a>. Several production workloads <a href="http://databricks.com/blog/2014/08/14/mining-graph-data-with-spark-at-alibaba-taobao.html">use Spark to do ETL and data analysis on PBs of data</a>.</p>
 
-<p class="question">What happens if my dataset does not fit in memory?</p>
-<p class="answer">Often each partition of data is small and does fit in memory, and these partitions are processed a few at a time. For very large partitions that do not fit in memory, Spark's built-in operators perform external operations on datasets.</p>
+<p class="question">Does my data need to fit in memory to use Spark?</p>
 
-<p class="question">What happens when a cached dataset does not fit in memory?</p>
-<p class="answer">Spark can either spill it to disk or recompute the partitions that don't fit in RAM each time they are requested. By default, it uses recomputation, but you can set a dataset's <a href="{{site.url}}docs/latest/scala-programming-guide.html#rdd-persistence">storage level</a> to <code>MEMORY_AND_DISK</code> to avoid this.  </p>
+<p class="answer">No. Spark's operators spill data to disk if it does not fit in memory, allowing it to run well on any sized data. Likewise, cached datasets that do not fit in memory are either spilled to disk or recomputed on the fly when needed, as determined by the RDD's <a href="{{site.url}}docs/latest/scala-programming-guide.html#rdd-persistence">storage level</a>.
 
 <p class="question">How can I run Spark on a cluster?</p>
 <p class="answer">You can use either the <a href="{{site.url}}docs/latest/spark-standalone.html">standalone deploy mode</a>, which only needs Java to be installed on each node, or the <a href="{{site.url}}docs/latest/running-on-mesos.html">Mesos</a> and <a href="{{site.url}}docs/latest/running-on-yarn.html">YARN</a> cluster managers. If you'd like to run on Amazon EC2, Spark provides <a href="{{site.url}}docs/latest/ec2-scripts.html}}">EC2 scripts</a> to automatically launch a cluster.</p>
@@ -39,6 +35,9 @@ Spark is a fast and general processing engine compatible with Hadoop data. It ca
 
 <p class="question">How can I access data in S3?</p>
 <p class="answer">Use the <code>s3n://</code> URI scheme (<code>s3n://bucket/path</code>). You will also need to set your Amazon security credentials, either by setting the environment variables <code>AWS_ACCESS_KEY_ID</code> and <code>AWS_SECRET_ACCESS_KEY</code> before your program runs, or by setting <code>fs.s3.awsAccessKeyId</code> and <code>fs.s3.awsSecretAccessKey</code> in <code>SparkContext.hadoopConfiguration</code>.</p>
+
+<p class="question">Which languages does Spark support?</p>
+<p class="answer">Spark supports Scala, Java and Python.</p>
 
 <p class="question">Does Spark require modified versions of Scala or Python?</p>
 <p class="answer">No. Spark requires no changes to Scala or compiler plugins. The Python API uses the standard CPython implementation, and can call into existing C libraries for Python such as NumPy.</p>
