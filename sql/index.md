@@ -16,7 +16,7 @@ subproject: SQL
   <div class="col-md-7 col-sm-7">
     <h2>Integrated</h2>
     <p class="lead">
-	  Seemlessly mix SQL queries with Spark programs.
+	  Seamlessly mix SQL queries with Spark programs.
     </p>
     <p>
 	  Spark SQL lets you query structured data as a distributed dataset (RDD) in Spark, with integrated APIs in Python, Scala and Java. 

@@ -53,9 +53,9 @@ navigation:
   <div class="col-md-5 col-sm-5 col-padded-top col-center">
     <div style="text-align: left; display: inline-block;">
       <div class="code">
-        file = spark.textFile(<span class="string">"hdfs://..."</span>)<br/>
+        text_file = spark.textFile(<span class="string">"hdfs://..."</span>)<br/>
         &nbsp;<br/>
-        file.<span class="sparkop">flatMap</span>(<span class="closure">lambda line: line.split()</span>)<br/>
+        text_file.<span class="sparkop">flatMap</span>(<span class="closure">lambda&nbsp;line:&nbsp;line.split()</span>)<br/>
         &nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">map</span>(<span class="closure">lambda word: (word, 1)</span>)<br/>
         &nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">reduceByKey</span>(<span class="closure">lambda a, b: a+b</span>)
       </div>
@@ -63,9 +63,9 @@ navigation:
     </div>
     <!--
     <div class="code" style="margin-top: 20px; text-align: left; display: inline-block;">
-      file = spark.textFile(<span class="string">"hdfs://..."</span>)<br/>
+      text_file = spark.textFile(<span class="string">"hdfs://..."</span>)<br/>
       &nbsp;<br/>
-      file.<span class="sparkop">filter</span>(<span class="closure">lambda line: "ERROR" in line</span>)<br/>
+      text_file.<span class="sparkop">filter</span>(<span class="closure">lambda line: "ERROR" in line</span>)<br/>
       &nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">count</span>()
     </div>
     -->

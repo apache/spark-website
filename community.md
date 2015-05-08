@@ -28,6 +28,8 @@ navigation:
   </li>
 </ul>
 
+<p>The StackOverflow tag <a href="http://stackoverflow.com/questions/tagged/apache-spark"><code>apache-spark</code></a> is an unofficial but active forum for Spark users' questions and answers.</p>
+
 <a name="events"></a>
 <h3>Events and Meetups</h3>
 

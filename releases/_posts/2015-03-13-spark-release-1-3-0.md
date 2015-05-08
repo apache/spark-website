@@ -36,7 +36,7 @@ GraphX adds a handful of utility functions in this release, including conversion
 ## Upgrading to Spark 1.3
 Spark 1.3 is binary compatible with Spark 1.X releases, so no code changes are necessary. This excludes API’s marked explicitly as unstable.
 
-As part of stabilizing the Spark SQL API, the `SchemaRDD` class has been extended renamed to `DataFrame`. Spark SQL's [migration guide](http://spark.apache.org/docs/1.3.0/sql-programming-guide.html#migration-guide) describes the upgrade process in detail. Spark SQL also now requires that column identifiers which use reserved words (such as "string" or "table") be escaped using backticks.
+As part of stabilizing the Spark SQL API, the `SchemaRDD` class has been renamed to `DataFrame`. Spark SQL's [migration guide](http://spark.apache.org/docs/1.3.0/sql-programming-guide.html#migration-guide) describes the upgrade process in detail. Spark SQL also now requires that column identifiers which use reserved words (such as "string" or "table") be escaped using backticks.
 
 ### Known Issues
 This release has few known issues which will be addressed in Spark 1.3.1:

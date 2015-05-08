@@ -26,8 +26,8 @@ In this example, we search through the error messages in a log file:
 <div class="tab-content">
   <div class="tab-pane tab-pane-python active">
     <div class="code code-tab">
-    file = spark.textFile(<span class="string">"hdfs://..."</span>)<br>
-    errors = file.<span class="sparkop">filter</span>(<span class="closure">lambda line: "ERROR" in line</span>)<br>
+    text_file = spark.textFile(<span class="string">"hdfs://..."</span>)<br />
+    errors = text_file.<span class="sparkop">filter</span>(<span class="closure">lambda line: "ERROR" in line</span>)<br />
     <span class="comment"># Count all the errors</span><br>
     errors.<span class="sparkop">count</span>()<br>
     <span class="comment"># Count errors mentioning MySQL</span><br>
@@ -38,8 +38,8 @@ In this example, we search through the error messages in a log file:
   </div>
   <div class="tab-pane tab-pane-scala">
     <div class="code code-tab">
-    <span class="keyword">val</span> file = spark.textFile(<span class="string">"hdfs://..."</span>)<br>
-    <span class="keyword">val</span> errors = file.<span class="sparkop">filter</span>(<span class="closure">line =&gt; line.contains("ERROR")</span>)<br>
+    <span class="keyword">val</span> textFile = spark.textFile(<span class="string">"hdfs://..."</span>)<br>
+    <span class="keyword">val</span> errors = textFile.<span class="sparkop">filter</span>(<span class="closure">line =&gt; line.contains("ERROR")</span>)<br>
     <span class="comment">// Count all the errors</span><br>
     errors.<span class="sparkop">count</span>()<br>
     <span class="comment">// Count errors mentioning MySQL</span><br>
@@ -50,8 +50,8 @@ In this example, we search through the error messages in a log file:
   </div>
   <div class="tab-pane tab-pane-java">
     <div class="code code-tab">
-    JavaRDD&lt;String&gt; file = spark.textFile(<span class="string">"hdfs://..."</span>);<br>
-    JavaRDD&lt;String&gt; errors = file.<span class="sparkop">filter</span>(<span class="closure">new Function&lt;String, Boolean&gt;() {<br>
+    JavaRDD&lt;String&gt; textFile = spark.textFile(<span class="string">"hdfs://..."</span>);<br>
+    JavaRDD&lt;String&gt; errors = textFile.<span class="sparkop">filter</span>(<span class="closure">new Function&lt;String, Boolean&gt;() {<br>
     &nbsp;&nbsp;public Boolean call(String s) { return s.contains("ERROR"); }<br>
     }</span>);<br>
     <span class="comment">// Count all the errors</span><br>
@@ -112,8 +112,8 @@ In this example, we search through the error messages in a log file:
 <div class="tab-content">
   <div class="tab-pane tab-pane-python active">
     <div class="code code-tab">
-    file = spark.textFile(<span class="string">"hdfs://..."</span>)<br>
-    counts = file.<span class="sparkop">flatMap</span>(<span class="closure">lambda line: line.split(" ")</span>) \<br>
+    text_file = spark.textFile(<span class="string">"hdfs://..."</span>)<br>
+    counts = text_file.<span class="sparkop">flatMap</span>(<span class="closure">lambda line: line.split(" ")</span>) \<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">map</span>(<span class="closure">lambda word: (word, 1)</span>) \<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">reduceByKey</span>(<span class="closure">lambda a, b: a + b</span>)<br>
     counts.<span class="sparkop">saveAsTextFile</span>(<span class="string">"hdfs://..."</span>)
@@ -121,8 +121,8 @@ In this example, we search through the error messages in a log file:
   </div>
   <div class="tab-pane tab-pane-scala">
     <div class="code code-tab">
-    <span class="keyword">val</span> file = spark.textFile(<span class="string">"hdfs://..."</span>)<br>
-    <span class="keyword">val</span> counts = file.<span class="sparkop">flatMap</span>(<span class="closure">line =&gt; line.split(" ")</span>)<br>
+    <span class="keyword">val</span> textFile = spark.textFile(<span class="string">"hdfs://..."</span>)<br>
+    <span class="keyword">val</span> counts = textFile.<span class="sparkop">flatMap</span>(<span class="closure">line =&gt; line.split(" ")</span>)<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">map</span>(<span class="closure">word =&gt; (word, 1)</span>)<br>
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">reduceByKey</span>(<span class="closure">_ + _</span>)<br>
     counts.<span class="sparkop">saveAsTextFile</span>(<span class="string">"hdfs://..."</span>)
@@ -130,8 +130,8 @@ In this example, we search through the error messages in a log file:
   </div>
   <div class="tab-pane tab-pane-java">
     <div class="code code-tab">
-    JavaRDD&lt;String&gt; file = spark.textFile(<span class="string">"hdfs://..."</span>);<br>
-    JavaRDD&lt;String&gt; words = file.<span class="sparkop">flatMap</span>(<span class="closure">new FlatMapFunction&lt;String, String&gt;() {<br>
+    JavaRDD&lt;String&gt; textFile = spark.textFile(<span class="string">"hdfs://..."</span>);<br>
+    JavaRDD&lt;String&gt; words = textFile.<span class="sparkop">flatMap</span>(<span class="closure">new FlatMapFunction&lt;String, String&gt;() {<br>
     &nbsp;&nbsp;public Iterable&lt;String&gt; call(String s) { return Arrays.asList(s.split(" ")); }<br>
     }</span>);<br>
     JavaPairRDD&lt;String, Integer&gt; pairs = words.<span class="sparkop">mapToPair</span>(<span class="closure">new PairFunction&lt;String, String, Integer&gt;() {<br>

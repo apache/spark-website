@@ -20,13 +20,13 @@ The latest release of Spark is Spark 1.3.1, released on April 17, 2015
 <a href="{{site.url}}releases/spark-release-1-3-1.html">(release notes)</a>
 <a href="https://git-wip-us.apache.org/repos/asf?p=spark.git;a=commit;h=3e8391327ba586eaf54447043bd526d919043a44">(git tag)</a><br/>
 
-1. Chose a Spark release:
+1. Choose a Spark release:
   <select id="sparkVersionSelect" onChange="javascript:onVersionSelect();"></select><br>
 
-2. Chose a package type:
+2. Choose a package type:
   <select id="sparkPackageSelect" onChange="javascript:onPackageSelect();"></select><br>
 
-3. Chose a download type:
+3. Choose a download type:
   <select id="sparkDownloadSelect" onChange="javascript:onDownloadSelect()"></select><br>
 
 4. Download Spark: <span id="spanDownloadLink"></span>
