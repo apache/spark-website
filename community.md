@@ -36,16 +36,19 @@ navigation:
 <h4>Conferences</h4>
 <ul>
   <li>
-    <a href="http://spark-summit.org/east">Spark Summit East 2015.</a> March 18 - 19 in New York City.
+    <a href="https://spark-summit.org/">Spark Summit Europe 2015.</a> Oct 27 - Oct 29 in Amsterdam.
   </li>
   <li>
     <a href="http://spark-summit.org/2015">Spark Summit 2015.</a> June 15 - 17 in San Francisco.
   </li>
   <li>
-    <a href="http://spark-summit.org/2014">Spark Summit 2014.</a> June 30 - July 1 2014 in San Francisco. Two days of keynotes and over 50 talks and technology demos by Spark community members. Slides, videos and training materials are available for free at <a href="http://spark-summit.org/2014/">the summit website</a>.
+    <a href="http://spark-summit.org/east">Spark Summit East 2015.</a> March 18 - 19 in New York City.
   </li>
   <li>
-    <a href="http://spark-summit.org/2013">Spark Summit 2013.</a> In December 2013, the community held the first Spark Summit, with 30 talks from organizations using Apache Spark.  Slides and videos of all talks are available for free at <a href="http://spark-summit.org/2013/">the summit website</a>.
+    <a href="http://spark-summit.org/2014">Spark Summit 2014.</a> June 30 - July 1 2014 in San Francisco.
+  </li>
+  <li>
+    <a href="http://spark-summit.org/2013">Spark Summit 2013.</a> December 2013 in San Francisco.
   </li>
 </ul>
 
