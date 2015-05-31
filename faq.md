@@ -36,9 +36,6 @@ Spark is a fast and general processing engine compatible with Hadoop data. It ca
 <p class="question">How can I access data in S3?</p>
 <p class="answer">Use the <code>s3n://</code> URI scheme (<code>s3n://bucket/path</code>). You will also need to set your Amazon security credentials, either by setting the environment variables <code>AWS_ACCESS_KEY_ID</code> and <code>AWS_SECRET_ACCESS_KEY</code> before your program runs, or by setting <code>fs.s3.awsAccessKeyId</code> and <code>fs.s3.awsSecretAccessKey</code> in <code>SparkContext.hadoopConfiguration</code>.</p>
 
-<p class="question">Which languages does Spark support?</p>
-<p class="answer">Spark supports Scala, Java and Python.</p>
-
 <p class="question">Does Spark require modified versions of Scala or Python?</p>
 <p class="answer">No. Spark requires no changes to Scala or compiler plugins. The Python API uses the standard CPython implementation, and can call into existing C libraries for Python such as NumPy.</p>
 
@@ -48,9 +45,9 @@ Spark is a fast and general processing engine compatible with Hadoop data. It ca
 
 <p>In addition, Spark also has <a href="{{site.url}}docs/latest/java-programming-guide.html">Java</a> and <a href="{{site.url}}docs/latest/python-programming-guide.html">Python</a> APIs.</p>
 
-<p class="question">What license is Spark under?</p>
+<p class="question">I understand Spark Streaming uses micro-batching. Does this increase latency?</p>
 
-<p class="answer">Starting in version 0.8, Spark is under the <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache 2.0 license</a>. Previous versions used the <a href="https://github.com/mesos/spark/blob/branch-0.7/LICENSE">BSD license</a>.</p>
+While Spark does use a micro-batch execution model, this does not have much impact on applications, because the batches can be as short as 0.5 seconds. In most applications of streaming big data, the analytics is done over a larger window (say 10 minutes), or the latency to get data in is higher (e.g. sensors collect readings every 10 seconds). The benefit of Spark's micro-batch model is that it enables <a href="http://people.csail.mit.edu/matei/papers/2013/sosp_spark_streaming.pdf">exactly-once semantics</a>, meaning the system can recover all intermediate state and results on failure.
 
 <p class="question">How can I contribute to Spark?</p>
 
