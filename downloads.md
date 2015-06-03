@@ -43,7 +43,25 @@ Spark artifacts are [hosted in Maven Central](http://search.maven.org/#browse%7C
     artifactId: spark-core_2.10
     version: 1.3.1
 
-### Development and Maintenance Branches
+### Nightly Packages and Artifacts
+Packages are built regularly off of Spark's master branch and release branches. These provide access to the bleeding-edge of Spark master or the most recent fixes not yet incorporated into a maintenance release. Spark nightly packages are available at:
+
+    # Latest master build
+    http://people.apache.org/~pwendell/spark-nightly/spark-master-bin/latest
+
+    # All nightly builds
+    http://people.apache.org/~pwendell/spark-nightly/
+
+Spark also publishes SNAPSHOT releases of its Maven artifacts for both master and maintenance branches on a nightly basis. To link to a SNAPSHOT you need to add the ASF snapshot repository to your build. Note that SNAPSHOT artifacts are ephemeral and may change or be removed.
+    
+    # To use these you must add the ASF snapshot repository
+    # at http://repository.apache.org/snapshots/
+
+    groupId: org.apache.spark
+    artifactId: spark-core_2.10
+    version: 1.3.2-SNAPSHOT  
+
+### Spark Source Code Management
 If you are interested in working with the newest under-development code or contributing to Spark development, you can also check out the master branch from Git:
 
     # Master development branch
