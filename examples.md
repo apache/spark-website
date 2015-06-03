@@ -137,7 +137,7 @@ In this example, we search through the error messages in a log file:
     JavaPairRDD&lt;String, Integer&gt; pairs = words.<span class="sparkop">mapToPair</span>(<span class="closure">new PairFunction&lt;String, String, Integer&gt;() {<br>
     &nbsp;&nbsp;public Tuple2&lt;String, Integer&gt; call(String s) { return new Tuple2&lt;String, Integer&gt;(s, 1); }<br>
     }</span>);<br>
-    JavaPairRDD&lt;String, Integer&gt; counts = pairs.<span class="sparkop">reduceByKey</span>(<span class="closure">new Function2&lt;Integer, Integer&gt;() {<br>
+    JavaPairRDD&lt;String, Integer&gt; counts = pairs.<span class="sparkop">reduceByKey</span>(<span class="closure">new Function2&lt;Integer, Integer, Integer&gt;() {<br>
     &nbsp;&nbsp;public Integer call(Integer a, Integer b) { return a + b; }<br>
     }</span>);<br>
     counts.<span class="sparkop">saveAsTextFile</span>(<span class="string">"hdfs://..."</span>);
@@ -178,7 +178,7 @@ In this example, we search through the error messages in a log file:
   <div class="tab-pane tab-pane-java">
     <div class="code code-tab">
     <span class="keyword">int</span> count = spark.parallelize(makeRange(1, NUM_SAMPLES)).<span class="sparkop">filter</span>(<span class="closure">new Function&lt;Integer, Boolean&gt;() {<br>
-    &nbsp;&nbsp;public Integer call(Integer i) {<br>
+    &nbsp;&nbsp;public Boolean call(Integer i) {<br>
     &nbsp;&nbsp;&nbsp;&nbsp;double x = Math.random();<br>
     &nbsp;&nbsp;&nbsp;&nbsp;double y = Math.random();<br>
     &nbsp;&nbsp;&nbsp;&nbsp;return x*x + y*y &lt; 1;<br>
