@@ -89,7 +89,7 @@ This release has few known issues which will be addressed in Spark 1.4.1
 
 #### Test Partners
 
-Thanks to The following organizations, who helped benchmark or integration test release candidates: <br> Intel, Cloudera, Mesosphere, Shopify, Netflix, Yahoo, UC Berkeley and Databricks. 
+Thanks to The following organizations, who helped benchmark or integration test release candidates: <br> Intel, Palantir, Cloudera, Mesosphere, Shopify, Netflix, Yahoo, UC Berkeley and Databricks. 
 
 #### Contributors
  * Aaron Davidson -- Bug fixes in Core, Shuffle, and YARN
