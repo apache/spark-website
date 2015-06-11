@@ -73,6 +73,7 @@ Spark streaming adds visual instrumentation graphs and significantly improved de
 
  * [SPARK-7602](https://issues.apache.org/jira/browse/SPARK-7602): Visualization and monitoring in the streaming UI including batch drill down ([SPARK-6796](https://issues.apache.org/jira/browse/SPARK-6796), [SPARK-6862](https://issues.apache.org/jira/browse/SPARK-6862))
  * [SPARK-7621](https://issues.apache.org/jira/browse/SPARK-7621): Better error reporting for Kafka
+ * [SPARK-2808](https://issues.apache.org/jira/browse/SPARK-2808): Support for Kafka 0.8.2.1 and Kafka with Scala 2.11
  * [SPARK-5946](https://issues.apache.org/jira/browse/SPARK-5946): Python API for Kafka direct mode
  * [SPARK-7111](https://issues.apache.org/jira/browse/SPARK-7111): Input rate tracking for Kafka
  * [SPARK-5960](https://issues.apache.org/jira/browse/SPARK-5960): Support for transferring AWS credentials to Kinesis
