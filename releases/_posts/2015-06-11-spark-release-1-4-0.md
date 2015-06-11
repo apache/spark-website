@@ -152,7 +152,7 @@ Thanks to The following organizations, who helped benchmark or integration test 
  * Glenn Weidner -- Documentation in MLlib and PySpark
  * Guancheng (G.C.) Chen -- Improvements in Core
  * Guancheng Chen -- Improvements in Core
- * Guo Wei -- Bug fixes in SQL
+ * Guo Wei -- Bug fixes and window function feature in SQL
  * GuoQiang Li -- New features in Core; bug fixes in Core and YARN
  * Haiyang Sea -- Improvements in SQL
  * Hangchen Yu -- Documentation in GraphX
