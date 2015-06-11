@@ -99,7 +99,9 @@ Thanks to The following organizations, who helped benchmark or integration test 
  * Andrew Or -- Bug fixes in Core
  * Andrew Or -- Improvements in Core and YARN; bug fixes in Core, Web UI, Streaming, tests, and SQL; improvement in Streaming, Web UI, Core, and SQL
  * Andrey Zagrebin -- Improvement in SQL
+ * Antonio Piccolboni -- New features in SparkR
  * Arsenii Krasikov -- Bug fixes in Core
+ * Ashutosh Raina -- New features in SparkR
  * Ashwin Shankar -- Bug fixes in YARN
  * Augustin Borsu -- New features in MLlib
  * Ben Fradet -- Documentation in Core and Streaming
@@ -115,6 +117,7 @@ Thanks to The following organizations, who helped benchmark or integration test 
  * Cheng Lian -- Bug fixes in SQL
  * Cheng Lian -- Improvements in Core and SQL; documentation in Core and SQL; bug fixes in Core and SQL; improvement in SQL
  * Cheolsoo Park -- Wish in YARN; improvements in Core and spark submit; bug fixes in Core
+ * Chris Freeman -- New features in SparkR
  * Chet Mancini -- Improvements in Core and SQL
  * Chris Heller -- New features in Mesos
  * Christophe Preaud -- Documentation in Core and YARN
@@ -122,23 +125,27 @@ Thanks to The following organizations, who helped benchmark or integration test 
  * DB Tsai -- Improvements, new features, and bug fixes in MLlib
  * DEBORAH SIEGEL -- Documentation in Core
  * Dan McClary -- New features in GraphX
+ * Dan Putler -- New features in SparkR
  * Daoyuan Wang -- Improvements in tests and SQL; new features in SQL; bug fixes in SQL; improvement in MLlib and SQL
  * David McGuire -- Bug fixes in Streaming
- * Davies Liu -- Improvements in SQL and PySpark; new features in Core and sparkr; bug fixes in Streaming, tests, PySpark, sparkr, and SQL; improvement in Core and SQL
- * Davies Liu -- New features in sparkr
+ * Davies Liu -- Improvements in SQL and PySpark; new features in Core and SparkR; bug fixes in Streaming, tests, PySpark, SparkR, and SQL; improvement in Core and SQL
+ * Davies Liu -- New features in SparkR
  * Dean Chen -- Improvements in Core; new features in YARN; bug fixes in Core and YARN
  * Debasish Das -- New features in MLlib
  * Deborah Siegel -- Improvements in Core
  * Doing Done -- Improvements in SQL; bug fixes in Core and SQL
  * Dong Xu -- Bug fixes in SQL
  * Doug Balog -- Bug fixes in spark submit, YARN, and SQL
+ * Edward T -- New features in SparkR
  * Elisey Zanko -- Bug fixes in MLlib and PySpark
  * Emre Sevinc -- Improvements in Streaming
  * Eric Chiang -- Documentation in Core
  * Erik Van Oosten -- Bug fixes in Core
  * Evan Jones -- Bug fixes in Core
  * Evan Yu -- Bug fixes in Core
+ * Evert Lammerts -- New features in SparkR
  * Favio Vazquez -- Build fixes in Core; documentation in Core and MLlib
+ * Felix Cheung -- SparkR Documentation
  * Florian Verhein -- Improvements and new features in EC2
  * Gaurav Nanda -- Documentation in Core
  * Glenn Weidner -- Documentation in MLlib and PySpark
@@ -148,9 +155,11 @@ Thanks to The following organizations, who helped benchmark or integration test 
  * GuoQiang Li -- New features in Core; bug fixes in Core and YARN
  * Haiyang Sea -- Improvements in SQL
  * Hangchen Yu -- Documentation in GraphX
- * Hao Lin -- Improvements and new features in sparkr
+ * Hao Lin -- Improvements and new features in SparkR
  * Hari Shreedharan -- Test in Streaming and tests; new features in YARN; bug fixes in Web UI
+ * Harihar Nahak -- New features in SparkR
  * Holden Karau -- Improvements in Core, MLlib, and PySpark; bug fixes in PySpark
+ * Hossein Falaki -- SparkR Documentation
  * Hong Shen -- Bug fixes in Core and YARN
  * Hrishikesh Subramonian -- Improvements in MLlib and PySpark
  * Hung Lin -- Bug fixes in scheduler
@@ -163,7 +172,7 @@ Thanks to The following organizations, who helped benchmark or integration test 
  * Jaonary Rabarisoa -- Improvements in MLlib
  * Jayson Sunshine -- Documentation in Core
  * Jean Lyn -- Bug fixes in SQL
- * Jeff Harrison -- Improvements in sparkr
+ * Jeff Harrison -- Improvements in SparkR
  * Jeremy A. Lucas -- Improvements in Streaming
  * Jeremy Freeman -- Bug fixes in Streaming and MLlib
  * Jim Carroll -- Bug fixes in MLlib
@@ -199,6 +208,7 @@ Thanks to The following organizations, who helped benchmark or integration test 
  * Masayoshi TSUZUKI -- Bug fixes in Windows and Core
  * Matei Zaharia -- Improvement in Web UI
  * Matt Aasted -- Bug fixes in EC2
+ * Matt Massie -- New features in SparkR
  * Matt Wise -- Documentation in Core
  * Matthew Cheah -- Improvements and new features in Core
  * Matthew Goodman -- Bug fixes in EC2 and PySpark
@@ -227,6 +237,7 @@ Thanks to The following organizations, who helped benchmark or integration test 
  * Oleksii Kostyliev -- Bug fixes in Core
  * Olivier Girardot -- Improvements in Java API and SQL; bug fixes in Core; improvement in PySpark and SQL
  * Omede Firouz -- Improvements in MLlib; new features in MLlib and PySpark
+ * Oscar Olmedo -- New features in SparkR
  * Pankaj Arora -- Bug fixes in Core
  * Patrick Wendell -- Test in spark submit; improvements in Core and Shuffle; bug fixes in tests and SQL
  * Pei-Lun Lee -- Improvements and bug fixes in SQL
@@ -238,16 +249,17 @@ Thanks to The following organizations, who helped benchmark or integration test 
  * Prashant Sharma -- Improvements and bug fixes in Core
  * Punya Biswal -- Improvements in SQL; bug fixes in Core
  * Punyashloka Biswal -- Build fixes in Core
- * Qian Huang -- New features and improvement in sparkr
+ * Qian Huang -- New features and improvement in SparkR
  * Qiping Li -- Bug fixes in Core
  * Rajendra Gokhale (rvgcentos) -- Improvements in Core
  * Rakesh Chalasani -- Improvement in SQL
  * Ram Sriharsha -- Improvements in Core, MLlib, and PySpark; new features in MLlib; documentation in Core and MLlib
- * Rekha Joshi -- Improvements in sparkr
+ * Rekha Joshi -- Improvements in SparkR
  * Rene Treffer -- Improvements in SQL
  * Rex Xiong -- Improvements in Core
  * Reynold Xin -- Improvements in Project Infra, Core, tests, PySpark, and SQL; documentation in Core; bug fixes in Core and MLlib; improvement in Project Infra, Core, GraphX, and SQL
  * Reza Zadeh -- Improvements in MLlib
+ * Ryan Hafen -- New features in SparkR
  * Ryan Williams -- Improvements in Core
  * Saisai Shao -- Test in Streaming and tests; improvements in Core, PySpark, YARN, and Streaming; new features in Web UI; bug fixes in Web UI and YARN; improvement in Streaming
  * Saleem Ansari -- Documentation in Core and MLlib
@@ -255,11 +267,11 @@ Thanks to The following organizations, who helped benchmark or integration test 
  * Santiago M. Mola -- Improvements in SQL; bug fixes in SQL; documentation in Core
  * Sasaki Toru -- Improvements in Core and GraphX
  * Sean Owen -- Documentation in Core; improvements in Core, tests, MLlib, Streaming, SQL, and Web UI; bug fixes in Project Infra, Core, tests, Windows, SQL, GraphX, and Web UI; improvement in Core
- * Sephiroth Lin -- Improvements in sparkr, Core, scheduler, YARN, and PySpark; bug fixes in SQL
+ * Sephiroth Lin -- Improvements in SparkR, Core, scheduler, YARN, and PySpark; bug fixes in SQL
  * Shekhar Bansal -- Improvements in YARN; bug fixes in Web UI
  * Sheng Li -- Bug fixes in SQL
  * Shiti Saxena -- Improvement in SQL
- * Shivaram Venkataraman -- Improvements in sparkr and EC2; new features in Core and sparkr; bug fixes in sparkr; improvement in sparkr
+ * Shivaram Venkataraman -- Improvements in SparkR and EC2; new features in Core and SparkR; bug fixes in SparkR; improvement in SparkR
  * Shixiong Zhu -- Test in Streaming, tests, and Core; improvement in Streaming, Web UI, and Core; improvements in Streaming, Web UI, and Core; bug fixes in Core, tests, MLlib, YARN, Streaming, scheduler, and Web UI; documentation in Core and Streaming
  * Shuai Zheng -- Bug fixes in SQL
  * Shuo Xiang -- New features in Core; bug fixes in MLlib
@@ -268,7 +280,7 @@ Thanks to The following organizations, who helped benchmark or integration test 
  * Steve Loughran -- Improvements in Core, Web UI, and SQL; bug fixes in Core and YARN
  * Steven She -- Bug fixes in Core
  * Su Yan -- Bug fixes in Core
- * Sun Rui -- Improvements in sparkr; new features in sparkr and SQL; bug fixes in sparkr; improvement in sparkr
+ * Sun Rui -- Improvements in SparkR; new features in SparkR and SQL; bug fixes in SparkR; improvement in SparkR
  * Taka Shinagawa -- Documentation in Core
  * Takeshi YAMAMURO -- Improvements in GraphX and SQL
  * Tathagata Das -- Test in Streaming and tests; improvements in Streaming and Core; new features in Streaming and SQL; bug fixes in Project Infra, Streaming, and Core
@@ -279,6 +291,7 @@ Thanks to The following organizations, who helped benchmark or integration test 
  * Tim Ellison -- Bug fixes in Core
  * Timothy Chen -- Improvements in spark submit and Mesos; bug fixes in spark submit and Mesos
  * Tingjun Xu -- Improvements in Streaming
+ * Todd Gao -- SparkR
  * Venkata Ramana Gollamudi -- Improvements and bug fixes in SQL
  * Vidmantas Zemleris -- Improvements in SQL
  * Vincenzo Selvaggio -- Documentation and new features in MLlib
@@ -297,6 +310,7 @@ Thanks to The following organizations, who helped benchmark or integration test 
  * Yanbo Liang -- Improvements in Core, MLlib, and PySpark; new features in MLlib and PySpark; bug fixes in MLlib and SQL; improvement in MLlib and PySpark
  * Yash Datta -- Improvements and bug fixes in SQL
  * Ye Xianjin -- Bug fixes in Core
+ * Yi Lu -- New features in SparkR
  * Yi Tian -- New features in Web UI and SQL; bug fixes in SQL
  * Yin Huai -- Improvements in tests and SQL; new features in SQL; bug fixes in Core and SQL; improvement in Core and SQL
  * Yong Tang -- Bug fixes in Core
@@ -309,5 +323,6 @@ Thanks to The following organizations, who helped benchmark or integration test 
  * Zhichao Zhang -- Improvements in SQL; bug fixes in Streaming; documentation in Core
  * Zhongshuai Pei -- Improvements and bug fixes in SQL
  * Zoltan Zvara -- Bug fixes in Core and YARN
+ * Zongheng Yang -- New features in SparkR
 
 _Thanks to everyone who contributed!_
