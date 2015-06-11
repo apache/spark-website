@@ -86,6 +86,12 @@ This release has few known issues which will be addressed in Spark 1.4.1
  * Some ML pipleline components do not correctly implement copy [SPARK-8151](https://issues.apache.org/jira/browse/SPARK-8151)
 
 ### Credits
+
+#### Test Partners
+
+Thanks to The following organizations, who helped benchmark or integration test release candidates: <br> Intel, Cloudera, Mesosphere, Shopify, Netflix, Yahoo, UC Berkeley and Databricks. 
+
+#### Contributors
  * Aaron Davidson -- Bug fixes in Core, Shuffle, and YARN
  * Aaron Josephs -- New features in Core
  * Adam Budde -- Bug fixes in SQL
