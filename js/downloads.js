@@ -8,6 +8,7 @@ function addRelease(version, releaseDate, packages, downloadable) {
 }
 
 var sources = {pretty: "Source Code [can build several Hadoop versions]", tag: "sources"};
+var hadoopFree = {pretty: "Pre-build with user-provided Hadoop [can use with most Hadoop distributions]", tag: "without-hadoop"};
 var hadoop1 = {pretty: "Pre-built for Hadoop 1.X", tag: "hadoop1"};
 var cdh4 = {pretty: "Pre-built for CDH 4", tag: "cdh4"};
 var hadoop2 = {pretty: "Pre-built for Hadoop 2.2", tag: "hadoop2"};
@@ -28,7 +29,10 @@ var packagesV3 = [mapr3, mapr4].concat(packagesV2);
 var packagesV4 = [hadoop2p4, hadoop2p3, mapr3, mapr4].concat(packagesV1);
 // 1.3.1+
 var packagesV5 = [hadoop2p6].concat(packagesV4);
+// 1.4.0+
+var packagesV6 = [hadoopFree, hadoop2p6, hadoop2p4, hadoop2p3].concat(packagesV1);
 
+addRelease("1.4.0", new Date("6/11/2015"), sources.concat(packagesV6), true);
 addRelease("1.3.1", new Date("4/17/2015"), sources.concat(packagesV5), true);
 addRelease("1.3.0", new Date("3/13/2015"), sources.concat(packagesV4), true);
 addRelease("1.2.2", new Date("4/17/2015"), sources.concat(packagesV4), true);
