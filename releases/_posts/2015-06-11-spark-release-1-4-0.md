@@ -66,7 +66,7 @@ Python coverage. MLlib also adds several new algorithms.
  * [SPARK-5995](https://issues.apache.org/jira/browse/SPARK-5995): Make ML Prediction Developer APIs public
  * [SPARK-3066](https://issues.apache.org/jira/browse/SPARK-3066): Support recommendAll in matrix factorization model
  * [SPARK-4894](https://issues.apache.org/jira/browse/SPARK-4894): Bernoulli naive Bayes
-
+ * [SPARK-5563](https://issues.apache.org/jira/browse/SPARK-5563): LDA with online variational inference to the release note
 
 ### Spark Streaming
 Spark streaming adds visual instrumentation graphs and significantly improved debugging information in the UI. It also enhances support for both Kafka and Kinesis. 
@@ -91,7 +91,7 @@ This release has few known issues which will be addressed in Spark 1.4.1
 
 #### Test Partners
 
-Thanks to The following organizations, who helped benchmark or integration test release candidates: <br> Intel, Palantir, Cloudera, Mesosphere, Shopify, Netflix, Yahoo, UC Berkeley and Databricks. 
+Thanks to The following organizations, who helped benchmark or integration test release candidates: <br> Intel, Palantir, Cloudera, Mesosphere, Huawei, Shopify, Netflix, Yahoo, UC Berkeley and Databricks. 
 
 #### Contributors
  * Aaron Davidson -- Bug fixes in Core, Shuffle, and YARN
