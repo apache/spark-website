@@ -41,13 +41,13 @@ navigation:
     <h2>Ease of Use</h2>
 
     <p class="lead">
-      Write applications quickly in Java, Scala or Python.
+      Write applications quickly in Java, Scala, Python, R.
     </p>
 
     <p>
       Spark offers over 80 high-level operators that make it easy to build parallel apps.
       And you can use it <em>interactively</em>
-      from the Scala and Python shells.
+      from the Scala, Python and R shells.
     </p>
   </div>
   <div class="col-md-5 col-sm-5 col-padded-top col-center">
