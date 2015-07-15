@@ -32,6 +32,7 @@ var packagesV5 = [hadoop2p6].concat(packagesV4);
 // 1.4.0+
 var packagesV6 = [hadoopFree, hadoop2p6, hadoop2p4, hadoop2p3].concat(packagesV1);
 
+addRelease("1.4.1", new Date("7/15/2015"), sources.concat(packagesV6), true);
 addRelease("1.4.0", new Date("6/11/2015"), sources.concat(packagesV6), true);
 addRelease("1.3.1", new Date("4/17/2015"), sources.concat(packagesV5), true);
 addRelease("1.3.0", new Date("3/13/2015"), sources.concat(packagesV4), true);

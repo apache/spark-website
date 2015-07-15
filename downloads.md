@@ -16,9 +16,9 @@ $(document).ready(function() {
 
 ## Download Spark
 
-The latest release of Spark is Spark 1.4.0, released on June 11, 2015
-<a href="{{site.url}}releases/spark-release-1-4-0.html">(release notes)</a>
-<a href="https://git-wip-us.apache.org/repos/asf?p=spark.git;a=commit;h=22596c534a38cfdda91aef18aa9037ab101e4251">(git tag)</a><br/>
+The latest release of Spark is Spark 1.4.1, released on July 15, 2015
+<a href="{{site.url}}releases/spark-release-1-4-1.html">(release notes)</a>
+<a href="https://git-wip-us.apache.org/repos/asf?p=spark.git;a=commit;h=dbaa5c294eb565f84d7032e387e4b8c1a56e4cd2">(git tag)</a><br/>
 
 1. Choose a Spark release:
   <select id="sparkVersionSelect" onChange="javascript:onVersionSelect();"></select><br>
@@ -41,7 +41,7 @@ Spark artifacts are [hosted in Maven Central](http://search.maven.org/#browse%7C
 
     groupId: org.apache.spark
     artifactId: spark-core_2.10
-    version: 1.4.0
+    version: 1.4.1
 
 ### Nightly Packages and Artifacts
 Packages are built regularly off of Spark's master branch and release branches. These provide access to the bleeding-edge of Spark master or the most recent fixes not yet incorporated into a maintenance release. Spark nightly packages are available at:
@@ -67,7 +67,7 @@ If you are interested in working with the newest under-development code or contr
     # Master development branch
     git clone git://github.com/apache/spark.git
 
-    # 1.4 maintenance branch with stability fixes on top of Spark 1.4.0
+    # 1.4 maintenance branch with stability fixes on top of Spark 1.4.1
     git clone git://github.com/apache/spark.git -b branch-1.4
 
 Once you've downloaded Spark, you can find instructions for installing and building it on the <a href="{{site.url}}documentation.html">documentation page</a>.
