@@ -40,6 +40,10 @@ Spark 1.4.1 contains several bug fixes in Spark SQL and assorted fixes in other 
  * [SPARK-8470](https://issues.apache.org/jira/browse/SPARK-8470): MissingRequirementError for ScalaReflection on user classes
  * [SPARK-8358](https://issues.apache.org/jira/browse/SPARK-8358): DataFrame explode with alias and * fails
  
+#### SparkR
+ * [SPARK-8506](https://issues.apache.org/jira/browse/SPARK-8506): Support for Spark packages when initializing SparkR
+ * [SPARK-8085](https://issues.apache.org/jira/browse/SPARK-8085): Support for user defined schemas when reading from data sources
+
 ### Contributors
 The following developers contributed to this release:
 
