@@ -11,7 +11,7 @@ meta:
   _wpas_done_all: '1'
 ---
 
-Spark 1.4.1 is a maintenance release containing stability fixes. This release is based on the [branch-1.4](https://github.com/apache/spark/tree/branch-1.4) maintenance branch of Spark. We recommend all 1.4.1 users to upgrade to this stable release. 85 developers contributed to this release.
+Spark 1.4.1 is a maintenance release containing stability fixes. This release is based on the [branch-1.4](https://github.com/apache/spark/tree/branch-1.4) maintenance branch of Spark. We recommend all 1.4.0 users to upgrade to this stable release. 85 developers contributed to this release.
 
 To download Spark 1.4.1 visit the <a href="{{site.url}}downloads.html">downloads</a> page.
 
