@@ -16,7 +16,16 @@ Spark 1.4.1 is a maintenance release containing stability fixes. This release is
 To download Spark 1.4.1 visit the <a href="{{site.url}}downloads.html">downloads</a> page.
 
 ### Fixes
-Spark 1.4.1 contains several bug fixes in Spark SQL and assorted fixes in other components. Some of the more important fixes are highlighted below. You can visit the [Spark issue tracker](https://issues.apache.org/jira/issues/?jql=project%20%3D%20SPARK%20AND%20fixVersion%20%3D%201.4.1%20ORDER%20BY%20priority%2C%20component) for the full list of fixes.
+Spark 1.4.1 contains several bug fixes in Spark's DataFrame and data source support and assorted fixes in other components. Some of the more important fixes are highlighted below. You can visit the [Spark issue tracker](https://issues.apache.org/jira/issues/?jql=project%20%3D%20SPARK%20AND%20fixVersion%20%3D%201.4.1%20ORDER%20BY%20priority%2C%20component) for the full list of fixes.
+
+#### Data Sources and DataFrames
+
+ * [SPARK-8804](https://issues.apache.org/jira/browse/SPARK-8804): Order of UTF8String is not consistent with String if there is any non-ascii character in it
+ * [SPARK-8406](https://issues.apache.org/jira/browse/SPARK-8406): Race condition when writing Parquet files
+ * [SPARK-8329](https://issues.apache.org/jira/browse/SPARK-8329): DataSource options parser no longer accepts '_'
+ * [SPARK-8368](https://issues.apache.org/jira/browse/SPARK-8368): ClassNotFoundException in closure for map
+ * [SPARK-8470](https://issues.apache.org/jira/browse/SPARK-8470): MissingRequirementError for ScalaReflection on user classes
+ * [SPARK-8358](https://issues.apache.org/jira/browse/SPARK-8358): DataFrame explode with alias and * fails
 
 #### MLLib
 
@@ -31,14 +40,6 @@ Spark 1.4.1 contains several bug fixes in Spark SQL and assorted fixes in other 
  * [SPARK-8573](https://issues.apache.org/jira/browse/SPARK-8573): Trigger exceptions when invalid operators are used
  * [SPARK-8766](https://issues.apache.org/jira/browse/SPARK-8766): Support non ASCII characters in columns
 
-#### Data Sources and DataFrames
-
- * [SPARK-8804](https://issues.apache.org/jira/browse/SPARK-8804): Order of UTF8String is not consistent with String if there is any non-ascii character in it
- * [SPARK-8406](https://issues.apache.org/jira/browse/SPARK-8406): Race condition when writing Parquet files
- * [SPARK-8329](https://issues.apache.org/jira/browse/SPARK-8329): DataSource options parser no longer accepts '_'
- * [SPARK-8368](https://issues.apache.org/jira/browse/SPARK-8368): ClassNotFoundException in closure for map
- * [SPARK-8470](https://issues.apache.org/jira/browse/SPARK-8470): MissingRequirementError for ScalaReflection on user classes
- * [SPARK-8358](https://issues.apache.org/jira/browse/SPARK-8358): DataFrame explode with alias and * fails
  
 #### SparkR
  * [SPARK-8506](https://issues.apache.org/jira/browse/SPARK-8506): Support for Spark packages when initializing SparkR
