@@ -143,7 +143,7 @@ Slides, videos and EC2-based exercises from each of these are available online:
   <li><a href="http://www.manning.com/bonaci/">Spark in Action</a>, by Marko Bonaci and Petar Zecevic (Manning)</li>
   <li><a href="http://shop.oreilly.com/product/0636920035091.do">Advanced Analytics with Spark</a>, by Sandy Ryza, Uri Laserson, Sean Owen and Josh Wills (O'Reilly Media)</li>
   <li><a href="http://manning.com/malak/">Spark GraphX in Action</a>, by Michael Malak (Manning)</li>
-  <li><a href="http://www.packtpub.com/fast-data-processing-with-spark/book">Fast Data Processing with Spark</a>, by Holden Karau (Packt Publishing)</li>
+  <li><a href="https://www.packtpub.com/big-data-and-business-intelligence/fast-data-processing-spark-second-edition">Fast Data Processing with Spark</a>, by Holden Karau (Packt Publishing)</li>
 </ul>
 
 <h3>Examples</h3>
@@ -169,20 +169,26 @@ The following papers have been published about Spark and related projects.
 
 <ul>
   <li>
-    <a href="http://www.eecs.berkeley.edu/Pubs/TechRpts/2012/EECS-2012-214.pdf">Shark: SQL and Rich Analytics at Scale</a>. Reynold Xin, Joshua Rosen, Matei Zaharia, Michael J. Franklin, Scott Shenker, Ion Stoica. <em>Technical Report UCB/EECS-2012-214</em>. November 2012.
+    <a href="http://people.csail.mit.edu/matei/papers/2015/sigmod_spark_sql.pdf">Spark SQL: Relational Data Processing in Spark</a>. Michael Armbrust, Reynold S. Xin, Cheng Lian, Yin Huai, Davies Liu, Joseph K. Bradley, Xiangrui Meng, Tomer Kaftan, Michael J. Franklin, Ali Ghodsi, Matei Zaharia. <em>SIGMOD 2015</em>. June 2015.
   </li>
   <li>
-    <a href="http://www.cs.berkeley.edu/~matei/papers/2012/hotcloud_spark_streaming.pdf">Discretized Streams: An Efficient and Fault-Tolerant Model for Stream Processing on Large Clusters</a>.  Matei Zaharia, Tathagata Das, Haoyuan Li, Scott Shenker, Ion Stoica. <em>HotCloud 2012</em>. June 2012.
+    <a href="https://amplab.cs.berkeley.edu/wp-content/uploads/2014/02/graphx.pdf">GraphX: Unifying Data-Parallel and Graph-Parallel Analytics</a>. Reynold S. Xin, Daniel Crankshaw, Ankur Dave, Joseph E. Gonzalez, Michael J. Franklin, Ion Stoica. <em>OSDI 2014</em>. October 2014.
+  <li>
+    <a href="http://people.csail.mit.edu/matei/papers/2013/sosp_spark_streaming.pdf">Discretized Streams: Fault-Tolerant Streaming Computation at Scale</a>. Matei Zaharia, Tathagata Das, Haoyuan Li, Timothy Hunter, Scott Shenker, Ion Stoica. <em>SOSP 2013</em>. November 2013.
   </li>
   <li>
-    <a href="http://www.cs.berkeley.edu/~matei/papers/2012/sigmod_shark_demo.pdf">Shark: Fast Data Analysis Using Coarse-grained Distributed Memory</a> (demo). Cliff Engle, Antonio Lupher, Reynold Xin, Matei Zaharia, Haoyuan Li, Scott Shenker, Ion Stoica. <em>SIGMOD 2012</em>. May 2012. <b>Best Demo Award</b>.
+    <a href="http://people.csail.mit.edu/matei/papers/2013/sigmod_shark.pdf">Shark: SQL and Rich Analytics at Scale</a>. Reynold S. Xin, Joshua Rosen, Matei Zaharia, Michael J. Franklin, Scott Shenker, Ion Stoica. <em>SIGMOD 2013</em>. June 2013.
   </li>
   <li>
-    <a href="http://www.cs.berkeley.edu/~matei/papers/2012/nsdi_spark.pdf">Resilient Distributed Datasets: A Fault-Tolerant Abstraction for In-Memory Cluster Computing</a>.  Matei Zaharia, Mosharaf Chowdhury, Tathagata Das, Ankur Dave, Justin Ma, Murphy McCauley, Michael J. Franklin, Scott Shenker, Ion Stoica. <em>NSDI 2012</em>. April 2012. <b>Best Paper Award</b> and <b>Honorable Mention for Community Award</b>.
+    <a href="http://people.csail.mit.edu/matei/papers/2012/hotcloud_spark_streaming.pdf">Discretized Streams: An Efficient and Fault-Tolerant Model for Stream Processing on Large Clusters</a>.  Matei Zaharia, Tathagata Das, Haoyuan Li, Scott Shenker, Ion Stoica. <em>HotCloud 2012</em>. June 2012.
   </li>
   <li>
-    <a href="http://www.cs.berkeley.edu/~matei/papers/2011/tr_spark.pdf">Resilient Distributed Datasets: A Fault-Tolerant Abstraction for In-Memory Cluster Computing</a>.  Matei Zaharia, Mosharaf Chowdhury, Tathagata Das, Ankur Dave, Justin Ma, Murphy McCauley, Michael J. Franklin, Scott Shenker, Ion Stoica. <em>Technical Report UCB/EECS-2011-82</em>.  July 2011.</li>
+    <a href="http://people.csail.mit.edu/matei/papers/2012/sigmod_shark_demo.pdf">Shark: Fast Data Analysis Using Coarse-grained Distributed Memory</a> (demo). Cliff Engle, Antonio Lupher, Reynold S. Xin, Matei Zaharia, Haoyuan Li, Scott Shenker, Ion Stoica. <em>SIGMOD 2012</em>. May 2012. <b>Best Demo Award</b>.
+  </li>
   <li>
-    <a href="http://www.cs.berkeley.edu/~matei/papers/2010/hotcloud_spark.pdf">Spark: Cluster Computing with Working Sets</a>. Matei Zaharia, Mosharaf Chowdhury, Michael J. Franklin, Scott Shenker, Ion Stoica. <em>HotCloud 2010</em>. June 2010.
+    <a href="http://people.csail.mit.edu/matei/papers/2012/nsdi_spark.pdf">Resilient Distributed Datasets: A Fault-Tolerant Abstraction for In-Memory Cluster Computing</a>.  Matei Zaharia, Mosharaf Chowdhury, Tathagata Das, Ankur Dave, Justin Ma, Murphy McCauley, Michael J. Franklin, Scott Shenker, Ion Stoica. <em>NSDI 2012</em>. April 2012. <b>Best Paper Award</b>.
+  </li>
+  <li>
+    <a href="http://people.csail.mit.edu/matei/papers/2010/hotcloud_spark.pdf">Spark: Cluster Computing with Working Sets</a>. Matei Zaharia, Mosharaf Chowdhury, Michael J. Franklin, Scott Shenker, Ion Stoica. <em>HotCloud 2010</em>. June 2010.
   </li>
 </ul>
