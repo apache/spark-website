@@ -143,7 +143,7 @@ Slides, videos and EC2-based exercises from each of these are available online:
   <li><a href="http://www.manning.com/bonaci/">Spark in Action</a>, by Marko Bonaci and Petar Zecevic (Manning)</li>
   <li><a href="http://shop.oreilly.com/product/0636920035091.do">Advanced Analytics with Spark</a>, by Sandy Ryza, Uri Laserson, Sean Owen and Josh Wills (O'Reilly Media)</li>
   <li><a href="http://manning.com/malak/">Spark GraphX in Action</a>, by Michael Malak (Manning)</li>
-  <li><a href="https://www.packtpub.com/big-data-and-business-intelligence/fast-data-processing-spark-second-edition">Fast Data Processing with Spark</a>, by Holden Karau (Packt Publishing)</li>
+  <li><a href="https://www.packtpub.com/big-data-and-business-intelligence/fast-data-processing-spark-second-edition">Fast Data Processing with Spark</a>, by Krishna Sankar and Holden Karau (Packt Publishing)</li>
 </ul>
 
 <h3>Examples</h3>
