@@ -79,7 +79,10 @@ Spark Meetups are grass-roots events organized and hosted by leaders and champio
     <a href="http://www.meetup.com/Boulder-Denver-Spark-Meetup/">Boulder/Denver Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Washington-DC-Area-Spark-Interactive/">DC Area Spark Meetup</a>
+    <a href="http://www.meetup.com/Chicago-Spark-Users/">Chicago Spark Users</a>
+  </li>
+  <li>
+    <a href="http://www.meetup.com/Cincinnati-Apache-Spark-Meetup/">Cincinanati Apache Spark Meetup</a>
   </li>
   <li>
     <a href="http://www.meetup.com/Hangzhou-Apache-Spark-Meetup/">Hangzhou Spark Meetup</a>
@@ -88,10 +91,19 @@ Spark Meetups are grass-roots events organized and hosted by leaders and champio
     <a href="http://www.meetup.com/Spark-User-Group-Hyderabad/">Hyderabad Spark Meetup</a>
   </li>
   <li>
+    <a href="http://www.meetup.com/Apache-Spark-Ljubljana-Meetup/">Ljubljana Spark Meetup</a>
+  </li>
+  <li>
     <a href="http://www.meetup.com/Spark-London/">London Spark Meetup</a>
   </li>
   <li>
     <a href="http://www.meetup.com/Apache-Spark-Maryland/">Maryland Spark Meetup</a>
+  </li>
+  <li>
+    <a href="http://www.meetup.com/Mumbai-Spark-Meetup/">Mumbai Spark Meetup</a>
+  </li>
+  <li>
+    <a href="http://www.meetup.com/Apache-Spark-in-Moscow/">Moscow Spark Meetup</a>
   </li>
   <li>
     <a href="http://www.meetup.com/Spark-NYC/">NYC Spark Meetup</a>
@@ -106,7 +118,19 @@ Spark Meetups are grass-roots events organized and hosted by leaders and champio
     <a href="http://www.meetup.com/Shenzhen-Apache-Spark-Meetup/">Shenzhen Spark Meetup</a>
   </li>
   <li>
+    <a href="http://www.meetup.com/Toronto-Apache-Spark">Toronto Apache Spark</a>
+  </li>
+  <li>
+    <a href="http://www.meetup.com/Tokyo-Spark-Meetup/">Tokyo Spark Meetup</a>
+  </li>
+  <li>
     <a href="http://www.meetup.com/Vancouver-Spark/">Vancouver Spark Meetup</a>
+  </li>
+  <li>
+    <a href="http://www.meetup.com/Washington-DC-Area-Spark-Interactive/">Washington DC Area Spark Meetup</a>
+  </li>
+  <li>
+    <a href="http://www.meetup.com/Apache-Spark-Zagreb-Meetup/">Zagreb Spark Meetup</a>
   </li>
 </ul>
 
