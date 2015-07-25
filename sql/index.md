@@ -1,7 +1,7 @@
 ---
 layout: global
 type: "page singular"
-title: Spark SQL
+title: Spark SQL &amp; DataFrames
 description: Spark SQL is Spark's module for working with structured data, either within Spark programs or through standard JDBC and ODBC connectors.
 subproject: SQL
 ---
@@ -19,8 +19,7 @@ subproject: SQL
 	  Seamlessly mix SQL queries with Spark programs.
     </p>
     <p>
-	  Spark SQL lets you query structured data as a distributed dataset (RDD) in Spark, with integrated APIs in Python, Scala and Java. 
-	  This tight integration makes it easy to run SQL queries alongside complex analytic algorithms.
+	  Spark SQL lets you query structured data inside Spark programs, using either SQL or a familiar <a href="/docs/latest/sql-programming-guide.html">DataFrame API</a>. Usable in Java, Scala, Python and R.
     </p>
   </div>
   <div class="col-md-5 col-sm-5 col-padded-top col-center">
@@ -38,19 +37,19 @@ subproject: SQL
 
 <div class="row row-padded">
   <div class="col-md-7 col-sm-7">
-    <h2>Unified Data Access</h2>
+    <h2>Uniform Data Access</h2>
     <p class="lead">
-      Load and query data from a variety of sources.
+      Connect to any data source the same way.
     </p>
     <p>
-      SchemaRDDs provide a single interface for efficiently working with structured data, including Apache Hive tables, parquet files and JSON files.
+      DataFrames and SQL provide a common way to access a variety of data sources, including Hive, Avro, Parquet, ORC, JSON, and JDBC. You can even join data across these sources.
     </p>
   </div>
   <div class="col-md-5 col-sm-5 col-padded-top col-center">
     <div style="margin-top: 15px; text-align: left; display: inline-block;">
       <div class="code">
 		sqlCtx.<span class="sparkop">jsonFile</span>(<span class="closure">"s3n://..."</span>)<br/>&nbsp;&nbsp;.registerAsTable("json")<br/>
-		schema_rdd = sqlCtx.<span class="sparkop">sql</span>(<span class="closure">"""<br/>
+		results = sqlCtx.<span class="sparkop">sql</span>(<span class="closure">"""<br/>
 			&nbsp;&nbsp;SELECT * <br/>
 			&nbsp;&nbsp;FROM hiveTable<br/>
 			&nbsp;&nbsp;JOIN json ..."""</span>)<br/>
@@ -64,7 +63,7 @@ subproject: SQL
   <div class="col-md-7 col-sm-7">
     <h2>Hive Compatibility</h2>
     <p class="lead">
-      Run unmodified Hive queries on existing warehouses.
+      Run unmodified Hive queries on existing data.
     </p>
     <p>
       Spark SQL reuses the Hive frontend and metastore, giving you full compatibility with
@@ -86,7 +85,7 @@ subproject: SQL
       Connect through JDBC or ODBC.
     </p>
     <p>
-      Spark SQL includes a server mode with industry standard JDBC and ODBC connectivity.
+      A server mode provides industry standard JDBC and ODBC connectivity for business intelligence tools.
     </p>
   </div>
   <div class="col-md-5 col-sm-5 col-padded-top col-center">
@@ -123,13 +122,11 @@ subproject: SQL
 
 <div class="row">
   <div class="col-md-4 col-padded">
-    <h3>Scalability</h3>
+    <h3>Performance &amp; Scalability</h3>
     <p>
-  	  Use the same engine for both interactive and long queries.		
-    </p>
-	<p>
-      Spark SQL takes advantage of the RDD model to support mid-query fault tolerance, letting it scale to large jobs too.
-	  Don't worry about using a different engine for historical data.
+      Spark SQL includes a cost-based optimizer, columnar storage and code generation to make queries fast.
+      At the same time, it scales to thousands of nodes and multi hour queries using the Spark engine, which provides full mid-query fault tolerance.
+      Don't worry about using a different engine for historical data.
     </p>
   </div>
 
@@ -157,7 +154,7 @@ subproject: SQL
     </p>
     <ul class="list-narrow">
       <li><a href="{{site.url}}downloads.html">Download Spark</a>. It includes Spark SQL as a module.</li>
-      <li>Read the <a href="{{site.url}}docs/latest/sql-programming-guide.html">Spark SQL programming guide</a>, which includes a examples of common use cases.</li>
+      <li>Read the <a href="{{site.url}}docs/latest/sql-programming-guide.html">Spark SQL and DataFrame guide</a> to learn the API.</li>
     </ul>
   </div>
 </div>
