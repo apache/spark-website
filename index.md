@@ -83,8 +83,8 @@ navigation:
     </p>
 
     <p>
-      Spark powers a stack of high-level tools including
-      <a href="{{site.url}}sql/">Spark SQL</a>, <a href="{{site.url}}mllib/">MLlib</a> for machine learning,
+      Spark powers a stack of libraries including
+      <a href="{{site.url}}sql/">SQL and DataFrames</a>, <a href="{{site.url}}mllib/">MLlib</a> for machine learning,
       <a href="{{site.url}}graphx/">GraphX</a>, and <a href="{{site.url}}streaming/">Spark Streaming</a>.
       You can combine these libraries seamlessly in the same application.
     </p>
