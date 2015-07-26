@@ -26,8 +26,8 @@ subproject: SQL
 
     <div style="margin-top: 15px; text-align: left; display: inline-block;">
       <div class="code">
-	    sqlCtx = new <span class="sparkop">HiveContext</span>(sc)<br/>
-		results = sqlCtx.<span class="sparkop">sql</span>(<br/>&nbsp;&nbsp;<span class="closure">"SELECT * FROM people"</span>)<br/>
+	    context = new <span class="sparkop">HiveContext</span>(sc)<br/>
+		results = context.<span class="sparkop">sql</span>(<br/>&nbsp;&nbsp;<span class="closure">"SELECT * FROM people"</span>)<br/>
 		names = results.<span class="sparkop">map</span>(<span class="closure">lambda p: p.name</span>)</br>
 	  </div>
       <div class="caption">Apply functions to results of SQL queries.</div>
@@ -48,11 +48,11 @@ subproject: SQL
   <div class="col-md-5 col-sm-5 col-padded-top col-center">
     <div style="margin-top: 15px; text-align: left; display: inline-block;">
       <div class="code">
-		sqlCtx.<span class="sparkop">jsonFile</span>(<span class="closure">"s3n://..."</span>)<br/>&nbsp;&nbsp;.registerAsTable("json")<br/>
-		results = sqlCtx.<span class="sparkop">sql</span>(<span class="closure">"""<br/>
-			&nbsp;&nbsp;SELECT * <br/>
-			&nbsp;&nbsp;FROM hiveTable<br/>
-			&nbsp;&nbsp;JOIN json ..."""</span>)<br/>
+		context.<span class="sparkop">jsonFile</span>(<span class="closure">"s3n://..."</span>)<br/>&nbsp;&nbsp;.registerTempTable("json")<br/>
+		results = context.<span class="sparkop">sql</span>(<span class="closure"><br/>
+			&nbsp;&nbsp;"""SELECT * <br/>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM people<br/>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JOIN json ..."""</span>)<br/>
 	  </div>
       <div class="caption">Query and join different data sources.</div>
     </div>
