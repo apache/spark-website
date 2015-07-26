@@ -26,7 +26,7 @@ subproject: SQL
 
     <div style="margin-top: 15px; text-align: left; display: inline-block;">
       <div class="code">
-	    context = new <span class="sparkop">HiveContext</span>(sc)<br/>
+	    context = <span class="sparkop">HiveContext</span>(sc)<br/>
 		results = context.<span class="sparkop">sql</span>(<br/>&nbsp;&nbsp;<span class="closure">"SELECT * FROM people"</span>)<br/>
 		names = results.<span class="sparkop">map</span>(<span class="closure">lambda p: p.name</span>)</br>
 	  </div>
