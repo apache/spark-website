@@ -175,7 +175,7 @@ function updateDownloadLink() {
     if (version <= "1.2.0") {
       link = "http://archive.apache.org/dist/spark/spark-$ver/$artifact";
     } else {
-      link = "http://www.apache.org/dyn/closer.cgi/spark/spark-$ver/$artifact";
+      link = "http://www.apache.org/dyn/closer.lua/spark/spark-$ver/$artifact";
     }
   }
   link = link
