@@ -4,7 +4,7 @@ Welcome to the Spark website.
 
 In this directory you will find text files formatted using Markdown, with an ".md" suffix.
 
-Building the site requirs Jekyll 1.0.0 or newer (because we use the keep_files config option. The easiest way to install jekyll is via a Ruby Gem. This will create a directory called `site` containing index.html as well as the rest of the compiled directories and files. Read more about Jekyll at http://jekyllrb.com/docs
+Building the site requires Jekyll 1.0.0 or newer (because we use the keep_files config option. The easiest way to install jekyll is via a Ruby Gem. This will create a directory called `site` containing index.html as well as the rest of the compiled directories and files. Read more about Jekyll at http://jekyllrb.com/docs
 
 You can generate the html website by running `jekyll build` in this directory. Use the --watch flag to have jekyll recompile your files as you save changes.
 
