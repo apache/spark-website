@@ -1,0 +1,1561 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyspark.sql.functions &mdash; PySpark master documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'master',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="PySpark master documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark master documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.sql.functions</h1><div class="highlight"><pre>
+<span class="c">#</span>
+<span class="c"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c"># this work for additional information regarding copyright ownership.</span>
+<span class="c"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c"># the License.  You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+<span class="c">#</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A collections of builtin functions</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span> <span class="o">&lt;</span> <span class="s">&quot;3&quot;</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">imap</span> <span class="k">as</span> <span class="nb">map</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="kn">import</span> <span class="n">SparkContext</span>
+<span class="kn">from</span> <span class="nn">pyspark.rdd</span> <span class="kn">import</span> <span class="n">_prepare_for_python_RDD</span><span class="p">,</span> <span class="n">ignore_unicode_prefix</span>
+<span class="kn">from</span> <span class="nn">pyspark.serializers</span> <span class="kn">import</span> <span class="n">PickleSerializer</span><span class="p">,</span> <span class="n">AutoBatchedSerializer</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">since</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="n">StringType</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.column</span> <span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">_to_java_column</span><span class="p">,</span> <span class="n">_to_seq</span>
+
+
+<span class="k">def</span> <span class="nf">_create_function</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Create a function for aggregator by name&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+        <span class="n">jc</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="p">,</span> <span class="n">name</span><span class="p">)(</span><span class="n">col</span><span class="o">.</span><span class="n">_jc</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">Column</span><span class="p">)</span> <span class="k">else</span> <span class="n">col</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+    <span class="n">_</span><span class="o">.</span><span class="n">__name__</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="n">_</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">doc</span>
+    <span class="k">return</span> <span class="n">_</span>
+
+
+<span class="k">def</span> <span class="nf">_create_binary_mathfunction</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Create a binary mathfunction by name&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="n">col1</span><span class="p">,</span> <span class="n">col2</span><span class="p">):</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+        <span class="c"># users might write ints for simplicity. This would throw an error on the JVM side.</span>
+        <span class="n">jc</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="p">,</span> <span class="n">name</span><span class="p">)(</span><span class="n">col1</span><span class="o">.</span><span class="n">_jc</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">col1</span><span class="p">,</span> <span class="n">Column</span><span class="p">)</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">col1</span><span class="p">),</span>
+                                              <span class="n">col2</span><span class="o">.</span><span class="n">_jc</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">col2</span><span class="p">,</span> <span class="n">Column</span><span class="p">)</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">col2</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+    <span class="n">_</span><span class="o">.</span><span class="n">__name__</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="n">_</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">doc</span>
+    <span class="k">return</span> <span class="n">_</span>
+
+
+<span class="k">def</span> <span class="nf">_create_window_function</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">doc</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Create a window function by name &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">_</span><span class="p">():</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+        <span class="n">jc</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="p">,</span> <span class="n">name</span><span class="p">)()</span>
+        <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+    <span class="n">_</span><span class="o">.</span><span class="n">__name__</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="n">_</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="s">&#39;Window function: &#39;</span> <span class="o">+</span> <span class="n">doc</span>
+    <span class="k">return</span> <span class="n">_</span>
+
+
+<span class="n">_functions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;lit&#39;</span><span class="p">:</span> <span class="s">&#39;Creates a :class:`Column` of literal value.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;col&#39;</span><span class="p">:</span> <span class="s">&#39;Returns a :class:`Column` based on the given column name.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;column&#39;</span><span class="p">:</span> <span class="s">&#39;Returns a :class:`Column` based on the given column name.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;asc&#39;</span><span class="p">:</span> <span class="s">&#39;Returns a sort expression based on the ascending order of the given column name.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;desc&#39;</span><span class="p">:</span> <span class="s">&#39;Returns a sort expression based on the descending order of the given column name.&#39;</span><span class="p">,</span>
+
+    <span class="s">&#39;upper&#39;</span><span class="p">:</span> <span class="s">&#39;Converts a string expression to upper case.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;lower&#39;</span><span class="p">:</span> <span class="s">&#39;Converts a string expression to upper case.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;sqrt&#39;</span><span class="p">:</span> <span class="s">&#39;Computes the square root of the specified float value.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;abs&#39;</span><span class="p">:</span> <span class="s">&#39;Computes the absolute value.&#39;</span><span class="p">,</span>
+
+    <span class="s">&#39;max&#39;</span><span class="p">:</span> <span class="s">&#39;Aggregate function: returns the maximum value of the expression in a group.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;min&#39;</span><span class="p">:</span> <span class="s">&#39;Aggregate function: returns the minimum value of the expression in a group.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;first&#39;</span><span class="p">:</span> <span class="s">&#39;Aggregate function: returns the first value in a group.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;last&#39;</span><span class="p">:</span> <span class="s">&#39;Aggregate function: returns the last value in a group.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;count&#39;</span><span class="p">:</span> <span class="s">&#39;Aggregate function: returns the number of items in a group.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;sum&#39;</span><span class="p">:</span> <span class="s">&#39;Aggregate function: returns the sum of all values in the expression.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;avg&#39;</span><span class="p">:</span> <span class="s">&#39;Aggregate function: returns the average of the values in a group.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;mean&#39;</span><span class="p">:</span> <span class="s">&#39;Aggregate function: returns the average of the values in a group.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;sumDistinct&#39;</span><span class="p">:</span> <span class="s">&#39;Aggregate function: returns the sum of distinct values in the expression.&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_functions_1_4</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c"># unary math functions</span>
+    <span class="s">&#39;acos&#39;</span><span class="p">:</span> <span class="s">&#39;Computes the cosine inverse of the given value; the returned angle is in the range&#39;</span> <span class="o">+</span>
+            <span class="s">&#39;0.0 through pi.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;asin&#39;</span><span class="p">:</span> <span class="s">&#39;Computes the sine inverse of the given value; the returned angle is in the range&#39;</span> <span class="o">+</span>
+            <span class="s">&#39;-pi/2 through pi/2.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;atan&#39;</span><span class="p">:</span> <span class="s">&#39;Computes the tangent inverse of the given value.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;cbrt&#39;</span><span class="p">:</span> <span class="s">&#39;Computes the cube-root of the given value.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;ceil&#39;</span><span class="p">:</span> <span class="s">&#39;Computes the ceiling of the given value.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;cos&#39;</span><span class="p">:</span> <span class="s">&#39;Computes the cosine of the given value.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;cosh&#39;</span><span class="p">:</span> <span class="s">&#39;Computes the hyperbolic cosine of the given value.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;exp&#39;</span><span class="p">:</span> <span class="s">&#39;Computes the exponential of the given value.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;expm1&#39;</span><span class="p">:</span> <span class="s">&#39;Computes the exponential of the given value minus one.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;floor&#39;</span><span class="p">:</span> <span class="s">&#39;Computes the floor of the given value.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;log&#39;</span><span class="p">:</span> <span class="s">&#39;Computes the natural logarithm of the given value.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;log10&#39;</span><span class="p">:</span> <span class="s">&#39;Computes the logarithm of the given value in Base 10.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;log1p&#39;</span><span class="p">:</span> <span class="s">&#39;Computes the natural logarithm of the given value plus one.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;rint&#39;</span><span class="p">:</span> <span class="s">&#39;Returns the double value that is closest in value to the argument and&#39;</span> <span class="o">+</span>
+            <span class="s">&#39; is equal to a mathematical integer.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;signum&#39;</span><span class="p">:</span> <span class="s">&#39;Computes the signum of the given value.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;sin&#39;</span><span class="p">:</span> <span class="s">&#39;Computes the sine of the given value.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;sinh&#39;</span><span class="p">:</span> <span class="s">&#39;Computes the hyperbolic sine of the given value.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;tan&#39;</span><span class="p">:</span> <span class="s">&#39;Computes the tangent of the given value.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;tanh&#39;</span><span class="p">:</span> <span class="s">&#39;Computes the hyperbolic tangent of the given value.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;toDegrees&#39;</span><span class="p">:</span> <span class="s">&#39;Converts an angle measured in radians to an approximately equivalent angle &#39;</span> <span class="o">+</span>
+                 <span class="s">&#39;measured in degrees.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;toRadians&#39;</span><span class="p">:</span> <span class="s">&#39;Converts an angle measured in degrees to an approximately equivalent angle &#39;</span> <span class="o">+</span>
+                 <span class="s">&#39;measured in radians.&#39;</span><span class="p">,</span>
+
+    <span class="s">&#39;bitwiseNOT&#39;</span><span class="p">:</span> <span class="s">&#39;Computes bitwise not.&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c"># math functions that take two arguments as input</span>
+<span class="n">_binary_mathfunctions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;atan2&#39;</span><span class="p">:</span> <span class="s">&#39;Returns the angle theta from the conversion of rectangular coordinates (x, y) to&#39;</span> <span class="o">+</span>
+             <span class="s">&#39;polar coordinates (r, theta).&#39;</span><span class="p">,</span>
+    <span class="s">&#39;hypot&#39;</span><span class="p">:</span> <span class="s">&#39;Computes `sqrt(a^2^ + b^2^)` without intermediate overflow or underflow.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;pow&#39;</span><span class="p">:</span> <span class="s">&#39;Returns the value of the first argument raised to the power of the second argument.&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_window_functions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;rowNumber&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;returns a sequential number starting at 1 within a window partition.</span>
+
+<span class="sd">        This is equivalent to the ROW_NUMBER function in SQL.&quot;&quot;&quot;</span><span class="p">,</span>
+    <span class="s">&#39;denseRank&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;returns the rank of rows within a window partition, without any gaps.</span>
+
+<span class="sd">        The difference between rank and denseRank is that denseRank leaves no gaps in ranking</span>
+<span class="sd">        sequence when there are ties. That is, if you were ranking a competition using denseRank</span>
+<span class="sd">        and had three people tie for second place, you would say that all three were in second</span>
+<span class="sd">        place and that the next person came in third.</span>
+
+<span class="sd">        This is equivalent to the DENSE_RANK function in SQL.&quot;&quot;&quot;</span><span class="p">,</span>
+    <span class="s">&#39;rank&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;returns the rank of rows within a window partition.</span>
+
+<span class="sd">        The difference between rank and denseRank is that denseRank leaves no gaps in ranking</span>
+<span class="sd">        sequence when there are ties. That is, if you were ranking a competition using denseRank</span>
+<span class="sd">        and had three people tie for second place, you would say that all three were in second</span>
+<span class="sd">        place and that the next person came in third.</span>
+
+<span class="sd">        This is equivalent to the RANK function in SQL.&quot;&quot;&quot;</span><span class="p">,</span>
+    <span class="s">&#39;cumeDist&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;returns the cumulative distribution of values within a window partition,</span>
+<span class="sd">        i.e. the fraction of rows that are below the current row.</span>
+
+<span class="sd">        This is equivalent to the CUME_DIST function in SQL.&quot;&quot;&quot;</span><span class="p">,</span>
+    <span class="s">&#39;percentRank&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;returns the relative rank (i.e. percentile) of rows within a window partition.</span>
+
+<span class="sd">        This is equivalent to the PERCENT_RANK function in SQL.&quot;&quot;&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="n">_name</span><span class="p">,</span> <span class="n">_doc</span> <span class="ow">in</span> <span class="n">_functions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">globals</span><span class="p">()[</span><span class="n">_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">since</span><span class="p">(</span><span class="mf">1.3</span><span class="p">)(</span><span class="n">_create_function</span><span class="p">(</span><span class="n">_name</span><span class="p">,</span> <span class="n">_doc</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">_name</span><span class="p">,</span> <span class="n">_doc</span> <span class="ow">in</span> <span class="n">_functions_1_4</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">globals</span><span class="p">()[</span><span class="n">_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)(</span><span class="n">_create_function</span><span class="p">(</span><span class="n">_name</span><span class="p">,</span> <span class="n">_doc</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">_name</span><span class="p">,</span> <span class="n">_doc</span> <span class="ow">in</span> <span class="n">_binary_mathfunctions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">globals</span><span class="p">()[</span><span class="n">_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)(</span><span class="n">_create_binary_mathfunction</span><span class="p">(</span><span class="n">_name</span><span class="p">,</span> <span class="n">_doc</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">_name</span><span class="p">,</span> <span class="n">_doc</span> <span class="ow">in</span> <span class="n">_window_functions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">globals</span><span class="p">()[</span><span class="n">_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)(</span><span class="n">_create_window_function</span><span class="p">(</span><span class="n">_name</span><span class="p">,</span> <span class="n">_doc</span><span class="p">))</span>
+<span class="k">del</span> <span class="n">_name</span><span class="p">,</span> <span class="n">_doc</span>
+
+
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.3</span><span class="p">)</span>
+<div class="viewcode-block" id="approxCountDistinct"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.approxCountDistinct">[docs]</a><span class="k">def</span> <span class="nf">approxCountDistinct</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">rsd</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a new :class:`Column` for approximate distinct count of ``col``.</span>
+
+<span class="sd">    &gt;&gt;&gt; df.agg(approxCountDistinct(df.age).alias(&#39;c&#39;)).collect()</span>
+<span class="sd">    [Row(c=2)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">if</span> <span class="n">rsd</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">approxCountDistinct</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">approxCountDistinct</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="n">rsd</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+<div class="viewcode-block" id="coalesce"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.coalesce">[docs]</a><span class="k">def</span> <span class="nf">coalesce</span><span class="p">(</span><span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the first column that is not null.</span>
+
+<span class="sd">    &gt;&gt;&gt; cDf = sqlContext.createDataFrame([(None, None), (1, None), (None, 2)], (&quot;a&quot;, &quot;b&quot;))</span>
+<span class="sd">    &gt;&gt;&gt; cDf.show()</span>
+<span class="sd">    +----+----+</span>
+<span class="sd">    |   a|   b|</span>
+<span class="sd">    +----+----+</span>
+<span class="sd">    |null|null|</span>
+<span class="sd">    |   1|null|</span>
+<span class="sd">    |null|   2|</span>
+<span class="sd">    +----+----+</span>
+
+<span class="sd">    &gt;&gt;&gt; cDf.select(coalesce(cDf[&quot;a&quot;], cDf[&quot;b&quot;])).show()</span>
+<span class="sd">    +-------------+</span>
+<span class="sd">    |coalesce(a,b)|</span>
+<span class="sd">    +-------------+</span>
+<span class="sd">    |         null|</span>
+<span class="sd">    |            1|</span>
+<span class="sd">    |            2|</span>
+<span class="sd">    +-------------+</span>
+
+<span class="sd">    &gt;&gt;&gt; cDf.select(&#39;*&#39;, coalesce(cDf[&quot;a&quot;], lit(0.0))).show()</span>
+<span class="sd">    +----+----+---------------+</span>
+<span class="sd">    |   a|   b|coalesce(a,0.0)|</span>
+<span class="sd">    +----+----+---------------+</span>
+<span class="sd">    |null|null|            0.0|</span>
+<span class="sd">    |   1|null|            1.0|</span>
+<span class="sd">    |null|   2|            0.0|</span>
+<span class="sd">    +----+----+---------------+</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">coalesce</span><span class="p">(</span><span class="n">_to_seq</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">_to_java_column</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.3</span><span class="p">)</span>
+<div class="viewcode-block" id="countDistinct"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.countDistinct">[docs]</a><span class="k">def</span> <span class="nf">countDistinct</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a new :class:`Column` for distinct count of ``col`` or ``cols``.</span>
+
+<span class="sd">    &gt;&gt;&gt; df.agg(countDistinct(df.age, df.name).alias(&#39;c&#39;)).collect()</span>
+<span class="sd">    [Row(c=2)]</span>
+
+<span class="sd">    &gt;&gt;&gt; df.agg(countDistinct(&quot;age&quot;, &quot;name&quot;).alias(&#39;c&#39;)).collect()</span>
+<span class="sd">    [Row(c=2)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">countDistinct</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="n">_to_seq</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">_to_java_column</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+<div class="viewcode-block" id="monotonicallyIncreasingId"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.monotonicallyIncreasingId">[docs]</a><span class="k">def</span> <span class="nf">monotonicallyIncreasingId</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;A column that generates monotonically increasing 64-bit integers.</span>
+
+<span class="sd">    The generated ID is guaranteed to be monotonically increasing and unique, but not consecutive.</span>
+<span class="sd">    The current implementation puts the partition ID in the upper 31 bits, and the record number</span>
+<span class="sd">    within each partition in the lower 33 bits. The assumption is that the data frame has</span>
+<span class="sd">    less than 1 billion partitions, and each partition has less than 8 billion records.</span>
+
+<span class="sd">    As an example, consider a :class:`DataFrame` with two partitions, each with 3 records.</span>
+<span class="sd">    This expression would return the following IDs:</span>
+<span class="sd">    0, 1, 2, 8589934592 (1L &lt;&lt; 33), 8589934593, 8589934594.</span>
+
+<span class="sd">    &gt;&gt;&gt; df0 = sc.parallelize(range(2), 2).mapPartitions(lambda x: [(1,), (2,), (3,)]).toDF([&#39;col1&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df0.select(monotonicallyIncreasingId().alias(&#39;id&#39;)).collect()</span>
+<span class="sd">    [Row(id=0), Row(id=1), Row(id=2), Row(id=8589934592), Row(id=8589934593), Row(id=8589934594)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">monotonicallyIncreasingId</span><span class="p">())</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+<div class="viewcode-block" id="rand"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.rand">[docs]</a><span class="k">def</span> <span class="nf">rand</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generates a random column with i.i.d. samples from U[0.0, 1.0].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+<div class="viewcode-block" id="randn"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.randn">[docs]</a><span class="k">def</span> <span class="nf">randn</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generates a column with i.i.d. samples from the standard normal distribution.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">randn</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="round"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.round">[docs]</a><span class="k">def</span> <span class="nf">round</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Round the value of `e` to `scale` decimal places if `scale` &gt;= 0</span>
+<span class="sd">    or at integral part when `scale` &lt; 0.</span>
+
+<span class="sd">    &gt;&gt;&gt; sqlContext.createDataFrame([(2.546,)], [&#39;a&#39;]).select(round(&#39;a&#39;, 1).alias(&#39;r&#39;)).collect()</span>
+<span class="sd">    [Row(r=2.5)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="n">scale</span><span class="p">))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="shiftLeft"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.shiftLeft">[docs]</a><span class="k">def</span> <span class="nf">shiftLeft</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">numBits</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Shift the the given value numBits left.</span>
+
+<span class="sd">    &gt;&gt;&gt; sqlContext.createDataFrame([(21,)], [&#39;a&#39;]).select(shiftLeft(&#39;a&#39;, 1).alias(&#39;r&#39;)).collect()</span>
+<span class="sd">    [Row(r=42)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">shiftLeft</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="n">numBits</span><span class="p">))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="shiftRight"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.shiftRight">[docs]</a><span class="k">def</span> <span class="nf">shiftRight</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">numBits</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Shift the the given value numBits right.</span>
+
+<span class="sd">    &gt;&gt;&gt; sqlContext.createDataFrame([(42,)], [&#39;a&#39;]).select(shiftRight(&#39;a&#39;, 1).alias(&#39;r&#39;)).collect()</span>
+<span class="sd">    [Row(r=21)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">shiftRight</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="n">numBits</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="shiftRightUnsigned"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.shiftRightUnsigned">[docs]</a><span class="k">def</span> <span class="nf">shiftRightUnsigned</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">numBits</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Unsigned shift the the given value numBits right.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(-42,)], [&#39;a&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(shiftRightUnsigned(&#39;a&#39;, 1).alias(&#39;r&#39;)).collect()</span>
+<span class="sd">    [Row(r=9223372036854775787)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">shiftRightUnsigned</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="n">numBits</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+<div class="viewcode-block" id="sparkPartitionId"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.sparkPartitionId">[docs]</a><span class="k">def</span> <span class="nf">sparkPartitionId</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;A column for partition ID of the Spark task.</span>
+
+<span class="sd">    Note that this is indeterministic because it depends on data partitioning and task scheduling.</span>
+
+<span class="sd">    &gt;&gt;&gt; df.repartition(1).select(sparkPartitionId().alias(&quot;pid&quot;)).collect()</span>
+<span class="sd">    [Row(pid=0), Row(pid=0)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">sparkPartitionId</span><span class="p">())</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="expr"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.expr">[docs]</a><span class="k">def</span> <span class="nf">expr</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parses the expression string into the column that it represents</span>
+
+<span class="sd">    &gt;&gt;&gt; df.select(expr(&quot;length(name)&quot;)).collect()</span>
+<span class="sd">    [Row(&#39;length(name)=5), Row(&#39;length(name)=3)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">expr</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span>
+
+</div>
+<span class="nd">@ignore_unicode_prefix</span>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+<div class="viewcode-block" id="struct"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.struct">[docs]</a><span class="k">def</span> <span class="nf">struct</span><span class="p">(</span><span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates a new struct column.</span>
+
+<span class="sd">    :param cols: list of column names (string) or list of :class:`Column` expressions</span>
+
+<span class="sd">    &gt;&gt;&gt; df.select(struct(&#39;age&#39;, &#39;name&#39;).alias(&quot;struct&quot;)).collect()</span>
+<span class="sd">    [Row(struct=Row(age=2, name=u&#39;Alice&#39;)), Row(struct=Row(age=5, name=u&#39;Bob&#39;))]</span>
+<span class="sd">    &gt;&gt;&gt; df.select(struct([df.age, df.name]).alias(&quot;struct&quot;)).collect()</span>
+<span class="sd">    [Row(struct=Row(age=2, name=u&#39;Alice&#39;)), Row(struct=Row(age=5, name=u&#39;Bob&#39;))]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">set</span><span class="p">)):</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">struct</span><span class="p">(</span><span class="n">_to_seq</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">_to_java_column</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="greatest"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.greatest">[docs]</a><span class="k">def</span> <span class="nf">greatest</span><span class="p">(</span><span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the greatest value of the list of column names, skipping null values.</span>
+<span class="sd">    This function takes at least 2 parameters. It will return null iff all parameters are null.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(1, 4, 3)], [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(greatest(df.a, df.b, df.c).alias(&quot;greatest&quot;)).collect()</span>
+<span class="sd">    [Row(greatest=4)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;greatest should take at least two columns&quot;</span><span class="p">)</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">greatest</span><span class="p">(</span><span class="n">_to_seq</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">_to_java_column</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="least"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.least">[docs]</a><span class="k">def</span> <span class="nf">least</span><span class="p">(</span><span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the least value of the list of column names, skipping null values.</span>
+<span class="sd">    This function takes at least 2 parameters. It will return null iff all parameters are null.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(1, 4, 3)], [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(least(df.a, df.b, df.c).alias(&quot;least&quot;)).collect()</span>
+<span class="sd">    [Row(least=1)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;least should take at least two columns&quot;</span><span class="p">)</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">least</span><span class="p">(</span><span class="n">_to_seq</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">_to_java_column</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+<div class="viewcode-block" id="when"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.when">[docs]</a><span class="k">def</span> <span class="nf">when</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Evaluates a list of conditions and returns one of multiple possible result expressions.</span>
+<span class="sd">    If :func:`Column.otherwise` is not invoked, None is returned for unmatched conditions.</span>
+
+<span class="sd">    :param condition: a boolean :class:`Column` expression.</span>
+<span class="sd">    :param value: a literal value, or a :class:`Column` expression.</span>
+
+<span class="sd">    &gt;&gt;&gt; df.select(when(df[&#39;age&#39;] == 2, 3).otherwise(4).alias(&quot;age&quot;)).collect()</span>
+<span class="sd">    [Row(age=3), Row(age=4)]</span>
+
+<span class="sd">    &gt;&gt;&gt; df.select(when(df.age == 2, df.age + 1).alias(&quot;age&quot;)).collect()</span>
+<span class="sd">    [Row(age=3), Row(age=None)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="n">Column</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;condition should be a Column&quot;</span><span class="p">)</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">_jc</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Column</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
+    <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">condition</span><span class="o">.</span><span class="n">_jc</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="log"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.log">[docs]</a><span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">arg2</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the first argument-based logarithm of the second argument.</span>
+
+<span class="sd">    If there is only one argument, then this takes the natural logarithm of the argument.</span>
+
+<span class="sd">    &gt;&gt;&gt; df.select(log(10.0, df.age).alias(&#39;ten&#39;)).map(lambda l: str(l.ten)[:7]).collect()</span>
+<span class="sd">    [&#39;0.30102&#39;, &#39;0.69897&#39;]</span>
+
+<span class="sd">    &gt;&gt;&gt; df.select(log(df.age).alias(&#39;e&#39;)).map(lambda l: str(l.e)[:7]).collect()</span>
+<span class="sd">    [&#39;0.69314&#39;, &#39;1.60943&#39;]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">if</span> <span class="n">arg2</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">arg1</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">arg1</span><span class="p">,</span> <span class="n">_to_java_column</span><span class="p">(</span><span class="n">arg2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="log2"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.log2">[docs]</a><span class="k">def</span> <span class="nf">log2</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the base-2 logarithm of the argument.</span>
+
+<span class="sd">    &gt;&gt;&gt; sqlContext.createDataFrame([(4,)], [&#39;a&#39;]).select(log2(&#39;a&#39;).alias(&#39;log2&#39;)).collect()</span>
+<span class="sd">    [Row(log2=2.0)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="nd">@ignore_unicode_prefix</span>
+<div class="viewcode-block" id="conv"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.conv">[docs]</a><span class="k">def</span> <span class="nf">conv</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">fromBase</span><span class="p">,</span> <span class="n">toBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a number in a string column from one base to another.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&quot;010101&quot;,)], [&#39;n&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(conv(df.n, 2, 16).alias(&#39;hex&#39;)).collect()</span>
+<span class="sd">    [Row(hex=u&#39;15&#39;)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">conv</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="n">fromBase</span><span class="p">,</span> <span class="n">toBase</span><span class="p">))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="factorial"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.factorial">[docs]</a><span class="k">def</span> <span class="nf">factorial</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the factorial of the given value.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(5,)], [&#39;n&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(factorial(df.n).alias(&#39;f&#39;)).collect()</span>
+<span class="sd">    [Row(f=120)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">factorial</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">)))</span>
+
+
+<span class="c"># ---------------  Window functions ------------------------</span>
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+<div class="viewcode-block" id="lag"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.lag">[docs]</a><span class="k">def</span> <span class="nf">lag</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Window function: returns the value that is `offset` rows before the current row, and</span>
+<span class="sd">    `defaultValue` if there is less than `offset` rows before the current row. For example,</span>
+<span class="sd">    an `offset` of one will return the previous row at any given point in the window partition.</span>
+
+<span class="sd">    This is equivalent to the LAG function in SQL.</span>
+
+<span class="sd">    :param col: name of column or expression</span>
+<span class="sd">    :param count: number of row to extend</span>
+<span class="sd">    :param default: default value</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">lag</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="n">count</span><span class="p">,</span> <span class="n">default</span><span class="p">))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+<div class="viewcode-block" id="lead"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.lead">[docs]</a><span class="k">def</span> <span class="nf">lead</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Window function: returns the value that is `offset` rows after the current row, and</span>
+<span class="sd">    `defaultValue` if there is less than `offset` rows after the current row. For example,</span>
+<span class="sd">    an `offset` of one will return the next row at any given point in the window partition.</span>
+
+<span class="sd">    This is equivalent to the LEAD function in SQL.</span>
+
+<span class="sd">    :param col: name of column or expression</span>
+<span class="sd">    :param count: number of row to extend</span>
+<span class="sd">    :param default: default value</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">lead</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="n">count</span><span class="p">,</span> <span class="n">default</span><span class="p">))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+<div class="viewcode-block" id="ntile"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.ntile">[docs]</a><span class="k">def</span> <span class="nf">ntile</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Window function: returns the ntile group id (from 1 to `n` inclusive)</span>
+<span class="sd">    in an ordered window partition. For example, if `n` is 4, the first</span>
+<span class="sd">    quarter of the rows will get value 1, the second quarter will get 2,</span>
+<span class="sd">    the third quarter will get 3, and the last quarter will get 4.</span>
+
+<span class="sd">    This is equivalent to the NTILE function in SQL.</span>
+
+<span class="sd">    :param n: an integer</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">ntile</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">)))</span>
+
+
+<span class="c"># ---------------------- Date/Timestamp functions ------------------------------</span>
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="current_date"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.current_date">[docs]</a><span class="k">def</span> <span class="nf">current_date</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the current date as a date column.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">current_date</span><span class="p">())</span>
+
+</div>
+<div class="viewcode-block" id="current_timestamp"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.current_timestamp">[docs]</a><span class="k">def</span> <span class="nf">current_timestamp</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the current timestamp as a timestamp column.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">current_timestamp</span><span class="p">())</span>
+
+</div>
+<span class="nd">@ignore_unicode_prefix</span>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="date_format"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.date_format">[docs]</a><span class="k">def</span> <span class="nf">date_format</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">format</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a date/timestamp/string to a value of string in the format specified by the date</span>
+<span class="sd">    format given by the second argument.</span>
+
+<span class="sd">    A pattern could be for instance `dd.MM.yyyy` and could return a string like &#39;18.03.1993&#39;. All</span>
+<span class="sd">    pattern letters of the Java class `java.text.SimpleDateFormat` can be used.</span>
+
+<span class="sd">    NOTE: Use when ever possible specialized functions like `year`. These benefit from a</span>
+<span class="sd">    specialized implementation.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;2015-04-08&#39;,)], [&#39;a&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(date_format(&#39;a&#39;, &#39;MM/dd/yyy&#39;).alias(&#39;date&#39;)).collect()</span>
+<span class="sd">    [Row(date=u&#39;04/08/2015&#39;)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">date_format</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">date</span><span class="p">),</span> <span class="n">format</span><span class="p">))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="year"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.year">[docs]</a><span class="k">def</span> <span class="nf">year</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract the year of a given date as integer.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;2015-04-08&#39;,)], [&#39;a&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(year(&#39;a&#39;).alias(&#39;year&#39;)).collect()</span>
+<span class="sd">    [Row(year=2015)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">year</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="quarter"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.quarter">[docs]</a><span class="k">def</span> <span class="nf">quarter</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract the quarter of a given date as integer.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;2015-04-08&#39;,)], [&#39;a&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(quarter(&#39;a&#39;).alias(&#39;quarter&#39;)).collect()</span>
+<span class="sd">    [Row(quarter=2)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">quarter</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="month"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.month">[docs]</a><span class="k">def</span> <span class="nf">month</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract the month of a given date as integer.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;2015-04-08&#39;,)], [&#39;a&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(month(&#39;a&#39;).alias(&#39;month&#39;)).collect()</span>
+<span class="sd">    [Row(month=4)]</span>
+<span class="sd">   &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">month</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="dayofmonth"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.dayofmonth">[docs]</a><span class="k">def</span> <span class="nf">dayofmonth</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract the day of the month of a given date as integer.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;2015-04-08&#39;,)], [&#39;a&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(dayofmonth(&#39;a&#39;).alias(&#39;day&#39;)).collect()</span>
+<span class="sd">    [Row(day=8)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">dayofmonth</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="dayofyear"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.dayofyear">[docs]</a><span class="k">def</span> <span class="nf">dayofyear</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract the day of the year of a given date as integer.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;2015-04-08&#39;,)], [&#39;a&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(dayofyear(&#39;a&#39;).alias(&#39;day&#39;)).collect()</span>
+<span class="sd">    [Row(day=98)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">dayofyear</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="hour"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.hour">[docs]</a><span class="k">def</span> <span class="nf">hour</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract the hours of a given date as integer.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;2015-04-08 13:08:15&#39;,)], [&#39;a&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(hour(&#39;a&#39;).alias(&#39;hour&#39;)).collect()</span>
+<span class="sd">    [Row(hour=13)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">hour</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="minute"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.minute">[docs]</a><span class="k">def</span> <span class="nf">minute</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract the minutes of a given date as integer.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;2015-04-08 13:08:15&#39;,)], [&#39;a&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(minute(&#39;a&#39;).alias(&#39;minute&#39;)).collect()</span>
+<span class="sd">    [Row(minute=8)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">minute</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="second"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.second">[docs]</a><span class="k">def</span> <span class="nf">second</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract the seconds of a given date as integer.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;2015-04-08 13:08:15&#39;,)], [&#39;a&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(second(&#39;a&#39;).alias(&#39;second&#39;)).collect()</span>
+<span class="sd">    [Row(second=15)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">second</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="weekofyear"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.weekofyear">[docs]</a><span class="k">def</span> <span class="nf">weekofyear</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract the week number of a given date as integer.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;2015-04-08&#39;,)], [&#39;a&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(weekofyear(df.a).alias(&#39;week&#39;)).collect()</span>
+<span class="sd">    [Row(week=15)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">weekofyear</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="date_add"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.date_add">[docs]</a><span class="k">def</span> <span class="nf">date_add</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">days</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the date that is `days` days after `start`</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;2015-04-08&#39;,)], [&#39;d&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(date_add(df.d, 1).alias(&#39;d&#39;)).collect()</span>
+<span class="sd">    [Row(d=datetime.date(2015, 4, 9))]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">date_add</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">start</span><span class="p">),</span> <span class="n">days</span><span class="p">))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="date_sub"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.date_sub">[docs]</a><span class="k">def</span> <span class="nf">date_sub</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">days</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the date that is `days` days before `start`</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;2015-04-08&#39;,)], [&#39;d&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(date_sub(df.d, 1).alias(&#39;d&#39;)).collect()</span>
+<span class="sd">    [Row(d=datetime.date(2015, 4, 7))]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">date_sub</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">start</span><span class="p">),</span> <span class="n">days</span><span class="p">))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="datediff"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.datediff">[docs]</a><span class="k">def</span> <span class="nf">datediff</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="n">start</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the number of days from `start` to `end`.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;2015-04-08&#39;,&#39;2015-05-10&#39;)], [&#39;d1&#39;, &#39;d2&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(datediff(df.d2, df.d1).alias(&#39;diff&#39;)).collect()</span>
+<span class="sd">    [Row(diff=32)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">datediff</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">end</span><span class="p">),</span> <span class="n">_to_java_column</span><span class="p">(</span><span class="n">start</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="add_months"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.add_months">[docs]</a><span class="k">def</span> <span class="nf">add_months</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">months</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the date that is `months` months after `start`</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;2015-04-08&#39;,)], [&#39;d&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(add_months(df.d, 1).alias(&#39;d&#39;)).collect()</span>
+<span class="sd">    [Row(d=datetime.date(2015, 5, 8))]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">add_months</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">start</span><span class="p">),</span> <span class="n">months</span><span class="p">))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="months_between"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.months_between">[docs]</a><span class="k">def</span> <span class="nf">months_between</span><span class="p">(</span><span class="n">date1</span><span class="p">,</span> <span class="n">date2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the number of months between date1 and date2.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;1997-02-28 10:30:00&#39;, &#39;1996-10-30&#39;)], [&#39;t&#39;, &#39;d&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(months_between(df.t, df.d).alias(&#39;months&#39;)).collect()</span>
+<span class="sd">    [Row(months=3.9495967...)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">months_between</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">date1</span><span class="p">),</span> <span class="n">_to_java_column</span><span class="p">(</span><span class="n">date2</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="to_date"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.to_date">[docs]</a><span class="k">def</span> <span class="nf">to_date</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts the column of StringType or TimestampType into DateType.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;1997-02-28 10:30:00&#39;,)], [&#39;t&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(to_date(df.t).alias(&#39;date&#39;)).collect()</span>
+<span class="sd">    [Row(date=datetime.date(1997, 2, 28))]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">to_date</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="trunc"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.trunc">[docs]</a><span class="k">def</span> <span class="nf">trunc</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">format</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns date truncated to the unit specified by the format.</span>
+
+<span class="sd">    :param format: &#39;year&#39;, &#39;YYYY&#39;, &#39;yy&#39; or &#39;month&#39;, &#39;mon&#39;, &#39;mm&#39;</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;1997-02-28&#39;,)], [&#39;d&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(trunc(df.d, &#39;year&#39;).alias(&#39;year&#39;)).collect()</span>
+<span class="sd">    [Row(year=datetime.date(1997, 1, 1))]</span>
+<span class="sd">    &gt;&gt;&gt; df.select(trunc(df.d, &#39;mon&#39;).alias(&#39;month&#39;)).collect()</span>
+<span class="sd">    [Row(month=datetime.date(1997, 2, 1))]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">trunc</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">date</span><span class="p">),</span> <span class="n">format</span><span class="p">))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="next_day"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.next_day">[docs]</a><span class="k">def</span> <span class="nf">next_day</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">dayOfWeek</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the first date which is later than the value of the date column.</span>
+
+<span class="sd">    Day of the week parameter is case insensitive, and accepts:</span>
+<span class="sd">        &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;2015-07-27&#39;,)], [&#39;d&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(next_day(df.d, &#39;Sun&#39;).alias(&#39;date&#39;)).collect()</span>
+<span class="sd">    [Row(date=datetime.date(2015, 8, 2))]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">next_day</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">date</span><span class="p">),</span> <span class="n">dayOfWeek</span><span class="p">))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="last_day"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.last_day">[docs]</a><span class="k">def</span> <span class="nf">last_day</span><span class="p">(</span><span class="n">date</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the last day of the month which the given date belongs to.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;1997-02-10&#39;,)], [&#39;d&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(last_day(df.d).alias(&#39;date&#39;)).collect()</span>
+<span class="sd">    [Row(date=datetime.date(1997, 2, 28))]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">last_day</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">date</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="from_unixtime"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.from_unixtime">[docs]</a><span class="k">def</span> <span class="nf">from_unixtime</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s">&quot;yyyy-MM-dd HH:mm:ss&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts the number of seconds from unix epoch (1970-01-01 00:00:00 UTC) to a string</span>
+<span class="sd">    representing the timestamp of that moment in the current system time zone in the given</span>
+<span class="sd">    format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">from_unixtime</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">timestamp</span><span class="p">),</span> <span class="n">format</span><span class="p">))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="unix_timestamp"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.unix_timestamp">[docs]</a><span class="k">def</span> <span class="nf">unix_timestamp</span><span class="p">(</span><span class="n">timestamp</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s">&#39;yyyy-MM-dd HH:mm:ss&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert time string with given pattern (&#39;yyyy-MM-dd HH:mm:ss&#39;, by default)</span>
+<span class="sd">    to Unix time stamp (in seconds), using the default timezone and the default</span>
+<span class="sd">    locale, return null if fail.</span>
+
+<span class="sd">    if `timestamp` is None, then it returns current timestamp.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">if</span> <span class="n">timestamp</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">unix_timestamp</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">unix_timestamp</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">timestamp</span><span class="p">),</span> <span class="n">format</span><span class="p">))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="from_utc_timestamp"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.from_utc_timestamp">[docs]</a><span class="k">def</span> <span class="nf">from_utc_timestamp</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">tz</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Assumes given timestamp is UTC and converts to given timezone.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;1997-02-28 10:30:00&#39;,)], [&#39;t&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(from_utc_timestamp(df.t, &quot;PST&quot;).alias(&#39;t&#39;)).collect()</span>
+<span class="sd">    [Row(t=datetime.datetime(1997, 2, 28, 2, 30))]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">from_utc_timestamp</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">timestamp</span><span class="p">),</span> <span class="n">tz</span><span class="p">))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="to_utc_timestamp"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.to_utc_timestamp">[docs]</a><span class="k">def</span> <span class="nf">to_utc_timestamp</span><span class="p">(</span><span class="n">timestamp</span><span class="p">,</span> <span class="n">tz</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Assumes given timestamp is in given timezone and converts to UTC.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;1997-02-28 10:30:00&#39;,)], [&#39;t&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(to_utc_timestamp(df.t, &quot;PST&quot;).alias(&#39;t&#39;)).collect()</span>
+<span class="sd">    [Row(t=datetime.datetime(1997, 2, 28, 18, 30))]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">to_utc_timestamp</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">timestamp</span><span class="p">),</span> <span class="n">tz</span><span class="p">))</span>
+
+
+<span class="c"># ---------------------------- misc functions ----------------------------------</span>
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="nd">@ignore_unicode_prefix</span>
+<div class="viewcode-block" id="crc32"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.crc32">[docs]</a><span class="k">def</span> <span class="nf">crc32</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculates the cyclic redundancy check value  (CRC32) of a binary column and</span>
+<span class="sd">    returns the value as a bigint.</span>
+
+<span class="sd">    &gt;&gt;&gt; sqlContext.createDataFrame([(&#39;ABC&#39;,)], [&#39;a&#39;]).select(crc32(&#39;a&#39;).alias(&#39;crc32&#39;)).collect()</span>
+<span class="sd">    [Row(crc32=2743272264)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">crc32</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@ignore_unicode_prefix</span>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="md5"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.md5">[docs]</a><span class="k">def</span> <span class="nf">md5</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculates the MD5 digest and returns the value as a 32 character hex string.</span>
+
+<span class="sd">    &gt;&gt;&gt; sqlContext.createDataFrame([(&#39;ABC&#39;,)], [&#39;a&#39;]).select(md5(&#39;a&#39;).alias(&#39;hash&#39;)).collect()</span>
+<span class="sd">    [Row(hash=u&#39;902fbdd2b1df0c4f70b4a5d23525e932&#39;)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+
+</div>
+<span class="nd">@ignore_unicode_prefix</span>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="sha1"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.sha1">[docs]</a><span class="k">def</span> <span class="nf">sha1</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the hex string result of SHA-1.</span>
+
+<span class="sd">    &gt;&gt;&gt; sqlContext.createDataFrame([(&#39;ABC&#39;,)], [&#39;a&#39;]).select(sha1(&#39;a&#39;).alias(&#39;hash&#39;)).collect()</span>
+<span class="sd">    [Row(hash=u&#39;3c01bdbb26f358bab27f267924aa2c9a03fcfdb8&#39;)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">sha1</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+
+</div>
+<span class="nd">@ignore_unicode_prefix</span>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="sha2"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.sha2">[docs]</a><span class="k">def</span> <span class="nf">sha2</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">numBits</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the hex string result of SHA-2 family of hash functions (SHA-224, SHA-256, SHA-384,</span>
+<span class="sd">    and SHA-512). The numBits indicates the desired bit length of the result, which must have a</span>
+<span class="sd">    value of 224, 256, 384, 512, or 0 (which is equivalent to 256).</span>
+
+<span class="sd">    &gt;&gt;&gt; digests = df.select(sha2(df.name, 256).alias(&#39;s&#39;)).collect()</span>
+<span class="sd">    &gt;&gt;&gt; digests[0]</span>
+<span class="sd">    Row(s=u&#39;3bc51062973c458d5a6f2d8d64a023246354ad7e064b1e4e009ec8a0699a3043&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; digests[1]</span>
+<span class="sd">    Row(s=u&#39;cd9fb1e148ccd8442e5aa74904cc73bf6fb54d1d54d333bd596aa9bb4bb4e961&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">sha2</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="n">numBits</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+
+
+<span class="c"># ---------------------- String/Binary functions ------------------------------</span>
+</div>
+<span class="n">_string_functions</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;ascii&#39;</span><span class="p">:</span> <span class="s">&#39;Computes the numeric value of the first character of the string column.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;base64&#39;</span><span class="p">:</span> <span class="s">&#39;Computes the BASE64 encoding of a binary column and returns it as a string column.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;unbase64&#39;</span><span class="p">:</span> <span class="s">&#39;Decodes a BASE64 encoded string column and returns it as a binary column.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;initcap&#39;</span><span class="p">:</span> <span class="s">&#39;Returns a new string column by converting the first letter of each word to &#39;</span> <span class="o">+</span>
+               <span class="s">&#39;uppercase. Words are delimited by whitespace.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;lower&#39;</span><span class="p">:</span> <span class="s">&#39;Converts a string column to lower case.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;upper&#39;</span><span class="p">:</span> <span class="s">&#39;Converts a string column to upper case.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;reverse&#39;</span><span class="p">:</span> <span class="s">&#39;Reverses the string column and returns it as a new string column.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;ltrim&#39;</span><span class="p">:</span> <span class="s">&#39;Trim the spaces from right end for the specified string value.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;rtrim&#39;</span><span class="p">:</span> <span class="s">&#39;Trim the spaces from right end for the specified string value.&#39;</span><span class="p">,</span>
+    <span class="s">&#39;trim&#39;</span><span class="p">:</span> <span class="s">&#39;Trim the spaces from both ends for the specified string column.&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="k">for</span> <span class="n">_name</span><span class="p">,</span> <span class="n">_doc</span> <span class="ow">in</span> <span class="n">_string_functions</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">globals</span><span class="p">()[</span><span class="n">_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)(</span><span class="n">_create_function</span><span class="p">(</span><span class="n">_name</span><span class="p">,</span> <span class="n">_doc</span><span class="p">))</span>
+<span class="k">del</span> <span class="n">_name</span><span class="p">,</span> <span class="n">_doc</span>
+
+
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="nd">@ignore_unicode_prefix</span>
+<div class="viewcode-block" id="concat"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.concat">[docs]</a><span class="k">def</span> <span class="nf">concat</span><span class="p">(</span><span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Concatenates multiple input string columns together into a single string column.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;abcd&#39;,&#39;123&#39;)], [&#39;s&#39;, &#39;d&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(concat(df.s, df.d).alias(&#39;s&#39;)).collect()</span>
+<span class="sd">    [Row(s=u&#39;abcd123&#39;)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">_to_seq</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">_to_java_column</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="nd">@ignore_unicode_prefix</span>
+<div class="viewcode-block" id="concat_ws"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.concat_ws">[docs]</a><span class="k">def</span> <span class="nf">concat_ws</span><span class="p">(</span><span class="n">sep</span><span class="p">,</span> <span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Concatenates multiple input string columns together into a single string column,</span>
+<span class="sd">    using the given separator.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;abcd&#39;,&#39;123&#39;)], [&#39;s&#39;, &#39;d&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(concat_ws(&#39;-&#39;, df.s, df.d).alias(&#39;s&#39;)).collect()</span>
+<span class="sd">    [Row(s=u&#39;abcd-123&#39;)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">concat_ws</span><span class="p">(</span><span class="n">sep</span><span class="p">,</span> <span class="n">_to_seq</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">_to_java_column</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="decode"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.decode">[docs]</a><span class="k">def</span> <span class="nf">decode</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">charset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the first argument into a string from a binary using the provided character set</span>
+<span class="sd">    (one of &#39;US-ASCII&#39;, &#39;ISO-8859-1&#39;, &#39;UTF-8&#39;, &#39;UTF-16BE&#39;, &#39;UTF-16LE&#39;, &#39;UTF-16&#39;).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="n">charset</span><span class="p">))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="encode"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.encode">[docs]</a><span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">charset</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the first argument into a binary from a string using the provided character set</span>
+<span class="sd">    (one of &#39;US-ASCII&#39;, &#39;ISO-8859-1&#39;, &#39;UTF-8&#39;, &#39;UTF-16BE&#39;, &#39;UTF-16LE&#39;, &#39;UTF-16&#39;).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="n">charset</span><span class="p">))</span>
+
+</div>
+<span class="nd">@ignore_unicode_prefix</span>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="format_number"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.format_number">[docs]</a><span class="k">def</span> <span class="nf">format_number</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Formats the number X to a format like &#39;#,--#,--#.--&#39;, rounded to d decimal places,</span>
+<span class="sd">    and returns the result as a string.</span>
+
+<span class="sd">    :param col: the column name of the numeric value to be formatted</span>
+<span class="sd">    :param d: the N decimal places</span>
+
+<span class="sd">    &gt;&gt;&gt; sqlContext.createDataFrame([(5,)], [&#39;a&#39;]).select(format_number(&#39;a&#39;, 4).alias(&#39;v&#39;)).collect()</span>
+<span class="sd">    [Row(v=u&#39;5.0000&#39;)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">format_number</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="n">d</span><span class="p">))</span>
+
+</div>
+<span class="nd">@ignore_unicode_prefix</span>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="format_string"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.format_string">[docs]</a><span class="k">def</span> <span class="nf">format_string</span><span class="p">(</span><span class="n">format</span><span class="p">,</span> <span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Formats the arguments in printf-style and returns the result as a string column.</span>
+
+<span class="sd">    :param col: the column name of the numeric value to be formatted</span>
+<span class="sd">    :param d: the N decimal places</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(5, &quot;hello&quot;)], [&#39;a&#39;, &#39;b&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(format_string(&#39;%d %s&#39;, df.a, df.b).alias(&#39;v&#39;)).collect()</span>
+<span class="sd">    [Row(v=u&#39;5 hello&#39;)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">format_string</span><span class="p">(</span><span class="n">format</span><span class="p">,</span> <span class="n">_to_seq</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">_to_java_column</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="instr"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.instr">[docs]</a><span class="k">def</span> <span class="nf">instr</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">substr</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Locate the position of the first occurrence of substr column in the given string.</span>
+<span class="sd">    Returns null if either of the arguments are null.</span>
+
+<span class="sd">    NOTE: The position is not zero based, but 1 based index, returns 0 if substr</span>
+<span class="sd">    could not be found in str.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;abcd&#39;,)], [&#39;s&#39;,])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(instr(df.s, &#39;b&#39;).alias(&#39;s&#39;)).collect()</span>
+<span class="sd">    [Row(s=2)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">instr</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="n">substr</span><span class="p">))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="nd">@ignore_unicode_prefix</span>
+<div class="viewcode-block" id="substring"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.substring">[docs]</a><span class="k">def</span> <span class="nf">substring</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="nb">len</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Substring starts at `pos` and is of length `len` when str is String type or</span>
+<span class="sd">    returns the slice of byte array that starts at `pos` in byte and is of length `len`</span>
+<span class="sd">    when str is Binary type</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;abcd&#39;,)], [&#39;s&#39;,])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(substring(df.s, 1, 2).alias(&#39;s&#39;)).collect()</span>
+<span class="sd">    [Row(s=u&#39;ab&#39;)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">substring</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="n">pos</span><span class="p">,</span> <span class="nb">len</span><span class="p">))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="nd">@ignore_unicode_prefix</span>
+<div class="viewcode-block" id="substring_index"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.substring_index">[docs]</a><span class="k">def</span> <span class="nf">substring_index</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">delim</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the substring from string str before count occurrences of the delimiter delim.</span>
+<span class="sd">    If count is positive, everything the left of the final delimiter (counting from left) is</span>
+<span class="sd">    returned. If count is negative, every to the right of the final delimiter (counting from the</span>
+<span class="sd">    right) is returned. substring_index performs a case-sensitive match when searching for delim.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;a.b.c.d&#39;,)], [&#39;s&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(substring_index(df.s, &#39;.&#39;, 2).alias(&#39;s&#39;)).collect()</span>
+<span class="sd">    [Row(s=u&#39;a.b&#39;)]</span>
+<span class="sd">    &gt;&gt;&gt; df.select(substring_index(df.s, &#39;.&#39;, -3).alias(&#39;s&#39;)).collect()</span>
+<span class="sd">    [Row(s=u&#39;b.c.d&#39;)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">substring_index</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="n">delim</span><span class="p">,</span> <span class="n">count</span><span class="p">))</span>
+
+</div>
+<span class="nd">@ignore_unicode_prefix</span>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="levenshtein"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.levenshtein">[docs]</a><span class="k">def</span> <span class="nf">levenshtein</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computes the Levenshtein distance of the two given strings.</span>
+
+<span class="sd">    &gt;&gt;&gt; df0 = sqlContext.createDataFrame([(&#39;kitten&#39;, &#39;sitting&#39;,)], [&#39;l&#39;, &#39;r&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df0.select(levenshtein(&#39;l&#39;, &#39;r&#39;).alias(&#39;d&#39;)).collect()</span>
+<span class="sd">    [Row(d=3)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">levenshtein</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">left</span><span class="p">),</span> <span class="n">_to_java_column</span><span class="p">(</span><span class="n">right</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="locate"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.locate">[docs]</a><span class="k">def</span> <span class="nf">locate</span><span class="p">(</span><span class="n">substr</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Locate the position of the first occurrence of substr in a string column, after position pos.</span>
+
+<span class="sd">    NOTE: The position is not zero based, but 1 based index. returns 0 if substr</span>
+<span class="sd">    could not be found in str.</span>
+
+<span class="sd">    :param substr: a string</span>
+<span class="sd">    :param str: a Column of StringType</span>
+<span class="sd">    :param pos: start position (zero based)</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;abcd&#39;,)], [&#39;s&#39;,])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(locate(&#39;b&#39;, df.s, 1).alias(&#39;s&#39;)).collect()</span>
+<span class="sd">    [Row(s=2)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">locate</span><span class="p">(</span><span class="n">substr</span><span class="p">,</span> <span class="n">_to_java_column</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="n">pos</span><span class="p">))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="nd">@ignore_unicode_prefix</span>
+<div class="viewcode-block" id="lpad"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.lpad">[docs]</a><span class="k">def</span> <span class="nf">lpad</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="nb">len</span><span class="p">,</span> <span class="n">pad</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Left-pad the string column to width `len` with `pad`.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;abcd&#39;,)], [&#39;s&#39;,])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(lpad(df.s, 6, &#39;#&#39;).alias(&#39;s&#39;)).collect()</span>
+<span class="sd">    [Row(s=u&#39;##abcd&#39;)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">lpad</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="nb">len</span><span class="p">,</span> <span class="n">pad</span><span class="p">))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="nd">@ignore_unicode_prefix</span>
+<div class="viewcode-block" id="rpad"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.rpad">[docs]</a><span class="k">def</span> <span class="nf">rpad</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="nb">len</span><span class="p">,</span> <span class="n">pad</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Right-pad the string column to width `len` with `pad`.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;abcd&#39;,)], [&#39;s&#39;,])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(rpad(df.s, 6, &#39;#&#39;).alias(&#39;s&#39;)).collect()</span>
+<span class="sd">    [Row(s=u&#39;abcd##&#39;)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">rpad</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="nb">len</span><span class="p">,</span> <span class="n">pad</span><span class="p">))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="nd">@ignore_unicode_prefix</span>
+<div class="viewcode-block" id="repeat"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.repeat">[docs]</a><span class="k">def</span> <span class="nf">repeat</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Repeats a string column n times, and returns it as a new string column.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;ab&#39;,)], [&#39;s&#39;,])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(repeat(df.s, 3).alias(&#39;s&#39;)).collect()</span>
+<span class="sd">    [Row(s=u&#39;ababab&#39;)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="n">n</span><span class="p">))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="nd">@ignore_unicode_prefix</span>
+<div class="viewcode-block" id="split"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.split">[docs]</a><span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">pattern</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Splits str around pattern (pattern is a regular expression).</span>
+
+<span class="sd">    NOTE: pattern is a string represent the regular expression.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;ab12cd&#39;,)], [&#39;s&#39;,])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(split(df.s, &#39;[0-9]+&#39;).alias(&#39;s&#39;)).collect()</span>
+<span class="sd">    [Row(s=[u&#39;ab&#39;, u&#39;cd&#39;])]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="n">pattern</span><span class="p">))</span>
+
+</div>
+<span class="nd">@ignore_unicode_prefix</span>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="regexp_extract"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.regexp_extract">[docs]</a><span class="k">def</span> <span class="nf">regexp_extract</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Extract a specific(idx) group identified by a java regex, from the specified string column.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;100-200&#39;,)], [&#39;str&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(regexp_extract(&#39;str&#39;, &#39;(\d+)-(\d+)&#39;, 1).alias(&#39;d&#39;)).collect()</span>
+<span class="sd">    [Row(d=u&#39;100&#39;)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">regexp_extract</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+
+</div>
+<span class="nd">@ignore_unicode_prefix</span>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="regexp_replace"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.regexp_replace">[docs]</a><span class="k">def</span> <span class="nf">regexp_replace</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">replacement</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Replace all substrings of the specified string value that match regexp with rep.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&#39;100-200&#39;,)], [&#39;str&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(regexp_replace(&#39;str&#39;, &#39;(\\d+)&#39;, &#39;--&#39;).alias(&#39;d&#39;)).collect()</span>
+<span class="sd">    [Row(d=u&#39;-----&#39;)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">regexp_replace</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="nb">str</span><span class="p">),</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">replacement</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+
+</div>
+<span class="nd">@ignore_unicode_prefix</span>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="initcap"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.initcap">[docs]</a><span class="k">def</span> <span class="nf">initcap</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Translate the first letter of each word to upper case in the sentence.</span>
+
+<span class="sd">    &gt;&gt;&gt; sqlContext.createDataFrame([(&#39;ab cd&#39;,)], [&#39;a&#39;]).select(initcap(&quot;a&quot;).alias(&#39;v&#39;)).collect()</span>
+<span class="sd">    [Row(v=u&#39;Ab Cd&#39;)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">initcap</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<span class="nd">@ignore_unicode_prefix</span>
+<div class="viewcode-block" id="soundex"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.soundex">[docs]</a><span class="k">def</span> <span class="nf">soundex</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the SoundEx encoding for a string</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([(&quot;Peters&quot;,),(&quot;Uhrbach&quot;,)], [&#39;name&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(soundex(df.name).alias(&quot;soundex&quot;)).collect()</span>
+<span class="sd">    [Row(soundex=u&#39;P362&#39;), Row(soundex=u&#39;U612&#39;)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">soundex</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@ignore_unicode_prefix</span>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="bin"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.bin">[docs]</a><span class="k">def</span> <span class="nf">bin</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the string representation of the binary value of the given column.</span>
+
+<span class="sd">    &gt;&gt;&gt; df.select(bin(df.age).alias(&#39;c&#39;)).collect()</span>
+<span class="sd">    [Row(c=u&#39;10&#39;), Row(c=u&#39;101&#39;)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">bin</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+
+</div>
+<span class="nd">@ignore_unicode_prefix</span>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="hex"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.hex">[docs]</a><span class="k">def</span> <span class="nf">hex</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computes hex value of the given column, which could be StringType,</span>
+<span class="sd">    BinaryType, IntegerType or LongType.</span>
+
+<span class="sd">    &gt;&gt;&gt; sqlContext.createDataFrame([(&#39;ABC&#39;, 3)], [&#39;a&#39;, &#39;b&#39;]).select(hex(&#39;a&#39;), hex(&#39;b&#39;)).collect()</span>
+<span class="sd">    [Row(hex(a)=u&#39;414243&#39;, hex(b)=u&#39;3&#39;)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">hex</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+
+</div>
+<span class="nd">@ignore_unicode_prefix</span>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="unhex"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.unhex">[docs]</a><span class="k">def</span> <span class="nf">unhex</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Inverse of hex. Interprets each pair of characters as a hexadecimal number</span>
+<span class="sd">    and converts to the byte representation of number.</span>
+
+<span class="sd">    &gt;&gt;&gt; sqlContext.createDataFrame([(&#39;414243&#39;,)], [&#39;a&#39;]).select(unhex(&#39;a&#39;)).collect()</span>
+<span class="sd">    [Row(unhex(a)=bytearray(b&#39;ABC&#39;))]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">unhex</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@ignore_unicode_prefix</span>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="length"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.length">[docs]</a><span class="k">def</span> <span class="nf">length</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculates the length of a string or binary expression.</span>
+
+<span class="sd">    &gt;&gt;&gt; sqlContext.createDataFrame([(&#39;ABC&#39;,)], [&#39;a&#39;]).select(length(&#39;a&#39;).alias(&#39;length&#39;)).collect()</span>
+<span class="sd">    [Row(length=3)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">length</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@ignore_unicode_prefix</span>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="translate"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.translate">[docs]</a><span class="k">def</span> <span class="nf">translate</span><span class="p">(</span><span class="n">srcCol</span><span class="p">,</span> <span class="n">matching</span><span class="p">,</span> <span class="n">replace</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A function translate any character in the `srcCol` by a character in `matching`.</span>
+<span class="sd">    The characters in `replace` is corresponding to the characters in `matching`.</span>
+<span class="sd">    The translate will happen when any character in the string matching with the character</span>
+<span class="sd">    in the `matching`.</span>
+
+<span class="sd">    &gt;&gt;&gt; sqlContext.createDataFrame([(&#39;translate&#39;,)], [&#39;a&#39;]).select(translate(&#39;a&#39;, &quot;rnlt&quot;, &quot;123&quot;)\</span>
+<span class="sd">    .alias(&#39;r&#39;)).collect()</span>
+<span class="sd">    [Row(r=u&#39;1a2s3ae&#39;)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">srcCol</span><span class="p">),</span> <span class="n">matching</span><span class="p">,</span> <span class="n">replace</span><span class="p">))</span>
+
+
+<span class="c"># ---------------------- Collection functions ------------------------------</span>
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+<div class="viewcode-block" id="array"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.array">[docs]</a><span class="k">def</span> <span class="nf">array</span><span class="p">(</span><span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Creates a new array column.</span>
+
+<span class="sd">    :param cols: list of column names (string) or list of :class:`Column` expressions that have</span>
+<span class="sd">        the same data type.</span>
+
+<span class="sd">    &gt;&gt;&gt; df.select(array(&#39;age&#39;, &#39;age&#39;).alias(&quot;arr&quot;)).collect()</span>
+<span class="sd">    [Row(arr=[2, 2]), Row(arr=[5, 5])]</span>
+<span class="sd">    &gt;&gt;&gt; df.select(array([df.age, df.age]).alias(&quot;arr&quot;)).collect()</span>
+<span class="sd">    [Row(arr=[2, 2]), Row(arr=[5, 5])]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">set</span><span class="p">)):</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">_to_seq</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">_to_java_column</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="array_contains"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.array_contains">[docs]</a><span class="k">def</span> <span class="nf">array_contains</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Collection function: returns True if the array contains the given value. The collection</span>
+<span class="sd">    elements and value must be of the same type.</span>
+
+<span class="sd">    :param col: name of column containing array</span>
+<span class="sd">    :param value: value to check for in array</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([([&quot;a&quot;, &quot;b&quot;, &quot;c&quot;],), ([],)], [&#39;data&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(array_contains(df.data, &quot;a&quot;)).collect()</span>
+<span class="sd">    [Row(array_contains(data,a)=True), Row(array_contains(data,a)=False)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">array_contains</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="n">value</span><span class="p">))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+<div class="viewcode-block" id="explode"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.explode">[docs]</a><span class="k">def</span> <span class="nf">explode</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a new row for each element in the given array or map.</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyspark.sql import Row</span>
+<span class="sd">    &gt;&gt;&gt; eDF = sqlContext.createDataFrame([Row(a=1, intlist=[1,2,3], mapfield={&quot;a&quot;: &quot;b&quot;})])</span>
+<span class="sd">    &gt;&gt;&gt; eDF.select(explode(eDF.intlist).alias(&quot;anInt&quot;)).collect()</span>
+<span class="sd">    [Row(anInt=1), Row(anInt=2), Row(anInt=3)]</span>
+
+<span class="sd">    &gt;&gt;&gt; eDF.select(explode(eDF.mapfield).alias(&quot;key&quot;, &quot;value&quot;)).show()</span>
+<span class="sd">    +---+-----+</span>
+<span class="sd">    |key|value|</span>
+<span class="sd">    +---+-----+</span>
+<span class="sd">    |  a|    b|</span>
+<span class="sd">    +---+-----+</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="size"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.size">[docs]</a><span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Collection function: returns the length of the array or map stored in the column.</span>
+
+<span class="sd">    :param col: name of column or expression</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([([1, 2, 3],),([1],),([],)], [&#39;data&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(size(df.data)).collect()</span>
+<span class="sd">    [Row(size(data)=3), Row(size(data)=1), Row(size(data)=0)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">)))</span>
+
+</div>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+<div class="viewcode-block" id="sort_array"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.sort_array">[docs]</a><span class="k">def</span> <span class="nf">sort_array</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">asc</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Collection function: sorts the input array for the given column in ascending order.</span>
+
+<span class="sd">    :param col: name of column or expression</span>
+
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([([2, 1, 3],),([1],),([],)], [&#39;data&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; df.select(sort_array(df.data).alias(&#39;r&#39;)).collect()</span>
+<span class="sd">    [Row(r=[1, 2, 3]), Row(r=[1]), Row(r=[])]</span>
+<span class="sd">    &gt;&gt;&gt; df.select(sort_array(df.data, asc=False).alias(&#39;r&#39;)).collect()</span>
+<span class="sd">    [Row(r=[3, 2, 1]), Row(r=[1]), Row(r=[])]</span>
+<span class="sd">     &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">sort_array</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">col</span><span class="p">),</span> <span class="n">asc</span><span class="p">))</span>
+
+
+<span class="c"># ---------------------------- User Defined Function ----------------------------------</span>
+</div>
+<span class="k">class</span> <span class="nc">UserDefinedFunction</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    User defined function in Python</span>
+
+<span class="sd">    .. versionadded:: 1.3</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">returnType</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">returnType</span> <span class="o">=</span> <span class="n">returnType</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_broadcast</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_judf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_judf</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_judf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="n">f</span><span class="p">,</span> <span class="n">returnType</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">returnType</span>  <span class="c"># put them in closure `func`</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">_</span><span class="p">,</span> <span class="n">it</span><span class="p">:</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">returnType</span><span class="o">.</span><span class="n">toInternal</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">)),</span> <span class="n">it</span><span class="p">)</span>
+        <span class="n">ser</span> <span class="o">=</span> <span class="n">AutoBatchedSerializer</span><span class="p">(</span><span class="n">PickleSerializer</span><span class="p">())</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">ser</span><span class="p">,</span> <span class="n">ser</span><span class="p">)</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+        <span class="n">pickled_command</span><span class="p">,</span> <span class="n">broadcast_vars</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">includes</span> <span class="o">=</span> <span class="n">_prepare_for_python_RDD</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">ssql_ctx</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">SQLContext</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jsc</span><span class="o">.</span><span class="n">sc</span><span class="p">())</span>
+        <span class="n">jdt</span> <span class="o">=</span> <span class="n">ssql_ctx</span><span class="o">.</span><span class="n">parseDataType</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">returnType</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">__name__</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s">&#39;__name__&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="n">f</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span>
+        <span class="n">judf</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">UserDefinedPythonFunction</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">bytearray</span><span class="p">(</span><span class="n">pickled_command</span><span class="p">),</span> <span class="n">env</span><span class="p">,</span> <span class="n">includes</span><span class="p">,</span>
+                                                 <span class="n">sc</span><span class="o">.</span><span class="n">pythonExec</span><span class="p">,</span> <span class="n">sc</span><span class="o">.</span><span class="n">pythonVer</span><span class="p">,</span> <span class="n">broadcast_vars</span><span class="p">,</span>
+                                                 <span class="n">sc</span><span class="o">.</span><span class="n">_javaAccumulator</span><span class="p">,</span> <span class="n">jdt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">judf</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_broadcast</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_broadcast</span><span class="o">.</span><span class="n">unpersist</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_broadcast</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+        <span class="n">jc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_judf</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">_to_seq</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">_to_java_column</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span>
+
+
+<span class="nd">@since</span><span class="p">(</span><span class="mf">1.3</span><span class="p">)</span>
+<div class="viewcode-block" id="udf"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.functions.udf">[docs]</a><span class="k">def</span> <span class="nf">udf</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">returnType</span><span class="o">=</span><span class="n">StringType</span><span class="p">()):</span>
+    <span class="sd">&quot;&quot;&quot;Creates a :class:`Column` expression representing a user defined function (UDF).</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyspark.sql.types import IntegerType</span>
+<span class="sd">    &gt;&gt;&gt; slen = udf(lambda s: len(s), IntegerType())</span>
+<span class="sd">    &gt;&gt;&gt; df.select(slen(df.name).alias(&#39;slen&#39;)).collect()</span>
+<span class="sd">    [Row(slen=5), Row(slen=3)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">UserDefinedFunction</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">returnType</span><span class="p">)</span>
+</div>
+<span class="n">blacklist</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;map&#39;</span><span class="p">,</span> <span class="s">&#39;since&#39;</span><span class="p">,</span> <span class="s">&#39;ignore_unicode_prefix&#39;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+           <span class="k">if</span> <span class="ow">not</span> <span class="n">k</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;_&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">k</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">islower</span><span class="p">()</span> <span class="ow">and</span> <span class="nb">callable</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="ow">and</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">blacklist</span><span class="p">]</span>
+<span class="n">__all__</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">_test</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="kn">from</span> <span class="nn">pyspark.context</span> <span class="kn">import</span> <span class="n">SparkContext</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">Row</span><span class="p">,</span> <span class="n">SQLContext</span>
+    <span class="kn">import</span> <span class="nn">pyspark.sql.functions</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="n">pyspark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="p">(</span><span class="s">&#39;local[4]&#39;</span><span class="p">,</span> <span class="s">&#39;PythonTest&#39;</span><span class="p">)</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s">&#39;sc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sc</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s">&#39;sqlContext&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SQLContext</span><span class="p">(</span><span class="n">sc</span><span class="p">)</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s">&#39;df&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="p">([</span><span class="n">Row</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;Alice&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span> <span class="n">Row</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;Bob&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">5</span><span class="p">)])</span><span class="o">.</span><span class="n">toDF</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span>
+        <span class="n">pyspark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">functions</span><span class="p">,</span> <span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span>
+        <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span> <span class="o">|</span> <span class="n">doctest</span><span class="o">.</span><span class="n">NORMALIZE_WHITESPACE</span><span class="p">)</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s">&#39;sc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="nb">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">_test</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark master documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

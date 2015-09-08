@@ -1,0 +1,664 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyspark.ml.regression &mdash; PySpark master documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'master',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="PySpark master documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark master documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.ml.regression</h1><div class="highlight"><pre>
+<span class="c">#</span>
+<span class="c"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c"># this work for additional information regarding copyright ownership.</span>
+<span class="c"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c"># the License.  You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+<span class="c">#</span>
+
+<span class="kn">from</span> <span class="nn">pyspark.ml.util</span> <span class="kn">import</span> <span class="n">keyword_only</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.wrapper</span> <span class="kn">import</span> <span class="n">JavaEstimator</span><span class="p">,</span> <span class="n">JavaModel</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.param.shared</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.common</span> <span class="kn">import</span> <span class="n">inherit_doc</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;DecisionTreeRegressor&#39;</span><span class="p">,</span> <span class="s">&#39;DecisionTreeRegressionModel&#39;</span><span class="p">,</span> <span class="s">&#39;GBTRegressor&#39;</span><span class="p">,</span>
+           <span class="s">&#39;GBTRegressionModel&#39;</span><span class="p">,</span> <span class="s">&#39;LinearRegression&#39;</span><span class="p">,</span> <span class="s">&#39;LinearRegressionModel&#39;</span><span class="p">,</span>
+           <span class="s">&#39;RandomForestRegressor&#39;</span><span class="p">,</span> <span class="s">&#39;RandomForestRegressionModel&#39;</span><span class="p">]</span>
+
+
+<span class="nd">@inherit_doc</span>
+<div class="viewcode-block" id="LinearRegression"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.LinearRegression">[docs]</a><span class="k">class</span> <span class="nc">LinearRegression</span><span class="p">(</span><span class="n">JavaEstimator</span><span class="p">,</span> <span class="n">HasFeaturesCol</span><span class="p">,</span> <span class="n">HasLabelCol</span><span class="p">,</span> <span class="n">HasPredictionCol</span><span class="p">,</span> <span class="n">HasMaxIter</span><span class="p">,</span>
+                       <span class="n">HasRegParam</span><span class="p">,</span> <span class="n">HasTol</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Linear regression.</span>
+
+<span class="sd">    The learning objective is to minimize the squared error, with regularization.</span>
+<span class="sd">    The specific squared error loss function used is: L = 1/2n ||A weights - y||^2^</span>
+
+<span class="sd">    This support multiple types of regularization:</span>
+<span class="sd">     - none (a.k.a. ordinary least squares)</span>
+<span class="sd">     - L2 (ridge regression)</span>
+<span class="sd">     - L1 (Lasso)</span>
+<span class="sd">     - L2 + L1 (elastic net)</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyspark.mllib.linalg import Vectors</span>
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([</span>
+<span class="sd">    ...     (1.0, Vectors.dense(1.0)),</span>
+<span class="sd">    ...     (0.0, Vectors.sparse(1, [], []))], [&quot;label&quot;, &quot;features&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; lr = LinearRegression(maxIter=5, regParam=0.0)</span>
+<span class="sd">    &gt;&gt;&gt; model = lr.fit(df)</span>
+<span class="sd">    &gt;&gt;&gt; test0 = sqlContext.createDataFrame([(Vectors.dense(-1.0),)], [&quot;features&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; model.transform(test0).head().prediction</span>
+<span class="sd">    -1.0</span>
+<span class="sd">    &gt;&gt;&gt; model.weights</span>
+<span class="sd">    DenseVector([1.0])</span>
+<span class="sd">    &gt;&gt;&gt; model.intercept</span>
+<span class="sd">    0.0</span>
+<span class="sd">    &gt;&gt;&gt; test1 = sqlContext.createDataFrame([(Vectors.sparse(1, [0], [1.0]),)], [&quot;features&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; model.transform(test1).head().prediction</span>
+<span class="sd">    1.0</span>
+<span class="sd">    &gt;&gt;&gt; lr.setParams(&quot;vector&quot;)</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">        ...</span>
+<span class="sd">    TypeError: Method setParams forces keyword arguments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># a placeholder to make it appear in the generated doc</span>
+    <span class="n">elasticNetParam</span> <span class="o">=</span> \
+        <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s">&quot;elasticNetParam&quot;</span><span class="p">,</span>
+              <span class="s">&quot;the ElasticNet mixing parameter, in range [0, 1]. For alpha = 0, &quot;</span> <span class="o">+</span>
+              <span class="s">&quot;the penalty is an L2 penalty. For alpha = 1, it is an L1 penalty.&quot;</span><span class="p">)</span>
+
+    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">featuresCol</span><span class="o">=</span><span class="s">&quot;features&quot;</span><span class="p">,</span> <span class="n">labelCol</span><span class="o">=</span><span class="s">&quot;label&quot;</span><span class="p">,</span> <span class="n">predictionCol</span><span class="o">=</span><span class="s">&quot;prediction&quot;</span><span class="p">,</span>
+                 <span class="n">maxIter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">regParam</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">elasticNetParam</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        __init__(self, featuresCol=&quot;features&quot;, labelCol=&quot;label&quot;, predictionCol=&quot;prediction&quot;, \</span>
+<span class="sd">                 maxIter=100, regParam=0.0, elasticNetParam=0.0, tol=1e-6)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">LinearRegression</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_java_obj</span><span class="p">(</span>
+            <span class="s">&quot;org.apache.spark.ml.regression.LinearRegression&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+        <span class="c">#: param for the ElasticNet mixing parameter, in range [0, 1]. For alpha = 0, the penalty</span>
+        <span class="c">#  is an L2 penalty. For alpha = 1, it is an L1 penalty.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elasticNetParam</span> <span class="o">=</span> \
+            <span class="n">Param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;elasticNetParam&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;the ElasticNet mixing parameter, in range [0, 1]. For alpha = 0, the penalty &quot;</span> <span class="o">+</span>
+                  <span class="s">&quot;is an L2 penalty. For alpha = 1, it is an L1 penalty.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setDefault</span><span class="p">(</span><span class="n">maxIter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">regParam</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">elasticNetParam</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__init__</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setParams</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@keyword_only</span>
+<div class="viewcode-block" id="LinearRegression.setParams"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.LinearRegression.setParams">[docs]</a>    <span class="k">def</span> <span class="nf">setParams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">featuresCol</span><span class="o">=</span><span class="s">&quot;features&quot;</span><span class="p">,</span> <span class="n">labelCol</span><span class="o">=</span><span class="s">&quot;label&quot;</span><span class="p">,</span> <span class="n">predictionCol</span><span class="o">=</span><span class="s">&quot;prediction&quot;</span><span class="p">,</span>
+                  <span class="n">maxIter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">regParam</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">elasticNetParam</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        setParams(self, featuresCol=&quot;features&quot;, labelCol=&quot;label&quot;, predictionCol=&quot;prediction&quot;, \</span>
+<span class="sd">                  maxIter=100, regParam=0.0, elasticNetParam=0.0, tol=1e-6)</span>
+<span class="sd">        Sets params for linear regression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">setParams</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_create_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">java_model</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">LinearRegressionModel</span><span class="p">(</span><span class="n">java_model</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LinearRegression.setElasticNetParam"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.LinearRegression.setElasticNetParam">[docs]</a>    <span class="k">def</span> <span class="nf">setElasticNetParam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`elasticNetParam`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_paramMap</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">elasticNetParam</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="LinearRegression.getElasticNetParam"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.LinearRegression.getElasticNetParam">[docs]</a>    <span class="k">def</span> <span class="nf">getElasticNetParam</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of elasticNetParam or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elasticNetParam</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="LinearRegressionModel"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.LinearRegressionModel">[docs]</a><span class="k">class</span> <span class="nc">LinearRegressionModel</span><span class="p">(</span><span class="n">JavaModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Model fitted by LinearRegression.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Model weights.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s">&quot;weights&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">intercept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Model intercept.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s">&quot;intercept&quot;</span><span class="p">)</span>
+
+</div>
+<span class="k">class</span> <span class="nc">TreeRegressorParams</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Private class to track supported impurity measures.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">supportedImpurities</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;variance&quot;</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">RandomForestParams</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Private class to track supported random forest parameters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">supportedFeatureSubsetStrategies</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;auto&quot;</span><span class="p">,</span> <span class="s">&quot;all&quot;</span><span class="p">,</span> <span class="s">&quot;onethird&quot;</span><span class="p">,</span> <span class="s">&quot;sqrt&quot;</span><span class="p">,</span> <span class="s">&quot;log2&quot;</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">GBTParams</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Private class to track supported GBT params.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">supportedLossTypes</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;squared&quot;</span><span class="p">,</span> <span class="s">&quot;absolute&quot;</span><span class="p">]</span>
+
+
+<span class="nd">@inherit_doc</span>
+<div class="viewcode-block" id="DecisionTreeRegressor"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.DecisionTreeRegressor">[docs]</a><span class="k">class</span> <span class="nc">DecisionTreeRegressor</span><span class="p">(</span><span class="n">JavaEstimator</span><span class="p">,</span> <span class="n">HasFeaturesCol</span><span class="p">,</span> <span class="n">HasLabelCol</span><span class="p">,</span> <span class="n">HasPredictionCol</span><span class="p">,</span>
+                            <span class="n">DecisionTreeParams</span><span class="p">,</span> <span class="n">HasCheckpointInterval</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    `http://en.wikipedia.org/wiki/Decision_tree_learning Decision tree`</span>
+<span class="sd">    learning algorithm for regression.</span>
+<span class="sd">    It supports both continuous and categorical features.</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyspark.mllib.linalg import Vectors</span>
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([</span>
+<span class="sd">    ...     (1.0, Vectors.dense(1.0)),</span>
+<span class="sd">    ...     (0.0, Vectors.sparse(1, [], []))], [&quot;label&quot;, &quot;features&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; dt = DecisionTreeRegressor(maxDepth=2)</span>
+<span class="sd">    &gt;&gt;&gt; model = dt.fit(df)</span>
+<span class="sd">    &gt;&gt;&gt; model.depth</span>
+<span class="sd">    1</span>
+<span class="sd">    &gt;&gt;&gt; model.numNodes</span>
+<span class="sd">    3</span>
+<span class="sd">    &gt;&gt;&gt; test0 = sqlContext.createDataFrame([(Vectors.dense(-1.0),)], [&quot;features&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; model.transform(test0).head().prediction</span>
+<span class="sd">    0.0</span>
+<span class="sd">    &gt;&gt;&gt; test1 = sqlContext.createDataFrame([(Vectors.sparse(1, [0], [1.0]),)], [&quot;features&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; model.transform(test1).head().prediction</span>
+<span class="sd">    1.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># a placeholder to make it appear in the generated doc</span>
+    <span class="n">impurity</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s">&quot;impurity&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;Criterion used for information gain calculation (case-insensitive). &quot;</span> <span class="o">+</span>
+                     <span class="s">&quot;Supported options: &quot;</span> <span class="o">+</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TreeRegressorParams</span><span class="o">.</span><span class="n">supportedImpurities</span><span class="p">))</span>
+
+    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">featuresCol</span><span class="o">=</span><span class="s">&quot;features&quot;</span><span class="p">,</span> <span class="n">labelCol</span><span class="o">=</span><span class="s">&quot;label&quot;</span><span class="p">,</span> <span class="n">predictionCol</span><span class="o">=</span><span class="s">&quot;prediction&quot;</span><span class="p">,</span>
+                 <span class="n">maxDepth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">maxBins</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">minInstancesPerNode</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">minInfoGain</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                 <span class="n">maxMemoryInMB</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">cacheNodeIds</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">checkpointInterval</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">impurity</span><span class="o">=</span><span class="s">&quot;variance&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        __init__(self, featuresCol=&quot;features&quot;, labelCol=&quot;label&quot;, predictionCol=&quot;prediction&quot;, \</span>
+<span class="sd">                 maxDepth=5, maxBins=32, minInstancesPerNode=1, minInfoGain=0.0, \</span>
+<span class="sd">                 maxMemoryInMB=256, cacheNodeIds=False, checkpointInterval=10, impurity=&quot;variance&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DecisionTreeRegressor</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_java_obj</span><span class="p">(</span>
+            <span class="s">&quot;org.apache.spark.ml.regression.DecisionTreeRegressor&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+        <span class="c">#: param for Criterion used for information gain calculation (case-insensitive).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">impurity</span> <span class="o">=</span> \
+            <span class="n">Param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;impurity&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;Criterion used for information gain calculation (case-insensitive). &quot;</span> <span class="o">+</span>
+                  <span class="s">&quot;Supported options: &quot;</span> <span class="o">+</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TreeRegressorParams</span><span class="o">.</span><span class="n">supportedImpurities</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setDefault</span><span class="p">(</span><span class="n">maxDepth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">maxBins</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">minInstancesPerNode</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">minInfoGain</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                         <span class="n">maxMemoryInMB</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">cacheNodeIds</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">checkpointInterval</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                         <span class="n">impurity</span><span class="o">=</span><span class="s">&quot;variance&quot;</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__init__</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setParams</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@keyword_only</span>
+<div class="viewcode-block" id="DecisionTreeRegressor.setParams"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.DecisionTreeRegressor.setParams">[docs]</a>    <span class="k">def</span> <span class="nf">setParams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">featuresCol</span><span class="o">=</span><span class="s">&quot;features&quot;</span><span class="p">,</span> <span class="n">labelCol</span><span class="o">=</span><span class="s">&quot;label&quot;</span><span class="p">,</span> <span class="n">predictionCol</span><span class="o">=</span><span class="s">&quot;prediction&quot;</span><span class="p">,</span>
+                  <span class="n">maxDepth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">maxBins</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">minInstancesPerNode</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">minInfoGain</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                  <span class="n">maxMemoryInMB</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">cacheNodeIds</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">checkpointInterval</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                  <span class="n">impurity</span><span class="o">=</span><span class="s">&quot;variance&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        setParams(self, featuresCol=&quot;features&quot;, labelCol=&quot;label&quot;, predictionCol=&quot;prediction&quot;, \</span>
+<span class="sd">                  maxDepth=5, maxBins=32, minInstancesPerNode=1, minInfoGain=0.0, \</span>
+<span class="sd">                  maxMemoryInMB=256, cacheNodeIds=False, checkpointInterval=10, impurity=&quot;variance&quot;)</span>
+<span class="sd">        Sets params for the DecisionTreeRegressor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">setParams</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_create_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">java_model</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">DecisionTreeRegressionModel</span><span class="p">(</span><span class="n">java_model</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DecisionTreeRegressor.setImpurity"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.DecisionTreeRegressor.setImpurity">[docs]</a>    <span class="k">def</span> <span class="nf">setImpurity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`impurity`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_paramMap</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">impurity</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="DecisionTreeRegressor.getImpurity"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.DecisionTreeRegressor.getImpurity">[docs]</a>    <span class="k">def</span> <span class="nf">getImpurity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of impurity or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">impurity</span><span class="p">)</span>
+
+</div></div>
+<span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">DecisionTreeModel</span><span class="p">(</span><span class="n">JavaModel</span><span class="p">):</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">numNodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return number of nodes of the decision tree.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s">&quot;numNodes&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">depth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return depth of the decision tree.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s">&quot;depth&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s">&quot;toString&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">TreeEnsembleModels</span><span class="p">(</span><span class="n">JavaModel</span><span class="p">):</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">treeWeights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the weights for each tree&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s">&quot;javaTreeWeights&quot;</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s">&quot;toString&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@inherit_doc</span>
+<div class="viewcode-block" id="DecisionTreeRegressionModel"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.DecisionTreeRegressionModel">[docs]</a><span class="k">class</span> <span class="nc">DecisionTreeRegressionModel</span><span class="p">(</span><span class="n">DecisionTreeModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Model fitted by DecisionTreeRegressor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+</div>
+<span class="nd">@inherit_doc</span>
+<div class="viewcode-block" id="RandomForestRegressor"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.RandomForestRegressor">[docs]</a><span class="k">class</span> <span class="nc">RandomForestRegressor</span><span class="p">(</span><span class="n">JavaEstimator</span><span class="p">,</span> <span class="n">HasFeaturesCol</span><span class="p">,</span> <span class="n">HasLabelCol</span><span class="p">,</span> <span class="n">HasPredictionCol</span><span class="p">,</span> <span class="n">HasSeed</span><span class="p">,</span>
+                            <span class="n">DecisionTreeParams</span><span class="p">,</span> <span class="n">HasCheckpointInterval</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    `http://en.wikipedia.org/wiki/Random_forest  Random Forest`</span>
+<span class="sd">    learning algorithm for regression.</span>
+<span class="sd">    It supports both continuous and categorical features.</span>
+
+<span class="sd">    &gt;&gt;&gt; from numpy import allclose</span>
+<span class="sd">    &gt;&gt;&gt; from pyspark.mllib.linalg import Vectors</span>
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([</span>
+<span class="sd">    ...     (1.0, Vectors.dense(1.0)),</span>
+<span class="sd">    ...     (0.0, Vectors.sparse(1, [], []))], [&quot;label&quot;, &quot;features&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; rf = RandomForestRegressor(numTrees=2, maxDepth=2, seed=42)</span>
+<span class="sd">    &gt;&gt;&gt; model = rf.fit(df)</span>
+<span class="sd">    &gt;&gt;&gt; allclose(model.treeWeights, [1.0, 1.0])</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; test0 = sqlContext.createDataFrame([(Vectors.dense(-1.0),)], [&quot;features&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; model.transform(test0).head().prediction</span>
+<span class="sd">    0.0</span>
+<span class="sd">    &gt;&gt;&gt; test1 = sqlContext.createDataFrame([(Vectors.sparse(1, [0], [1.0]),)], [&quot;features&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; model.transform(test1).head().prediction</span>
+<span class="sd">    0.5</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># a placeholder to make it appear in the generated doc</span>
+    <span class="n">impurity</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s">&quot;impurity&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;Criterion used for information gain calculation (case-insensitive). &quot;</span> <span class="o">+</span>
+                     <span class="s">&quot;Supported options: &quot;</span> <span class="o">+</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TreeRegressorParams</span><span class="o">.</span><span class="n">supportedImpurities</span><span class="p">))</span>
+    <span class="n">subsamplingRate</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s">&quot;subsamplingRate&quot;</span><span class="p">,</span>
+                            <span class="s">&quot;Fraction of the training data used for learning each decision tree, &quot;</span> <span class="o">+</span>
+                            <span class="s">&quot;in range (0, 1].&quot;</span><span class="p">)</span>
+    <span class="n">numTrees</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s">&quot;numTrees&quot;</span><span class="p">,</span> <span class="s">&quot;Number of trees to train (&gt;= 1)&quot;</span><span class="p">)</span>
+    <span class="n">featureSubsetStrategy</span> <span class="o">=</span> \
+        <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s">&quot;featureSubsetStrategy&quot;</span><span class="p">,</span>
+              <span class="s">&quot;The number of features to consider for splits at each tree node. Supported &quot;</span> <span class="o">+</span>
+              <span class="s">&quot;options: &quot;</span> <span class="o">+</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">RandomForestParams</span><span class="o">.</span><span class="n">supportedFeatureSubsetStrategies</span><span class="p">))</span>
+
+    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">featuresCol</span><span class="o">=</span><span class="s">&quot;features&quot;</span><span class="p">,</span> <span class="n">labelCol</span><span class="o">=</span><span class="s">&quot;label&quot;</span><span class="p">,</span> <span class="n">predictionCol</span><span class="o">=</span><span class="s">&quot;prediction&quot;</span><span class="p">,</span>
+                 <span class="n">maxDepth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">maxBins</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">minInstancesPerNode</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">minInfoGain</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                 <span class="n">maxMemoryInMB</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">cacheNodeIds</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">checkpointInterval</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">impurity</span><span class="o">=</span><span class="s">&quot;variance&quot;</span><span class="p">,</span>
+                 <span class="n">numTrees</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">featureSubsetStrategy</span><span class="o">=</span><span class="s">&quot;auto&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        __init__(self, featuresCol=&quot;features&quot;, labelCol=&quot;label&quot;, predictionCol=&quot;prediction&quot;, \</span>
+<span class="sd">                 maxDepth=5, maxBins=32, minInstancesPerNode=1, minInfoGain=0.0, \</span>
+<span class="sd">                 maxMemoryInMB=256, cacheNodeIds=False, checkpointInterval=10, \</span>
+<span class="sd">                 impurity=&quot;variance&quot;, numTrees=20, \</span>
+<span class="sd">                 featureSubsetStrategy=&quot;auto&quot;, seed=None)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RandomForestRegressor</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_java_obj</span><span class="p">(</span>
+            <span class="s">&quot;org.apache.spark.ml.regression.RandomForestRegressor&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+        <span class="c">#: param for Criterion used for information gain calculation (case-insensitive).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">impurity</span> <span class="o">=</span> \
+            <span class="n">Param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;impurity&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;Criterion used for information gain calculation (case-insensitive). &quot;</span> <span class="o">+</span>
+                  <span class="s">&quot;Supported options: &quot;</span> <span class="o">+</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TreeRegressorParams</span><span class="o">.</span><span class="n">supportedImpurities</span><span class="p">))</span>
+        <span class="c">#: param for Fraction of the training data used for learning each decision tree,</span>
+        <span class="c">#  in range (0, 1]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subsamplingRate</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;subsamplingRate&quot;</span><span class="p">,</span>
+                                     <span class="s">&quot;Fraction of the training data used for learning each &quot;</span> <span class="o">+</span>
+                                     <span class="s">&quot;decision tree, in range (0, 1].&quot;</span><span class="p">)</span>
+        <span class="c">#: param for Number of trees to train (&gt;= 1)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numTrees</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;numTrees&quot;</span><span class="p">,</span> <span class="s">&quot;Number of trees to train (&gt;= 1)&quot;</span><span class="p">)</span>
+        <span class="c">#: param for The number of features to consider for splits at each tree node</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">featureSubsetStrategy</span> <span class="o">=</span> \
+            <span class="n">Param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;featureSubsetStrategy&quot;</span><span class="p">,</span>
+                  <span class="s">&quot;The number of features to consider for splits at each tree node. Supported &quot;</span> <span class="o">+</span>
+                  <span class="s">&quot;options: &quot;</span> <span class="o">+</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">RandomForestParams</span><span class="o">.</span><span class="n">supportedFeatureSubsetStrategies</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setDefault</span><span class="p">(</span><span class="n">maxDepth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">maxBins</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">minInstancesPerNode</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">minInfoGain</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                         <span class="n">maxMemoryInMB</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">cacheNodeIds</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">checkpointInterval</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                         <span class="n">impurity</span><span class="o">=</span><span class="s">&quot;variance&quot;</span><span class="p">,</span> <span class="n">numTrees</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">featureSubsetStrategy</span><span class="o">=</span><span class="s">&quot;auto&quot;</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__init__</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setParams</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@keyword_only</span>
+<div class="viewcode-block" id="RandomForestRegressor.setParams"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.RandomForestRegressor.setParams">[docs]</a>    <span class="k">def</span> <span class="nf">setParams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">featuresCol</span><span class="o">=</span><span class="s">&quot;features&quot;</span><span class="p">,</span> <span class="n">labelCol</span><span class="o">=</span><span class="s">&quot;label&quot;</span><span class="p">,</span> <span class="n">predictionCol</span><span class="o">=</span><span class="s">&quot;prediction&quot;</span><span class="p">,</span>
+                  <span class="n">maxDepth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">maxBins</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">minInstancesPerNode</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">minInfoGain</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                  <span class="n">maxMemoryInMB</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">cacheNodeIds</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">checkpointInterval</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                  <span class="n">impurity</span><span class="o">=</span><span class="s">&quot;variance&quot;</span><span class="p">,</span> <span class="n">numTrees</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">featureSubsetStrategy</span><span class="o">=</span><span class="s">&quot;auto&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        setParams(self, featuresCol=&quot;features&quot;, labelCol=&quot;label&quot;, predictionCol=&quot;prediction&quot;, \</span>
+<span class="sd">                  maxDepth=5, maxBins=32, minInstancesPerNode=1, minInfoGain=0.0, \</span>
+<span class="sd">                  maxMemoryInMB=256, cacheNodeIds=False, checkpointInterval=10, seed=None, \</span>
+<span class="sd">                  impurity=&quot;variance&quot;, numTrees=20, featureSubsetStrategy=&quot;auto&quot;)</span>
+<span class="sd">        Sets params for linear regression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">setParams</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_create_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">java_model</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">RandomForestRegressionModel</span><span class="p">(</span><span class="n">java_model</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RandomForestRegressor.setImpurity"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.RandomForestRegressor.setImpurity">[docs]</a>    <span class="k">def</span> <span class="nf">setImpurity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`impurity`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_paramMap</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">impurity</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="RandomForestRegressor.getImpurity"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.RandomForestRegressor.getImpurity">[docs]</a>    <span class="k">def</span> <span class="nf">getImpurity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of impurity or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">impurity</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RandomForestRegressor.setSubsamplingRate"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.RandomForestRegressor.setSubsamplingRate">[docs]</a>    <span class="k">def</span> <span class="nf">setSubsamplingRate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`subsamplingRate`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_paramMap</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">subsamplingRate</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="RandomForestRegressor.getSubsamplingRate"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.RandomForestRegressor.getSubsamplingRate">[docs]</a>    <span class="k">def</span> <span class="nf">getSubsamplingRate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of subsamplingRate or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subsamplingRate</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RandomForestRegressor.setNumTrees"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.RandomForestRegressor.setNumTrees">[docs]</a>    <span class="k">def</span> <span class="nf">setNumTrees</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`numTrees`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_paramMap</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">numTrees</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="RandomForestRegressor.getNumTrees"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.RandomForestRegressor.getNumTrees">[docs]</a>    <span class="k">def</span> <span class="nf">getNumTrees</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of numTrees or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numTrees</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RandomForestRegressor.setFeatureSubsetStrategy"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.RandomForestRegressor.setFeatureSubsetStrategy">[docs]</a>    <span class="k">def</span> <span class="nf">setFeatureSubsetStrategy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`featureSubsetStrategy`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_paramMap</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">featureSubsetStrategy</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="RandomForestRegressor.getFeatureSubsetStrategy"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.RandomForestRegressor.getFeatureSubsetStrategy">[docs]</a>    <span class="k">def</span> <span class="nf">getFeatureSubsetStrategy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of featureSubsetStrategy or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">featureSubsetStrategy</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="RandomForestRegressionModel"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.RandomForestRegressionModel">[docs]</a><span class="k">class</span> <span class="nc">RandomForestRegressionModel</span><span class="p">(</span><span class="n">TreeEnsembleModels</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Model fitted by RandomForestRegressor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+</div>
+<span class="nd">@inherit_doc</span>
+<div class="viewcode-block" id="GBTRegressor"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.GBTRegressor">[docs]</a><span class="k">class</span> <span class="nc">GBTRegressor</span><span class="p">(</span><span class="n">JavaEstimator</span><span class="p">,</span> <span class="n">HasFeaturesCol</span><span class="p">,</span> <span class="n">HasLabelCol</span><span class="p">,</span> <span class="n">HasPredictionCol</span><span class="p">,</span> <span class="n">HasMaxIter</span><span class="p">,</span>
+                   <span class="n">DecisionTreeParams</span><span class="p">,</span> <span class="n">HasCheckpointInterval</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    `http://en.wikipedia.org/wiki/Gradient_boosting Gradient-Boosted Trees (GBTs)`</span>
+<span class="sd">    learning algorithm for regression.</span>
+<span class="sd">    It supports both continuous and categorical features.</span>
+
+<span class="sd">    &gt;&gt;&gt; from numpy import allclose</span>
+<span class="sd">    &gt;&gt;&gt; from pyspark.mllib.linalg import Vectors</span>
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame([</span>
+<span class="sd">    ...     (1.0, Vectors.dense(1.0)),</span>
+<span class="sd">    ...     (0.0, Vectors.sparse(1, [], []))], [&quot;label&quot;, &quot;features&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; gbt = GBTRegressor(maxIter=5, maxDepth=2)</span>
+<span class="sd">    &gt;&gt;&gt; model = gbt.fit(df)</span>
+<span class="sd">    &gt;&gt;&gt; allclose(model.treeWeights, [1.0, 0.1, 0.1, 0.1, 0.1])</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; test0 = sqlContext.createDataFrame([(Vectors.dense(-1.0),)], [&quot;features&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; model.transform(test0).head().prediction</span>
+<span class="sd">    0.0</span>
+<span class="sd">    &gt;&gt;&gt; test1 = sqlContext.createDataFrame([(Vectors.sparse(1, [0], [1.0]),)], [&quot;features&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; model.transform(test1).head().prediction</span>
+<span class="sd">    1.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># a placeholder to make it appear in the generated doc</span>
+    <span class="n">lossType</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s">&quot;lossType&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;Loss function which GBT tries to minimize (case-insensitive). &quot;</span> <span class="o">+</span>
+                     <span class="s">&quot;Supported options: &quot;</span> <span class="o">+</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">GBTParams</span><span class="o">.</span><span class="n">supportedLossTypes</span><span class="p">))</span>
+    <span class="n">subsamplingRate</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s">&quot;subsamplingRate&quot;</span><span class="p">,</span>
+                            <span class="s">&quot;Fraction of the training data used for learning each decision tree, &quot;</span> <span class="o">+</span>
+                            <span class="s">&quot;in range (0, 1].&quot;</span><span class="p">)</span>
+    <span class="n">stepSize</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s">&quot;stepSize&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;Step size (a.k.a. learning rate) in interval (0, 1] for shrinking the &quot;</span> <span class="o">+</span>
+                     <span class="s">&quot;contribution of each estimator&quot;</span><span class="p">)</span>
+
+    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">featuresCol</span><span class="o">=</span><span class="s">&quot;features&quot;</span><span class="p">,</span> <span class="n">labelCol</span><span class="o">=</span><span class="s">&quot;label&quot;</span><span class="p">,</span> <span class="n">predictionCol</span><span class="o">=</span><span class="s">&quot;prediction&quot;</span><span class="p">,</span>
+                 <span class="n">maxDepth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">maxBins</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">minInstancesPerNode</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">minInfoGain</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                 <span class="n">maxMemoryInMB</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">cacheNodeIds</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">checkpointInterval</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">lossType</span><span class="o">=</span><span class="s">&quot;squared&quot;</span><span class="p">,</span>
+                 <span class="n">maxIter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">stepSize</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        __init__(self, featuresCol=&quot;features&quot;, labelCol=&quot;label&quot;, predictionCol=&quot;prediction&quot;, \</span>
+<span class="sd">                 maxDepth=5, maxBins=32, minInstancesPerNode=1, minInfoGain=0.0, \</span>
+<span class="sd">                 maxMemoryInMB=256, cacheNodeIds=False, checkpointInterval=10, \</span>
+<span class="sd">                 lossType=&quot;squared&quot;, maxIter=20, stepSize=0.1)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">GBTRegressor</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_java_obj</span><span class="p">(</span><span class="s">&quot;org.apache.spark.ml.regression.GBTRegressor&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+        <span class="c">#: param for Loss function which GBT tries to minimize (case-insensitive).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lossType</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;lossType&quot;</span><span class="p">,</span>
+                              <span class="s">&quot;Loss function which GBT tries to minimize (case-insensitive). &quot;</span> <span class="o">+</span>
+                              <span class="s">&quot;Supported options: &quot;</span> <span class="o">+</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">GBTParams</span><span class="o">.</span><span class="n">supportedLossTypes</span><span class="p">))</span>
+        <span class="c">#: Fraction of the training data used for learning each decision tree, in range (0, 1].</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subsamplingRate</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;subsamplingRate&quot;</span><span class="p">,</span>
+                                     <span class="s">&quot;Fraction of the training data used for learning each &quot;</span> <span class="o">+</span>
+                                     <span class="s">&quot;decision tree, in range (0, 1].&quot;</span><span class="p">)</span>
+        <span class="c">#: Step size (a.k.a. learning rate) in interval (0, 1] for shrinking the contribution of</span>
+        <span class="c">#  each estimator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stepSize</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;stepSize&quot;</span><span class="p">,</span>
+                              <span class="s">&quot;Step size (a.k.a. learning rate) in interval (0, 1] for shrinking &quot;</span> <span class="o">+</span>
+                              <span class="s">&quot;the contribution of each estimator&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setDefault</span><span class="p">(</span><span class="n">maxDepth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">maxBins</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">minInstancesPerNode</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">minInfoGain</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                         <span class="n">maxMemoryInMB</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">cacheNodeIds</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">checkpointInterval</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                         <span class="n">lossType</span><span class="o">=</span><span class="s">&quot;squared&quot;</span><span class="p">,</span> <span class="n">maxIter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">stepSize</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__init__</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setParams</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@keyword_only</span>
+<div class="viewcode-block" id="GBTRegressor.setParams"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.GBTRegressor.setParams">[docs]</a>    <span class="k">def</span> <span class="nf">setParams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">featuresCol</span><span class="o">=</span><span class="s">&quot;features&quot;</span><span class="p">,</span> <span class="n">labelCol</span><span class="o">=</span><span class="s">&quot;label&quot;</span><span class="p">,</span> <span class="n">predictionCol</span><span class="o">=</span><span class="s">&quot;prediction&quot;</span><span class="p">,</span>
+                  <span class="n">maxDepth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">maxBins</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">minInstancesPerNode</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">minInfoGain</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                  <span class="n">maxMemoryInMB</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span> <span class="n">cacheNodeIds</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">checkpointInterval</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                  <span class="n">lossType</span><span class="o">=</span><span class="s">&quot;squared&quot;</span><span class="p">,</span> <span class="n">maxIter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">stepSize</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        setParams(self, featuresCol=&quot;features&quot;, labelCol=&quot;label&quot;, predictionCol=&quot;prediction&quot;, \</span>
+<span class="sd">                  maxDepth=5, maxBins=32, minInstancesPerNode=1, minInfoGain=0.0, \</span>
+<span class="sd">                  maxMemoryInMB=256, cacheNodeIds=False, checkpointInterval=10, \</span>
+<span class="sd">                  lossType=&quot;squared&quot;, maxIter=20, stepSize=0.1)</span>
+<span class="sd">        Sets params for Gradient Boosted Tree Regression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">setParams</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_create_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">java_model</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">GBTRegressionModel</span><span class="p">(</span><span class="n">java_model</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GBTRegressor.setLossType"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.GBTRegressor.setLossType">[docs]</a>    <span class="k">def</span> <span class="nf">setLossType</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`lossType`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_paramMap</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">lossType</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="GBTRegressor.getLossType"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.GBTRegressor.getLossType">[docs]</a>    <span class="k">def</span> <span class="nf">getLossType</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of lossType or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lossType</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GBTRegressor.setSubsamplingRate"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.GBTRegressor.setSubsamplingRate">[docs]</a>    <span class="k">def</span> <span class="nf">setSubsamplingRate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`subsamplingRate`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_paramMap</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">subsamplingRate</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="GBTRegressor.getSubsamplingRate"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.GBTRegressor.getSubsamplingRate">[docs]</a>    <span class="k">def</span> <span class="nf">getSubsamplingRate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of subsamplingRate or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subsamplingRate</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GBTRegressor.setStepSize"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.GBTRegressor.setStepSize">[docs]</a>    <span class="k">def</span> <span class="nf">setStepSize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`stepSize`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_paramMap</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">stepSize</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="GBTRegressor.getStepSize"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.GBTRegressor.getStepSize">[docs]</a>    <span class="k">def</span> <span class="nf">getStepSize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of stepSize or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stepSize</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="GBTRegressionModel"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.regression.GBTRegressionModel">[docs]</a><span class="k">class</span> <span class="nc">GBTRegressionModel</span><span class="p">(</span><span class="n">TreeEnsembleModels</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Model fitted by GBTRegressor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+</div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="kn">from</span> <span class="nn">pyspark.context</span> <span class="kn">import</span> <span class="n">SparkContext</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">SQLContext</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="c"># The small batch size here ensures that we see multiple batches,</span>
+    <span class="c"># even in these small test examples:</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="p">(</span><span class="s">&quot;local[2]&quot;</span><span class="p">,</span> <span class="s">&quot;ml.regression tests&quot;</span><span class="p">)</span>
+    <span class="n">sqlContext</span> <span class="o">=</span> <span class="n">SQLContext</span><span class="p">(</span><span class="n">sc</span><span class="p">)</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s">&#39;sc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sc</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s">&#39;sqlContext&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sqlContext</span>
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span> <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span><span class="p">)</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="nb">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark master documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>

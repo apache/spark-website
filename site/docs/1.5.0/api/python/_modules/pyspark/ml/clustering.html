@@ -1,0 +1,254 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyspark.ml.clustering &mdash; PySpark master documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     'master',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="PySpark master documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark master documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.ml.clustering</h1><div class="highlight"><pre>
+<span class="c">#</span>
+<span class="c"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c"># this work for additional information regarding copyright ownership.</span>
+<span class="c"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c"># the License.  You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+<span class="c">#</span>
+
+<span class="kn">from</span> <span class="nn">pyspark.ml.util</span> <span class="kn">import</span> <span class="n">keyword_only</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.wrapper</span> <span class="kn">import</span> <span class="n">JavaEstimator</span><span class="p">,</span> <span class="n">JavaModel</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.param.shared</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.common</span> <span class="kn">import</span> <span class="n">inherit_doc</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;KMeans&#39;</span><span class="p">,</span> <span class="s">&#39;KMeansModel&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="KMeansModel"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.KMeansModel">[docs]</a><span class="k">class</span> <span class="nc">KMeansModel</span><span class="p">(</span><span class="n">JavaModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Model fitted by KMeans.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="KMeansModel.clusterCenters"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.KMeansModel.clusterCenters">[docs]</a>    <span class="k">def</span> <span class="nf">clusterCenters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the cluster centers, represented as a list of NumPy arrays.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">toArray</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s">&quot;clusterCenters&quot;</span><span class="p">)]</span>
+
+</div></div>
+<span class="nd">@inherit_doc</span>
+<div class="viewcode-block" id="KMeans"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.KMeans">[docs]</a><span class="k">class</span> <span class="nc">KMeans</span><span class="p">(</span><span class="n">JavaEstimator</span><span class="p">,</span> <span class="n">HasFeaturesCol</span><span class="p">,</span> <span class="n">HasPredictionCol</span><span class="p">,</span> <span class="n">HasMaxIter</span><span class="p">,</span> <span class="n">HasTol</span><span class="p">,</span> <span class="n">HasSeed</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    K-means clustering with support for multiple parallel runs and a k-means++ like initialization</span>
+<span class="sd">    mode (the k-means|| algorithm by Bahmani et al). When multiple concurrent runs are requested,</span>
+<span class="sd">    they are executed together with joint passes over the data for efficiency.</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyspark.mllib.linalg import Vectors</span>
+<span class="sd">    &gt;&gt;&gt; data = [(Vectors.dense([0.0, 0.0]),), (Vectors.dense([1.0, 1.0]),),</span>
+<span class="sd">    ...         (Vectors.dense([9.0, 8.0]),), (Vectors.dense([8.0, 9.0]),)]</span>
+<span class="sd">    &gt;&gt;&gt; df = sqlContext.createDataFrame(data, [&quot;features&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; kmeans = KMeans(k=2, seed=1)</span>
+<span class="sd">    &gt;&gt;&gt; model = kmeans.fit(df)</span>
+<span class="sd">    &gt;&gt;&gt; centers = model.clusterCenters()</span>
+<span class="sd">    &gt;&gt;&gt; len(centers)</span>
+<span class="sd">    2</span>
+<span class="sd">    &gt;&gt;&gt; transformed = model.transform(df).select(&quot;features&quot;, &quot;prediction&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; rows = transformed.collect()</span>
+<span class="sd">    &gt;&gt;&gt; rows[0].prediction == rows[1].prediction</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; rows[2].prediction == rows[3].prediction</span>
+<span class="sd">    True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c"># a placeholder to make it appear in the generated doc</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s">&quot;k&quot;</span><span class="p">,</span> <span class="s">&quot;number of clusters to create&quot;</span><span class="p">)</span>
+    <span class="n">initMode</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s">&quot;initMode&quot;</span><span class="p">,</span>
+                     <span class="s">&quot;the initialization algorithm. This can be either </span><span class="se">\&quot;</span><span class="s">random</span><span class="se">\&quot;</span><span class="s"> to &quot;</span> <span class="o">+</span>
+                     <span class="s">&quot;choose random points as initial cluster centers, or </span><span class="se">\&quot;</span><span class="s">k-means||</span><span class="se">\&quot;</span><span class="s"> &quot;</span> <span class="o">+</span>
+                     <span class="s">&quot;to use a parallel variant of k-means++&quot;</span><span class="p">)</span>
+    <span class="n">initSteps</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s">&quot;initSteps&quot;</span><span class="p">,</span> <span class="s">&quot;steps for k-means initialization mode&quot;</span><span class="p">)</span>
+
+    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">featuresCol</span><span class="o">=</span><span class="s">&quot;features&quot;</span><span class="p">,</span> <span class="n">predictionCol</span><span class="o">=</span><span class="s">&quot;prediction&quot;</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                 <span class="n">initMode</span><span class="o">=</span><span class="s">&quot;k-means||&quot;</span><span class="p">,</span> <span class="n">initSteps</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">maxIter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        __init__(self, featuresCol=&quot;features&quot;, predictionCol=&quot;prediction&quot;, k=2, \</span>
+<span class="sd">                 initMode=&quot;k-means||&quot;, initSteps=5, tol=1e-4, maxIter=20, seed=None)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">KMeans</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_java_obj</span><span class="p">(</span><span class="s">&quot;org.apache.spark.ml.clustering.KMeans&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;k&quot;</span><span class="p">,</span> <span class="s">&quot;number of clusters to create&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initMode</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;initMode&quot;</span><span class="p">,</span>
+                              <span class="s">&quot;the initialization algorithm. This can be either </span><span class="se">\&quot;</span><span class="s">random</span><span class="se">\&quot;</span><span class="s"> to &quot;</span> <span class="o">+</span>
+                              <span class="s">&quot;choose random points as initial cluster centers, or </span><span class="se">\&quot;</span><span class="s">k-means||</span><span class="se">\&quot;</span><span class="s"> &quot;</span> <span class="o">+</span>
+                              <span class="s">&quot;to use a parallel variant of k-means++&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initSteps</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s">&quot;initSteps&quot;</span><span class="p">,</span> <span class="s">&quot;steps for k-means initialization mode&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setDefault</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">initMode</span><span class="o">=</span><span class="s">&quot;k-means||&quot;</span><span class="p">,</span> <span class="n">initSteps</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">maxIter</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__init__</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setParams</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">java_model</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">KMeansModel</span><span class="p">(</span><span class="n">java_model</span><span class="p">)</span>
+
+    <span class="nd">@keyword_only</span>
+<div class="viewcode-block" id="KMeans.setParams"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.KMeans.setParams">[docs]</a>    <span class="k">def</span> <span class="nf">setParams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">featuresCol</span><span class="o">=</span><span class="s">&quot;features&quot;</span><span class="p">,</span> <span class="n">predictionCol</span><span class="o">=</span><span class="s">&quot;prediction&quot;</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                  <span class="n">initMode</span><span class="o">=</span><span class="s">&quot;k-means||&quot;</span><span class="p">,</span> <span class="n">initSteps</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">maxIter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        setParams(self, featuresCol=&quot;features&quot;, predictionCol=&quot;prediction&quot;, k=2, \</span>
+<span class="sd">                  initMode=&quot;k-means||&quot;, initSteps=5, tol=1e-4, maxIter=20, seed=None)</span>
+
+<span class="sd">        Sets params for KMeans.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">setParams</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="KMeans.setK"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.KMeans.setK">[docs]</a>    <span class="k">def</span> <span class="nf">setK</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`k`.</span>
+
+<span class="sd">        &gt;&gt;&gt; algo = KMeans().setK(10)</span>
+<span class="sd">        &gt;&gt;&gt; algo.getK()</span>
+<span class="sd">        10</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_paramMap</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="KMeans.getK"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.KMeans.getK">[docs]</a>    <span class="k">def</span> <span class="nf">getK</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of `k`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="KMeans.setInitMode"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.KMeans.setInitMode">[docs]</a>    <span class="k">def</span> <span class="nf">setInitMode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`initMode`.</span>
+
+<span class="sd">        &gt;&gt;&gt; algo = KMeans()</span>
+<span class="sd">        &gt;&gt;&gt; algo.getInitMode()</span>
+<span class="sd">        &#39;k-means||&#39;</span>
+<span class="sd">        &gt;&gt;&gt; algo = algo.setInitMode(&quot;random&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; algo.getInitMode()</span>
+<span class="sd">        &#39;random&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_paramMap</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">initMode</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="KMeans.getInitMode"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.KMeans.getInitMode">[docs]</a>    <span class="k">def</span> <span class="nf">getInitMode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of `initMode`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initMode</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="KMeans.setInitSteps"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.KMeans.setInitSteps">[docs]</a>    <span class="k">def</span> <span class="nf">setInitSteps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`initSteps`.</span>
+
+<span class="sd">        &gt;&gt;&gt; algo = KMeans().setInitSteps(10)</span>
+<span class="sd">        &gt;&gt;&gt; algo.getInitSteps()</span>
+<span class="sd">        10</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_paramMap</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">initSteps</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="KMeans.getInitSteps"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.KMeans.getInitSteps">[docs]</a>    <span class="k">def</span> <span class="nf">getInitSteps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of `initSteps`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initSteps</span><span class="p">)</span>
+
+</div></div>
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="kn">from</span> <span class="nn">pyspark.context</span> <span class="kn">import</span> <span class="n">SparkContext</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">SQLContext</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="c"># The small batch size here ensures that we see multiple batches,</span>
+    <span class="c"># even in these small test examples:</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="p">(</span><span class="s">&quot;local[2]&quot;</span><span class="p">,</span> <span class="s">&quot;ml.clustering tests&quot;</span><span class="p">)</span>
+    <span class="n">sqlContext</span> <span class="o">=</span> <span class="n">SQLContext</span><span class="p">(</span><span class="n">sc</span><span class="p">)</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s">&#39;sc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sc</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s">&#39;sqlContext&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sqlContext</span>
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span> <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span><span class="p">)</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="nb">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark master documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    </div>
+  </body>
+</html>
