@@ -168,13 +168,15 @@ function updateDownloadLink() {
     .replace(/-bin-sources/, ""); // special case for source packages
 
   var link = "http://d3kbcqa49mib13.cloudfront.net/$artifact";
-  if (version <= "0.7.3") {
+  if (version < "0.8.0") {
     link = "http://spark-project.org/download/$artifact";
   }
   if (pkg.toLowerCase().indexOf("mapr") > -1) {
     link = "http://package.mapr.com/tools/apache-spark/$ver/$artifact"
   } else if (download == "apache") {
-    if (version <= "1.2.0") {
+    if (version < "1.3.1" ||
+        (version >= "1.4.0" && version < "1.4.1") ||
+        (version >= "1.5.0" && version < "1.5.1")) {
       link = "http://archive.apache.org/dist/spark/spark-$ver/$artifact";
     } else {
       link = "http://www.apache.org/dyn/closer.lua/spark/spark-$ver/$artifact";
