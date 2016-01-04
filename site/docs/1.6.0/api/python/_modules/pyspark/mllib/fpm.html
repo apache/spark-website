@@ -1,0 +1,258 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyspark.mllib.fpm &mdash; PySpark 1.6.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pyspark.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.6.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/pyspark.js"></script>
+    <link rel="top" title="PySpark 1.6.0 documentation" href="../../../index.html" />
+    <link rel="up" title="pyspark" href="../../pyspark.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li><a href="../../../index.html">PySpark 1.6.0 documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../pyspark.html" accesskey="U">pyspark</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pyspark.mllib.fpm</h1><div class="highlight"><pre>
+<span class="c">#</span>
+<span class="c"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c"># this work for additional information regarding copyright ownership.</span>
+<span class="c"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c"># the License.  You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+<span class="c">#</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">array</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="kn">import</span> <span class="n">SparkContext</span><span class="p">,</span> <span class="n">since</span>
+<span class="kn">from</span> <span class="nn">pyspark.rdd</span> <span class="kn">import</span> <span class="n">ignore_unicode_prefix</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.common</span> <span class="kn">import</span> <span class="n">JavaModelWrapper</span><span class="p">,</span> <span class="n">callMLlibFunc</span><span class="p">,</span> <span class="n">inherit_doc</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;FPGrowth&#39;</span><span class="p">,</span> <span class="s">&#39;FPGrowthModel&#39;</span><span class="p">,</span> <span class="s">&#39;PrefixSpan&#39;</span><span class="p">,</span> <span class="s">&#39;PrefixSpanModel&#39;</span><span class="p">]</span>
+
+
+<span class="nd">@inherit_doc</span>
+<span class="nd">@ignore_unicode_prefix</span>
+<div class="viewcode-block" id="FPGrowthModel"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.fpm.FPGrowthModel">[docs]</a><span class="k">class</span> <span class="nc">FPGrowthModel</span><span class="p">(</span><span class="n">JavaModelWrapper</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    A FP-Growth model for mining frequent itemsets</span>
+<span class="sd">    using the Parallel FP-Growth algorithm.</span>
+
+<span class="sd">    &gt;&gt;&gt; data = [[&quot;a&quot;, &quot;b&quot;, &quot;c&quot;], [&quot;a&quot;, &quot;b&quot;, &quot;d&quot;, &quot;e&quot;], [&quot;a&quot;, &quot;c&quot;, &quot;e&quot;], [&quot;a&quot;, &quot;c&quot;, &quot;f&quot;]]</span>
+<span class="sd">    &gt;&gt;&gt; rdd = sc.parallelize(data, 2)</span>
+<span class="sd">    &gt;&gt;&gt; model = FPGrowth.train(rdd, 0.6, 2)</span>
+<span class="sd">    &gt;&gt;&gt; sorted(model.freqItemsets().collect())</span>
+<span class="sd">    [FreqItemset(items=[u&#39;a&#39;], freq=4), FreqItemset(items=[u&#39;c&#39;], freq=3), ...</span>
+
+<span class="sd">    .. versionadded:: 1.4.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@since</span><span class="p">(</span><span class="s">&quot;1.4.0&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="FPGrowthModel.freqItemsets"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.fpm.FPGrowthModel.freqItemsets">[docs]</a>    <span class="k">def</span> <span class="nf">freqItemsets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the frequent itemsets of this model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&quot;getFreqItemsets&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">FPGrowth</span><span class="o">.</span><span class="n">FreqItemset</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span>
+
+</div></div>
+<div class="viewcode-block" id="FPGrowth"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.fpm.FPGrowth">[docs]</a><span class="k">class</span> <span class="nc">FPGrowth</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    A Parallel FP-growth algorithm to mine frequent itemsets.</span>
+
+<span class="sd">    .. versionadded:: 1.4.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s">&quot;1.4.0&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="FPGrowth.train"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.fpm.FPGrowth.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">minSupport</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">numPartitions</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes an FP-Growth model that contains frequent itemsets.</span>
+
+<span class="sd">        :param data: The input data set, each element contains a</span>
+<span class="sd">            transaction.</span>
+<span class="sd">        :param minSupport: The minimal support level (default: `0.3`).</span>
+<span class="sd">        :param numPartitions: The number of partitions used by</span>
+<span class="sd">            parallel FP-growth (default: same as input data).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s">&quot;trainFPGrowthModel&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">minSupport</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">numPartitions</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">FPGrowthModel</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="FPGrowth.FreqItemset"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.fpm.FPGrowth.FreqItemset">[docs]</a>    <span class="k">class</span> <span class="nc">FreqItemset</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s">&quot;FreqItemset&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;items&quot;</span><span class="p">,</span> <span class="s">&quot;freq&quot;</span><span class="p">])):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Represents an (items, freq) tuple.</span>
+
+<span class="sd">        .. versionadded:: 1.4.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+</div></div>
+<span class="nd">@inherit_doc</span>
+<span class="nd">@ignore_unicode_prefix</span>
+<div class="viewcode-block" id="PrefixSpanModel"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.fpm.PrefixSpanModel">[docs]</a><span class="k">class</span> <span class="nc">PrefixSpanModel</span><span class="p">(</span><span class="n">JavaModelWrapper</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    Model fitted by PrefixSpan</span>
+
+<span class="sd">    &gt;&gt;&gt; data = [</span>
+<span class="sd">    ...    [[&quot;a&quot;, &quot;b&quot;], [&quot;c&quot;]],</span>
+<span class="sd">    ...    [[&quot;a&quot;], [&quot;c&quot;, &quot;b&quot;], [&quot;a&quot;, &quot;b&quot;]],</span>
+<span class="sd">    ...    [[&quot;a&quot;, &quot;b&quot;], [&quot;e&quot;]],</span>
+<span class="sd">    ...    [[&quot;f&quot;]]]</span>
+<span class="sd">    &gt;&gt;&gt; rdd = sc.parallelize(data, 2)</span>
+<span class="sd">    &gt;&gt;&gt; model = PrefixSpan.train(rdd)</span>
+<span class="sd">    &gt;&gt;&gt; sorted(model.freqSequences().collect())</span>
+<span class="sd">    [FreqSequence(sequence=[[u&#39;a&#39;]], freq=3), FreqSequence(sequence=[[u&#39;a&#39;], [u&#39;a&#39;]], freq=1), ...</span>
+
+<span class="sd">    .. versionadded:: 1.6.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@since</span><span class="p">(</span><span class="s">&quot;1.6.0&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="PrefixSpanModel.freqSequences"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.fpm.PrefixSpanModel.freqSequences">[docs]</a>    <span class="k">def</span> <span class="nf">freqSequences</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Gets frequence sequences&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s">&quot;getFreqSequences&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">PrefixSpan</span><span class="o">.</span><span class="n">FreqSequence</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+</div></div>
+<div class="viewcode-block" id="PrefixSpan"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.fpm.PrefixSpan">[docs]</a><span class="k">class</span> <span class="nc">PrefixSpan</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    A parallel PrefixSpan algorithm to mine frequent sequential patterns.</span>
+<span class="sd">    The PrefixSpan algorithm is described in J. Pei, et al., PrefixSpan:</span>
+<span class="sd">    Mining Sequential Patterns Efficiently by Prefix-Projected Pattern Growth</span>
+<span class="sd">    ([[http://doi.org/10.1109/ICDE.2001.914830]]).</span>
+
+<span class="sd">    .. versionadded:: 1.6.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s">&quot;1.6.0&quot;</span><span class="p">)</span>
+<div class="viewcode-block" id="PrefixSpan.train"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.fpm.PrefixSpan.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">minSupport</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">maxPatternLength</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">maxLocalProjDBSize</span><span class="o">=</span><span class="mi">32000000</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Finds the complete set of frequent sequential patterns in the input sequences of itemsets.</span>
+
+<span class="sd">        :param data: The input data set, each element contains a sequnce of itemsets.</span>
+<span class="sd">        :param minSupport: the minimal support level of the sequential pattern, any pattern appears</span>
+<span class="sd">            more than  (minSupport * size-of-the-dataset) times will be output (default: `0.1`)</span>
+<span class="sd">        :param maxPatternLength: the maximal length of the sequential pattern, any pattern appears</span>
+<span class="sd">            less than maxPatternLength will be output. (default: `10`)</span>
+<span class="sd">        :param maxLocalProjDBSize: The maximum number of items (including delimiters used in</span>
+<span class="sd">            the internal storage format) allowed in a projected database before local</span>
+<span class="sd">            processing. If a projected database exceeds this size, another</span>
+<span class="sd">            iteration of distributed prefix growth is run. (default: `32000000`)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s">&quot;trainPrefixSpanModel&quot;</span><span class="p">,</span>
+                              <span class="n">data</span><span class="p">,</span> <span class="n">minSupport</span><span class="p">,</span> <span class="n">maxPatternLength</span><span class="p">,</span> <span class="n">maxLocalProjDBSize</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PrefixSpanModel</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="PrefixSpan.FreqSequence"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.fpm.PrefixSpan.FreqSequence">[docs]</a>    <span class="k">class</span> <span class="nc">FreqSequence</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s">&quot;FreqSequence&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;sequence&quot;</span><span class="p">,</span> <span class="s">&quot;freq&quot;</span><span class="p">])):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Represents a (sequence, freq) tuple.</span>
+
+<span class="sd">        .. versionadded:: 1.6.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+</div></div>
+<span class="k">def</span> <span class="nf">_test</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="kn">import</span> <span class="nn">pyspark.mllib.fpm</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="n">pyspark</span><span class="o">.</span><span class="n">mllib</span><span class="o">.</span><span class="n">fpm</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s">&#39;sc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="p">(</span><span class="s">&#39;local[4]&#39;</span><span class="p">,</span> <span class="s">&#39;PythonTest&#39;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span> <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span><span class="p">)</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s">&#39;sc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="nb">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">_test</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li><a href="../../../index.html">PySpark 1.6.0 documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../pyspark.html" >pyspark</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>
