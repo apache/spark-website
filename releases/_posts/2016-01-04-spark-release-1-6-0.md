@@ -22,9 +22,9 @@ You can consult JIRA for the [detailed changes](https://issues.apache.org/jira/s
 ### Spark Core/SQL
 
 - **API Updates**
-  - [SPARK-9999&nbsp;](https://issues.apache.org/jira/browse/SPARK-9999) **Dataset API** - A new Spark API, similar to RDDs, that allows users to work with custom objects and lambda functions while still gaining the benefits of the Spark SQL execution engine. Examples: [WordCount](examples/datasets.wordcount.scala.html), [Typed Aggregators](examples/datasets.aggregator.scala.html)
+  - [SPARK-9999&nbsp;](https://issues.apache.org/jira/browse/SPARK-9999) **Dataset API** - A new Spark API, similar to RDDs, that allows users to work with custom objects and lambda functions while still gaining the benefits of the Spark SQL execution engine.
   - [SPARK-10810](https://issues.apache.org/jira/browse/SPARK-10810) **Session Management** - Different users can share a cluster while having different configuration and temporary tables.
-  - [SPARK-11197](https://issues.apache.org/jira/browse/SPARK-11197) **SQL Queries on Files**  - Concise syntax for running SQL queries over files of any supported format without registering a table. [Example Usage](examples/query.files.sql.html)
+  - [SPARK-11197](https://issues.apache.org/jira/browse/SPARK-11197) **SQL Queries on Files**  - Concise syntax for running SQL queries over files of any supported format without registering a table.
   - [SPARK-11745](https://issues.apache.org/jira/browse/SPARK-11745) **Reading non-standard JSON files**  - Added options to read non-standard JSON files (e.g. single-quotes, unquoted attributes)
   - [SPARK-10412](https://issues.apache.org/jira/browse/SPARK-10412) **Per-operator Metrics for SQL Execution** - Display statistics on a per-operator basis for memory usage and spilled data size.
   - [SPARK-11329](https://issues.apache.org/jira/browse/SPARK-11329) **Star (*) expansion for StructTypes** - Makes it easier to nest and unnest arbitrary numbers of columns
