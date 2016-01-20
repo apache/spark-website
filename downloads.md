@@ -14,7 +14,7 @@ $(document).ready(function() {
 });
 </script>
 
-## Download Spark
+## Download Spark&trade;
 
 The latest release of Spark is Spark 1.6.0, released on January 4, 2016
 <a href="{{site.url}}releases/spark-release-1-6-0.html">(release notes)</a>
