@@ -6,6 +6,8 @@ In this directory you will find text files formatted using Markdown, with an ".m
 
 Building the site requires Jekyll 1.0.0 or newer (because we use the keep_files config option. The easiest way to install jekyll is via a Ruby Gem. This will create a directory called `site` containing index.html as well as the rest of the compiled directories and files. Read more about Jekyll at http://jekyllrb.com/docs
 
+To install Jekyll and its required dependencies, execute `sudo gem install jekyll pygments.rb` and `sudo pip install Pygments`. See also https://github.com/apache/spark/blob/master/docs/README.md
+
 You can generate the html website by running `jekyll build` in this directory. Use the --watch flag to have jekyll recompile your files as you save changes.
 
 In addition to generating the site as html from the markdown files, jekyll can serve the site via a web server. To build the site and run a web server use the command `jekyll serve` which runs the web server on port 4000, then visit the site at http://localhost:4000.
