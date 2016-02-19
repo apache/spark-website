@@ -14,9 +14,9 @@ $(document).ready(function() {
 });
 </script>
 
-## Download Spark&trade;
+## Download Apache Spark&trade;
 
-The latest release of Spark is Spark 1.6.0, released on January 4, 2016
+Our latest version is Spark 1.6.0, released on January 4, 2016
 <a href="{{site.url}}releases/spark-release-1-6-0.html">(release notes)</a>
 <a href="https://github.com/apache/spark/releases/tag/v1.6.0">(git tag)</a><br/>
 
@@ -44,7 +44,7 @@ Spark artifacts are [hosted in Maven Central](http://search.maven.org/#browse%7C
     version: 1.6.0
 
 ### Spark Source Code Management
-If you are interested in working with the newest under-development code or contributing to Spark development, you can also check out the master branch from Git:
+If you are interested in working with the newest under-development code or contributing to Apache Spark development, you can also check out the master branch from Git:
 
     # Master development branch
     git clone git://github.com/apache/spark.git
