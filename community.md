@@ -82,6 +82,9 @@ Spark Meetups are grass-roots events organized and hosted by leaders and champio
     <a href="http://www.meetup.com/Chicago-Spark-Users/">Chicago Spark Users</a>
   </li>
   <li>
+    <a href="http://www.meetup.com/Christchurch-Apache-Spark-Meetup/">Christchurch Apache Spark Meetup</a>
+  </li>
+  <li>
     <a href="http://www.meetup.com/Cincinnati-Apache-Spark-Meetup/">Cincinanati Apache Spark Meetup</a>
   </li>
   <li>
