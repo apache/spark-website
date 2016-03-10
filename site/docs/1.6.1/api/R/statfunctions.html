@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>R: crosstab</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link rel="stylesheet" type="text/css" href="R.css">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/languages/r.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</head><body>
+
+<table width="100%" summary="page for cov {SparkR}"><tr><td>cov {SparkR}</td><td align="right">R Documentation</td></tr></table>
+
+<h2>crosstab</h2>
+
+<h3>Description</h3>
+
+<p>Computes a pair-wise frequency table of the given columns. Also known as a contingency
+table. The number of distinct values for each column should be less than 1e4. At most 1e6
+non-zero pair frequencies will be returned.
+</p>
+<p>Calculate the sample covariance of two numerical columns of a DataFrame.
+</p>
+<p>Calculates the correlation of two columns of a DataFrame.
+Currently only supports the Pearson Correlation Coefficient.
+For Spearman Correlation, consider using RDD methods found in MLlib's Statistics.
+</p>
+<p>Finding frequent items for columns, possibly with false positives.
+Using the frequent element count algorithm described in
+<a href="http://dx.doi.org/10.1145/762471.762473">http://dx.doi.org/10.1145/762471.762473</a>, proposed by Karp, Schenker, and Papadimitriou.
+</p>
+<p>Returns a stratified sample without replacement based on the fraction given on each stratum.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+cov(x, col1, col2)
+
+corr(x, ...)
+
+sampleBy(x, col, fractions, seed)
+
+## S4 method for signature 'DataFrame,character,character'
+crosstab(x, col1, col2)
+
+## S4 method for signature 'DataFrame,character,character'
+cov(x, col1, col2)
+
+## S4 method for signature 'DataFrame'
+corr(x, col1, col2, method = "pearson")
+
+## S4 method for signature 'DataFrame,character'
+freqItems(x, cols, support = 0.01)
+
+## S4 method for signature 'DataFrame,character,list,numeric'
+sampleBy(x, col, fractions, seed)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A SparkSQL DataFrame</p>
+</td></tr>
+<tr valign="top"><td><code>col1</code></td>
+<td>
+<p>name of the first column. Distinct items will make the first item of each row.</p>
+</td></tr>
+<tr valign="top"><td><code>col2</code></td>
+<td>
+<p>name of the second column. Distinct items will make the column names of the output.</p>
+</td></tr>
+<tr valign="top"><td><code>col</code></td>
+<td>
+<p>column that defines strata</p>
+</td></tr>
+<tr valign="top"><td><code>fractions</code></td>
+<td>
+<p>A named list giving sampling fraction for each stratum. If a stratum is
+not specified, we treat its fraction as zero.</p>
+</td></tr>
+<tr valign="top"><td><code>seed</code></td>
+<td>
+<p>random seed</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p>Optional. A character specifying the method for calculating the correlation.
+only &quot;pearson&quot; is allowed now.</p>
+</td></tr>
+<tr valign="top"><td><code>cols</code></td>
+<td>
+<p>A vector column names to search frequent items in.</p>
+</td></tr>
+<tr valign="top"><td><code>support</code></td>
+<td>
+<p>(Optional) The minimum frequency for an item to be considered 'frequent'.
+Should be greater than 1e-4. Default support = 0.01.</p>
+</td></tr>
+<tr valign="top"><td><code>col1</code></td>
+<td>
+<p>the name of the first column</p>
+</td></tr>
+<tr valign="top"><td><code>col2</code></td>
+<td>
+<p>the name of the second column</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A SparkSQL DataFrame</p>
+</td></tr>
+<tr valign="top"><td><code>col1</code></td>
+<td>
+<p>the name of the first column</p>
+</td></tr>
+<tr valign="top"><td><code>col2</code></td>
+<td>
+<p>the name of the second column</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A SparkSQL DataFrame.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>A SparkSQL DataFrame</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>a local R data.frame representing the contingency table. The first column of each row
+will be the distinct values of 'col1' and the column names will be the distinct values
+of 'col2'. The name of the first column will be '$col1_$col2'. Pairs that have no
+occurrences will have zero as their counts.
+</p>
+<p>the covariance of the two columns.
+</p>
+<p>The Pearson Correlation Coefficient as a Double.
+</p>
+<p>a local R data.frame with the frequent items in each column
+</p>
+<p>A new DataFrame that represents the stratified sample
+</p>
+
+
+<h3>Examples</h3>
+
+<pre><code class="r">## Not run: 
+##D df &lt;- jsonFile(sqlContext, &quot;/path/to/file.json&quot;)
+##D ct &lt;- crosstab(df, &quot;title&quot;, &quot;gender&quot;)
+## End(Not run)
+## Not run: 
+##D df &lt;- jsonFile(sqlContext, &quot;/path/to/file.json&quot;)
+##D cov &lt;- cov(df, &quot;title&quot;, &quot;gender&quot;)
+## End(Not run)
+## Not run: 
+##D df &lt;- jsonFile(sqlContext, &quot;/path/to/file.json&quot;)
+##D corr &lt;- corr(df, &quot;title&quot;, &quot;gender&quot;)
+##D corr &lt;- corr(df, &quot;title&quot;, &quot;gender&quot;, method = &quot;pearson&quot;)
+## End(Not run)
+## Not run: 
+##D df &lt;- jsonFile(sqlContext, &quot;/path/to/file.json&quot;)
+##D fi = freqItems(df, c(&quot;title&quot;, &quot;gender&quot;))
+## End(Not run)
+## Not run: 
+##D df &lt;- jsonFile(sqlContext, &quot;/path/to/file.json&quot;)
+##D sample &lt;- sampleBy(df, &quot;key&quot;, fractions, 36)
+## End(Not run)
+</code></pre>
+
+
+<hr><div align="center">[Package <em>SparkR</em> version 1.6.1 <a href="00Index.html">Index</a>]</div>
+</body></html>
