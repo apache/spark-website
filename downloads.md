@@ -37,7 +37,7 @@ _Note: Scala 2.11 users should download the Spark source package and build
 [with Scala 2.11 support](http://spark.apache.org/docs/latest/building-spark.html#building-for-scala-211)._
 
 ### Link with Spark
-Spark artifacts are [hosted in Maven Central](http://search.maven.org/#browse%7C1686516968). You can add a Maven dependency with the following coordinates:
+Spark artifacts are [hosted in Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.apache.spark%22). You can add a Maven dependency with the following coordinates:
 
     groupId: org.apache.spark
     artifactId: spark-core_2.10
