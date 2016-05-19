@@ -21,7 +21,7 @@ subproject: Streaming
       Build applications through high-level operators.
     </p>
     <p>
-      Spark Streaming brings Spark's
+      Spark Streaming brings Apache Spark's
       <a href="{{site.url}}docs/latest/streaming-programming-guide.html">language-integrated API</a>
       to stream processing, letting you write streaming jobs the same way you write batch jobs.
       It supports Java, Scala and Python.
@@ -142,7 +142,7 @@ subproject: Streaming
 <div class="row">
   <div class="col-sm-12 col-center">
     <a href="{{site.url}}downloads.html" class="btn btn-success btn-lg btn-multiline">
-      Download Spark<br/><span class="small">Includes Spark Streaming</span>
+      Download Apache Spark<br/><span class="small">Includes Spark Streaming</span>
     </a>
   </div>
 </div>

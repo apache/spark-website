@@ -112,7 +112,7 @@ subproject: GraphX
 <div class="row">
   <div class="col-sm-12 col-center">
     <a href="{{site.url}}downloads.html" class="btn btn-success btn-lg btn-multiline">
-      Download Spark<br/><span class="small">Includes GraphX</span>
+      Download Apache Spark<br/><span class="small">Includes GraphX</span>
     </a>
   </div>
 </div>

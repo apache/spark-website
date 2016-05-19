@@ -144,7 +144,7 @@ subproject: MLlib
 <div class="row">
   <div class="col-sm-12 col-center">
     <a href="{{site.url}}downloads.html" class="btn btn-success btn-lg btn-multiline">
-      Download Spark<br/><span class="small">Includes MLlib</span>
+      Download Apache Spark<br/><span class="small">Includes MLlib</span>
     </a>
   </div>
 </div>

@@ -16,7 +16,7 @@ $(document).ready(function() {
 
 ## Download Apache Spark&trade;
 
-Our latest version is Spark 1.6.1, released on March 9, 2016
+Our latest version is Apache Spark 1.6.1, released on March 9, 2016
 <a href="{{site.url}}releases/spark-release-1-6-1.html">(release notes)</a>
 <a href="https://github.com/apache/spark/releases/tag/v1.6.1">(git tag)</a><br/>
 

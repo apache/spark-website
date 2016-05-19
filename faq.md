@@ -6,16 +6,16 @@ navigation:
   weight: 7
   show: true
 ---
-<h2>Spark FAQ</h2>
+<h2>Apache Spark FAQ</h2>
 
-<p class="question">How does Spark relate to Hadoop?</p>
+<p class="question">How does Spark relate to Apache Hadoop?</p>
 <p class="answer">
 Spark is a fast and general processing engine compatible with Hadoop data. It can run in Hadoop clusters through YARN or Spark's standalone mode, and it can process data in HDFS, HBase, Cassandra, Hive, and any Hadoop InputFormat. It is designed to perform both batch processing (similar to MapReduce) and new workloads like streaming, interactive queries, and machine learning.
 </p>
 
 <p class="question">Who is using Spark in production?</p>
 
-<p class="answer">As of early 2015, <a href="http://java.dzone.com/articles/apache-spark-survey-typesafe-0">surveys</a> show that more than 500 organizations are using Spark in production. Some of them are listed on the <a href="https://cwiki.apache.org/confluence/display/SPARK/Powered+By+Spark">Powered By page</a> and at the <a href="http://spark-summit.org">Spark Summit</a>.</p>
+<p class="answer">As of 2016, surveys show that more than 1000 organizations are using Spark in production. Some of them are listed on the <a href="https://cwiki.apache.org/confluence/display/SPARK/Powered+By+Spark">Powered By page</a> and at the <a href="http://spark-summit.org">Spark Summit</a>.</p>
 
 
 <p class="question">How large a cluster can Spark scale to?</p>
@@ -48,6 +48,17 @@ Spark is a fast and general processing engine compatible with Hadoop data. It ca
 <p class="question">I understand Spark Streaming uses micro-batching. Does this increase latency?</p>
 
 While Spark does use a micro-batch execution model, this does not have much impact on applications, because the batches can be as short as 0.5 seconds. In most applications of streaming big data, the analytics is done over a larger window (say 10 minutes), or the latency to get data in is higher (e.g. sensors collect readings every 10 seconds). The benefit of Spark's micro-batch model is that it enables <a href="http://people.csail.mit.edu/matei/papers/2013/sosp_spark_streaming.pdf">exactly-once semantics</a>, meaning the system can recover all intermediate state and results on failure.
+
+<p class="question">Where can I find high-resolution versions of the Spark logo?</p>
+
+<p class="answer">We provide versions here:
+  <a href="images/spark-logo.eps">black logo</a>,
+  <a href="images/spark-logo-reverse.eps">white logo</a>.
+  Please be aware that Spark, Apache Spark and the Spark logo are
+  trademarks of the Apache Software Foundation, and follow the Foundation's
+  <a href="https://www.apache.org/foundation/marks/">trademark policy</a>
+  in all uses of these logos.
+</p>
 
 <p class="question">How can I contribute to Spark?</p>
 

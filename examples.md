@@ -6,7 +6,7 @@ navigation:
   weight: 4
   show: true
 ---
-<h1>Spark Examples</h1>
+<h2>Apache Spark Examples</h2>
 
 These examples give a quick overview of the Spark API.
 Spark is built on the concept of <em>distributed datasets</em>, which contain arbitrary Java or

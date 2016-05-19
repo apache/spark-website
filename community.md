@@ -7,7 +7,7 @@ navigation:
   show: true
 ---
 
-<h2>Spark Community</h2>
+<h2>Apache Spark Community</h2>
 
 <a name="mailing-lists"></a>
 <h3>Mailing Lists</h3>

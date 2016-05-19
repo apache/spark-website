@@ -7,7 +7,7 @@ navigation:
   show: true
 ---
 
-<h2>Spark Documentation</h2>
+<h2>Apache Spark Documentation</h2>
 
 <p>Setup instructions, programming guides, and other documentation are available for each version of Spark below:</p>
 

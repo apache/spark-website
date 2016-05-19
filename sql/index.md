@@ -8,7 +8,7 @@ subproject: SQL
 
 
 <div class="jumbotron">
-  <b>Spark SQL</b> is Spark's module for working with structured data.
+  <b>Spark SQL</b> is Apache Spark's module for working with structured data.
 </div>
 
 
@@ -162,7 +162,7 @@ subproject: SQL
 <div class="row">
   <div class="col-sm-12 col-center">
     <a href="{{site.url}}downloads.html" class="btn btn-success btn-lg btn-multiline">
-      Download Spark<br/><span class="small">Includes Spark SQL</span>
+      Download Apache Spark<br/><span class="small">Includes Spark SQL</span>
     </a>
   </div>
 </div>
