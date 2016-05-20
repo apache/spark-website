@@ -177,9 +177,8 @@ function updateDownloadLink() {
   if (pkg.toLowerCase().indexOf("mapr") > -1) {
     link = "http://package.mapr.com/tools/apache-spark/$ver/$artifact"
   } else if (download == "apache") {
-    if (version < "1.3.1" ||
-        (version >= "1.4.0" && version < "1.4.1") ||
-        (version >= "1.5.0" && version < "1.5.1")) {
+    if (version < "1.5.2" ||
+        (version >= "1.6.0" && version < "1.6.1")) {
       link = "http://archive.apache.org/dist/spark/spark-$ver/$artifact";
     } else {
       link = "http://www.apache.org/dyn/closer.lua/spark/spark-$ver/$artifact";
