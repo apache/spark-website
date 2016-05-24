@@ -37,7 +37,7 @@ Spark offers an abstraction called <a href="http://www.cs.berkeley.edu/~matei/pa
     <a href="https://people.csail.mit.edu/matei/papers/2016/sigmod_sparkr.pdf">SparkR: Scaling R Programs with Spark</a>, Shivaram Venkataraman, Zongheng Yang, Davies Liu, Eric Liang, Hossein Falaki, Xiangrui Meng, Reynold Xin, Ali Ghodsi, Michael Franklin, Ion Stoica, and Matei Zaharia. <em>SIGMOD 2016</em>. June 2016.
   </li>
   <li>
-    <a href="http://www.jmlr.org/papers/volume17/15-237/15-237.pdf">MLlib: Machine Learning in Apache Spark</a>, Xiangrui Meng, Joseph Bradley, Burak Yavuz, Evan Sparks, Shivaram Venkataraman, Davies Liu, Jeremy Freeman, DB Tsai, Manish Amde, Sean Owen, Doris Xin, Reynold Xin, Michael J. Franklin, Reza Zadeh, Matei Zaharia, and Ameet Talwalkar. <em>Journal of Machine Learning Research (JLMR)</em>. 2016.
+    <a href="http://www.jmlr.org/papers/volume17/15-237/15-237.pdf">MLlib: Machine Learning in Apache Spark</a>, Xiangrui Meng, Joseph Bradley, Burak Yavuz, Evan Sparks, Shivaram Venkataraman, Davies Liu, Jeremy Freeman, DB Tsai, Manish Amde, Sean Owen, Doris Xin, Reynold Xin, Michael J. Franklin, Reza Zadeh, Matei Zaharia, and Ameet Talwalkar. <em>Journal of Machine Learning Research (JMLR)</em>. 2016.
   </li>
   <li>
     <a href="http://people.csail.mit.edu/matei/papers/2015/sigmod_spark_sql.pdf">Spark SQL: Relational Data Processing in Spark</a>. Michael Armbrust, Reynold S. Xin, Cheng Lian, Yin Huai, Davies Liu, Joseph K. Bradley, Xiangrui Meng, Tomer Kaftan, Michael J. Franklin, Ali Ghodsi, Matei Zaharia. <em>SIGMOD 2015</em>. June 2015.
