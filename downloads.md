@@ -54,9 +54,15 @@ If you are interested in working with the newest under-development code or contr
 
 Once you've downloaded Spark, you can find instructions for installing and building it on the <a href="{{site.url}}documentation.html">documentation page</a>.
 
-### Nightly Packages and Artifacts
+<h3 id="all-releases">Stable Releases</h3>
+<ul id="sparkReleaseNotes"></ul>
 
+### Latest Preview Release (Spark 2.0.0-preview)
+Preview releases, as the name suggests, are releases for previewing upcoming features. Unlike nightly packages, preview releases have been audited by the project's management committee to satisfy the legal requirements of Apache Software Foundation's release policy.Preview releases are not meant to be functional, i.e. they can and highly likely will contain critical bugs or documentation errors.
+
+The latest preview release is Spark 2.0.0-preview, published on May 24, 2016. You can <a href="https://dist.apache.org/repos/dist/release/spark/spark-2.0.0-preview/">download it here</a>.
+
+
+### Nightly Packages and Artifacts
 For developers, Spark maintains nightly builds and SNAPSHOT artifacts. More information is available on the [Spark developer Wiki](https://cwiki.apache.org/confluence/display/SPARK/Useful+Developer+Tools#UsefulDeveloperTools-NightlyBuilds).
 
-<h3 id="all-releases">All Releases</h3>
-<ul id="sparkReleaseNotes">
