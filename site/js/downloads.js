@@ -53,18 +53,18 @@ addRelease("1.1.0", new Date("9/11/2014"), sources.concat(packagesV4), true, tru
 addRelease("1.0.2", new Date("8/5/2014"), sources.concat(packagesV3), true, true);
 addRelease("1.0.1", new Date("7/11/2014"), sources.concat(packagesV3), false, true);
 addRelease("1.0.0", new Date("5/30/2014"), sources.concat(packagesV2), false, true);
-addRelease("0.9.2", new Date("7/23/2014"), sources.concat(packagesV2), true, false);
-addRelease("0.9.1", new Date("4/9/2014"), sources.concat(packagesV2), false, false);
-addRelease("0.9.0-incubating", new Date("2/2/2014"), sources.concat(packagesV2), false, false);
-addRelease("0.8.1-incubating", new Date("12/19/2013"), sources.concat(packagesV2), true, false);
-addRelease("0.8.0-incubating", new Date("9/25/2013"), sources.concat(packagesV1), true, false);
-addRelease("0.7.3", new Date("7/16/2013"), sources.concat(packagesV1), true, false);
-addRelease("0.7.2", new Date("2/6/2013"), sources.concat(packagesV1), false, false);
-addRelease("0.7.0", new Date("2/27/2013"), sources, false, false);
+addRelease("0.9.2", new Date("7/23/2014"), sources.concat(packagesV2), true, true);
+addRelease("0.9.1", new Date("4/9/2014"), sources.concat(packagesV2), false, true);
+addRelease("0.9.0-incubating", new Date("2/2/2014"), sources.concat(packagesV2), false, true);
+addRelease("0.8.1-incubating", new Date("12/19/2013"), sources.concat(packagesV2), true, true);
+addRelease("0.8.0-incubating", new Date("9/25/2013"), sources.concat(packagesV1), true, true);
+addRelease("0.7.3", new Date("7/16/2013"), sources.concat(packagesV1), true, true);
+addRelease("0.7.2", new Date("2/6/2013"), sources.concat(packagesV1), false, true);
+addRelease("0.7.0", new Date("2/27/2013"), sources, false, true);
 
 function append(el, contents) {
-  el.innerHTML = el.innerHTML + contents;
-};
+  el.innerHTML += contents;
+}
 
 function empty(el) {
   el.innerHTML = "";
@@ -79,27 +79,25 @@ function versionShort(version) { return version.replace(/-incubating/, ""); }
 function initDownloads() {
   var versionSelect = document.getElementById("sparkVersionSelect");
 
-  // Populate versions
-  var markedDefault = false;
+  // Populate stable versions
+  append(versionSelect, "<optgroup label=\"Stable\">");
   for (var version in releases) {
+    if (!releases[version].downloadable || !releases[version].stable) { continue; }
     var releaseDate = releases[version].released;
-    var downloadable = releases[version].downloadable;
-    var stable = releases[version].stable;
-
-    if (!downloadable) { continue; }
-
-    var selected = false;
-    if (!markedDefault && stable) {
-      selected = true;
-      markedDefault = true;
-    }
-
-    // Don't display incubation status here
     var title = versionShort(version) + " (" + releaseDate.toDateString().slice(4) + ")";
-    append(versionSelect, 
-      "<option value=\"" + version + "\"" + (selected ? " selected=\"selected\"" : "") + ">" +
-      title + "</option>");
+    append(versionSelect, "<option value=\"" + version + "\">" + title + "</option>");
   }
+  append(versionSelect, "</optgroup>");
+
+  // Populate other versions
+  append(versionSelect, "<optgroup label=\"Preview\">");
+  for (var version in releases) {
+    if (!releases[version].downloadable || releases[version].stable) { continue; }
+    var releaseDate = releases[version].released;
+    var title = versionShort(version) + " (" + releaseDate.toDateString().slice(4) + ")";
+    append(versionSelect, "<option value=\"" + version + "\">" + title + "</option>");
+  }
+  append(versionSelect, "</optgroup>");
 
   // Populate packages and (transitively) releases
   onVersionSelect();
