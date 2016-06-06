@@ -16,7 +16,7 @@ $(document).ready(function() {
 
 ## Download Apache Spark&trade;
 
-Our latest version is Apache Spark 1.6.1, released on March 9, 2016
+Our latest stable version is Apache Spark 1.6.1, released on March 9, 2016
 <a href="{{site.url}}releases/spark-release-1-6-1.html">(release notes)</a>
 <a href="https://github.com/apache/spark/releases/tag/v1.6.1">(git tag)</a><br/>
 
@@ -36,6 +36,17 @@ Our latest version is Apache Spark 1.6.1, released on March 9, 2016
 _Note: Scala 2.11 users should download the Spark source package and build
 [with Scala 2.11 support](http://spark.apache.org/docs/latest/building-spark.html#building-for-scala-211)._
 
+### Latest Preview Release
+
+Preview releases, as the name suggests, are releases for previewing upcoming features.
+Unlike nightly packages, preview releases have been audited by the project's management committee
+to satisfy the legal requirements of Apache Software Foundation's release policy.
+Preview releases are not meant to be functional, i.e. they can and highly likely will contain
+critical bugs or documentation errors.
+
+The latest preview release is Spark 2.0.0-preview, published on May 24, 2016.
+You can select and download it above.
+
 ### Link with Spark
 Spark artifacts are [hosted in Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.apache.spark%22). You can add a Maven dependency with the following coordinates:
 
@@ -54,14 +65,9 @@ If you are interested in working with the newest under-development code or contr
 
 Once you've downloaded Spark, you can find instructions for installing and building it on the <a href="{{site.url}}documentation.html">documentation page</a>.
 
-<h3 id="all-releases">Stable Releases</h3>
+### Release Notes for Stable Releases
+
 <ul id="sparkReleaseNotes"></ul>
-
-### Latest Preview Release (Spark 2.0.0-preview)
-Preview releases, as the name suggests, are releases for previewing upcoming features. Unlike nightly packages, preview releases have been audited by the project's management committee to satisfy the legal requirements of Apache Software Foundation's release policy.Preview releases are not meant to be functional, i.e. they can and highly likely will contain critical bugs or documentation errors.
-
-The latest preview release is Spark 2.0.0-preview, published on May 24, 2016. You can <a href="https://dist.apache.org/repos/dist/release/spark/spark-2.0.0-preview/">download it here</a>.
-
 
 ### Nightly Packages and Artifacts
 For developers, Spark maintains nightly builds and SNAPSHOT artifacts. More information is available on the [Spark developer Wiki](https://cwiki.apache.org/confluence/display/SPARK/Useful+Developer+Tools#UsefulDeveloperTools-NightlyBuilds).

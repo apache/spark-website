@@ -3,8 +3,8 @@
 
 releases = {};
 
-function addRelease(version, releaseDate, packages, downloadable) {
-  releases[version] = {released: releaseDate, packages: packages, downloadable: downloadable};
+function addRelease(version, releaseDate, packages, downloadable, stable) {
+  releases[version] = {released: releaseDate, packages: packages, downloadable: downloadable, stable: stable};
 }
 
 var sources = {pretty: "Source Code [can build several Hadoop versions]", tag: "sources"};
@@ -13,8 +13,9 @@ var hadoop1 = {pretty: "Pre-built for Hadoop 1.X", tag: "hadoop1"};
 var cdh4 = {pretty: "Pre-built for CDH 4", tag: "cdh4"};
 var hadoop2 = {pretty: "Pre-built for Hadoop 2.2", tag: "hadoop2"};
 var hadoop2p3 = {pretty: "Pre-built for Hadoop 2.3", tag: "hadoop2.3"};
-var hadoop2p4 = {pretty: "Pre-built for Hadoop 2.4 and later", tag: "hadoop2.4"};
-var hadoop2p6 = {pretty: "Pre-built for Hadoop 2.6 and later", tag: "hadoop2.6"};
+var hadoop2p4 = {pretty: "Pre-built for Hadoop 2.4", tag: "hadoop2.4"};
+var hadoop2p6 = {pretty: "Pre-built for Hadoop 2.6", tag: "hadoop2.6"};
+var hadoop2p7 = {pretty: "Pre-built for Hadoop 2.7 and later", tag: "hadoop2.7"};
 var mapr3 = {pretty: "Pre-built for MapR 3.X", tag: "mapr3"};
 var mapr4 = {pretty: "Pre-built for MapR 4.X", tag: "mapr4"};
 
@@ -31,32 +32,35 @@ var packagesV4 = [hadoop2p4, hadoop2p3, mapr3, mapr4].concat(packagesV1);
 var packagesV5 = [hadoop2p6].concat(packagesV4);
 // 1.4.0+
 var packagesV6 = [hadoopFree, hadoop2p6, hadoop2p4, hadoop2p3].concat(packagesV1);
+// 2.0.0+
+var packagesV7 = [hadoopFree, hadoop2p7, hadoop2p6, hadoop2p4, hadoop2p3];
 
-addRelease("1.6.1", new Date("03/09/2016"), sources.concat(packagesV6), true);
-addRelease("1.6.0", new Date("01/04/2016"), sources.concat(packagesV6), true);
-addRelease("1.5.2", new Date("11/09/2015"), sources.concat(packagesV6), true);
-addRelease("1.5.1", new Date("10/02/2015"), sources.concat(packagesV6), true);
-addRelease("1.5.0", new Date("9/09/2015"), sources.concat(packagesV6), true);
-addRelease("1.4.1", new Date("7/15/2015"), sources.concat(packagesV6), true);
-addRelease("1.4.0", new Date("6/11/2015"), sources.concat(packagesV6), true);
-addRelease("1.3.1", new Date("4/17/2015"), sources.concat(packagesV5), true);
-addRelease("1.3.0", new Date("3/13/2015"), sources.concat(packagesV4), true);
-addRelease("1.2.2", new Date("4/17/2015"), sources.concat(packagesV4), true);
-addRelease("1.2.1", new Date("2/9/2015"), sources.concat(packagesV4), true);
-addRelease("1.2.0", new Date("12/18/2014"), sources.concat(packagesV4), true);
-addRelease("1.1.1", new Date("11/26/2014"), sources.concat(packagesV4), true);
-addRelease("1.1.0", new Date("9/11/2014"), sources.concat(packagesV4), true);
-addRelease("1.0.2", new Date("8/5/2014"), sources.concat(packagesV3), true);
-addRelease("1.0.1", new Date("7/11/2014"), sources.concat(packagesV3));
-addRelease("1.0.0", new Date("5/30/2014"), sources.concat(packagesV2));
-addRelease("0.9.2", new Date("7/23/2014"), sources.concat(packagesV2), true);
-addRelease("0.9.1", new Date("4/9/2014"), sources.concat(packagesV2));
-addRelease("0.9.0-incubating", new Date("2/2/2014"), sources.concat(packagesV2));
-addRelease("0.8.1-incubating", new Date("12/19/2013"), sources.concat(packagesV2), true);
-addRelease("0.8.0-incubating", new Date("9/25/2013"), sources.concat(packagesV1), true);
-addRelease("0.7.3", new Date("7/16/2013"), sources.concat(packagesV1), true);
-addRelease("0.7.2", new Date("2/6/2013"), sources.concat(packagesV1));
-addRelease("0.7.0", new Date("2/27/2013"), sources);
+addRelease("2.0.0-preview", new Date("05/24/2016"), sources.concat(packagesV7), true, false);
+addRelease("1.6.1", new Date("03/09/2016"), sources.concat(packagesV6), true, true);
+addRelease("1.6.0", new Date("01/04/2016"), sources.concat(packagesV6), true, true);
+addRelease("1.5.2", new Date("11/09/2015"), sources.concat(packagesV6), true, true);
+addRelease("1.5.1", new Date("10/02/2015"), sources.concat(packagesV6), true, true);
+addRelease("1.5.0", new Date("9/09/2015"), sources.concat(packagesV6), true, true);
+addRelease("1.4.1", new Date("7/15/2015"), sources.concat(packagesV6), true, true);
+addRelease("1.4.0", new Date("6/11/2015"), sources.concat(packagesV6), true, true);
+addRelease("1.3.1", new Date("4/17/2015"), sources.concat(packagesV5), true, true);
+addRelease("1.3.0", new Date("3/13/2015"), sources.concat(packagesV4), true, true);
+addRelease("1.2.2", new Date("4/17/2015"), sources.concat(packagesV4), true, true);
+addRelease("1.2.1", new Date("2/9/2015"), sources.concat(packagesV4), true, true);
+addRelease("1.2.0", new Date("12/18/2014"), sources.concat(packagesV4), true, true);
+addRelease("1.1.1", new Date("11/26/2014"), sources.concat(packagesV4), true, true);
+addRelease("1.1.0", new Date("9/11/2014"), sources.concat(packagesV4), true, true);
+addRelease("1.0.2", new Date("8/5/2014"), sources.concat(packagesV3), true, true);
+addRelease("1.0.1", new Date("7/11/2014"), sources.concat(packagesV3), false, true);
+addRelease("1.0.0", new Date("5/30/2014"), sources.concat(packagesV2), false, true);
+addRelease("0.9.2", new Date("7/23/2014"), sources.concat(packagesV2), true, false);
+addRelease("0.9.1", new Date("4/9/2014"), sources.concat(packagesV2), false, false);
+addRelease("0.9.0-incubating", new Date("2/2/2014"), sources.concat(packagesV2), false, false);
+addRelease("0.8.1-incubating", new Date("12/19/2013"), sources.concat(packagesV2), true, false);
+addRelease("0.8.0-incubating", new Date("9/25/2013"), sources.concat(packagesV1), true, false);
+addRelease("0.7.3", new Date("7/16/2013"), sources.concat(packagesV1), true, false);
+addRelease("0.7.2", new Date("2/6/2013"), sources.concat(packagesV1), false, false);
+addRelease("0.7.0", new Date("2/27/2013"), sources, false, false);
 
 function append(el, contents) {
   el.innerHTML = el.innerHTML + contents;
@@ -76,15 +80,25 @@ function initDownloads() {
   var versionSelect = document.getElementById("sparkVersionSelect");
 
   // Populate versions
+  var markedDefault = false;
   for (var version in releases) {
     var releaseDate = releases[version].released;
     var downloadable = releases[version].downloadable;
+    var stable = releases[version].stable;
 
     if (!downloadable) { continue; }
 
+    var selected = false;
+    if (!markedDefault && stable) {
+      selected = true;
+      markedDefault = true;
+    }
+
     // Don't display incubation status here
     var title = versionShort(version) + " (" + releaseDate.toDateString().slice(4) + ")";
-    append(versionSelect, "<option value=\"" + version + "\">" + title + "</option>");
+    append(versionSelect, 
+      "<option value=\"" + version + "\"" + (selected ? " selected=\"selected\"" : "") + ">" +
+      title + "</option>");
   }
 
   // Populate packages and (transitively) releases
@@ -94,12 +108,13 @@ function initDownloads() {
 function initReleaseNotes() {
   var releaseNotes = document.getElementById("sparkReleaseNotes");
   for (var version in releases) {
+    if (!releases[version].stable) { continue; }
     var releaseDate = releases[version].released;
     var verShort = versionShort(version);
     var contents = "<li><a href='releases/spark-release-$verUrl.html'>Spark $ver</a> ($date)</li>"
       .replace(/\$verUrl/, verShort.replace(/\./g, "-"))
       .replace(/\$ver/, verShort)
-      .replace(/\$date/, releaseDate.toDateString().slice(4))
+      .replace(/\$date/, releaseDate.toDateString().slice(4));
     append(releaseNotes, contents);
   }
 }
@@ -122,7 +137,7 @@ function onVersionSelect() {
   }
 
   var href = "http://www.apache.org/dist/spark/spark-" + version + "/";
-  var link = "<a href=\"" + href + "\">" + versionShort(version) + " signatures and checksums</a>"
+  var link = "<a href=\"" + href + "\">" + versionShort(version) + " signatures and checksums</a>";
   append(verifyLink, link);
 
   // Populate releases
@@ -142,8 +157,8 @@ function onPackageSelect() {
     var external = "External Download (MAY CONTAIN INCOMPATIBLE LICENSES)";
     append(downloadSelect, "<option value='external'>" + external + "</option>");
   } else {
-    append(downloadSelect, "<option value='apache'>Select Apache Mirror</option>")
-    append(downloadSelect, "<option value='direct'>Direct Download</option>")
+    append(downloadSelect, "<option value='apache'>Select Apache Mirror</option>");
+    append(downloadSelect, "<option value='direct'>Direct Download</option>");
   }
   updateDownloadLink();
 }
