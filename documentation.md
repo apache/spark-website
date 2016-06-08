@@ -9,10 +9,10 @@ navigation:
 
 <h2>Apache Spark Documentation</h2>
 
-<p>Setup instructions, programming guides, and other documentation are available for each version of Spark below:</p>
+<p>Setup instructions, programming guides, and other documentation are available for each stable version of Spark below:</p>
 
 <ul>
-  <li><a href="{{site.url}}docs/latest/">Spark 1.6.1 (latest release)</a></li>
+  <li><a href="{{site.url}}docs/1.6.1/">Spark 1.6.1 (latest release)</a></li>
   <li><a href="{{site.url}}docs/1.6.0/">Spark 1.6.0</a></li>
   <li><a href="{{site.url}}docs/1.5.2/">Spark 1.5.2</a></li>
   <li><a href="{{site.url}}docs/1.5.1/">Spark 1.5.1</a></li>
@@ -28,6 +28,12 @@ navigation:
   <li><a href="{{site.url}}docs/0.8.1/">Spark 0.8.1</a></li>
   <li><a href="{{site.url}}docs/0.7.3/">Spark 0.7.3</a></li>
   <li><a href="{{site.url}}docs/0.6.2/">Spark 0.6.2</a></li>
+</ul>
+
+<p>Documentation for preview releases:</p>
+
+<ul>
+  <li><a href="{{site.url}}docs/2.0.0-preview/">Spark 2.0.0 preview</a></li>
 </ul>
 
 <p>The documentation linked to above covers getting started with Spark, as well the built-in components <a href="{{site.url}}docs/latest/mllib-guide.html">MLlib</a>,

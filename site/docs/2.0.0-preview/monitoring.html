@@ -1,0 +1,547 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Monitoring and Instrumentation - Spark 2.0.0 Documentation</title>
+        
+          <meta name="description" content="Monitoring, metrics, and instrumentation guide for Spark 2.0.0">
+        
+
+        
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 60px;
+                padding-bottom: 40px;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+
+        <link rel="stylesheet" href="css/pygments-default.css">
+
+        
+
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
+
+        <div class="navbar navbar-fixed-top" id="topbar">
+            <div class="navbar-inner">
+                <div class="container">
+                    <div class="brand"><a href="index.html">
+                      <img src="img/spark-logo-hd.png" style="height:50px;"/></a><span class="version">2.0.0</span>
+                    </div>
+                    <ul class="nav">
+                        <!--TODO(andyk): Add class="active" attribute to li some how.-->
+                        <li><a href="index.html">Overview</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Programming Guides<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="quick-start.html">Quick Start</a></li>
+                                <li><a href="programming-guide.html">Spark Programming Guide</a></li>
+                                <li class="divider"></li>
+                                <li><a href="streaming-programming-guide.html">Spark Streaming</a></li>
+                                <li><a href="sql-programming-guide.html">DataFrames, Datasets and SQL</a></li>
+                                <li><a href="mllib-guide.html">MLlib (Machine Learning)</a></li>
+                                <li><a href="graphx-programming-guide.html">GraphX (Graph Processing)</a></li>
+                                <li><a href="sparkr.html">SparkR (R on Spark)</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">API Docs<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="api/scala/index.html#org.apache.spark.package">Scala</a></li>
+                                <li><a href="api/java/index.html">Java</a></li>
+                                <li><a href="api/python/index.html">Python</a></li>
+                                <li><a href="api/R/index.html">R</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Deploying<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="cluster-overview.html">Overview</a></li>
+                                <li><a href="submitting-applications.html">Submitting Applications</a></li>
+                                <li class="divider"></li>
+                                <li><a href="spark-standalone.html">Spark Standalone</a></li>
+                                <li><a href="running-on-mesos.html">Mesos</a></li>
+                                <li><a href="running-on-yarn.html">YARN</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="api.html" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="configuration.html">Configuration</a></li>
+                                <li><a href="monitoring.html">Monitoring</a></li>
+                                <li><a href="tuning.html">Tuning Guide</a></li>
+                                <li><a href="job-scheduling.html">Job Scheduling</a></li>
+                                <li><a href="security.html">Security</a></li>
+                                <li><a href="hardware-provisioning.html">Hardware Provisioning</a></li>
+                                <li class="divider"></li>
+                                <li><a href="building-spark.html">Building Spark</a></li>
+                                <li><a href="https://cwiki.apache.org/confluence/display/SPARK/Contributing+to+Spark">Contributing to Spark</a></li>
+                                <li><a href="https://cwiki.apache.org/confluence/display/SPARK/Supplemental+Spark+Projects">Supplemental Projects</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <!--<p class="navbar-text pull-right"><span class="version-text">v2.0.0</span></p>-->
+                </div>
+            </div>
+        </div>
+
+        <div class="container-wrapper">
+
+            
+                <div class="content" id="content">
+                    
+                        <h1 class="title">Monitoring and Instrumentation</h1>
+                    
+
+                    <p>There are several ways to monitor Spark applications: web UIs, metrics, and external instrumentation.</p>
+
+<h1 id="web-interfaces">Web Interfaces</h1>
+
+<p>Every SparkContext launches a web UI, by default on port 4040, that
+displays useful information about the application. This includes:</p>
+
+<ul>
+  <li>A list of scheduler stages and tasks</li>
+  <li>A summary of RDD sizes and memory usage</li>
+  <li>Environmental information.</li>
+  <li>Information about the running executors</li>
+</ul>
+
+<p>You can access this interface by simply opening <code>http://&lt;driver-node&gt;:4040</code> in a web browser.
+If multiple SparkContexts are running on the same host, they will bind to successive ports
+beginning with 4040 (4041, 4042, etc).</p>
+
+<p>Note that this information is only available for the duration of the application by default.
+To view the web UI after the fact, set <code>spark.eventLog.enabled</code> to true before starting the
+application. This configures Spark to log Spark events that encode the information displayed
+in the UI to persisted storage.</p>
+
+<h2 id="viewing-after-the-fact">Viewing After the Fact</h2>
+
+<p>If Spark is run on Mesos or YARN, it is still possible to construct the UI of an
+application through Spark&#8217;s history server, provided that the application&#8217;s event logs exist.
+You can start the history server by executing:</p>
+
+<pre><code>./sbin/start-history-server.sh
+</code></pre>
+
+<p>This creates a web interface at <code>http://&lt;server-url&gt;:18080</code> by default, listing incomplete
+and completed applications and attempts.</p>
+
+<p>When using the file-system provider class (see <code>spark.history.provider</code> below), the base logging
+directory must be supplied in the <code>spark.history.fs.logDirectory</code> configuration option,
+and should contain sub-directories that each represents an application&#8217;s event logs.</p>
+
+<p>The spark jobs themselves must be configured to log events, and to log them to the same shared,
+writeable directory. For example, if the server was configured with a log directory of
+<code>hdfs://namenode/shared/spark-logs</code>, then the client-side options would be:</p>
+
+<pre><code>spark.eventLog.enabled true
+spark.eventLog.dir hdfs://namenode/shared/spark-logs
+</code></pre>
+
+<p>The history server can be configured as follows:</p>
+
+<h3 id="environment-variables">Environment Variables</h3>
+
+<table class="table">
+  <tr><th style="width:21%">Environment Variable</th><th>Meaning</th></tr>
+  <tr>
+    <td><code>SPARK_DAEMON_MEMORY</code></td>
+    <td>Memory to allocate to the history server (default: 1g).</td>
+  </tr>
+  <tr>
+    <td><code>SPARK_DAEMON_JAVA_OPTS</code></td>
+    <td>JVM options for the history server (default: none).</td>
+  </tr>
+  <tr>
+    <td><code>SPARK_PUBLIC_DNS</code></td>
+    <td>
+      The public address for the history server. If this is not set, links to application history
+      may use the internal address of the server, resulting in broken links (default: none).
+    </td>
+  </tr>
+  <tr>
+    <td><code>SPARK_HISTORY_OPTS</code></td>
+    <td>
+      <code>spark.history.*</code> configuration options for the history server (default: none).
+    </td>
+  </tr>
+</table>
+
+<h3 id="spark-configuration-options">Spark configuration options</h3>
+
+<table class="table">
+  <tr><th>Property Name</th><th>Default</th><th>Meaning</th></tr>
+  <tr>
+    <td>spark.history.provider</td>
+    <td><code>org.apache.spark.deploy.history.FsHistoryProvider</code></td>
+    <td>Name of the class implementing the application history backend. Currently there is only
+    one implementation, provided by Spark, which looks for application logs stored in the
+    file system.</td>
+  </tr>
+  <tr>
+    <td>spark.history.fs.logDirectory</td>
+    <td>file:/tmp/spark-events</td>
+    <td>
+    For the filesystem history provider, the URL to the directory containing application event
+    logs to load. This can be a local <code>file://</code> path,
+    an HDFS path <code>hdfs://namenode/shared/spark-logs</code>
+    or that of an alternative filesystem supported by the Hadoop APIs.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.fs.update.interval</td>
+    <td>10s</td>
+    <td>
+      The period at which the filesystem history provider checks for new or
+      updated logs in the log directory. A shorter interval detects new applications faster,
+      at the expense of more server load re-reading updated applications.
+      As soon as an update has completed, listings of the completed and incomplete applications
+      will reflect the changes.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.retainedApplications</td>
+    <td>50</td>
+    <td>
+      The number of application UIs to retain. If this cap is exceeded, then the oldest
+      applications will be removed.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.ui.port</td>
+    <td>18080</td>
+    <td>
+      The port to which the web interface of the history server binds.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.kerberos.enabled</td>
+    <td>false</td>
+    <td>
+      Indicates whether the history server should use kerberos to login. This is required
+      if the history server is accessing HDFS files on a secure Hadoop cluster. If this is
+      true, it uses the configs <code>spark.history.kerberos.principal</code> and
+      <code>spark.history.kerberos.keytab</code>.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.kerberos.principal</td>
+    <td>(none)</td>
+    <td>
+      Kerberos principal name for the History Server.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.kerberos.keytab</td>
+    <td>(none)</td>
+    <td>
+      Location of the kerberos keytab file for the History Server.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.ui.acls.enable</td>
+    <td>false</td>
+    <td>
+      Specifies whether acls should be checked to authorize users viewing the applications.
+      If enabled, access control checks are made regardless of what the individual application had
+      set for <code>spark.ui.acls.enable</code> when the application was run. The application owner
+      will always have authorization to view their own application and any users specified via
+      <code>spark.ui.view.acls</code> and groups specified via <code>spark.ui.view.acls.groups<code>
+      when the application was run will also have authorization to view that application.
+      If disabled, no access control checks are made.
+    
+  
+  <tr>
+    <td>spark.history.fs.cleaner.enabled</td>
+    <td>false</td>
+    <td>
+      Specifies whether the History Server should periodically clean up event logs from storage.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.fs.cleaner.interval</td>
+    <td>1d</td>
+    <td>
+      How often the filesystem job history cleaner checks for files to delete.
+      Files are only deleted if they are older than <code>spark.history.fs.cleaner.maxAge</code>
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.fs.cleaner.maxAge</td>
+    <td>7d</td>
+    <td>
+      Job history files older than this will be deleted when the filesystem history cleaner runs.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.fs.numReplayThreads</td>
+    <td>25% of available cores</td>
+    <td>
+      Number of threads that will be used by history server to process event logs.
+    </td>
+  </tr>
+
+
+Note that in all of these UIs, the tables are sortable by clicking their headers,
+making it easy to identify slow tasks, data skew, etc.
+
+Note
+
+1. The history server displays both completed and incomplete Spark jobs. If an application makes
+multiple attempts after failures, the failed attempts will be displayed, as well as any ongoing
+incomplete attempt or the final successful attempt.
+
+2. Incomplete applications are only updated intermittently. The time between updates is defined
+by the interval between checks for changed files (`spark.history.fs.update.interval`).
+On larger clusters the update interval may be set to large values.
+The way to view a running application is actually to view its own web UI.
+
+3. Applications which exited without registering themselves as completed will be listed
+as incomplete —even though they are no longer running. This can happen if an application
+crashes.
+
+2. One way to signal the completion of a Spark job is to stop the Spark Context
+explicitly (`sc.stop()`), or in Python using the `with SparkContext() as sc:` construct
+to handle the Spark Context setup and tear down.
+
+
+## REST API
+
+In addition to viewing the metrics in the UI, they are also available as JSON.  This gives developers
+an easy way to create new visualizations and monitoring tools for Spark.  The JSON is available for
+both running applications, and in the history server.  The endpoints are mounted at `/api/v1`.  Eg.,
+for the history server, they would typically be accessible at `http://<server-url>:18080/api/v1`, and
+for a running application, at `http://localhost:4040/api/v1`.
+
+In the API, an application is referenced by its application ID, `[app-id]`.
+When running on YARN, each application may have multiple attempts; each identified by their `[attempt-id]`.
+In the API listed below, `[app-id]` will actually be `[base-app-id]/[attempt-id]`,
+where `[base-app-id]` is the YARN application ID.
+
+<table class="table">
+  <tr><th>Endpoint</th><th>Meaning</th></tr>
+  <tr>
+    <td><code>/applications</code></td>
+    <td>A list of all applications.
+    <br />
+    <code>?status=[completed|running]</code> list only applications in the chosen state.
+    <br />
+    <code>?minDate=[date]</code> earliest date/time to list.
+    <br />Examples:
+    <br /><code>?minDate=2015-02-10</code>
+    <br /><code>?minDate=2015-02-03T16:42:40.000GMT</code>
+    <br /><code>?maxDate=[date]</code> latest date/time to list; uses same format as <code>minDate</code>.</td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/jobs</code></td>
+    <td>
+      A list of all jobs for a given application.
+      <br /><code>?status=[complete|succeeded|failed]</code> list only jobs in the specific state.
+    </td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/jobs/[job-id]</code></td>
+    <td>Details for the given job.</td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/stages</code></td>
+    <td>A list of all stages for a given application.</td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/stages/[stage-id]</code></td>
+    <td>
+      A list of all attempts for the given stage.
+      <br /><code>?status=[active|complete|pending|failed]</code> list only stages in the state.
+    </td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/stages/[stage-id]/[stage-attempt-id]</code></td>
+    <td>Details for the given stage attempt</td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/stages/[stage-id]/[stage-attempt-id]/taskSummary</code></td>
+    <td>
+      Summary metrics of all tasks in the given stage attempt.
+      <br /><code>?quantiles</code> summarize the metrics with the given quantiles.
+      <br />Example: <code>?quantiles=0.01,0.5,0.99</code>
+    </td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/stages/[stage-id]/[stage-attempt-id]/taskList</code></td>
+    <td>
+       A list of all tasks for the given stage attempt.
+      <br /><code>?offset=[offset]&amp;length=[len]</code> list tasks in the given range.
+      <br /><code>?sortBy=[runtime|-runtime]</code> sort the tasks.
+      <br />Example: <code>?offset=10&amp;length=50&amp;sortBy=runtime</code>
+    </td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/executors</code></td>
+    <td>A list of all executors for the given application.</td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/storage/rdd</code></td>
+    <td>A list of stored RDDs for the given application.</td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/storage/rdd/[rdd-id]</code></td>
+    <td>Details for the storage status of a given RDD.</td>
+  </tr>
+  <tr>
+    <td><code>/applications/[base-app-id]/logs</code></td>
+    <td>Download the event logs for all attempts of the given application as files within
+    a zip file.
+    </td>
+  </tr>
+  <tr>
+    <td><code>/applications/[base-app-id]/[attempt-id]/logs</code></td>
+    <td>Download the event logs for a specific application attempt as a zip file.</td>
+  </tr>
+</table>
+
+The number of jobs and stages which can retrieved is constrained by the same retention
+mechanism of the standalone Spark UI; `"spark.ui.retainedJobs"` defines the threshold
+value triggering garbage collection on jobs, and `spark.ui.retainedStages` that for stages.
+Note that the garbage collection takes place on playback: it is possible to retrieve
+more entries by increasing these values and restarting the history server.
+
+### API Versioning Policy
+
+These endpoints have been strongly versioned to make it easier to develop applications on top.
+ In particular, Spark guarantees:
+
+* Endpoints will never be removed from one version
+* Individual fields will never be removed for any given endpoint
+* New endpoints may be added
+* New fields may be added to existing endpoints
+* New versions of the api may be added in the future at a separate endpoint (eg., `api/v2`).  New versions are *not* required to be backwards compatible.
+* Api versions may be dropped, but only after at least one minor release of co-existing with a new api version.
+
+Note that even when examining the UI of a running applications, the `applications/[app-id]` portion is
+still required, though there is only one application available.  Eg. to see the list of jobs for the
+running app, you would go to `http://localhost:4040/api/v1/applications/[app-id]/jobs`.  This is to
+keep the paths consistent in both modes.
+
+# Metrics
+
+Spark has a configurable metrics system based on the
+[Dropwizard Metrics Library](http://metrics.dropwizard.io/).
+This allows users to report Spark metrics to a variety of sinks including HTTP, JMX, and CSV
+files. The metrics system is configured via a configuration file that Spark expects to be present
+at `$SPARK_HOME/conf/metrics.properties`. A custom file location can be specified via the
+`spark.metrics.conf` [configuration property](configuration.html#spark-properties).
+Spark's metrics are decoupled into different
+_instances_ corresponding to Spark components. Within each instance, you can configure a
+set of sinks to which metrics are reported. The following instances are currently supported:
+
+* `master`: The Spark standalone master process.
+* `applications`: A component within the master which reports on various applications.
+* `worker`: A Spark standalone worker process.
+* `executor`: A Spark executor.
+* `driver`: The Spark driver process (the process in which your SparkContext is created).
+
+Each instance can report to zero or more _sinks_. Sinks are contained in the
+`org.apache.spark.metrics.sink` package:
+
+* `ConsoleSink`: Logs metrics information to the console.
+* `CSVSink`: Exports metrics data to CSV files at regular intervals.
+* `JmxSink`: Registers metrics for viewing in a JMX console.
+* `MetricsServlet`: Adds a servlet within the existing Spark UI to serve metrics data as JSON data.
+* `GraphiteSink`: Sends metrics to a Graphite node.
+* `Slf4jSink`: Sends metrics to slf4j as log entries.
+
+Spark also supports a Ganglia sink which is not included in the default build due to
+licensing restrictions:
+
+* `GangliaSink`: Sends metrics to a Ganglia node or multicast group.
+
+To install the `GangliaSink` you'll need to perform a custom build of Spark. _**Note that
+by embedding this library you will include [LGPL](http://www.gnu.org/copyleft/lesser.html)-licensed
+code in your Spark package**_. For sbt users, set the
+`SPARK_GANGLIA_LGPL` environment variable before building. For Maven users, enable
+the `-Pspark-ganglia-lgpl` profile. In addition to modifying the cluster's Spark build
+user applications will need to link to the `spark-ganglia-lgpl` artifact.
+
+The syntax of the metrics configuration file is defined in an example configuration file,
+`$SPARK_HOME/conf/metrics.properties.template`.
+
+# Advanced Instrumentation
+
+Several external tools can be used to help profile the performance of Spark jobs:
+
+* Cluster-wide monitoring tools, such as [Ganglia](http://ganglia.sourceforge.net/), can provide
+insight into overall cluster utilization and resource bottlenecks. For instance, a Ganglia
+dashboard can quickly reveal whether a particular workload is disk bound, network bound, or
+CPU bound.
+* OS profiling tools such as [dstat](http://dag.wieers.com/home-made/dstat/),
+[iostat](http://linux.die.net/man/1/iostat), and [iotop](http://linux.die.net/man/1/iotop)
+can provide fine-grained profiling on individual nodes.
+* JVM utilities such as `jstack` for providing stack traces, `jmap` for creating heap-dumps,
+`jstat` for reporting time-series statistics and `jconsole` for visually exploring various JVM
+properties are useful for those comfortable with JVM internals.
+</server-url></code></code></td></tr></table>
+
+
+                </div>
+            
+             <!-- /container -->
+        </div>
+
+        <script src="js/vendor/jquery-1.8.0.min.js"></script>
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/vendor/anchor.min.js"></script>
+        <script src="js/main.js"></script>
+
+        <!-- MathJax Section -->
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({
+                TeX: { equationNumbers: { autoNumber: "AMS" } }
+            });
+        </script>
+        <script>
+            // Note that we load MathJax this way to work with local file (file://), HTTP and HTTPS.
+            // We could use "//cdn.mathjax...", but that won't support "file://".
+            (function(d, script) {
+                script = d.createElement('script');
+                script.type = 'text/javascript';
+                script.async = true;
+                script.onload = function(){
+                    MathJax.Hub.Config({
+                        tex2jax: {
+                            inlineMath: [ ["$", "$"], ["\\\\(","\\\\)"] ],
+                            displayMath: [ ["$$","$$"], ["\\[", "\\]"] ],
+                            processEscapes: true,
+                            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+                        }
+                    });
+                };
+                script.src = ('https:' == document.location.protocol ? 'https://' : 'http://') +
+                    'cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+                d.getElementsByTagName('head')[0].appendChild(script);
+            }(document));
+        </script>
+    </body>
+</html>
