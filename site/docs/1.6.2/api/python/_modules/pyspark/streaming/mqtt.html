@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyspark.streaming.mqtt &mdash; PySpark 1.6.2 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pyspark.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.6.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/pyspark.js"></script>
+    <link rel="top" title="PySpark 1.6.2 documentation" href="../../../index.html" />
+    <link rel="up" title="pyspark.streaming" href="../streaming.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li><a href="../../../index.html">PySpark 1.6.2 documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../pyspark.html" >pyspark</a> &raquo;</li>
+          <li><a href="../streaming.html" accesskey="U">pyspark.streaming</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pyspark.streaming.mqtt</h1><div class="highlight"><pre>
+<span class="c">#</span>
+<span class="c"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c"># this work for additional information regarding copyright ownership.</span>
+<span class="c"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c"># the License.  You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+<span class="c">#</span>
+
+<span class="kn">from</span> <span class="nn">py4j.protocol</span> <span class="kn">import</span> <span class="n">Py4JJavaError</span>
+
+<span class="kn">from</span> <span class="nn">pyspark.storagelevel</span> <span class="kn">import</span> <span class="n">StorageLevel</span>
+<span class="kn">from</span> <span class="nn">pyspark.serializers</span> <span class="kn">import</span> <span class="n">UTF8Deserializer</span>
+<span class="kn">from</span> <span class="nn">pyspark.streaming</span> <span class="kn">import</span> <span class="n">DStream</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;MQTTUtils&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="MQTTUtils"><a class="viewcode-back" href="../../../pyspark.streaming.html#pyspark.streaming.mqtt.MQTTUtils">[docs]</a><span class="k">class</span> <span class="nc">MQTTUtils</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="MQTTUtils.createStream"><a class="viewcode-back" href="../../../pyspark.streaming.html#pyspark.streaming.mqtt.MQTTUtils.createStream">[docs]</a>    <span class="k">def</span> <span class="nf">createStream</span><span class="p">(</span><span class="n">ssc</span><span class="p">,</span> <span class="n">brokerUrl</span><span class="p">,</span> <span class="n">topic</span><span class="p">,</span>
+                     <span class="n">storageLevel</span><span class="o">=</span><span class="n">StorageLevel</span><span class="o">.</span><span class="n">MEMORY_AND_DISK_SER_2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an input stream that pulls messages from a Mqtt Broker.</span>
+
+<span class="sd">        :param ssc:  StreamingContext object</span>
+<span class="sd">        :param brokerUrl:  Url of remote mqtt publisher</span>
+<span class="sd">        :param topic:  topic name to subscribe to</span>
+<span class="sd">        :param storageLevel:  RDD storage level.</span>
+<span class="sd">        :return: A DStream object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">jlevel</span> <span class="o">=</span> <span class="n">ssc</span><span class="o">.</span><span class="n">_sc</span><span class="o">.</span><span class="n">_getJavaStorageLevel</span><span class="p">(</span><span class="n">storageLevel</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">helperClass</span> <span class="o">=</span> <span class="n">ssc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">java</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="n">Thread</span><span class="o">.</span><span class="n">currentThread</span><span class="p">()</span><span class="o">.</span><span class="n">getContextClassLoader</span><span class="p">()</span> \
+                <span class="o">.</span><span class="n">loadClass</span><span class="p">(</span><span class="s">&quot;org.apache.spark.streaming.mqtt.MQTTUtilsPythonHelper&quot;</span><span class="p">)</span>
+            <span class="n">helper</span> <span class="o">=</span> <span class="n">helperClass</span><span class="o">.</span><span class="n">newInstance</span><span class="p">()</span>
+            <span class="n">jstream</span> <span class="o">=</span> <span class="n">helper</span><span class="o">.</span><span class="n">createStream</span><span class="p">(</span><span class="n">ssc</span><span class="o">.</span><span class="n">_jssc</span><span class="p">,</span> <span class="n">brokerUrl</span><span class="p">,</span> <span class="n">topic</span><span class="p">,</span> <span class="n">jlevel</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">Py4JJavaError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s">&#39;ClassNotFoundException&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">java_exception</span><span class="p">):</span>
+                <span class="n">MQTTUtils</span><span class="o">.</span><span class="n">_printErrorMsg</span><span class="p">(</span><span class="n">ssc</span><span class="o">.</span><span class="n">sparkContext</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">e</span>
+
+        <span class="k">return</span> <span class="n">DStream</span><span class="p">(</span><span class="n">jstream</span><span class="p">,</span> <span class="n">ssc</span><span class="p">,</span> <span class="n">UTF8Deserializer</span><span class="p">())</span>
+</div>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_printErrorMsg</span><span class="p">(</span><span class="n">sc</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;&quot;&quot;</span>
+<span class="s">________________________________________________________________________________________________</span>
+
+<span class="s">  Spark Streaming&#39;s MQTT libraries not found in class path. Try one of the following.</span>
+
+<span class="s">  1. Include the MQTT library and its dependencies with in the</span>
+<span class="s">     spark-submit command as</span>
+
+<span class="s">     $ bin/spark-submit --packages org.apache.spark:spark-streaming-mqtt:</span><span class="si">%s</span><span class="s"> ...</span>
+
+<span class="s">  2. Download the JAR of the artifact from Maven Central http://search.maven.org/,</span>
+<span class="s">     Group Id = org.apache.spark, Artifact Id = spark-streaming-mqtt-assembly, Version = </span><span class="si">%s</span><span class="s">.</span>
+<span class="s">     Then, include the jar in the spark-submit command as</span>
+
+<span class="s">     $ bin/spark-submit --jars &lt;spark-streaming-mqtt-assembly.jar&gt; ...</span>
+<span class="s">________________________________________________________________________________________________</span>
+<span class="s">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">sc</span><span class="o">.</span><span class="n">version</span><span class="p">))</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li><a href="../../../index.html">PySpark 1.6.2 documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../../pyspark.html" >pyspark</a> &raquo;</li>
+          <li><a href="../streaming.html" >pyspark.streaming</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>
