@@ -84,10 +84,6 @@ subproject: Streaming
   </div>
 </div>
 
-
-{% extra %}
-
-
 <div class="row">
   <div class="col-md-4 col-padded">
     <h3>Deployment Options</h3>
@@ -146,5 +142,3 @@ subproject: Streaming
     </a>
   </div>
 </div>
-
-{% endextra %}

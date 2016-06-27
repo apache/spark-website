@@ -82,7 +82,7 @@ You can consult JIRA for the [detailed changes](https://issues.apache.org/jira/s
    - [SPARK-11337](https://issues.apache.org/jira/browse/SPARK-11337)  **Testable example code** - Automated testing for code in user guide examples
 
 
-##Deprecations
+## Deprecations
 * In spark.mllib.clustering.KMeans, the "runs" parameter has been deprecated.
 * In spark.ml.classification.LogisticRegressionModel and spark.ml.regression.LinearRegressionModel, the "weights" field has been deprecated, in favor of the new name "coefficients."  This helps disambiguate from instance (row) weights given to algorithms.
 

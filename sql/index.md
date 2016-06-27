@@ -117,9 +117,6 @@ subproject: SQL
 </div>
 -->
 
-{% extra %}
-
-
 <div class="row">
   <div class="col-md-4 col-padded">
     <h3>Performance &amp; Scalability</h3>
@@ -166,5 +163,3 @@ subproject: SQL
     </a>
   </div>
 </div>
-
-{% endextra %}

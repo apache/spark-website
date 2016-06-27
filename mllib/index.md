@@ -76,9 +76,6 @@ subproject: MLlib
   </div>
 </div>
 
-{% extra %}
-
-
 <div class="row">
   <div class="col-md-4 col-padded">
     <h3>Algorithms</h3>
@@ -148,5 +145,3 @@ subproject: MLlib
     </a>
   </div>
 </div>
-
-{% endextra %}

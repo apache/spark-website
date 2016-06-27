@@ -123,9 +123,6 @@ navigation:
   </div>
 </div>
 
-{% extra %}
-
-
 <div class="row">
   <div class="col-md-4 col-padded">
     <h3>Community</h3>
@@ -190,5 +187,3 @@ navigation:
     <a href="{{site.url}}downloads.html" class="btn btn-success btn-lg" style="width: 262px;">Download Apache Spark</a>
   </div>
 </div>
-
-{% endextra %}
