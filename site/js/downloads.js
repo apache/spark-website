@@ -36,6 +36,8 @@ var packagesV6 = [hadoopFree, hadoop2p6, hadoop2p4, hadoop2p3].concat(packagesV1
 var packagesV7 = [hadoopFree, hadoop2p7, hadoop2p6, hadoop2p4, hadoop2p3];
 
 addRelease("2.0.0-preview", new Date("05/24/2016"), sources.concat(packagesV7), true, false);
+
+addRelease("1.6.2", new Date("06/25/2016"), sources.concat(packagesV6), true, true);
 addRelease("1.6.1", new Date("03/09/2016"), sources.concat(packagesV6), true, true);
 addRelease("1.6.0", new Date("01/04/2016"), sources.concat(packagesV6), true, true);
 addRelease("1.5.2", new Date("11/09/2015"), sources.concat(packagesV6), true, true);
