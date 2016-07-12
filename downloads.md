@@ -31,7 +31,7 @@ Our latest stable version is Apache Spark 1.6.2, released on June 25, 2016
 
 4. Download Spark: <span id="spanDownloadLink"></span>
 
-5. Verify this release using the <span id="sparkDownloadVerify"></span>.
+5. Verify this release using the <span id="sparkDownloadVerify"></span> and [project release KEYS](https://www.apache.org/dist/spark/KEYS).
 
 _Note: Scala 2.11 users should download the Spark source package and build
 [with Scala 2.11 support](http://spark.apache.org/docs/latest/building-spark.html#building-for-scala-211)._
