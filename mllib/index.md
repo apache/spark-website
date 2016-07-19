@@ -2,7 +2,7 @@
 layout: global
 type: "page singular"
 title: MLlib
-description: MLlib is Apache Spark's scalable machine learning library, with APIs in Java, Scala and Python.
+description: MLlib is Apache Spark's scalable machine learning library, with APIs in Java, Scala, Python, and R.
 subproject: MLlib
 ---
 
@@ -14,11 +14,12 @@ subproject: MLlib
   <div class="col-md-7 col-sm-7">
     <h2>Ease of Use</h2>
     <p class="lead">
-      Usable in Java, Scala, Python, and SparkR.
+      Usable in Java, Scala, Python, and R.
     </p>
     <p>
       MLlib fits into <a href="{{site.url}}">Spark</a>'s
-      APIs and interoperates with <a href="http://www.numpy.org">NumPy</a> in Python (starting in Spark 0.9).
+      APIs and interoperates with <a href="http://www.numpy.org">NumPy</a>
+      in Python (as of Spark 0.9) and R libraries (as of Spark 1.5).
       You can use any Hadoop data source (e.g. HDFS, HBase, or local files), making it
       easy to plug into Hadoop workflows.
     </p>
@@ -27,10 +28,10 @@ subproject: MLlib
 
     <div style="margin-top: 15px; text-align: left; display: inline-block;">
       <div class="code">
-        points = spark.textFile(<span class="string">"hdfs://..."</span>)<br/>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">map</span>(<span class="closure">parsePoint</span>)<br/>
+        data = spark.read.format(<span class="string">"libsvm"</span>)\<br/>
+	    &nbsp;&nbsp;.load(<span class="string">"hdfs://..."</span>)<br/>
         <br/>
-        model = KMeans.<span class="sparkop">train</span>(points, k=10)
+        model = <span class="sparkop">KMeans</span>(data, k=10)
       </div>
       <div class="caption">Calling MLlib in Python</div>
     </div>
@@ -80,26 +81,23 @@ subproject: MLlib
   <div class="col-md-4 col-padded">
     <h3>Algorithms</h3>
     <p>
-      MLlib contains the following algorithms and utilities:
+      MLlib contains many algorithms and utilities, including:
     </p>
     <ul class="list-narrow">
-      <li>logistic regression and linear support vector machine (SVM)</li>
-      <li>classification and regression tree</li>
-      <li>random forest and gradient-boosted trees</li>
-      <li>recommendation via alternating least squares (ALS)</li>
-      <li>clustering via k-means, bisecting k-means, Gaussian mixtures (GMM), and power iteration clustering</li>
-      <li>topic modeling via latent Dirichlet allocation (LDA)</li>
-      <li>survival analysis via accelerated failure time model</li>
-      <li>singular value decomposition (SVD) and QR decomposition</li>
-      <li>principal component analysis (PCA)</li>
-      <li>linear regression with L<sub>1</sub>, L<sub>2</sub>, and elastic-net regularization</li>
-      <li>isotonic regression</li>
-      <li>multinomial/binomial naive Bayes</li>
-      <li>frequent itemset mining via FP-growth and association rules</li>
-      <li>sequential pattern mining via PrefixSpan</li>
-      <li>summary statistics and hypothesis testing</li>
-      <li>feature transformations</li>
-      <li>model evaluation and hyper-parameter tuning</li>
+      <li>Classification: logistic regression, naive Bayes,...</li>
+      <li>Regression: generalized linear regression, isotonic regression,...</li>
+      <li>Decision trees, random forests, and gradient-boosted trees</li>
+      <li>Recommendation: alternating least squares (ALS)</li>
+      <li>Clustering: K-means, Gaussian mixtures (GMMs),...</li>
+      <li>Topic modeling: latent Dirichlet allocation (LDA)</li>
+      <li>Feature transformations: standardization, normalization, hashing,...</li>
+      <li>Model evaluation and hyper-parameter tuning</li>
+      <li>ML Pipeline construction</li>
+      <li>ML persistence: saving and loading models and Pipelines</li>
+      <li>Survival analysis: accelerated failure time model</li>
+      <li>Frequent itemset and sequential pattern mining: FP-growth, association rules, PrefixSpan</li>
+      <li>Distributed linear algebra: singular value decomposition (SVD), principal component analysis (PCA),...</li>
+      <li>Statistics: summary statistics, hypothesis testing,...</li>
     </ul>
     <p>Refer to the <a href="{{site.url}}docs/latest/mllib-guide.html">MLlib guide</a> for usage examples.</p>
   </div>
@@ -115,7 +113,7 @@ subproject: MLlib
       <a href="{{site.url}}community.html#mailing-lists">Spark mailing lists</a>.
     </p>
     <p>
-      MLlib is still a young project and welcomes contributions. If you'd like to submit an algorithm to MLlib,
+      MLlib is still a rapidly growing project and welcomes contributions. If you'd like to submit an algorithm to MLlib,
       read <a href="https://cwiki.apache.org/confluence/display/SPARK/Contributing+to+Spark">how to
       contribute to Spark</a> and send us a patch!
     </p>
