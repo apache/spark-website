@@ -11,12 +11,17 @@ meta:
   _wpas_done_all: '1'
 ---
 
-Apache Spark 2.0.0 is the first release on the 2.x line. This release includes over 2500 patches from over 300 contributors. Some breaking changes have been made with respect to the 1.x line. To download Apache Spark 2.0.0, visit the [downloads](http://spark.apache.org/downloads.html) page.
+Apache Spark 2.0.0 is the first release on the 2.x line. This release includes over 2500 patches from over 300 contributors. Spark 2.0.0 builds on what the community has learned in the past two years, with major updates in API usability, SQL 2003 support, performance improvements, structured streaming, R UDF support, as well as operational improvements.
 
-You can consult JIRA for the [detailed changes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315420&version=12329449). We have curated a list of high level changes here, grouped by major modules.
+To download Apache Spark 2.0.0, visit the [downloads](http://spark.apache.org/downloads.html) page. You can consult JIRA for the [detailed changes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315420&version=12329449). We have curated a list of high level changes here, grouped by major modules.
 
 * This will become a table of contents (this text will be scraped).
 {:toc}
+
+
+### API Stability
+
+Apache Spark 2.0.0 is the first release in the 2.X major line. Spark is guaranteeing stability of its non-experimental APIs for all 2.X releases. Although the APIs have stayed largely similar to 1.X, Spark 2.0.0 does have API breaking changes. They are documented at the end of this release notes.
 
 
 ### Core and Spark SQL
@@ -94,7 +99,12 @@ Spark 2.0 ships the initial experimental release for Structured Streaming, a hig
 For the DStream API, the most prominent update is the new experimental support for Kafka 0.10.
 
 
-### Removals, Deprecations and Breaking Changes
+### Operational and Packaging Improvements
+
+There are a variety of improvements to Spark's operations and packaging process. The most prominent change is that Spark 2.0 no longer requires a fat assembly jar for production deployment.
+
+
+### Removals, Behavior Changes and Deprecations
 
 #### Removals
 The following features have been removed in Spark 2.0:
@@ -113,15 +123,9 @@ The following features have been removed in Spark 2.0:
 - Hash-based shuffle manager
 - History serving functionality from standalone Master
 - For Java and Scala, DataFrame no longer exists as a class. As a result, data sources would need to be updated.
+- Spark EC2 script has been fully moved to an [external repository hosted by the UC Berkeley AMPLab](https://github.com/amplab/spark-ec2)
 
-#### Deprecations
-The following features have been deprecated in Spark 2.0, and might be removed in future versions of Spark 2.x:
-
-- Fine-grained mode in Apache Mesos
-- Support for Java 7
-- Support for Python 2.6
-
-#### Breaking Changes
+#### Behavior Changes
 The following changes might require updating existing applications that depend on the old behavior or API.
 
 - The default build is now using Scala 2.11 rather than Scala 2.10.
@@ -133,6 +137,13 @@ The following changes might require updating existing applications that depend o
 
 
 For a more complete list, please see [SPARK-11806](https://issues.apache.org/jira/browse/SPARK-11806) for deprecations and removals.
+
+#### Deprecations
+The following features have been deprecated in Spark 2.0, and might be removed in future versions of Spark 2.x:
+
+- Fine-grained mode in Apache Mesos
+- Support for Java 7
+- Support for Python 2.6
 
 
 ### Known Issues
