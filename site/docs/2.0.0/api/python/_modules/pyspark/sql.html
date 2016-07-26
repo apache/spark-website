@@ -1,0 +1,153 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyspark.sql &mdash; PySpark 2.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyspark.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../_static/pyspark.js"></script>
+    <link rel="top" title="PySpark 2.0.0 documentation" href="../../index.html" />
+    <link rel="up" title="pyspark" href="../pyspark.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li><a href="../../index.html">PySpark 2.0.0 documentation</a> &raquo;</li>
+
+          <li><a href="../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pyspark.html" accesskey="U">pyspark</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for pyspark.sql</h1><div class="highlight"><pre>
+<span class="c">#</span>
+<span class="c"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c"># this work for additional information regarding copyright ownership.</span>
+<span class="c"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c"># the License.  You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+<span class="c">#</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Important classes of Spark SQL and DataFrames:</span>
+
+<span class="sd">    - :class:`pyspark.sql.SQLContext`</span>
+<span class="sd">      Main entry point for :class:`DataFrame` and SQL functionality.</span>
+<span class="sd">    - :class:`pyspark.sql.DataFrame`</span>
+<span class="sd">      A distributed collection of data grouped into named columns.</span>
+<span class="sd">    - :class:`pyspark.sql.Column`</span>
+<span class="sd">      A column expression in a :class:`DataFrame`.</span>
+<span class="sd">    - :class:`pyspark.sql.Row`</span>
+<span class="sd">      A row of data in a :class:`DataFrame`.</span>
+<span class="sd">    - :class:`pyspark.sql.HiveContext`</span>
+<span class="sd">      Main entry point for accessing data stored in Apache Hive.</span>
+<span class="sd">    - :class:`pyspark.sql.GroupedData`</span>
+<span class="sd">      Aggregation methods, returned by :func:`DataFrame.groupBy`.</span>
+<span class="sd">    - :class:`pyspark.sql.DataFrameNaFunctions`</span>
+<span class="sd">      Methods for handling missing data (null values).</span>
+<span class="sd">    - :class:`pyspark.sql.DataFrameStatFunctions`</span>
+<span class="sd">      Methods for statistics functionality.</span>
+<span class="sd">    - :class:`pyspark.sql.functions`</span>
+<span class="sd">      List of built-in functions available for :class:`DataFrame`.</span>
+<span class="sd">    - :class:`pyspark.sql.types`</span>
+<span class="sd">      List of data types available.</span>
+<span class="sd">    - :class:`pyspark.sql.Window`</span>
+<span class="sd">      For working with window functions.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+
+<span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="n">Row</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.context</span> <span class="kn">import</span> <span class="n">SQLContext</span><span class="p">,</span> <span class="n">HiveContext</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.session</span> <span class="kn">import</span> <span class="n">SparkSession</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.column</span> <span class="kn">import</span> <span class="n">Column</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.dataframe</span> <span class="kn">import</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">DataFrameNaFunctions</span><span class="p">,</span> <span class="n">DataFrameStatFunctions</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.group</span> <span class="kn">import</span> <span class="n">GroupedData</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.readwriter</span> <span class="kn">import</span> <span class="n">DataFrameReader</span><span class="p">,</span> <span class="n">DataFrameWriter</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.window</span> <span class="kn">import</span> <span class="n">Window</span><span class="p">,</span> <span class="n">WindowSpec</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">&#39;SparkSession&#39;</span><span class="p">,</span> <span class="s">&#39;SQLContext&#39;</span><span class="p">,</span> <span class="s">&#39;HiveContext&#39;</span><span class="p">,</span> <span class="s">&#39;DataFrame&#39;</span><span class="p">,</span> <span class="s">&#39;GroupedData&#39;</span><span class="p">,</span> <span class="s">&#39;Column&#39;</span><span class="p">,</span>
+    <span class="s">&#39;Row&#39;</span><span class="p">,</span> <span class="s">&#39;DataFrameNaFunctions&#39;</span><span class="p">,</span> <span class="s">&#39;DataFrameStatFunctions&#39;</span><span class="p">,</span> <span class="s">&#39;Window&#39;</span><span class="p">,</span> <span class="s">&#39;WindowSpec&#39;</span><span class="p">,</span>
+    <span class="s">&#39;DataFrameReader&#39;</span><span class="p">,</span> <span class="s">&#39;DataFrameWriter&#39;</span>
+<span class="p">]</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li><a href="../../index.html">PySpark 2.0.0 documentation</a> &raquo;</li>
+
+          <li><a href="../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../pyspark.html" >pyspark</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>
