@@ -11,7 +11,7 @@ meta:
   _wpas_done_all: '1'
 ---
 
-Apache Spark 2.0.0 is the first release on the 2.x line. This release includes over 2500 patches from over 300 contributors. Spark 2.0.0 builds on what the community has learned in the past two years, with major updates in API usability, SQL 2003 support, performance improvements, structured streaming, R UDF support, as well as operational improvements.
+Apache Spark 2.0.0 is the first release on the 2.x line. The major updates are API usability, SQL 2003 support, performance improvements, structured streaming, R UDF support, as well as operational improvements. In addition, this release includes over 2500 patches from over 300 contributors.
 
 To download Apache Spark 2.0.0, visit the [downloads](http://spark.apache.org/downloads.html) page. You can consult JIRA for the [detailed changes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315420&version=12329449). We have curated a list of high level changes here, grouped by major modules.
 
