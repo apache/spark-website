@@ -21,7 +21,7 @@ To download Apache Spark 2.0.0, visit the [downloads](http://spark.apache.org/do
 
 ### API Stability
 
-Apache Spark 2.0.0 is the first release in the 2.X major line. Spark is guaranteeing stability of its non-experimental APIs for all 2.X releases. Although the APIs have stayed largely similar to 1.X, Spark 2.0.0 does have API breaking changes. They are documented at the end of this release notes.
+Apache Spark 2.0.0 is the first release in the 2.X major line. Spark is guaranteeing stability of its non-experimental APIs for all 2.X releases. Although the APIs have stayed largely similar to 1.X, Spark 2.0.0 does have API breaking changes. They are documented in the [Removals, Behavior Changes and Deprecations](#removals-behavior-changes-and-deprecations) section.
 
 
 ### Core and Spark SQL
