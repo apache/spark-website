@@ -21,7 +21,7 @@ The fixes and improvements in this version include:
   <li>A connection reuse bug fix that improves shuffle performance</li>
   <li>Support for launching a cluster across multiple availability zones in the EC2 scripts</li>
   <li>Support for deleting security groups when an EC2 cluster is terminated</li>
-  <li>Improved memory configuration for the standalone deploy cluster daemons: instead of using <code>SPARK_MEM</code> for their memory, which often led people to give them much more memory than they intended, they now use a separate variable, <code>SPARK_DAEMON_MEMORY</code>, with a reasonable default of 512 MB
+  <li>Improved memory configuration for the standalone deploy cluster daemons: instead of using <code>SPARK_MEM</code> for their memory, which often led people to give them much more memory than they intended, they now use a separate variable, <code>SPARK_DAEMON_MEMORY</code>, with a reasonable default of 512 MB</li>
   <li>Fixes to the Windows run scripts for Spark</li>
   <li>Better detection of a machine's external IP address</li>
   <li>Several small optimizations and bug fixes</li>
