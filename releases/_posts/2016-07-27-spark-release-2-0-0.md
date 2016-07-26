@@ -34,38 +34,46 @@ One of the largest changes in Spark 2.0 is the new updated APIs:
  - SparkSession: new entry point that replaces the old SQLContext and HiveContext for DataFrame and Dataset APIs. SQLContext and HiveContext are kept for backward compatibility.
  - A new, streamlined configuration API for SparkSession
  - Simpler, more performant accumulator API
+ - A new, improved Aggregator API for typed aggregation in Datasets
 
 
 #### SQL
 
 Spark 2.0 substantially improved SQL functionalities with SQL2003 support. Spark SQL can now run all 99 TPC-DS queries. More prominently, we have improved:
 
+ - A native SQL parser that supports both ANSI-SQL as well as Hive QL
+ - Native DDL command implementations
  - Subquery support, including
- - Uncorrelated Scalar Subqueries
- - Correlated Scalar Subqueries
- - NOT IN predicate Subqueries (in WHERE/HAVING clauses)
- - IN predicate subqueries (in WHERE/HAVING clauses)
- - (NOT) EXISTS predicate subqueries (in WHERE/HAVING clauses)
+   - Uncorrelated Scalar Subqueries
+   - Correlated Scalar Subqueries
+   - NOT IN predicate Subqueries (in WHERE/HAVING clauses)
+   - IN predicate subqueries (in WHERE/HAVING clauses)
+   - (NOT) EXISTS predicate subqueries (in WHERE/HAVING clauses)
  - View canonicalization support
 
 In addition, when building without Hive support, Spark SQL should have almost all the functionality as when building with Hive support, with the exception of Hive connectivity, Hive UDFs, and script transforms.
 
 
-#### Performance
+#### New Features
+
+ - Native CSV data source, based on Databricks' [spark-csv module](https://github.com/databricks/spark-csv)
+ - Off-heap memory management for both caching and runtime execution
+ - Hive style bucketing support
+ - Approximate summary statistics using sketches, including approximate quantile, Bloom filter, and count-min sketch.
+
+
+#### Performance and Runtime
 
  - Substantial (2 - 10X) performance speedups for common operators in SQL and DataFrames via a new technique called whole stage code generation.
  - Improved Parquet scan throughput through vectorization
  - Improved ORC performance
  - Many improvements in the Catalyst query optimizer for common workloads
  - Improved window function performance via native implementations for all window functions
+ - Automatic file coalescing for native data sources
 
 
 ### MLlib
-The DataFrame-based API is now the primary API. The RDD-based API is entering maintenance mode. See the MLlib guide for details.
-
-#### API changes
-The largest API change is in linear algebra.  The DataFrame-based API (spark.ml) now depends upon local linear algebra in spark.ml.linalg, rather than in spark.mllib.linalg.  This removes the last dependencies of spark.ml.* on spark.mllib.*.  (SPARK-13944)
-See the MLlib migration guide for a full list of API changes.
+The DataFrame-based API is now the primary API. The RDD-based API is entering maintenance mode. See the MLlib guide for details
 
 ####  New features
 
@@ -99,9 +107,14 @@ Spark 2.0 ships the initial experimental release for Structured Streaming, a hig
 For the DStream API, the most prominent update is the new experimental support for Kafka 0.10.
 
 
-### Operational and Packaging Improvements
+### Dependency and Packaging Improvements
 
-There are a variety of improvements to Spark's operations and packaging process. The most prominent change is that Spark 2.0 no longer requires a fat assembly jar for production deployment.
+There are a variety of changes to Spark's operations and packaging process:
+
+ - Spark 2.0 no longer requires a fat assembly jar for production deployment.
+ - Akka dependency has been removed, and as a result, user applications can program against any versions of Akka.
+ - Kryo version is bumped to 3.0.
+ - The default build is now using Scala 2.11 rather than Scala 2.10.
 
 
 ### Removals, Behavior Changes and Deprecations
@@ -134,6 +147,7 @@ The following changes might require updating existing applications that depend o
 - Java RDD’s flatMap and mapPartitions functions used to require functions returning Java Iterable. They have been updated to require functions returning Java iterator so the functions do not need to materialize all the data.
 - Java RDD’s countByKey and countAprroxDistinctByKey now returns a map from K to java.lang.Long, rather than to java.lang.Object.
 - When writing Parquet files, the summary files are not written by default. To re-enable it, users must set “parquet.enable.summary-metadata” to true.
+- The DataFrame-based API (spark.ml) now depends upon local linear algebra in spark.ml.linalg, rather than in spark.mllib.linalg.  This removes the last dependencies of spark.ml.* on spark.mllib.*. (SPARK-13944) See the MLlib migration guide for a full list of API changes.
 
 
 For a more complete list, please see [SPARK-11806](https://issues.apache.org/jira/browse/SPARK-11806) for deprecations and removals.
