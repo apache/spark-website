@@ -33,8 +33,9 @@ Our latest stable version is Apache Spark 2.0.0, released on July 27, 2016
 
 5. Verify this release using the <span id="sparkDownloadVerify"></span> and [project release KEYS](https://www.apache.org/dist/spark/KEYS).
 
-_Note: Scala 2.11 users should download the Spark source package and build
-[with Scala 2.11 support](http://spark.apache.org/docs/latest/building-spark.html#building-for-scala-211)._
+_Note: Starting version 2.0, Spark is built with Scala 2.11 by default.
+Scala 2.10 users should download the Spark source package and build
+[with Scala 2.10 support](http://spark.apache.org/docs/latest/building-spark.html#building-for-scala-210)._
 
 <!--
 ### Latest Preview Release
