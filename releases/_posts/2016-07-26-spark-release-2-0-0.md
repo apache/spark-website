@@ -107,12 +107,13 @@ Spark 2.0 ships the initial experimental release for Structured Streaming, a hig
 For the DStream API, the most prominent update is the new experimental support for Kafka 0.10.
 
 
-### Dependency and Packaging Improvements
+### Dependency, Packaging, and Operations
 
 There are a variety of changes to Spark's operations and packaging process:
 
  - Spark 2.0 no longer requires a fat assembly jar for production deployment.
  - Akka dependency has been removed, and as a result, user applications can program against any versions of Akka.
+ - Support launching multiple Mesos executors in coarse grained Mesos mode.
  - Kryo version is bumped to 3.0.
  - The default build is now using Scala 2.11 rather than Scala 2.10.
 
