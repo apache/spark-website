@@ -16,9 +16,9 @@ $(document).ready(function() {
 
 ## Download Apache Spark&trade;
 
-Our latest stable version is Apache Spark 1.6.2, released on June 25, 2016
-<a href="{{site.url}}releases/spark-release-1-6-2.html">(release notes)</a>
-<a href="https://github.com/apache/spark/releases/tag/v1.6.2">(git tag)</a><br/>
+Our latest stable version is Apache Spark 2.0.0, released on July 27, 2016
+<a href="{{site.url}}releases/spark-release-2-0-0.html">(release notes)</a>
+<a href="https://github.com/apache/spark/releases/tag/v2.0.0">(git tag)</a><br/>
 
 1. Choose a Spark release:
   <select id="sparkVersionSelect" onChange="javascript:onVersionSelect();"></select><br>
@@ -36,6 +36,7 @@ Our latest stable version is Apache Spark 1.6.2, released on June 25, 2016
 _Note: Scala 2.11 users should download the Spark source package and build
 [with Scala 2.11 support](http://spark.apache.org/docs/latest/building-spark.html#building-for-scala-211)._
 
+<!--
 ### Latest Preview Release
 
 Preview releases, as the name suggests, are releases for previewing upcoming features.
@@ -46,13 +47,14 @@ critical bugs or documentation errors.
 
 The latest preview release is Spark 2.0.0-preview, published on May 24, 2016.
 You can select and download it above.
+-->
 
 ### Link with Spark
 Spark artifacts are [hosted in Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.apache.spark%22). You can add a Maven dependency with the following coordinates:
 
     groupId: org.apache.spark
-    artifactId: spark-core_2.10
-    version: 1.6.2
+    artifactId: spark-core_2.11
+    version: 2.0.0
 
 ### Spark Source Code Management
 If you are interested in working with the newest under-development code or contributing to Apache Spark development, you can also check out the master branch from Git:
@@ -60,8 +62,8 @@ If you are interested in working with the newest under-development code or contr
     # Master development branch
     git clone git://github.com/apache/spark.git
 
-    # 1.6 maintenance branch with stability fixes on top of Spark 1.6.2
-    git clone git://github.com/apache/spark.git -b branch-1.6
+    # 2.0 maintenance branch with stability fixes on top of Spark 2.0.0
+    git clone git://github.com/apache/spark.git -b branch-2.0
 
 Once you've downloaded Spark, you can find instructions for installing and building it on the <a href="{{site.url}}documentation.html">documentation page</a>.
 
