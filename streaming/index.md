@@ -130,7 +130,7 @@ subproject: Streaming
     <ul class="list-narrow">
       <li><a href="{{site.url}}downloads.html">Download Spark</a>. It includes Streaming as a module.</li>
       <li>Read the <a href="{{site.url}}docs/latest/streaming-programming-guide.html">Spark Streaming programming guide</a>, which includes a tutorial and describes system architecture, configuration and high availability.</li>
-      <li>Check out example programs in <a href="https://github.com/apache/incubator-spark/tree/master/examples/src/main/scala/org/apache/spark/streaming/examples">Scala</a> and <a href="https://github.com/apache/incubator-spark/tree/master/examples/src/main/java/org/apache/spark/streaming/examples">Java</a>.</li>
+      <li>Check out example programs in <a href="https://github.com/apache/spark/tree/master/examples/src/main/scala/org/apache/spark/examples/streaming">Scala</a> and <a href="https://github.com/apache/spark/tree/master/examples/src/main/java/org/apache/spark/examples/streaming">Java</a>.</li>
     </ul>
   </div>
 </div>
