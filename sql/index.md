@@ -28,7 +28,7 @@ subproject: SQL
       <div class="code">
 	    context = <span class="sparkop">HiveContext</span>(sc)<br/>
 		results = context.<span class="sparkop">sql</span>(<br/>&nbsp;&nbsp;<span class="closure">"SELECT * FROM people"</span>)<br/>
-		names = results.<span class="sparkop">map</span>(<span class="closure">lambda p: p.name</span>)</br>
+		names = results.<span class="sparkop">map</span>(<span class="closure">lambda p: p.name</span>)<br/>
 	  </div>
       <div class="caption">Apply functions to results of SQL queries.</div>
     </div>

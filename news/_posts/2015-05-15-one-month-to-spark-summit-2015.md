@@ -1,7 +1,7 @@
 ---
 layout: post
 title: One month to Spark Summit 2015 in San Francisco
-date: 2015-05-16 00:00:10
+date: 2015-05-15 00:00:10
 categories:
 - News
 tags: []

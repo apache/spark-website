@@ -73,16 +73,16 @@ In addition, when building without Hive support, Spark SQL should have almost al
 
 
 ### MLlib
-The DataFrame-based API is now the primary API. The RDD-based API is entering maintenance mode. See the MLlib guide for details
+The DataFrame-based API is now the primary API. The RDD-based API is entering maintenance mode. See the [MLlib guide](http://spark.apache.org/docs/2.0.0/ml-guide.html) for details
 
 ####  New features
 
-- ML persistence: The DataFrames-based API provides near-complete support for saving and loading ML models and Pipelines in Scala, Java, Python, and R.  See this blog post for details.  (SPARK-6725, SPARK-11939, SPARK-14311)
-- MLlib in R: SparkR now offers MLlib APIs for generalized linear models, naive Bayes, k-means clustering, and survival regression.  See this talk to learn more.
+- ML persistence: The DataFrames-based API provides near-complete support for saving and loading ML models and Pipelines in Scala, Java, Python, and R.  See this [blog post](https://databricks.com/blog/2016/05/31/apache-spark-2-0-preview-machine-learning-model-persistence.html) and the following JIRAs for details: SPARK-6725, SPARK-11939, SPARK-14311.
+- MLlib in R: SparkR now offers MLlib APIs for generalized linear models, naive Bayes, k-means clustering, and survival regression.  See [this talk](https://spark-summit.org/2016/events/recent-developments-in-sparkr-for-advanced-analytics/) to learn more.
 - Python: PySpark now offers many more MLlib algorithms, including LDA, Gaussian Mixture Model, Generalized Linear Regression, and more.
 - Algorithms added to DataFrames-based API: Bisecting K-Means clustering, Gaussian Mixture Model, MaxAbsScaler feature transformer.
 
-This talk lists many of these new features.
+[This talk](https://spark-summit.org/2016/events/apache-spark-mllib-20-preview-data-science-and-production/) lists many of these new features.
 
 #### Speed/scaling
 Vectors and Matrices stored in DataFrames now use much more efficient serialization, reducing overhead in calling MLlib algorithms. (SPARK-14850)
@@ -107,12 +107,13 @@ Spark 2.0 ships the initial experimental release for Structured Streaming, a hig
 For the DStream API, the most prominent update is the new experimental support for Kafka 0.10.
 
 
-### Dependency and Packaging Improvements
+### Dependency, Packaging, and Operations
 
 There are a variety of changes to Spark's operations and packaging process:
 
  - Spark 2.0 no longer requires a fat assembly jar for production deployment.
  - Akka dependency has been removed, and as a result, user applications can program against any versions of Akka.
+ - Support launching multiple Mesos executors in coarse grained Mesos mode.
  - Kryo version is bumped to 3.0.
  - The default build is now using Scala 2.11 rather than Scala 2.10.
 
