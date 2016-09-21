@@ -56,84 +56,87 @@ navigation:
 Spark Meetups are grass-roots events organized and hosted by leaders and champions in the community around the world. Check out <a href="http://spark.meetup.com">http://spark.meetup.com</a> to find a Spark meetup in your part of the world. Below is a partial list of Spark meetups.
 <ul>
   <li>
-    <a href="http://www.meetup.com/spark-users/">Bay Area Spark Meetup.</a>
+    <a href="https://www.meetup.com/spark-users/">Bay Area Spark Meetup.</a>
     This group has been running since January 2012 in the San Francisco area.
-    The meetup page also contains an <a href="http://www.meetup.com/spark-users/events/past/">archive of past meetups</a>, including videos and <a href="http://www.meetup.com/spark-users/files/">slides</a> for most of the recent talks.
+    The meetup page also contains an <a href="https://www.meetup.com/spark-users/events/past/">archive of past meetups</a>, including videos and <a href="https://www.meetup.com/spark-users/files/">slides</a> for most of the recent talks.
   </li>
   <li>
-    <a href="http://www.meetup.com/Spark-Barcelona/">Barcelona Spark Meetup</a>
+    <a href="https://www.meetup.com/Spark-Barcelona/">Barcelona Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Spark_big_data_analytics/">Bangalore Spark Meetup</a>
+    <a href="https://www.meetup.com/Spark_big_data_analytics/">Bangalore Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Berlin-Apache-Spark-Meetup/">Berlin Spark Meetup</a>
+    <a href="https://www.meetup.com/Berlin-Apache-Spark-Meetup/">Berlin Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/spark-user-beijing-Meetup/">Beijing Spark Meetup</a>
+    <a href="https://www.meetup.com/spark-user-beijing-Meetup/">Beijing Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Boston-Apache-Spark-User-Group/">Boston Spark Meetup</a>
+    <a href="https://www.meetup.com/Boston-Apache-Spark-User-Group/">Boston Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Boulder-Denver-Spark-Meetup/">Boulder/Denver Spark Meetup</a>
+    <a href="https://www.meetup.com/Boulder-Denver-Spark-Meetup/">Boulder/Denver Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Chicago-Spark-Users/">Chicago Spark Users</a>
+    <a href="https://www.meetup.com/Chicago-Spark-Users/">Chicago Spark Users</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Christchurch-Apache-Spark-Meetup/">Christchurch Apache Spark Meetup</a>
+    <a href="https://www.meetup.com/Christchurch-Apache-Spark-Meetup/">Christchurch Apache Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Cincinnati-Apache-Spark-Meetup/">Cincinanati Apache Spark Meetup</a>
+    <a href="https://www.meetup.com/Cincinnati-Apache-Spark-Meetup/">Cincinanati Apache Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Hangzhou-Apache-Spark-Meetup/">Hangzhou Spark Meetup</a>
+    <a href="https://www.meetup.com/Hangzhou-Apache-Spark-Meetup/">Hangzhou Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Spark-User-Group-Hyderabad/">Hyderabad Spark Meetup</a>
+    <a href="https://www.meetup.com/Spark-User-Group-Hyderabad/">Hyderabad Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Apache-Spark-Ljubljana-Meetup/">Ljubljana Spark Meetup</a>
+    <a href="https://www.meetup.com/israel-spark-users/">Israel Spark Users</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Spark-London/">London Spark Meetup</a>
+    <a href="https://www.meetup.com/Apache-Spark-Ljubljana-Meetup/">Ljubljana Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Apache-Spark-Maryland/">Maryland Spark Meetup</a>
+    <a href="https://www.meetup.com/Spark-London/">London Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Mumbai-Spark-Meetup/">Mumbai Spark Meetup</a>
+    <a href="https://www.meetup.com/Apache-Spark-Maryland/">Maryland Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Apache-Spark-in-Moscow/">Moscow Spark Meetup</a>
+    <a href="https://www.meetup.com/Mumbai-Spark-Meetup/">Mumbai Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Spark-NYC/">NYC Spark Meetup</a>
+    <a href="https://www.meetup.com/Apache-Spark-in-Moscow/">Moscow Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Seattle-Spark-Meetup/">Seattle Spark Meetup</a>
+    <a href="https://www.meetup.com/Spark-NYC/">NYC Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Shanghai-Apache-Spark-Meetup/">Shanghai Spark Meetup</a>
+    <a href="https://www.meetup.com/Seattle-Spark-Meetup/">Seattle Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Shenzhen-Apache-Spark-Meetup/">Shenzhen Spark Meetup</a>
+    <a href="https://www.meetup.com/Shanghai-Apache-Spark-Meetup/">Shanghai Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Toronto-Apache-Spark">Toronto Apache Spark</a>
+    <a href="https://www.meetup.com/Shenzhen-Apache-Spark-Meetup/">Shenzhen Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Tokyo-Spark-Meetup/">Tokyo Spark Meetup</a>
+    <a href="https://www.meetup.com/Toronto-Apache-Spark">Toronto Apache Spark</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Vancouver-Spark/">Vancouver Spark Meetup</a>
+    <a href="https://www.meetup.com/Tokyo-Spark-Meetup/">Tokyo Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Washington-DC-Area-Spark-Interactive/">Washington DC Area Spark Meetup</a>
+    <a href="https://www.meetup.com/Vancouver-Spark/">Vancouver Spark Meetup</a>
   </li>
   <li>
-    <a href="http://www.meetup.com/Apache-Spark-Zagreb-Meetup/">Zagreb Spark Meetup</a>
+    <a href="https://www.meetup.com/Washington-DC-Area-Spark-Interactive/">Washington DC Area Spark Meetup</a>
+  </li>
+  <li>
+    <a href="https://www.meetup.com/Apache-Spark-Zagreb-Meetup/">Zagreb Spark Meetup</a>
   </li>
 </ul>
 
