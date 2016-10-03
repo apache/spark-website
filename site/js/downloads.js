@@ -36,6 +36,7 @@ var packagesV7 = [hadoop2p7, hadoop2p6, hadoop2p4, hadoop2p3, hadoopFree, source
 
 // addRelease("2.0.0-preview", new Date("05/24/2016"), sources.concat(packagesV7), true, false);
 
+addRelease("2.0.1", new Date("10/03/2016"), packagesV7, true, true);
 addRelease("2.0.0", new Date("07/26/2016"), packagesV7, true, true);
 addRelease("1.6.2", new Date("06/25/2016"), packagesV6, true, true);
 addRelease("1.6.1", new Date("03/09/2016"), packagesV6, true, true);
