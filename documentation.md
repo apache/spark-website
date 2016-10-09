@@ -158,7 +158,7 @@ Slides, videos and EC2-based exercises from each of these are available online:
 <ul>
   <li><a href="http://shop.oreilly.com/product/0636920028512.do">Learning Spark</a>, by Holden Karau, Andy Konwinski, Patrick Wendell and Matei Zaharia (O'Reilly Media)</li>
   <li><a href="http://www.manning.com/bonaci/">Spark in Action</a>, by Marko Bonaci and Petar Zecevic (Manning)</li>
-  <li><a href="http://shop.oreilly.com/product/0636920035091.do">Advanced Analytics with Spark</a>, by Sandy Ryza, Uri Laserson, Sean Owen and Josh Wills (O'Reilly Media)</li>
+  <li><a href="http://shop.oreilly.com/product/0636920035091.do">Advanced Analytics with Spark</a>, by Juliet Hougland, Uri Laserson, Sean Owen, Sandy Ryza and Josh Wills (O'Reilly Media)</li>
   <li><a href="http://manning.com/malak/">Spark GraphX in Action</a>, by Michael Malak (Manning)</li>
   <li><a href="https://www.packtpub.com/big-data-and-business-intelligence/fast-data-processing-spark-second-edition">Fast Data Processing with Spark</a>, by Krishna Sankar and Holden Karau (Packt Publishing)</li>
   <li><a href="https://www.packtpub.com/big-data-and-business-intelligence/machine-learning-spark">Machine Learning with Spark</a>, by Nick Pentreath (Packt Publishing)</li>
@@ -166,6 +166,7 @@ Slides, videos and EC2-based exercises from each of these are available online:
   <li><a href="https://www.packtpub.com/big-data-and-business-intelligence/apache-spark-graph-processing">Apache Spark Graph Processing</a>, by Rindra Ramamonjison (Packt Publishing)</li>
   <li><a href="https://www.packtpub.com/big-data-and-business-intelligence/mastering-apache-spark">Mastering Apache Spark</a>, by Mike Frampton (Packt Publishing)</li>
   <li><a href="http://www.apress.com/9781484209653">Big Data Analytics with Spark: A Practitioner's Guide to Using Spark for Large Scale Data Analysis</a>, by Mohammed Guller (Apress)</li>
+  <li><a href="https://www.packtpub.com/big-data-and-business-intelligence/large-scale-machine-learning-spark"></a>, by Md. Rezaul Karim, Md. Mahedi Kaysar (Packt Publishing)</li>
 </ul>
 
 <h3>Examples</h3>
