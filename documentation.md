@@ -14,6 +14,7 @@ navigation:
 <ul>
   <li><a href="{{site.url}}docs/2.0.1/">Spark 2.0.1 (latest release)</a></li>
   <li><a href="{{site.url}}docs/2.0.0/">Spark 2.0.0</a></li>
+  <li><a href="{{site.url}}docs/1.6.3/">Spark 1.6.3</a></li>
   <li><a href="{{site.url}}docs/1.6.2/">Spark 1.6.2</a></li>
   <li><a href="{{site.url}}docs/1.6.1/">Spark 1.6.1</a></li>
   <li><a href="{{site.url}}docs/1.6.0/">Spark 1.6.0</a></li>

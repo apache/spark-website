@@ -38,6 +38,7 @@ var packagesV7 = [hadoop2p7, hadoop2p6, hadoop2p4, hadoop2p3, hadoopFree, source
 
 addRelease("2.0.1", new Date("10/03/2016"), packagesV7, true);
 addRelease("2.0.0", new Date("07/26/2016"), packagesV7, true);
+addRelease("1.6.3", new Date("11/07/2016"), packagesV6, true);
 addRelease("1.6.2", new Date("06/25/2016"), packagesV6, true);
 addRelease("1.6.1", new Date("03/09/2016"), packagesV6, true);
 addRelease("1.6.0", new Date("01/04/2016"), packagesV6, true);
@@ -195,7 +196,7 @@ function updateDownloadLink() {
   if (pkg.toLowerCase().indexOf("mapr") > -1) {
     link = "http://package.mapr.com/tools/apache-spark/$ver/$artifact"
   } else if (download == "apache") {
-    if (version < "1.6.2" ||
+    if (version < "1.6.3" ||
         (version >= "2.0.0" && version < "2.0.1")) {
       link = "http://archive.apache.org/dist/spark/spark-$ver/$artifact";
     } else {
