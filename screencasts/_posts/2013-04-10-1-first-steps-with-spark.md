@@ -20,6 +20,6 @@ This screencast marks the beginning of a series of hands-on screencasts we will 
 
 <div class="video-container video-square shadow"><iframe width="755" height="705" src="//www.youtube.com/embed/bWorBGOFBWY?autohide=0&showinfo=0&list=PL-x35fyliRwhKT-NpTKprPW1bkbdDcTTW" frameborder="0" allowfullscreen></iframe></div>
 
-Check out the next spark screencast in the series, <a href="{{site.url}}screencasts/2-spark-documentation-overview.html">Spark Screencast #2 - Overview of Spark Documentation</a>.
+Check out the next spark screencast in the series, <a href="{{site.baseurl}}/screencasts/2-spark-documentation-overview.html">Spark Screencast #2 - Overview of Spark Documentation</a>.
 
-For more information and links to other Spark screencasts, check out the <a href="{{site.url}}documentation.html">Spark documentation page</a>.
+For more information and links to other Spark screencasts, check out the <a href="{{site.baseurl}}/documentation.html">Spark documentation page</a>.

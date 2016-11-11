@@ -11,7 +11,7 @@ meta:
   _wpas_done_all: '1'
 ---
 
-Spark 1.5.0 is the sixth release on the 1.x line. This release represents 1400+ patches from 230+ contributors and 80+ institutions. To download Spark 1.5.0 visit the <a href="{{site.url}}downloads.html">downloads</a> page.
+Spark 1.5.0 is the sixth release on the 1.x line. This release represents 1400+ patches from 230+ contributors and 80+ institutions. To download Spark 1.5.0 visit the <a href="{{site.baseurl}}/downloads.html">downloads</a> page.
 
 You can consult JIRA for the [detailed changes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315420&version=12332078). We have curated a list of high level changes here:
 

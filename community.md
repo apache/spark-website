@@ -159,7 +159,7 @@ Spark Meetups are grass-roots events organized and hosted by leaders and champio
 Spark started as a research project at the <a href="https://amplab.cs.berkeley.edu">UC Berkeley AMPLab</a>
 in 2009, and was open sourced in early 2010.
 Many of the ideas behind the system are presented in various
-<a href="{{site.url}}research.html">research papers</a>.
+<a href="{{site.baseurl}}/research.html">research papers</a>.
 </p>
 
 <p>

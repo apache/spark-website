@@ -72,7 +72,7 @@ subproject: SQL
   </div>
   <div class="col-md-5 col-sm-5 col-padded-top col-center">
     <div style="width: 100%; max-width: 323px; display: inline-block">
-      <img src="{{site.url}}images/sql-hive-arch.png" style="width: 100%; max-width: 323px;">
+      <img src="{{site.baseurl}}/images/sql-hive-arch.png" style="width: 100%; max-width: 323px;">
       <div class="caption">Spark SQL can use existing Hive metastores, SerDes, and UDFs.</div>
     </div>
   </div>
@@ -90,7 +90,7 @@ subproject: SQL
   </div>
   <div class="col-md-5 col-sm-5 col-padded-top col-center">
     <div style="width: 100%; max-width: 323px; display: inline-block">
-      <img src="{{site.url}}images/jdbc.png" style="width: 75%; max-width: 323px;">
+      <img src="{{site.baseurl}}/images/jdbc.png" style="width: 75%; max-width: 323px;">
       <div class="caption">Use your existing BI tools to query big data.</div>
     </div>
   </div>
@@ -110,7 +110,7 @@ subproject: SQL
   </div>
   <div class="col-md-5 col-sm-5 col-padded-top col-center">
     <div style="width: 100%; max-width: 272px; display: inline-block; text-align: center;">
-      <img src="{{site.url}}images/sqlperf.png" style="width: 100%; max-width: 250px;">
+      <img src="{{site.baseurl}}/images/sqlperf.png" style="width: 100%; max-width: 250px;">
       <div class="caption" style="min-width: 272px;">Performance comparison between Shark and Spark SQL</div>
     </div>
   </div>
@@ -135,7 +135,7 @@ subproject: SQL
     </p>
     <p>
       If you have questions about the system, ask on the
-      <a href="{{site.url}}community.html#mailing-lists">Spark mailing lists</a>.
+      <a href="{{site.baseurl}}/community.html#mailing-lists">Spark mailing lists</a>.
     </p>
     <p>
       The Spark SQL developers welcome contributions. If you'd like to help out,
@@ -150,15 +150,15 @@ subproject: SQL
       To get started with Spark SQL:
     </p>
     <ul class="list-narrow">
-      <li><a href="{{site.url}}downloads.html">Download Spark</a>. It includes Spark SQL as a module.</li>
-      <li>Read the <a href="{{site.url}}docs/latest/sql-programming-guide.html">Spark SQL and DataFrame guide</a> to learn the API.</li>
+      <li><a href="{{site.baseurl}}/downloads.html">Download Spark</a>. It includes Spark SQL as a module.</li>
+      <li>Read the <a href="{{site.baseurl}}/docs/latest/sql-programming-guide.html">Spark SQL and DataFrame guide</a> to learn the API.</li>
     </ul>
   </div>
 </div>
 
 <div class="row">
   <div class="col-sm-12 col-center">
-    <a href="{{site.url}}downloads.html" class="btn btn-success btn-lg btn-multiline">
+    <a href="{{site.baseurl}}/downloads.html" class="btn btn-success btn-lg btn-multiline">
       Download Apache Spark<br/><span class="small">Includes Spark SQL</span>
     </a>
   </div>

@@ -23,10 +23,10 @@ Spark is a fast and general processing engine compatible with Hadoop data. It ca
 
 <p class="question">Does my data need to fit in memory to use Spark?</p>
 
-<p class="answer">No. Spark's operators spill data to disk if it does not fit in memory, allowing it to run well on any sized data. Likewise, cached datasets that do not fit in memory are either spilled to disk or recomputed on the fly when needed, as determined by the RDD's <a href="{{site.url}}docs/latest/scala-programming-guide.html#rdd-persistence">storage level</a>.
+<p class="answer">No. Spark's operators spill data to disk if it does not fit in memory, allowing it to run well on any sized data. Likewise, cached datasets that do not fit in memory are either spilled to disk or recomputed on the fly when needed, as determined by the RDD's <a href="{{site.baseurl}}/docs/latest/scala-programming-guide.html#rdd-persistence">storage level</a>.
 
 <p class="question">How can I run Spark on a cluster?</p>
-<p class="answer">You can use either the <a href="{{site.url}}docs/latest/spark-standalone.html">standalone deploy mode</a>, which only needs Java to be installed on each node, or the <a href="{{site.url}}docs/latest/running-on-mesos.html">Mesos</a> and <a href="{{site.url}}docs/latest/running-on-yarn.html">YARN</a> cluster managers. If you'd like to run on Amazon EC2, Spark provides <a href="{{site.url}}docs/latest/ec2-scripts.html}}">EC2 scripts</a> to automatically launch a cluster.</p>
+<p class="answer">You can use either the <a href="{{site.baseurl}}/docs/latest/spark-standalone.html">standalone deploy mode</a>, which only needs Java to be installed on each node, or the <a href="{{site.baseurl}}/docs/latest/running-on-mesos.html">Mesos</a> and <a href="{{site.baseurl}}/docs/latest/running-on-yarn.html">YARN</a> cluster managers. If you'd like to run on Amazon EC2, Spark provides <a href="{{site.baseurl}}/docs/latest/ec2-scripts.html}}">EC2 scripts</a> to automatically launch a cluster.</p>
 
 <p>Note that you can also run Spark locally (possibly on multiple cores) without any special setup by just passing <code>local[N]</code> as the master URL, where <code>N</code> is the number of parallel threads you want.</p>
 
@@ -62,7 +62,7 @@ and <a href="https://www.apache.org/foundation/marks/">trademark policy</a>.
 In particular, note that there are strong restrictions about how third-party products
 use the "Spark" name (names based on Spark are generally not allowed).
 Please also refer to our
-<a href="{{site.url}}trademarks.html">trademark policy summary</a>.
+<a href="{{site.baseurl}}/trademarks.html">trademark policy summary</a>.
 </p>
 
 <p class="question">How can I contribute to Spark?</p>

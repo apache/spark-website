@@ -12,38 +12,38 @@ navigation:
 <p>Setup instructions, programming guides, and other documentation are available for each stable version of Spark below:</p>
 
 <ul>
-  <li><a href="{{site.url}}docs/2.0.1/">Spark 2.0.1 (latest release)</a></li>
-  <li><a href="{{site.url}}docs/2.0.0/">Spark 2.0.0</a></li>
-  <li><a href="{{site.url}}docs/1.6.3/">Spark 1.6.3</a></li>
-  <li><a href="{{site.url}}docs/1.6.2/">Spark 1.6.2</a></li>
-  <li><a href="{{site.url}}docs/1.6.1/">Spark 1.6.1</a></li>
-  <li><a href="{{site.url}}docs/1.6.0/">Spark 1.6.0</a></li>
-  <li><a href="{{site.url}}docs/1.5.2/">Spark 1.5.2</a></li>
-  <li><a href="{{site.url}}docs/1.5.1/">Spark 1.5.1</a></li>
-  <li><a href="{{site.url}}docs/1.5.0/">Spark 1.5.0</a></li>
-  <li><a href="{{site.url}}docs/1.4.1/">Spark 1.4.1</a></li>
-  <li><a href="{{site.url}}docs/1.4.0/">Spark 1.4.0</a></li>
-  <li><a href="{{site.url}}docs/1.3.1/">Spark 1.3.1</a></li>
-  <li><a href="{{site.url}}docs/1.3.0/">Spark 1.3.0</a></li>
-  <li><a href="{{site.url}}docs/1.2.1/">Spark 1.2.1</a></li>
-  <li><a href="{{site.url}}docs/1.1.1/">Spark 1.1.1</a></li>
-  <li><a href="{{site.url}}docs/1.0.2/">Spark 1.0.2</a></li>
-  <li><a href="{{site.url}}docs/0.9.2/">Spark 0.9.2</a></li>
-  <li><a href="{{site.url}}docs/0.8.1/">Spark 0.8.1</a></li>
-  <li><a href="{{site.url}}docs/0.7.3/">Spark 0.7.3</a></li>
-  <li><a href="{{site.url}}docs/0.6.2/">Spark 0.6.2</a></li>
+  <li><a href="{{site.baseurl}}/docs/2.0.1/">Spark 2.0.1 (latest release)</a></li>
+  <li><a href="{{site.baseurl}}/docs/2.0.0/">Spark 2.0.0</a></li>
+  <li><a href="{{site.baseurl}}/docs/1.6.3/">Spark 1.6.3</a></li>
+  <li><a href="{{site.baseurl}}/docs/1.6.2/">Spark 1.6.2</a></li>
+  <li><a href="{{site.baseurl}}/docs/1.6.1/">Spark 1.6.1</a></li>
+  <li><a href="{{site.baseurl}}/docs/1.6.0/">Spark 1.6.0</a></li>
+  <li><a href="{{site.baseurl}}/docs/1.5.2/">Spark 1.5.2</a></li>
+  <li><a href="{{site.baseurl}}/docs/1.5.1/">Spark 1.5.1</a></li>
+  <li><a href="{{site.baseurl}}/docs/1.5.0/">Spark 1.5.0</a></li>
+  <li><a href="{{site.baseurl}}/docs/1.4.1/">Spark 1.4.1</a></li>
+  <li><a href="{{site.baseurl}}/docs/1.4.0/">Spark 1.4.0</a></li>
+  <li><a href="{{site.baseurl}}/docs/1.3.1/">Spark 1.3.1</a></li>
+  <li><a href="{{site.baseurl}}/docs/1.3.0/">Spark 1.3.0</a></li>
+  <li><a href="{{site.baseurl}}/docs/1.2.1/">Spark 1.2.1</a></li>
+  <li><a href="{{site.baseurl}}/docs/1.1.1/">Spark 1.1.1</a></li>
+  <li><a href="{{site.baseurl}}/docs/1.0.2/">Spark 1.0.2</a></li>
+  <li><a href="{{site.baseurl}}/docs/0.9.2/">Spark 0.9.2</a></li>
+  <li><a href="{{site.baseurl}}/docs/0.8.1/">Spark 0.8.1</a></li>
+  <li><a href="{{site.baseurl}}/docs/0.7.3/">Spark 0.7.3</a></li>
+  <li><a href="{{site.baseurl}}/docs/0.6.2/">Spark 0.6.2</a></li>
 </ul>
 
 <!--
 <p>Documentation for preview releases:</p>
 
 <ul>
-  <li><a href="{{site.url}}docs/2.0.0-preview/">Spark 2.0.0 preview</a></li>
+  <li><a href="{{site.baseurl}}/docs/2.0.0-preview/">Spark 2.0.0 preview</a></li>
 </ul>
 -->
 
-<p>The documentation linked to above covers getting started with Spark, as well the built-in components <a href="{{site.url}}docs/latest/mllib-guide.html">MLlib</a>,
-<a href="{{site.url}}docs/latest/streaming-programming-guide.html">Spark Streaming</a>, and <a href="{{site.url}}docs/latest/graphx-guide.html">GraphX</a>.</p>
+<p>The documentation linked to above covers getting started with Spark, as well the built-in components <a href="{{site.baseurl}}/docs/latest/mllib-guide.html">MLlib</a>,
+<a href="{{site.baseurl}}/docs/latest/streaming-programming-guide.html">Spark Streaming</a>, and <a href="{{site.baseurl}}/docs/latest/graphx-guide.html">GraphX</a>.</p>
 
 <p>In addition, this page lists other resources for learning Spark.</p>
 
@@ -52,10 +52,10 @@ See the <a href="http://www.youtube.com/channel/UCRzsq7k4-kT-h3TDUBQ82-w">Apache
 
 <h4>Screencast Tutorial Videos</h4>
 <ul>
-  <li><a href="{{site.url}}screencasts/1-first-steps-with-spark.html">Screencast 1: First Steps with Spark</a></li>
-  <li><a href="{{site.url}}screencasts/2-spark-documentation-overview.html">Screencast 2: Spark Documentation Overview</a></li>
-<li><a href="{{site.url}}screencasts/3-transformations-and-caching.html">Screencast 3: Transformations and Caching</a></li>
-<li><a href="{{site.url}}screencasts/4-a-standalone-job-in-spark.html">Screencast 4: A Spark Standalone Job in Scala</a></li>
+  <li><a href="{{site.baseurl}}/screencasts/1-first-steps-with-spark.html">Screencast 1: First Steps with Spark</a></li>
+  <li><a href="{{site.baseurl}}/screencasts/2-spark-documentation-overview.html">Screencast 2: Spark Documentation Overview</a></li>
+<li><a href="{{site.baseurl}}/screencasts/3-transformations-and-caching.html">Screencast 3: Transformations and Caching</a></li>
+<li><a href="{{site.baseurl}}/screencasts/4-a-standalone-job-in-spark.html">Screencast 4: A Spark Standalone Job in Scala</a></li>
 
 </ul>
 
@@ -174,7 +174,7 @@ Slides, videos and EC2-based exercises from each of these are available online:
 <h3>Examples</h3>
 
 <ul>
-  <li>The <a href="{{site.url}}examples.html">Spark examples page</a> shows the basic API in Scala, Java and Python.</li>
+  <li>The <a href="{{site.baseurl}}/examples.html">Spark examples page</a> shows the basic API in Scala, Java and Python.</li>
 </ul>
 
 <h3>Wiki</h3>
@@ -188,5 +188,5 @@ information for developers, such as architecture documents and how to <a href="h
 
 <p>
 Spark was initially developed as a UC Berkeley research project, and much of the design is documented in papers.
-The <a href="{{site.url}}research.html">research page</a> lists some of the original motivation and direction.
+The <a href="{{site.baseurl}}/research.html">research page</a> lists some of the original motivation and direction.
 </p>

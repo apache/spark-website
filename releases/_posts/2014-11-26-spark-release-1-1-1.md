@@ -13,7 +13,7 @@ meta:
 
 Spark 1.1.1 is a maintenance release with bug fixes. This release is based on the [branch-1.1](https://github.com/apache/spark/tree/branch-1.1) maintenance branch of Spark. We recommend all 1.1.0 users to upgrade to this stable release. Contributions to this release came from 55 developers.
 
-To download Spark 1.1.1 visit the <a href="{{site.url}}downloads.html">downloads</a> page.
+To download Spark 1.1.1 visit the <a href="{{site.baseurl}}/downloads.html">downloads</a> page.
 
 ### Fixes
 Spark 1.1.1 contains bug fixes in several components. Some of the more important fixes are highlighted below. You can visit the [Spark issue tracker](http://s.apache.org/z9h) for the full list of fixes.

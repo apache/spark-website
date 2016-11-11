@@ -13,7 +13,7 @@ meta:
 
 Spark 1.3.0 is the fourth release on the 1.X line. This release brings a new DataFrame API alongside the graduation of Spark SQL from an alpha project. It also brings usability improvements in Spark’s core engine and expansion of MLlib and Spark Streaming. Spark 1.3 represents the work of 174 contributors from more than 60 institutions in more than 1000 individual patches.
 
-To download Spark 1.3 visit the <a href="{{site.url}}downloads.html">downloads</a> page.
+To download Spark 1.3 visit the <a href="{{site.baseurl}}/downloads.html">downloads</a> page.
 
 ### Spark Core
 Spark 1.3 sees a handful of usability improvements in the core engine. The core API now supports [multi level aggregation trees](https://issues.apache.org/jira/browse/SPARK-5430) to help speed up expensive reduce operations. [Improved error reporting](https://issues.apache.org/jira/browse/SPARK-5063) has been added for certain gotcha operations. Spark's Jetty dependency is [now shaded](https://issues.apache.org/jira/browse/SPARK-3996) to help avoid conflicts with user programs. Spark now supports [SSL encryption](https://issues.apache.org/jira/browse/SPARK-3883) for some communication endpoints. Finaly, realtime [GC metrics](https://issues.apache.org/jira/browse/SPARK-3428) and [record counts](https://issues.apache.org/jira/browse/SPARK-4874) have been added to the UI. 

@@ -13,7 +13,7 @@ meta:
 
 Spark 1.2.1 is a maintenance release containing stability fixes. This release is based on the [branch-1.2](https://github.com/apache/spark/tree/branch-1.2) maintenance branch of Spark. We recommend all 1.2.0 users to upgrade to this stable release. Contributions to this release came from 69 developers.
 
-To download Spark 1.2.1 visit the <a href="{{site.url}}downloads.html">downloads</a> page.
+To download Spark 1.2.1 visit the <a href="{{site.baseurl}}/downloads.html">downloads</a> page.
 
 ### Fixes
 Spark 1.2.1 contains bug fixes in several components. Some of the more important fixes are highlighted below. You can visit the [Spark issue tracker](http://s.apache.org/Mpn) for the full list of fixes.

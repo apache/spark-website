@@ -62,7 +62,7 @@ If you are interested in working with the newest under-development code or contr
     # 2.0 maintenance branch with stability fixes on top of Spark 2.0.2
     git clone git://github.com/apache/spark.git -b branch-2.0
 
-Once you've downloaded Spark, you can find instructions for installing and building it on the <a href="{{site.url}}documentation.html">documentation page</a>.
+Once you've downloaded Spark, you can find instructions for installing and building it on the <a href="{{site.baseurl}}/documentation.html">documentation page</a>.
 
 ### Release Notes for Stable Releases
 

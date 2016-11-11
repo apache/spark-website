@@ -13,4 +13,4 @@ In this Spark screencast, we create a standalone Apache Spark job in Scala. In t
 
 <div class="video-container video-16x9 shadow"><iframe width="755" height="425" src="//www.youtube.com/embed/GaBn-YjlR8Q?autohide=0&showinfo=0&list=PL-x35fyliRwhKT-NpTKprPW1bkbdDcTTW" frameborder="0" allowfullscreen></iframe></div>
 
-For more information and links to other Spark screencasts, check out the <a href="{{site.url}}documentation.html">Spark documentation page</a>.
+For more information and links to other Spark screencasts, check out the <a href="{{site.baseurl}}/documentation.html">Spark documentation page</a>.

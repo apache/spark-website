@@ -11,7 +11,7 @@ meta:
   _wpas_done_all: '1'
 ---
 
-Spark 0.9.0 is a major release that adds significant new features. It updates Spark to Scala 2.10, simplifies high availability, and updates numerous components of the project. This release includes a first version of [GraphX]({{site.url}}graphx/), a powerful new framework for graph processing that comes with a library of standard algorithms. In addition, [Spark Streaming]({{site.url}}streaming/) is now out of alpha, and includes significant optimizations and simplified high availability deployment.
+Spark 0.9.0 is a major release that adds significant new features. It updates Spark to Scala 2.10, simplifies high availability, and updates numerous components of the project. This release includes a first version of [GraphX]({{site.baseurl}}/graphx/), a powerful new framework for graph processing that comes with a library of standard algorithms. In addition, [Spark Streaming]({{site.baseurl}}/streaming/) is now out of alpha, and includes significant optimizations and simplified high availability deployment.
 
 You can download Spark 0.9.0 as either a
 <a href="http://d3kbcqa49mib13.cloudfront.net/spark-0.9.0-incubating.tgz" onClick="trackOutboundLink(this, 'Release Download Links', 'cloudfront_spark-0.9.0-incubating.tgz'); return false;">source package</a>
@@ -27,16 +27,16 @@ Spark now runs on Scala 2.10, letting users benefit from the language and librar
 
 ### Configuration System
 
-The new [SparkConf]({{site.url}}docs/latest/api/core/index.html#org.apache.spark.SparkConf) class is now the preferred way to configure advanced settings on your SparkContext, though the previous Java system property method still works. SparkConf is especially useful in tests to make sure properties don’t stay set across tests.
+The new [SparkConf]({{site.baseurl}}/docs/latest/api/core/index.html#org.apache.spark.SparkConf) class is now the preferred way to configure advanced settings on your SparkContext, though the previous Java system property method still works. SparkConf is especially useful in tests to make sure properties don’t stay set across tests.
 
 ### Spark Streaming Improvements
 
 Spark Streaming is now out of alpha, and comes with simplified high availability and several optimizations.
 
-* When running on a Spark standalone cluster with the [standalone cluster high availability mode]({{site.url}}docs/0.9.0/spark-standalone.html#high-availability), you can submit a Spark Streaming driver application to the cluster and have it automatically recovered if either the driver or the cluster master crashes.
+* When running on a Spark standalone cluster with the [standalone cluster high availability mode]({{site.baseurl}}/docs/0.9.0/spark-standalone.html#high-availability), you can submit a Spark Streaming driver application to the cluster and have it automatically recovered if either the driver or the cluster master crashes.
 * Windowed operators have been sped up by 30-50%.
 * Spark Streaming’s input source plugins (e.g. for Twitter, Kafka and Flume) are now separate Maven modules, making it easier to pull in only the dependencies you need.
-* A new [StreamingListener]({{site.url}}docs/0.9.0/api/streaming/index.html#org.apache.spark.streaming.scheduler.StreamingListener) interface has been added for monitoring statistics about the streaming computation.
+* A new [StreamingListener]({{site.baseurl}}/docs/0.9.0/api/streaming/index.html#org.apache.spark.streaming.scheduler.StreamingListener) interface has been added for monitoring statistics about the streaming computation.
 * A few aspects of the API have been improved:
    * `DStream` and `PairDStream` classes have been moved from `org.apache.spark.streaming` to `org.apache.spark.streaming.dstream` to keep it consistent with `org.apache.spark.rdd.RDD`.
    * `DStream.foreach` has been renamed to `foreachRDD` to make it explicit that it works for every RDD, not every element
@@ -45,22 +45,22 @@ Spark Streaming is now out of alpha, and comes with simplified high availability
 
 ### GraphX Alpha
 
-[GraphX]({{site.url}}graphx/) is a new framework for graph processing that uses recent advances in graph-parallel computation. It lets you build a graph within a Spark program using the standard Spark operators, then process it with new graph operators that are optimized for distributed computation. It includes [basic transformations]({{site.url}}docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.Graph), a [Pregel API]({{site.url}}docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.Pregel$) for iterative computation, and a standard library of [graph loaders]({{site.url}}docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.util.GraphGenerators$) and [analytics algorithms]({{site.url}}docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.lib.package). By offering these features *within* the Spark engine, GraphX can significantly speed up processing pipelines compared to workflows that use different engines.
+[GraphX]({{site.baseurl}}/graphx/) is a new framework for graph processing that uses recent advances in graph-parallel computation. It lets you build a graph within a Spark program using the standard Spark operators, then process it with new graph operators that are optimized for distributed computation. It includes [basic transformations]({{site.baseurl}}/docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.Graph), a [Pregel API]({{site.baseurl}}/docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.Pregel$) for iterative computation, and a standard library of [graph loaders]({{site.baseurl}}/docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.util.GraphGenerators$) and [analytics algorithms]({{site.baseurl}}/docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.lib.package). By offering these features *within* the Spark engine, GraphX can significantly speed up processing pipelines compared to workflows that use different engines.
 
 GraphX features in this release include:
 
 * Building graphs from arbitrary Spark RDDs
 * Basic operations to transform graphs or extract subgraphs
 * An optimized Pregel API that takes advantage of graph partitioning and indexing
-* Standard algorithms including [PageRank]({{site.url}}docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.lib.PageRank$), [connected components]({{site.url}}docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.lib.ConnectedComponents$), [strongly connected components]({{site.url}}docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.lib.StronglyConnectedComponents$), [SVD++]({{site.url}}docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.lib.SVDPlusPlus$), and [triangle counting]({{site.url}}docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.lib.TriangleCount$)
+* Standard algorithms including [PageRank]({{site.baseurl}}/docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.lib.PageRank$), [connected components]({{site.baseurl}}/docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.lib.ConnectedComponents$), [strongly connected components]({{site.baseurl}}/docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.lib.StronglyConnectedComponents$), [SVD++]({{site.baseurl}}/docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.lib.SVDPlusPlus$), and [triangle counting]({{site.baseurl}}/docs/0.9.0/api/graphx/index.html#org.apache.spark.graphx.lib.TriangleCount$)
 * Interactive use from the Spark shell
 
 GraphX is still marked as alpha in this first release, but we recommend for new users to use it instead of the more limited Bagel API.
 
 ### MLlib Improvements
 
-* Spark’s machine learning library (MLlib) is now [available in Python]({{site.url}}docs/0.9.0/mllib-guide.html#using-mllib-in-python), where it operates on NumPy data (currently requires Python 2.7 and NumPy 1.7)
-* A new algorithm has been added for [Naive Bayes classification]({{site.url}}docs/0.9.0/api/mllib/index.html#org.apache.spark.mllib.classification.NaiveBayes)
+* Spark’s machine learning library (MLlib) is now [available in Python]({{site.baseurl}}/docs/0.9.0/mllib-guide.html#using-mllib-in-python), where it operates on NumPy data (currently requires Python 2.7 and NumPy 1.7)
+* A new algorithm has been added for [Naive Bayes classification]({{site.baseurl}}/docs/0.9.0/api/mllib/index.html#org.apache.spark.mllib.classification.NaiveBayes)
 * Alternating Least Squares models can now be used to predict ratings for multiple items in parallel
 * MLlib’s documentation was expanded to include more examples in Scala, Java and Python
 
@@ -77,7 +77,7 @@ GraphX is still marked as alpha in this first release, but we recommend for new 
 
 ### Core Engine
 
-* Spark’s standalone mode now supports submitting a driver program to run on the cluster instead of on the external machine submitting it. You can access this functionality through the [org.apache.spark.deploy.Client]({{site.url}}docs/0.9.0/spark-standalone.html#launching-applications-inside-the-cluster) class.
+* Spark’s standalone mode now supports submitting a driver program to run on the cluster instead of on the external machine submitting it. You can access this functionality through the [org.apache.spark.deploy.Client]({{site.baseurl}}/docs/0.9.0/spark-standalone.html#launching-applications-inside-the-cluster) class.
 * Large reduce operations now automatically spill data to disk if it does not fit in memory.
 * Users of standalone mode can now limit how many cores an application will use by default if the application writer didn’t configure its size. Previously, such applications took all available cores on the cluster.
 * `spark-shell` now supports the `-i` option to run a script on startup.

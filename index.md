@@ -30,7 +30,7 @@ navigation:
   </div>
   <div class="col-md-5 col-sm-5 col-padded-top col-center">
     <div style="width: 100%; max-width: 272px; display: inline-block; text-align: center;">
-      <img src="{{site.url}}images/logistic-regression.png" style="width: 100%; max-width: 250px;">
+      <img src="{{site.baseurl}}/images/logistic-regression.png" style="width: 100%; max-width: 250px;">
       <div class="caption" style="min-width: 272px;">Logistic regression in Hadoop and Spark</div>
     </div>
   </div>
@@ -84,21 +84,21 @@ navigation:
 
     <p>
       Spark powers a stack of libraries including
-      <a href="{{site.url}}sql/">SQL and DataFrames</a>, <a href="{{site.url}}mllib/">MLlib</a> for machine learning,
-      <a href="{{site.url}}graphx/">GraphX</a>, and <a href="{{site.url}}streaming/">Spark Streaming</a>.
+      <a href="{{site.baseurl}}/sql/">SQL and DataFrames</a>, <a href="{{site.baseurl}}/mllib/">MLlib</a> for machine learning,
+      <a href="{{site.baseurl}}/graphx/">GraphX</a>, and <a href="{{site.baseurl}}/streaming/">Spark Streaming</a>.
       You can combine these libraries seamlessly in the same application.
     </p>
   </div>
   <div class="col-md-5 col-sm-5 col-padded-top col-center">
-    <img src="{{site.url}}images/spark-stack.png" style="margin-top: 15px; width: 100%; max-width: 296px;" usemap="#stack-map">
+    <img src="{{site.baseurl}}/images/spark-stack.png" style="margin-top: 15px; width: 100%; max-width: 296px;" usemap="#stack-map">
     <map name="stack-map">
-      <area shape="rect" coords="0,0,74,95" href="{{site.url}}sql/"
+      <area shape="rect" coords="0,0,74,95" href="{{site.baseurl}}/sql/"
             alt="Spark SQL" title="Spark SQL">
-      <area shape="rect" coords="74,0,150,95" href="{{site.url}}streaming/"
+      <area shape="rect" coords="74,0,150,95" href="{{site.baseurl}}/streaming/"
             alt="Spark Streaming" title="Spark Streaming">
-      <area shape="rect" coords="150,0,224,95" href="{{site.url}}mllib/"
+      <area shape="rect" coords="150,0,224,95" href="{{site.baseurl}}/mllib/"
             alt="MLlib (machine learning)" title="MLlib">
-      <area shape="rect" coords="225,0,300,95" href="{{site.url}}graphx/"
+      <area shape="rect" coords="225,0,300,95" href="{{site.baseurl}}/graphx/"
             alt="GraphX" title="GraphX">
     </map>
   </div>
@@ -113,13 +113,13 @@ navigation:
     </p>
 
     <p>
-      You can run Spark using its <a href="{{site.url}}docs/latest/spark-standalone.html">standalone cluster mode</a>, on <a href="{{site.url}}docs/latest/ec2-scripts.html">EC2</a>, on <a href="http://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/index.html">Hadoop YARN</a>, or on <a href="http://mesos.apache.org">Apache Mesos</a>.
+      You can run Spark using its <a href="{{site.baseurl}}/docs/latest/spark-standalone.html">standalone cluster mode</a>, on <a href="{{site.baseurl}}/docs/latest/ec2-scripts.html">EC2</a>, on <a href="http://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/index.html">Hadoop YARN</a>, or on <a href="http://mesos.apache.org">Apache Mesos</a>.
       Access data in <a href="http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html">HDFS</a>, <a href="http://cassandra.apache.org">Cassandra</a>, <a href="http://hbase.apache.org">HBase</a>,
       <a href="http://hive.apache.org">Hive</a>, <a href="http://tachyon-project.org">Tachyon</a>, and any Hadoop data source.
     </p>
   </div>
   <div class="col-md-5 col-sm-5 col-padded-top col-center">
-    <img src="{{site.url}}images/spark-runs-everywhere.png" style="width: 100%; max-width: 280px;">
+    <img src="{{site.baseurl}}/images/spark-runs-everywhere.png" style="width: 100%; max-width: 280px;">
   </div>
 </div>
 
@@ -139,7 +139,7 @@ navigation:
       There are many ways to reach the community:
     </p>
     <ul class="list-narrow">
-      <li>Use the <a href="{{site.url}}community.html#mailing-lists">mailing lists</a> to ask questions.</li>
+      <li>Use the <a href="{{site.baseurl}}/community.html#mailing-lists">mailing lists</a> to ask questions.</li>
       <li>In-person events include numerous <a href="http://www.meetup.com/topics/apache-spark/">meetup groups</a> and
       <a href="http://spark-summit.org/">Spark Summit</a>.</li>
       <li>We use <a href="https://issues.apache.org/jira/browse/SPARK">JIRA</a> for issue tracking.</li>
@@ -172,18 +172,18 @@ navigation:
 
     <p>Learning Spark is easy whether you come from a Java or Python background:</p>
     <ul class="list-narrow">
-      <li><a href="{{site.url}}downloads.html">Download</a> the latest release &mdash; you can run Spark locally on your laptop.</li>
-      <li>Read the <a href="{{site.url}}docs/latest/quick-start.html">quick start guide</a>.</li>
+      <li><a href="{{site.baseurl}}/downloads.html">Download</a> the latest release &mdash; you can run Spark locally on your laptop.</li>
+      <li>Read the <a href="{{site.baseurl}}/docs/latest/quick-start.html">quick start guide</a>.</li>
       <li>
         Spark Summit 2014 contained free <a href="http://spark-summit.org/2014/training">training videos and exercises</a>.
       </li>
-      <li>Learn how to <a href="{{site.url}}docs/latest/#launching-on-a-cluster">deploy</a> Spark on a cluster.</li>
+      <li>Learn how to <a href="{{site.baseurl}}/docs/latest/#launching-on-a-cluster">deploy</a> Spark on a cluster.</li>
     </ul>
   </div>
 </div>
 
 <div class="row">
   <div class="col-sm-12 col-center">
-    <a href="{{site.url}}downloads.html" class="btn btn-success btn-lg" style="width: 262px;">Download Apache Spark</a>
+    <a href="{{site.baseurl}}/downloads.html" class="btn btn-success btn-lg" style="width: 262px;">Download Apache Spark</a>
   </div>
 </div>

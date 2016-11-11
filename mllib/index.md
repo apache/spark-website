@@ -17,7 +17,7 @@ subproject: MLlib
       Usable in Java, Scala, Python, and R.
     </p>
     <p>
-      MLlib fits into <a href="{{site.url}}">Spark</a>'s
+      MLlib fits into <a href="{{site.baseurl}}/">Spark</a>'s
       APIs and interoperates with <a href="http://www.numpy.org">NumPy</a>
       in Python (as of Spark 0.9) and R libraries (as of Spark 1.5).
       You can use any Hadoop data source (e.g. HDFS, HBase, or local files), making it
@@ -53,7 +53,7 @@ subproject: MLlib
   </div>
   <div class="col-md-5 col-sm-5 col-padded-top col-center">
     <div style="width: 100%; max-width: 272px; display: inline-block; text-align: center;">
-      <img src="{{site.url}}images/logistic-regression.png" style="width: 100%; max-width: 250px;">
+      <img src="{{site.baseurl}}/images/logistic-regression.png" style="width: 100%; max-width: 250px;">
       <div class="caption" style="min-width: 272px;">Logistic regression in Hadoop and Spark</div>
     </div>
   </div>
@@ -67,13 +67,13 @@ subproject: MLlib
     </p>
     <p>
       If you have a Hadoop 2 cluster, you can run Spark and MLlib without any pre-installation.
-      Otherwise, Spark is easy to run <a href="{{site.url}}docs/latest/spark-standalone.html">standalone</a>
-      or on <a href="{{site.url}}docs/latest/ec2-scripts.html">EC2</a> or <a href="http://mesos.apache.org">Mesos</a>.
+      Otherwise, Spark is easy to run <a href="{{site.baseurl}}/docs/latest/spark-standalone.html">standalone</a>
+      or on <a href="{{site.baseurl}}/docs/latest/ec2-scripts.html">EC2</a> or <a href="http://mesos.apache.org">Mesos</a>.
       You can read from <a href="http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html">HDFS</a>, <a href="http://hbase.apache.org">HBase</a>, or any Hadoop data source.
     </p>
   </div>
   <div class="col-md-5 col-sm-5 col-padded-top col-center">
-    <img src="{{site.url}}images/hadoop.jpg" style="width: 100%; max-width: 280px;">
+    <img src="{{site.baseurl}}/images/hadoop.jpg" style="width: 100%; max-width: 280px;">
   </div>
 </div>
 
@@ -99,7 +99,7 @@ subproject: MLlib
       <li>Distributed linear algebra: singular value decomposition (SVD), principal component analysis (PCA),...</li>
       <li>Statistics: summary statistics, hypothesis testing,...</li>
     </ul>
-    <p>Refer to the <a href="{{site.url}}docs/latest/mllib-guide.html">MLlib guide</a> for usage examples.</p>
+    <p>Refer to the <a href="{{site.baseurl}}/docs/latest/mllib-guide.html">MLlib guide</a> for usage examples.</p>
   </div>
 
   <div class="col-md-4 col-padded">
@@ -110,7 +110,7 @@ subproject: MLlib
     </p>
     <p>
       If you have questions about the library, ask on the
-      <a href="{{site.url}}community.html#mailing-lists">Spark mailing lists</a>.
+      <a href="{{site.baseurl}}/community.html#mailing-lists">Spark mailing lists</a>.
     </p>
     <p>
       MLlib is still a rapidly growing project and welcomes contributions. If you'd like to submit an algorithm to MLlib,
@@ -125,10 +125,10 @@ subproject: MLlib
       To get started with MLlib:
     </p>
     <ul class="list-narrow">
-      <li><a href="{{site.url}}downloads.html">Download Spark</a>. MLlib is included as a module.</li>
-      <li>Read the <a href="{{site.url}}docs/latest/mllib-guide.html">MLlib guide</a>, which includes
+      <li><a href="{{site.baseurl}}/downloads.html">Download Spark</a>. MLlib is included as a module.</li>
+      <li>Read the <a href="{{site.baseurl}}/docs/latest/mllib-guide.html">MLlib guide</a>, which includes
       various usage examples.</li>
-      <li>Learn how to <a href="{{site.url}}docs/latest/#launching-on-a-cluster">deploy</a> Spark on a cluster
+      <li>Learn how to <a href="{{site.baseurl}}/docs/latest/#launching-on-a-cluster">deploy</a> Spark on a cluster
         if you'd like to run in distributed mode. You can also run locally on a multicore machine
         without any setup.
       </li>
@@ -138,7 +138,7 @@ subproject: MLlib
 
 <div class="row">
   <div class="col-sm-12 col-center">
-    <a href="{{site.url}}downloads.html" class="btn btn-success btn-lg btn-multiline">
+    <a href="{{site.baseurl}}/downloads.html" class="btn btn-success btn-lg btn-multiline">
       Download Apache Spark<br/><span class="small">Includes MLlib</span>
     </a>
   </div>

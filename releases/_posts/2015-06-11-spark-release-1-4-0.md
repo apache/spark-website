@@ -13,7 +13,7 @@ meta:
 
 Spark 1.4.0 is the fifth release on the 1.X line. This release brings an R API to Spark. It also brings usability improvements in Spark’s core engine and expansion of MLlib and Spark Streaming. Spark 1.4 represents the work of more than 210 contributors from more than 70 institutions in more than 1000 individual patches.
 
-To download Spark 1.4 visit the <a href="{{site.url}}downloads.html">downloads</a> page.
+To download Spark 1.4 visit the <a href="{{site.baseurl}}/downloads.html">downloads</a> page.
 
 ### SparkR
 Spark 1.4 is the first release to package SparkR, an R binding for Spark based

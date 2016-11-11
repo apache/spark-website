@@ -22,7 +22,7 @@ subproject: Streaming
     </p>
     <p>
       Spark Streaming brings Apache Spark's
-      <a href="{{site.url}}docs/latest/streaming-programming-guide.html">language-integrated API</a>
+      <a href="{{site.baseurl}}/docs/latest/streaming-programming-guide.html">language-integrated API</a>
       to stream processing, letting you write streaming jobs the same way you write batch jobs.
       It supports Java, Scala and Python.
     </p>
@@ -53,7 +53,7 @@ subproject: Streaming
   </div>
   <div class="col-md-5 col-sm-5 col-padded-top col-center">
     <div style="width: 100%; max-width: 300px; display: inline-block;">
-      <img src="{{site.url}}images/spark-streaming-recovery.png" style="width: 100%; max-width: 300px;">
+      <img src="{{site.baseurl}}/images/spark-streaming-recovery.png" style="width: 100%; max-width: 300px;">
     </div>
   </div>
 </div>
@@ -97,8 +97,8 @@ subproject: Streaming
       You can also define your own custom data sources.
     </p>
     <p>
-      You can run Spark Streaming on Spark's <a href="{{site.url}}docs/latest/spark-standalone.html">standalone cluster mode</a>
-      or <a href="{{site.url}}docs/latest/ec2-scripts.html">EC2</a>.
+      You can run Spark Streaming on Spark's <a href="{{site.baseurl}}/docs/latest/spark-standalone.html">standalone cluster mode</a>
+      or <a href="{{site.baseurl}}/docs/latest/ec2-scripts.html">EC2</a>.
       It also includes a local run mode for development.
       In production,
       Spark Streaming uses <a href="http://zookeeper.apache.org">ZooKeeper</a> and <a href="http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html">HDFS</a> for high availability.
@@ -113,7 +113,7 @@ subproject: Streaming
     </p>
     <p>
       If you have questions about the system, ask on the
-      <a href="{{site.url}}community.html#mailing-lists">Spark mailing lists</a>.
+      <a href="{{site.baseurl}}/community.html#mailing-lists">Spark mailing lists</a>.
     </p>
     <p>
       The Spark Streaming developers welcome contributions. If you'd like to help out,
@@ -128,8 +128,8 @@ subproject: Streaming
       To get started with Spark Streaming:
     </p>
     <ul class="list-narrow">
-      <li><a href="{{site.url}}downloads.html">Download Spark</a>. It includes Streaming as a module.</li>
-      <li>Read the <a href="{{site.url}}docs/latest/streaming-programming-guide.html">Spark Streaming programming guide</a>, which includes a tutorial and describes system architecture, configuration and high availability.</li>
+      <li><a href="{{site.baseurl}}/downloads.html">Download Spark</a>. It includes Streaming as a module.</li>
+      <li>Read the <a href="{{site.baseurl}}/docs/latest/streaming-programming-guide.html">Spark Streaming programming guide</a>, which includes a tutorial and describes system architecture, configuration and high availability.</li>
       <li>Check out example programs in <a href="https://github.com/apache/spark/tree/master/examples/src/main/scala/org/apache/spark/examples/streaming">Scala</a> and <a href="https://github.com/apache/spark/tree/master/examples/src/main/java/org/apache/spark/examples/streaming">Java</a>.</li>
     </ul>
   </div>
@@ -137,7 +137,7 @@ subproject: Streaming
 
 <div class="row">
   <div class="col-sm-12 col-center">
-    <a href="{{site.url}}downloads.html" class="btn btn-success btn-lg btn-multiline">
+    <a href="{{site.baseurl}}/downloads.html" class="btn btn-success btn-lg btn-multiline">
       Download Apache Spark<br/><span class="small">Includes Spark Streaming</span>
     </a>
   </div>

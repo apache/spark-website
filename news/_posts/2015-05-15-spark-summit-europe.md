@@ -1,7 +1,6 @@
 ---
 layout: post
 title: Announcing Spark Summit Europe
-date: 2015-05-15 00:00:00
 categories:
 - News
 tags: []

@@ -13,7 +13,7 @@ meta:
 
 Spark 1.4.1 is a maintenance release containing stability fixes. This release is based on the [branch-1.4](https://github.com/apache/spark/tree/branch-1.4) maintenance branch of Spark. We recommend all 1.4.0 users to upgrade to this stable release. 85 developers contributed to this release.
 
-To download Spark 1.4.1 visit the <a href="{{site.url}}downloads.html">downloads</a> page.
+To download Spark 1.4.1 visit the <a href="{{site.baseurl}}/downloads.html">downloads</a> page.
 
 ### Fixes
 Spark 1.4.1 contains several bug fixes in Spark's DataFrame and data source support and assorted fixes in other components. Some of the more important fixes are highlighted below. You can visit the [Spark issue tracker](https://issues.apache.org/jira/issues/?jql=project%20%3D%20SPARK%20AND%20fixVersion%20%3D%201.4.1%20ORDER%20BY%20priority%2C%20component) for the full list of fixes.

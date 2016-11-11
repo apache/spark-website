@@ -13,7 +13,7 @@ meta:
 
 Spark 1.2.0 is the third release on the 1.X line. This release brings performance and usability improvements in Spark’s core engine, a major new API for MLlib, expanded ML support in Python, a fully H/A mode in Spark Streaming, and much more. GraphX has seen major performance and API improvements and graduates from an alpha component. Spark 1.2 represents the work of 172 contributors from more than 60 institutions in more than 1000 individual patches.
 
-To download Spark 1.2 visit the <a href="{{site.url}}downloads.html">downloads</a> page.
+To download Spark 1.2 visit the <a href="{{site.baseurl}}/downloads.html">downloads</a> page.
 
 ### Spark Core
 In 1.2 Spark core upgrades two major subsystems to improve the performance and stability of very large scale shuffles. The first is Spark’s communication manager used during bulk transfers, which upgrades to a [netty-based implementation](https://issues.apache.org/jira/browse/SPARK-2468). The second is Spark’s shuffle mechanism, which upgrades to the [“sort based” shuffle initially released in Spark 1.1](https://issues.apache.org/jira/browse/SPARK-3280). These both improve the performance and stability of very large scale shuffles. Spark also adds an [elastic scaling mechanism](https://issues.apache.org/jira/browse/SPARK-3174) designed to improve cluster utilization during long running ETL-style jobs. This is currently supported on YARN and will make its way to other cluster managers in future versions. Finally, Spark 1.2 adds support for Scala 2.11. For instructions on building for Scala 2.11 see the [build documentation](/docs/1.2.0/building-spark.html#building-for-scala-211).
