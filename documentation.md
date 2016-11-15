@@ -168,6 +168,7 @@ Slides, videos and EC2-based exercises from each of these are available online:
   <li><a href="https://www.packtpub.com/big-data-and-business-intelligence/mastering-apache-spark">Mastering Apache Spark</a>, by Mike Frampton (Packt Publishing)</li>
   <li><a href="http://www.apress.com/9781484209653">Big Data Analytics with Spark: A Practitioner's Guide to Using Spark for Large Scale Data Analysis</a>, by Mohammed Guller (Apress)</li>
   <li><a href="https://www.packtpub.com/big-data-and-business-intelligence/large-scale-machine-learning-spark">Large Scale Machine Learning with Spark</a>, by Md. Rezaul Karim, Md. Mahedi Kaysar (Packt Publishing)</li>
+  <li><a href="https://www.packtpub.com/big-data-and-business-intelligence/big-data-analytics">Big Data Analytics with Spark and Hadoop</a>, by Venkat Ankam (Packt Publishing)</li>
 </ul>
 
 <h3>Examples</h3>
