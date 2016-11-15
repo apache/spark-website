@@ -16,10 +16,6 @@ $(document).ready(function() {
 
 ## Download Apache Spark&trade;
 
-Our latest stable version is Apache Spark 2.0.1, released on Oct 3, 2016
-<a href="{{site.url}}releases/spark-release-2-0-1.html">(release notes)</a>
-<a href="https://github.com/apache/spark/releases/tag/v2.0.1">(git tag)</a><br/>
-
 1. Choose a Spark release:
   <select id="sparkVersionSelect" onChange="javascript:onVersionSelect();"></select><br>
 
