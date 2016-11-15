@@ -51,7 +51,7 @@ Spark artifacts are [hosted in Maven Central](http://search.maven.org/#search%7C
 
     groupId: org.apache.spark
     artifactId: spark-core_2.11
-    version: 2.0.1
+    version: 2.0.2
 
 ### Spark Source Code Management
 If you are interested in working with the newest under-development code or contributing to Apache Spark development, you can also check out the master branch from Git:
@@ -59,7 +59,7 @@ If you are interested in working with the newest under-development code or contr
     # Master development branch
     git clone git://github.com/apache/spark.git
 
-    # 2.0 maintenance branch with stability fixes on top of Spark 2.0.1
+    # 2.0 maintenance branch with stability fixes on top of Spark 2.0.2
     git clone git://github.com/apache/spark.git -b branch-2.0
 
 Once you've downloaded Spark, you can find instructions for installing and building it on the <a href="{{site.url}}documentation.html">documentation page</a>.
