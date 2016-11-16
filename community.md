@@ -9,10 +9,37 @@ navigation:
 
 <h2>Apache Spark Community</h2>
 
-<a name="mailing-lists"></a>
-<h3>Mailing Lists</h3>
+<a name="have-questions"></a>
+<h3>Have Questions?</h3>
 
-<p>Get help using Spark or contribute to the project on our mailing lists:</p>
+<h4>StackOverflow</h4>
+
+For usage questions and help (e.g. how to use this Spark API), it is recommended you use the 
+StackOverflow tag <a href="http://stackoverflow.com/questions/tagged/apache-spark">`apache-spark`</a> 
+as it is an active forum for Spark users' questions and answers.
+
+Some quick tips when using StackOverflow:
+
+- Prior to asking submitting questions, please:
+  - Search StackOverflow's 
+  <a href="http://stackoverflow.com/questions/tagged/apache-spark">`apache-spark`</a> tag to see if 
+  your question has already been answered
+  - Search the nabble archive for
+  <a href="http://apache-spark-user-list.1001560.n3.nabble.com/">users@spark.apache.org</a> 
+- Please follow the StackOverflow <a href="http://stackoverflow.com/help/how-to-ask">code of conduct</a>  
+- Always use the `apache-spark` tag when asking questions
+- Please also use a secondary tag to specify components so subject matter experts can more easily find them.
+ Examples include: `pyspark`, `spark-dataframe`, `spark-streaming`, `spark-r`, `spark-mllib`, 
+  `spark-ml`, `spark-graphx`, `spark-graphframes`, `spark-tensorframes`, etc. 
+- Please do not cross-post between StackOverflow and the mailing lists
+- No jobs, sales, or solicitation is permitted on StackOverflow
+
+<a name="mailing-lists"></a>
+<h4>Mailing Lists</h4>
+
+For broad, opinion based, ask for external resources, debug issues, bugs, contributing to the 
+project, and scenarios, it is recommended you use the user@spark.apache.org mailing list.
+
 <ul>
   <li>
     <a href="http://apache-spark-user-list.1001560.n3.nabble.com">user@spark.apache.org</a> is for usage questions, help, and announcements.
@@ -28,7 +55,22 @@ navigation:
   </li>
 </ul>
 
-<p>The StackOverflow tag <a href="http://stackoverflow.com/questions/tagged/apache-spark"><code>apache-spark</code></a> is an unofficial but active forum for Spark users' questions and answers.</p>
+Some quick tips when using email:
+
+- Prior to asking submitting questions, please:
+  - Search StackOverflow at <a href="http://stackoverflow.com/questions/tagged/apache-spark">`apache-spark`</a> 
+  to see if your question has already been answered
+  - Search the nabble archive for
+  <a href="http://apache-spark-user-list.1001560.n3.nabble.com/">users@spark.apache.org</a> 
+- Tagging the subject line of your email will help you get a faster response, e.g. 
+`[Spark SQL]: Does Spark SQL support LEFT SEMI JOIN?`
+- Tags may help identify a topic by:
+  - Component: Spark Core, Spark SQL, ML, MLlib, GraphFrames, GraphX, TensorFrames, etc
+  - Level: Beginner, Intermediate, Advanced
+  - Scenario: Debug, How-to
+- For error logs or long code examples, please use <a href="https://gist.github.com/">GitHub gist</a> 
+and include only a few lines of the pertinent code / log within the email.
+- No jobs, sales, or solicitation is permitted on the Apache Spark mailing lists.
 
 <a name="events"></a>
 <h3>Events and Meetups</h3>
