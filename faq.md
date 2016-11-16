@@ -70,4 +70,4 @@ Please also refer to our
 <p class="answer">See the <a href="https://cwiki.apache.org/confluence/display/SPARK/Contributing+to+Spark">Contributing to Spark wiki</a> for more information.</p>
 
 <p class="question">Where can I get more help?</p>
-<p class="answer">Please post on the <a href="http://apache-spark-user-list.1001560.n3.nabble.com">Spark Users</a> mailing list.  We'll be glad to help!</p>
+<p class="answer">Please post on StackOverflow's <a href="http://stackoverflow.com/questions/tagged/apache-spark">`apache-spark`</a> tag or post on the <a href="http://apache-spark-user-list.1001560.n3.nabble.com">Spark Users</a> mailing list.  For more information, please refer to <a href="http://spark.apache.org/community.html#have-questions">Have Questions?</a>.  We'll be glad to help!</p>
