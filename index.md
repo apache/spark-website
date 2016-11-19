@@ -156,7 +156,7 @@ navigation:
 
     <p>
       The project's
-      <a href="https://cwiki.apache.org/confluence/display/SPARK/Committers">committers</a>
+      <a href="{{site.baseurl}}/committers.html">committers</a>
       come from 19 organizations.
     </p>
 
