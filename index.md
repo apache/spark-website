@@ -130,9 +130,7 @@ navigation:
     <p>
       Spark is used at a wide range of organizations to process large datasets.
       You can find example use cases at the <a href="http://spark-summit.org/summit-2013/">Spark Summit</a>
-      conference, or on the
-      <a href="https://cwiki.apache.org/confluence/display/SPARK/Powered+By+Spark">Powered By</a>
-      page.
+      conference, or on the <a href="{{site.baseurl}}/powered-by.html">Powered By</a> page.
     </p>
 
     <p>

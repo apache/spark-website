@@ -191,7 +191,7 @@ Spark Meetups are grass-roots events organized and hosted by leaders and champio
 
 <h3>Powered By</h3>
 
-<p>Our wiki has a list of <a href="https://cwiki.apache.org/confluence/display/SPARK/Powered+By+Spark">projects and organizations powered by Spark</a>.</p>
+<p>Our wiki has a list of <a href="{{site.baseurl}}/powered-by.html">projects and organizations powered by Spark</a>.</p>
 
 <a name="history"></a>
 <h3>Project History</h3>

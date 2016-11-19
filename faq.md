@@ -15,7 +15,7 @@ Spark is a fast and general processing engine compatible with Hadoop data. It ca
 
 <p class="question">Who is using Spark in production?</p>
 
-<p class="answer">As of 2016, surveys show that more than 1000 organizations are using Spark in production. Some of them are listed on the <a href="https://cwiki.apache.org/confluence/display/SPARK/Powered+By+Spark">Powered By page</a> and at the <a href="http://spark-summit.org">Spark Summit</a>.</p>
+<p class="answer">As of 2016, surveys show that more than 1000 organizations are using Spark in production. Some of them are listed on the <a href="{{site.baseurl}}/powered-by.html">Powered By page</a> and at the <a href="http://spark-summit.org">Spark Summit</a>.</p>
 
 
 <p class="question">How large a cluster can Spark scale to?</p>
