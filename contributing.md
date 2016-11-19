@@ -478,8 +478,15 @@ if (true) statement1 else statement2
 // Wrong:
 if (true)
   println("Wow!")
-Return Types
-Always specify the return types of methods where possible. If a method has no return type, specify Unit instead in accordance with the Scala style guide. Return types for variables are not required unless the definition involves huge code blocks with potentially ambiguous return values.
+```
+
+<h3>Return Types</h3>
+
+Always specify the return types of methods where possible. If a method has no return type, specify 
+`Unit` instead in accordance with the Scala style guide. Return types for variables are not 
+required unless the definition involves huge code blocks with potentially ambiguous return values.
+
+```scala
 // Correct:
 def getSize(partitionId: String): Long = { ... }
 def compute(partitionId: String): Unit = { ... }
@@ -502,7 +509,7 @@ val path: Option[String] =
     case e: SomeSpecialException =>
       computePath(names)
   }
- ```
+```
 
 <h3>If in Doubt</h3>
 
