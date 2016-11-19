@@ -130,9 +130,7 @@ navigation:
     <p>
       Spark is used at a wide range of organizations to process large datasets.
       You can find example use cases at the <a href="http://spark-summit.org/summit-2013/">Spark Summit</a>
-      conference, or on the
-      <a href="https://cwiki.apache.org/confluence/display/SPARK/Powered+By+Spark">Powered By</a>
-      page.
+      conference, or on the <a href="{{site.baseurl}}/powered-by.html">Powered By</a> page.
     </p>
 
     <p>
@@ -156,14 +154,13 @@ navigation:
 
     <p>
       The project's
-      <a href="https://cwiki.apache.org/confluence/display/SPARK/Committers">committers</a>
+      <a href="{{site.baseurl}}/committers.html">committers</a>
       come from 19 organizations.
     </p>
 
     <p>
       If you'd like to participate in Spark, or contribute to the libraries on top of it, learn
-      <a href="https://cwiki.apache.org/confluence/display/SPARK/Contributing+to+Spark">how to
-        contribute</a>.
+      <a href="{{site.baseurl}}/contributing.html">how to contribute</a>.
     </p>
   </div>
 

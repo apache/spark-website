@@ -114,7 +114,7 @@ subproject: MLlib
     </p>
     <p>
       MLlib is still a rapidly growing project and welcomes contributions. If you'd like to submit an algorithm to MLlib,
-      read <a href="https://cwiki.apache.org/confluence/display/SPARK/Contributing+to+Spark">how to
+      read <a href="{{site.baseurl}}/contributing.html">how to
       contribute to Spark</a> and send us a patch!
     </p>
   </div>
