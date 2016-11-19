@@ -61,7 +61,7 @@ navigation:
 <h3>Becoming a Committer</h3>
 
 To get started contributing to Spark, learn 
-[how to contribute](https://cwiki.apache.org/confluence/display/SPARK/Contributing+to+Spark) – 
+<a href="{{site.baseurl}}/contributing.html">how to contribute</a> – 
 anyone can submit patches, documentation and examples to the project.
 
 The PMC regularly adds new committers from the active contributors, based on their contributions 
@@ -89,7 +89,7 @@ platform support for specific OSes, storage systems, etc.
 <h3>Review Process</h3>
 
 All contributions should be reviewed before merging as described in 
-[Contributing to Spark](https://cwiki.apache.org/confluence/display/SPARK/Contributing+to+Spark). 
+<a href="{{site.baseurl}}/contributing.html">Contributing to Spark</a>. 
 In particular, if you are working on an area of the codebase you are unfamiliar with, look at the 
 Git history for that code to see who reviewed patches before. You can do this using 
 `git log --format=full <filename>`, by examining the "Commit" field to see who committed each patch.

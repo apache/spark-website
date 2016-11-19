@@ -67,7 +67,7 @@ Please also refer to our
 
 <p class="question">How can I contribute to Spark?</p>
 
-<p class="answer">See the <a href="https://cwiki.apache.org/confluence/display/SPARK/Contributing+to+Spark">Contributing to Spark wiki</a> for more information.</p>
+<p class="answer">See the <a href="{{site.baseurl}}/contributing.html">Contributing to Spark wiki</a> for more information.</p>
 
 <p class="question">Where can I get more help?</p>
 

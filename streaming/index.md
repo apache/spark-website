@@ -117,7 +117,7 @@ subproject: Streaming
     </p>
     <p>
       The Spark Streaming developers welcome contributions. If you'd like to help out,
-      read <a href="https://cwiki.apache.org/confluence/display/SPARK/Contributing+to+Spark">how to
+      read <a href="{{site.baseurl}}/contributing.html">how to
       contribute to Spark</a>, and send us a patch!
     </p>
   </div>

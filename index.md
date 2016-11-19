@@ -162,8 +162,7 @@ navigation:
 
     <p>
       If you'd like to participate in Spark, or contribute to the libraries on top of it, learn
-      <a href="https://cwiki.apache.org/confluence/display/SPARK/Contributing+to+Spark">how to
-        contribute</a>.
+      <a href="{{site.baseurl}}/contributing.html">how to contribute</a>.
     </p>
   </div>
 
