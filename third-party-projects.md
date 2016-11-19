@@ -11,7 +11,7 @@ This page tracks external software projects that supplement Apache Spark and add
 
 <h2>spark-packages.org</h2>
 
-<a href="https://spark-packages.org/">spark-packages.org</a></strong> is an external, 
+<a href="https://spark-packages.org/">spark-packages.org</a> is an external, 
 community-managed list of third-party libraries, add-ons, and applications that work with 
 Apache Spark. You can add a package as long as you have a GitHub repository.
 
