@@ -42,8 +42,9 @@ feedback on any performance or correctness issues found in the newer release.
 
 <h2>Contributing by Reviewing Changes</h2>
 
-Changes to Spark source code are proposed, reviewed and committed via Github (described later) at 
-http://github.com/apache/spark/pulls. Anyone can view and comment on active changes here. 
+Changes to Spark source code are proposed, reviewed and committed via 
+<a href="http://github.com/apache/spark/pulls">Github pull requests</a> (described later). 
+Anyone can view and comment on active changes here. 
 Reviewing others' changes is a good way to learn how the change process works and gain exposure 
 to activity in various parts of the code. You can help by reviewing the changes and asking 
 questions or pointing out issues -- as simple as typos or small issues of style.
@@ -52,15 +53,16 @@ See also https://spark-prs.appspot.com/ for a convenient way to view and filter 
 <h2>Contributing Documentation Changes</h2>
 
 To propose a change to _release_ documentation (that is, docs that appear under 
-https://spark.apache.org/docs/), edit the Markdown source files in Spark's 
+<a href="https://spark.apache.org/docs/">https://spark.apache.org/docs/</a>), 
+edit the Markdown source files in Spark's 
 <a href="https://github.com/apache/spark/tree/master/docs">`docs/`</a> directory, 
 whose `README` file shows how to build the documentation locally to test your changes.
 The process to propose a doc change is otherwise the same as the process for proposing code 
 changes below. 
 
 To propose a change to the rest of the documentation (that is, docs that do _not_ appear under 
-https://spark.apache.org/docs/), similarly, edit the Markdown in the https://github.com/apache/spark-website
-repository and open a pull request.
+<a href="https://spark.apache.org/docs/">https://spark.apache.org/docs/</a>), similarly, edit the Markdown in the 
+<a href="https://github.com/apache/spark-website">spark-website repository</a> and open a pull request.
 
 <h2>Contributing User Libraries to Spark</h2>
 
@@ -72,7 +74,7 @@ learning algorithms can happily exist outside of MLlib.
 
 To that end, large and independent new functionality is often rejected for inclusion in Spark 
 itself, but, can and should be hosted as a separate project and repository, and included in 
-the http://spark-packages.org/ collection.
+the <a href="http://spark-packages.org/">spark-packages.org</a> collection.
 
 <h2>Contributing Bug Reports</h2>
 
@@ -87,7 +89,8 @@ first. Unreproducible bugs, or simple error reports, may be closed.
 
 It is possible to propose new features as well. These are generally not helpful unless 
 accompanied by detail, such as a design document and/or code change. Large new contributions 
-should consider http://spark-packages.org first (see above), or be discussed on the mailing 
+should consider <a href="http://spark-packages.org/">spark-packages.org</a> first (see above), 
+or be discussed on the mailing 
 list first. Feature requests may be rejected, or closed after a long period of inactivity.
 
 <h2>Contributing to JIRA Maintenance</h2>
@@ -130,7 +133,7 @@ Review can take hours or days of committer time. Everyone benefits if contributo
 changes that are useful, clear, easy to evaluate, and already pass basic checks.
 
 Sometimes, a contributor will already have a particular new change or bug in mind. If seeking 
-ideas, consult the list of starter tasks in JIRA, or ask the user@spark.apache.org mailing list.
+ideas, consult the list of starter tasks in JIRA, or ask the `user@spark.apache.org` mailing list.
 
 Before proceeding, contributors should evaluate if the proposed change is likely to be relevant, 
 new and actionable:
@@ -141,10 +144,12 @@ lists first, rather than consider filing a JIRA or proposing a change. When in d
 `user@spark.apache.org` first about the possible change
 - Search the `user@spark.apache.org` and `dev@spark.apache.org` mailing list 
 <a href="{{site.baseurl}}/community.html#mailing-lists">archives</a> for 
-related discussions. Use http://search-hadoop.com/?q=&fc_project=Spark or similar search tools. 
+related discussions. Use <a href="http://search-hadoop.com/?q=&fc_project=Spark">search-hadoop.com</a> 
+or similar search tools. 
 Often, the problem has been discussed before, with a resolution that doesn't require a code 
 change, or recording what kinds of changes will not be accepted as a resolution.
-- Search JIRA for existing issues: https://issues.apache.org/jira/browse/SPARK 
+- Search JIRA for existing issues: 
+<a href="https://issues.apache.org/jira/browse/SPARK">https://issues.apache.org/jira/browse/SPARK</a> 
 - Type `spark [search terms]` at the top right search box. If a logically similar issue already 
 exists, then contribute to the discussion on the existing JIRA and pull request first, instead of 
 creating a new one.
@@ -189,7 +194,7 @@ rather than receive iterations of review.
 - Introduces complex new functionality, especially an API that needs to be supported
 - Adds complexity that only helps a niche use case
 - Adds user-space functionality that does not need to be maintained in Spark, but could be hosted 
-externally and indexed by http://spark-packages.org 
+externally and indexed by <a href="http://spark-packages.org/">spark-packages.org</a> 
 - Changes a public API or semantics (rarely allowed)
 - Adds large dependencies
 - Changes versions of existing dependencies
@@ -255,18 +260,18 @@ Example: `Fix typos in Foo scaladoc`
 <h3>Pull Request</h3>
 
 1. <a href="https://help.github.com/articles/fork-a-repo/">Fork</a> the Github repository at 
-http://github.com/apache/spark if you haven't already
+<a href="http://github.com/apache/spark">http://github.com/apache/spark</a> if you haven't already
 1. Clone your fork, create a new branch, push commits to the branch.
 1. Consider whether documentation or tests need to be added or updated as part of the change, 
 and add them as needed.
-1. Run all tests with ./dev/run-tests to verify that the code still compiles, passes tests, and 
+1. Run all tests with `./dev/run-tests` to verify that the code still compiles, passes tests, and 
 passes style checks. If style checks fail, review the Code Style Guide below.
 1. <a href="https://help.github.com/articles/using-pull-requests/">Open a pull request</a> against 
-the master branch of apache/spark. (Only in special cases would the PR be opened against other branches.)
+the `master` branch of `apache/spark`. (Only in special cases would the PR be opened against other branches.)
      1. The PR title should be of the form `[SPARK-xxxx][COMPONENT] Title`, where `SPARK-xxxx` is 
      the relevant JIRA number, `COMPONENT `is one of the PR categories shown at 
-     https://spark-prs.appspot.com/ and Title may be the JIRA's title or a more specific title 
-     describing the PR itself.
+     <a href="https://spark-prs.appspot.com/">spark-prs.appspot.com</a> and 
+     Title may be the JIRA's title or a more specific title describing the PR itself.
      1. If the pull request is still a work in progress, and so is not ready to be merged, 
      but needs to be pushed to Github to facilitate review, then add `[WIP]` after the component.
      1. Consider identifying committers or other contributors who have worked on the code being 

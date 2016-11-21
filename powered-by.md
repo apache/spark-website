@@ -11,9 +11,9 @@ navigation:
 
 Organizations creating products and projects for use with Apache Spark, along with associated 
 marketing materials, should take care to respect the trademark in "Apache Spark" and its logo. 
-Please refer to http://www.apache.org/foundation/marks/ and 
-http://www.apache.org/foundation/marks/faq/ for comprehensive and authoritative guidance on 
-proper usage of ASF trademarks.
+Please refer to <a href="http://www.apache.org/foundation/marks/">ASF Trademarks Guidance</a> and 
+associated <a href="http://www.apache.org/foundation/marks/faq/">FAQ</a> 
+for comprehensive and authoritative guidance on proper usage of ASF trademarks.
 
 Names that do not include "Spark" at all have no potential trademark issue with the Spark project. 
 This is recommended.

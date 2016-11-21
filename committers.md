@@ -141,7 +141,7 @@ follow-up can be well communicated to all Spark developers.
 
 <h3>Policy on Backporting Bug Fixes</h3>
 
-From `pwendell` at https://www.mail-archive.com/dev@spark.apache.org/msg10284.html:
+From <a href="https://www.mail-archive.com/dev@spark.apache.org/msg10284.html">`pwendell`</a>:
 
 The trade off when backporting is you get to deliver the fix to people running older versions 
 (great!), but you risk introducing new or even worse bugs in maintenance releases (bad!). 
