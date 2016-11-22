@@ -72,6 +72,16 @@ Some quick tips when using email:
 and include only a few lines of the pertinent code / log within the email.
 - No jobs, sales, or solicitation is permitted on the Apache Spark mailing lists.
 
+<a name="chat"></a>
+<h4>Chat Rooms</h4>
+
+Chat rooms are great for quick questions or discussions on specialized topics. The following chat rooms are not officially part of Apache Spark; they are provided for reference only.
+<ul>
+  <li>
+    <a href="https://gitter.im/spark-scala/Lobby">Spark with Scala</a> is for questions and discussions related to using Spark with the Scala programming language.
+  </li>
+</ul>
+
 <a name="events"></a>
 <h3>Events and Meetups</h3>
 
