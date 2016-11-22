@@ -69,5 +69,5 @@ Once you've downloaded Spark, you can find instructions for installing and build
 <ul id="sparkReleaseNotes"></ul>
 
 ### Nightly Packages and Artifacts
-For developers, Spark maintains nightly builds and SNAPSHOT artifacts. More information is available on the [Spark developer Wiki](https://cwiki.apache.org/confluence/display/SPARK/Useful+Developer+Tools#UsefulDeveloperTools-NightlyBuilds).
+For developers, Spark maintains nightly builds and SNAPSHOT artifacts. More information is available on the [the Developer Tools page](/developer-tools.html#nightly-builds).
 

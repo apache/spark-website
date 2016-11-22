@@ -174,13 +174,6 @@ Slides, videos and EC2-based exercises from each of these are available online:
   <li>The <a href="{{site.baseurl}}/examples.html">Spark examples page</a> shows the basic API in Scala, Java and Python.</li>
 </ul>
 
-<h3>Wiki</h3>
-
-<ul><li>
-The <a href="https://cwiki.apache.org/confluence/display/SPARK/Wiki+Homepage">Spark wiki</a> contains
-information for developers, such as architecture documents and how to <a href="{{site.baseurl}}/contributing.html">">contribute</a> to Spark.
-</li></ul>
-
 <h3>Research Papers</h3>
 
 <p>
