@@ -31,7 +31,7 @@ subproject: MLlib
         data = spark.read.format(<span class="string">"libsvm"</span>)\<br/>
 	    &nbsp;&nbsp;.load(<span class="string">"hdfs://..."</span>)<br/>
         <br/>
-        model = <span class="sparkop">KMeans</span>(data, k=10)
+        model = <span class="sparkop">KMeans</span>(k=10).fit(data)
       </div>
       <div class="caption">Calling MLlib in Python</div>
     </div>
@@ -81,25 +81,37 @@ subproject: MLlib
   <div class="col-md-4 col-padded">
     <h3>Algorithms</h3>
     <p>
-      MLlib contains many algorithms and utilities, including:
+      MLlib contains many algorithms and utilities.
+    </p>
+    <p>
+      ML algorithms include:
     </p>
     <ul class="list-narrow">
       <li>Classification: logistic regression, naive Bayes,...</li>
-      <li>Regression: generalized linear regression, isotonic regression,...</li>
+      <li>Regression: generalized linear regression, survival regression,...</li>
       <li>Decision trees, random forests, and gradient-boosted trees</li>
       <li>Recommendation: alternating least squares (ALS)</li>
       <li>Clustering: K-means, Gaussian mixtures (GMMs),...</li>
       <li>Topic modeling: latent Dirichlet allocation (LDA)</li>
+      <li>Frequent itemsets, association rules, and sequential pattern mining</li>
+    </ul>
+    <p>
+      ML workflow utilities include:
+    </p>
+    <ul class="list-narrow">
       <li>Feature transformations: standardization, normalization, hashing,...</li>
-      <li>Model evaluation and hyper-parameter tuning</li>
       <li>ML Pipeline construction</li>
+      <li>Model evaluation and hyper-parameter tuning</li>
       <li>ML persistence: saving and loading models and Pipelines</li>
-      <li>Survival analysis: accelerated failure time model</li>
-      <li>Frequent itemset and sequential pattern mining: FP-growth, association rules, PrefixSpan</li>
-      <li>Distributed linear algebra: singular value decomposition (SVD), principal component analysis (PCA),...</li>
+    </ul>
+    <p>
+      Other utilities include:
+    </p>
+    <ul class="list-narrow">
+      <li>Distributed linear algebra: SVD, PCA,...</li>
       <li>Statistics: summary statistics, hypothesis testing,...</li>
     </ul>
-    <p>Refer to the <a href="{{site.baseurl}}/docs/latest/mllib-guide.html">MLlib guide</a> for usage examples.</p>
+    <p>Refer to the <a href="{{site.baseurl}}/docs/latest/ml-guide.html">MLlib guide</a> for usage examples.</p>
   </div>
 
   <div class="col-md-4 col-padded">
@@ -126,7 +138,7 @@ subproject: MLlib
     </p>
     <ul class="list-narrow">
       <li><a href="{{site.baseurl}}/downloads.html">Download Spark</a>. MLlib is included as a module.</li>
-      <li>Read the <a href="{{site.baseurl}}/docs/latest/mllib-guide.html">MLlib guide</a>, which includes
+      <li>Read the <a href="{{site.baseurl}}/docs/latest/ml-guide.html">MLlib guide</a>, which includes
       various usage examples.</li>
       <li>Learn how to <a href="{{site.baseurl}}/docs/latest/#launching-on-a-cluster">deploy</a> Spark on a cluster
         if you'd like to run in distributed mode. You can also run locally on a multicore machine
