@@ -127,24 +127,24 @@
                     
 
                     <ul id="markdown-toc">
-  <li><a href="#overview" id="markdown-toc-overview">Overview</a></li>
-  <li><a href="#scheduling-across-applications" id="markdown-toc-scheduling-across-applications">Scheduling Across Applications</a>    <ul>
-      <li><a href="#dynamic-resource-allocation" id="markdown-toc-dynamic-resource-allocation">Dynamic Resource Allocation</a>        <ul>
-          <li><a href="#configuration-and-setup" id="markdown-toc-configuration-and-setup">Configuration and Setup</a></li>
-          <li><a href="#resource-allocation-policy" id="markdown-toc-resource-allocation-policy">Resource Allocation Policy</a>            <ul>
-              <li><a href="#request-policy" id="markdown-toc-request-policy">Request Policy</a></li>
-              <li><a href="#remove-policy" id="markdown-toc-remove-policy">Remove Policy</a></li>
+  <li><a href="#overview">Overview</a></li>
+  <li><a href="#scheduling-across-applications">Scheduling Across Applications</a>    <ul>
+      <li><a href="#dynamic-resource-allocation">Dynamic Resource Allocation</a>        <ul>
+          <li><a href="#configuration-and-setup">Configuration and Setup</a></li>
+          <li><a href="#resource-allocation-policy">Resource Allocation Policy</a>            <ul>
+              <li><a href="#request-policy">Request Policy</a></li>
+              <li><a href="#remove-policy">Remove Policy</a></li>
             </ul>
           </li>
-          <li><a href="#graceful-decommission-of-executors" id="markdown-toc-graceful-decommission-of-executors">Graceful Decommission of Executors</a></li>
+          <li><a href="#graceful-decommission-of-executors">Graceful Decommission of Executors</a></li>
         </ul>
       </li>
     </ul>
   </li>
-  <li><a href="#scheduling-within-an-application" id="markdown-toc-scheduling-within-an-application">Scheduling Within an Application</a>    <ul>
-      <li><a href="#fair-scheduler-pools" id="markdown-toc-fair-scheduler-pools">Fair Scheduler Pools</a></li>
-      <li><a href="#default-behavior-of-pools" id="markdown-toc-default-behavior-of-pools">Default Behavior of Pools</a></li>
-      <li><a href="#configuring-pool-properties" id="markdown-toc-configuring-pool-properties">Configuring Pool Properties</a></li>
+  <li><a href="#scheduling-within-an-application">Scheduling Within an Application</a>    <ul>
+      <li><a href="#fair-scheduler-pools">Fair Scheduler Pools</a></li>
+      <li><a href="#default-behavior-of-pools">Default Behavior of Pools</a></li>
+      <li><a href="#configuring-pool-properties">Configuring Pool Properties</a></li>
     </ul>
   </li>
 </ul>
@@ -321,9 +321,9 @@ mode is best for multi-user settings.</p>
 <p>To enable the fair scheduler, simply set the <code>spark.scheduler.mode</code> property to <code>FAIR</code> when configuring
 a SparkContext:</p>
 
-<div class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">val</span> <span class="n">conf</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">SparkConf</span><span class="o">().</span><span class="n">setMaster</span><span class="o">(...).</span><span class="n">setAppName</span><span class="o">(...)</span>
+<figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span></span><span class="k">val</span> <span class="n">conf</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">SparkConf</span><span class="o">().</span><span class="n">setMaster</span><span class="o">(...).</span><span class="n">setAppName</span><span class="o">(...)</span>
 <span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="o">(</span><span class="s">&quot;spark.scheduler.mode&quot;</span><span class="o">,</span> <span class="s">&quot;FAIR&quot;</span><span class="o">)</span>
-<span class="k">val</span> <span class="n">sc</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">SparkContext</span><span class="o">(</span><span class="n">conf</span><span class="o">)</span></code></pre></div>
+<span class="k">val</span> <span class="n">sc</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">SparkContext</span><span class="o">(</span><span class="n">conf</span><span class="o">)</span></code></pre></figure>
 
 <h2 id="fair-scheduler-pools">Fair Scheduler Pools</h2>
 
@@ -337,15 +337,15 @@ many concurrent jobs they have instead of giving <em>jobs</em> equal shares. Thi
 adding the <code>spark.scheduler.pool</code> &#8220;local property&#8221; to the SparkContext in the thread that&#8217;s submitting them.
 This is done as follows:</p>
 
-<div class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="c1">// Assuming sc is your SparkContext variable</span>
-<span class="n">sc</span><span class="o">.</span><span class="n">setLocalProperty</span><span class="o">(</span><span class="s">&quot;spark.scheduler.pool&quot;</span><span class="o">,</span> <span class="s">&quot;pool1&quot;</span><span class="o">)</span></code></pre></div>
+<figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span></span><span class="c1">// Assuming sc is your SparkContext variable</span>
+<span class="n">sc</span><span class="o">.</span><span class="n">setLocalProperty</span><span class="o">(</span><span class="s">&quot;spark.scheduler.pool&quot;</span><span class="o">,</span> <span class="s">&quot;pool1&quot;</span><span class="o">)</span></code></pre></figure>
 
 <p>After setting this local property, <em>all</em> jobs submitted within this thread (by calls in this thread
 to <code>RDD.save</code>, <code>count</code>, <code>collect</code>, etc) will use this pool name. The setting is per-thread to make
 it easy to have a thread run multiple jobs on behalf of the same user. If you&#8217;d like to clear the
 pool that a thread is associated with, simply call:</p>
 
-<div class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="n">sc</span><span class="o">.</span><span class="n">setLocalProperty</span><span class="o">(</span><span class="s">&quot;spark.scheduler.pool&quot;</span><span class="o">,</span> <span class="kc">null</span><span class="o">)</span></code></pre></div>
+<figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span></span><span class="n">sc</span><span class="o">.</span><span class="n">setLocalProperty</span><span class="o">(</span><span class="s">&quot;spark.scheduler.pool&quot;</span><span class="o">,</span> <span class="kc">null</span><span class="o">)</span></code></pre></figure>
 
 <h2 id="default-behavior-of-pools">Default Behavior of Pools</h2>
 
@@ -379,12 +379,12 @@ of the cluster. By default, each pool&#8217;s <code>minShare</code> is 0.</li>
 and setting a <code>spark.scheduler.allocation.file</code> property in your
 <a href="configuration.html#spark-properties">SparkConf</a>.</p>
 
-<div class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="o">(</span><span class="s">&quot;spark.scheduler.allocation.file&quot;</span><span class="o">,</span> <span class="s">&quot;/path/to/file&quot;</span><span class="o">)</span></code></pre></div>
+<figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span></span><span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="o">(</span><span class="s">&quot;spark.scheduler.allocation.file&quot;</span><span class="o">,</span> <span class="s">&quot;/path/to/file&quot;</span><span class="o">)</span></code></pre></figure>
 
 <p>The format of the XML file is simply a <code>&lt;pool&gt;</code> element for each pool, with different elements
 within it for the various settings. For example:</p>
 
-<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
+<figure class="highlight"><pre><code class="language-xml" data-lang="xml"><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot;?&gt;</span>
 <span class="nt">&lt;allocations&gt;</span>
   <span class="nt">&lt;pool</span> <span class="na">name=</span><span class="s">&quot;production&quot;</span><span class="nt">&gt;</span>
     <span class="nt">&lt;schedulingMode&gt;</span>FAIR<span class="nt">&lt;/schedulingMode&gt;</span>
@@ -396,7 +396,7 @@ within it for the various settings. For example:</p>
     <span class="nt">&lt;weight&gt;</span>2<span class="nt">&lt;/weight&gt;</span>
     <span class="nt">&lt;minShare&gt;</span>3<span class="nt">&lt;/minShare&gt;</span>
   <span class="nt">&lt;/pool&gt;</span>
-<span class="nt">&lt;/allocations&gt;</span></code></pre></div>
+<span class="nt">&lt;/allocations&gt;</span></code></pre></figure>
 
 <p>A full example is also available in <code>conf/fairscheduler.xml.template</code>. Note that any pools not
 configured in the XML file will simply get default values for all settings (scheduling mode FIFO,
