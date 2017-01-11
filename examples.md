@@ -62,7 +62,7 @@ counts.saveAsTextFile("hdfs://...")
 {% highlight java %}
 JavaRDD<String> textFile = sc.textFile("hdfs://...");
 JavaRDD<String> words = textFile.flatMap(new FlatMapFunction<String, String>() {
-  public Iterable<String> call(String s) { return Arrays.asList(s.split(" ")); }
+  public Iterator<String> call(String s) { return Arrays.asList(s.split(" ")).iterator(); }
 });
 JavaPairRDD<String, Integer> pairs = words.mapToPair(new PairFunction<String, String, Integer>() {
   public Tuple2<String, Integer> call(String s) { return new Tuple2<String, Integer>(s, 1); }
