@@ -19,7 +19,7 @@ Spark is a fast and general processing engine compatible with Hadoop data. It ca
 
 
 <p class="question">How large a cluster can Spark scale to?</p>
-<p class="answer">Many organizations run Spark on clusters of thousands of nodes. The largest cluster we are know has 8000. In terms of data size, Spark has been shown to work well up to petabytes. It has been used to sort 100 TB of data 3X faster than Hadoop MapReduce on 1/10th of the machines, <a href="http://databricks.com/blog/2014/11/05/spark-officially-sets-a-new-record-in-large-scale-sorting.html">winning the 2014 Daytona GraySort Benchmark</a>, as well as to <a href="https://databricks.com/blog/2014/10/10/spark-petabyte-sort.html">sort 1 PB</a>. Several production workloads <a href="http://databricks.com/blog/2014/08/14/mining-graph-data-with-spark-at-alibaba-taobao.html">use Spark to do ETL and data analysis on PBs of data</a>.</p>
+<p class="answer">Many organizations run Spark on clusters of thousands of nodes. The largest cluster we know has 8000 of them. In terms of data size, Spark has been shown to work well up to petabytes. It has been used to sort 100 TB of data 3X faster than Hadoop MapReduce on 1/10th of the machines, <a href="http://databricks.com/blog/2014/11/05/spark-officially-sets-a-new-record-in-large-scale-sorting.html">winning the 2014 Daytona GraySort Benchmark</a>, as well as to <a href="https://databricks.com/blog/2014/10/10/spark-petabyte-sort.html">sort 1 PB</a>. Several production workloads <a href="http://databricks.com/blog/2014/08/14/mining-graph-data-with-spark-at-alibaba-taobao.html">use Spark to do ETL and data analysis on PBs of data</a>.</p>
 
 <p class="question">Does my data need to fit in memory to use Spark?</p>
 
