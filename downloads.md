@@ -68,6 +68,10 @@ Once you've downloaded Spark, you can find instructions for installing and build
 
 <ul id="sparkReleaseNotes"></ul>
 
+### Archived Releases
+
+As new Spark releases come out for each development stream, previous ones will be archived, but they are still available at [Spark release archives](https://archive.apache.org/dist/spark/).
+
 ### Nightly Packages and Artifacts
 For developers, Spark maintains nightly builds and SNAPSHOT artifacts. More information is available on the [the Developer Tools page](/developer-tools.html#nightly-builds).
 
