@@ -24,7 +24,7 @@ navigation:
     </p>
 
     <p>
-      Apache Spark has an advanced DAG execution engine that supports cyclic data flow and
+      Apache Spark has an advanced DAG execution engine that supports acyclic data flow and
       in-memory computing.
     </p>
   </div>
