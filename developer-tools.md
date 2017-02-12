@@ -32,6 +32,49 @@ $ ./bin/spark-shell
 $ build/sbt ~compile
 ```
 
+<h3>Running Individual Tests</h3>
+
+When developing locally, it's often convenient to run a single test or a few tests, rather than running the entire test suite.
+
+<h4>Testing with SBT</h4>
+
+The fastest way to run individual tests is to use the `sbt` console. It's fastest to keep a `sbt` console open, and use it to re-run tests as necessary.  For example, to run the DAGSchedulerSuite, which is in the `core` project:
+
+```
+$ build/sbt
+> project core
+> testOnly *DAGSchedulerSuite
+```
+
+If you'd like to run just a single test in the DAGSchedulerSuite, e.g., a test that includes "SPARK-12345" in the name, you run the following command in the sbt console:
+
+```
+> testOnly *DAGSchedulerSuite -- -z "SPARK-12345"
+```
+
+Alternately, in the sbt console, you can run all tests in the scheduler package:
+
+```
+> testOnly org.apache.spark.scheduler.*
+```
+
+If you'd prefer, you can run all of these commands on the command line (but this will be slower than running tests using an open cosole).  To do this, you need to surround `testOnly` and the following arguments in quotes:
+
+```
+$ build/sbt "core/testOnly *DAGSchedulerSuite -- -z SPARK-12345"
+```
+
+For more about how to run individual tests with sbt, see the [sbt documentation](http://www.scala-sbt.org/0.13/docs/Testing.html).
+
+
+<h4>Testing with Maven</h4>
+
+You can use wildcards to run individual tests with Maven as follows:
+
+```
+build/mvn test -DwildcardSuites=org.apache.spark.scheduler.**Suite
+```
+
 <h3>Checking Out Pull Requests</h3>
 
 Git provides a mechanism for fetching remote pull requests into your own local repository. 
