@@ -194,7 +194,9 @@
   <div class="col-md-9 col-md-pull-3">
     <h2>Useful Developer Tools</h2>
 
-<h3>Reducing Build Times</h3>
+<h3 id="reducing-build-times">Reducing Build Times</h3>
+
+<h4>SBT: Avoiding Re-Creating the Assembly JAR</h4>
 
 <p>Spark&#8217;s default build strategy is to assemble a jar including all of its dependencies. This can 
 be cumbersome when doing iterative development. When developing locally, it is possible to create 
@@ -214,6 +216,74 @@ $ ./bin/spark-shell
  
 # You can also use ~ to let sbt do incremental builds on file changes without running a new sbt session every time
 $ build/sbt ~compile
+</code></pre>
+
+<h4>Maven: Speeding up Compilation with Zinc</h4>
+
+<p><a href="https://github.com/typesafehub/zinc">Zinc</a> is a long-running server version of SBT&#8217;s incremental
+compiler. When run locally as a background process, it speeds up builds of Scala-based projects
+like Spark. Developers who regularly recompile Spark with Maven will be the most interested in
+Zinc. The project site gives instructions for building and running <code>zinc</code>; OS X users can
+install it using <code>brew install zinc</code>.</p>
+
+<p>If using the <code>build/mvn</code> package <code>zinc</code> will automatically be downloaded and leveraged for all
+builds. This process will auto-start after the first time <code>build/mvn</code> is called and bind to port
+3030 unless the <code>ZINC_PORT</code> environment variable is set. The <code>zinc</code> process can subsequently be
+shut down at any time by running <code>build/zinc-&lt;version&gt;/bin/zinc -shutdown</code> and will automatically
+restart whenever <code>build/mvn</code> is called.</p>
+
+<h3 id="running-individual-tests">Running Individual Tests</h3>
+
+<p>When developing locally, it&#8217;s often convenient to run a single test or a few tests, rather than running the entire test suite.</p>
+
+<h4>Testing with SBT</h4>
+
+<p>The fastest way to run individual tests is to use the <code>sbt</code> console. It&#8217;s fastest to keep a <code>sbt</code> console open, and use it to re-run tests as necessary.  For example, to run all of the tests in a particular project, e.g., <code>core</code>:</p>
+
+<pre><code>$ build/sbt
+&gt; project core
+&gt; test
+</code></pre>
+
+<p>You can run a single test suite using the <code>testOnly</code> command.  For example, to run the DAGSchedulerSuite:</p>
+
+<pre><code>&gt; testOnly org.apache.spark.scheduler.DAGSchedulerSuite
+</code></pre>
+
+<p>The <code>testOnly</code> command accepts wildcards; e.g., you can also run the <code>DAGSchedulerSuite</code> with:</p>
+
+<pre><code>&gt; testOnly *DAGSchedulerSuite
+</code></pre>
+
+<p>Or you could run all of the tests in the scheduler package:</p>
+
+<pre><code>&gt; testOnly org.apache.spark.scheduler.*
+</code></pre>
+
+<p>If you&#8217;d like to run just a single test in the <code>DAGSchedulerSuite</code>, e.g., a test that includes &#8220;SPARK-12345&#8221; in the name, you run the following command in the sbt console:</p>
+
+<pre><code>&gt; testOnly *DAGSchedulerSuite -- -z "SPARK-12345"
+</code></pre>
+
+<p>If you&#8217;d prefer, you can run all of these commands on the command line (but this will be slower than running tests using an open cosole).  To do this, you need to surround <code>testOnly</code> and the following arguments in quotes:</p>
+
+<pre><code>$ build/sbt "core/testOnly *DAGSchedulerSuite -- -z SPARK-12345"
+</code></pre>
+
+<p>For more about how to run individual tests with sbt, see the <a href="http://www.scala-sbt.org/0.13/docs/Testing.html">sbt documentation</a>.</p>
+
+<h4>Testing with Maven</h4>
+
+<p>With Maven, you can use the <code>-DwildcardSuites</code> flag to run individual Scala tests:</p>
+
+<pre><code>build/mvn -Dtest=none -DwildcardSuites=org.apache.spark.scheduler.DAGSchedulerSuite test
+</code></pre>
+
+<p>You need <code>-Dtest=none</code> to avoid running the Java tests.  For more information about the ScalaTest Maven Plugin, refer to the <a href="http://www.scalatest.org/user_guide/using_the_scalatest_maven_plugin">ScalaTest documentation</a>.</p>
+
+<p>To run individual Java tests, you can use the <code>-Dtest</code> flag:</p>
+
+<pre><code>build/mvn test -DwildcardSuites=none -Dtest=org.apache.spark.streaming.JavaAPISuite test
 </code></pre>
 
 <h3>Checking Out Pull Requests</h3>
