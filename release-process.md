@@ -42,7 +42,7 @@ places to change are:
 - **Maven build**. Ensure that the version in all the `pom.xml` files is `<SPARK-VERSION>-SNAPSHOT` 
 (e.g. `1.1.1-SNAPSHOT`). This will be changed to `<SPARK-VERSION>` (e.g. 1.1.1) automatically by 
 Maven when cutting the release. Note that there are a few exceptions that should just use 
-`<SPARK-VERSION>`, like `extras/java8-tests/pom.xml`. These modules are not published as artifacts.
+`<SPARK-VERSION>`. These modules are not published as artifacts.
 - **Spark REPLs**. Look for the Spark ASCII art in `SparkILoopInit.scala` for the Scala shell 
 and in `shell.py` for the Python REPL.
 - **Docs**. Search for VERSION in `docs/_config.yml`
@@ -183,13 +183,13 @@ You can audit the ec2 set-up by launching a cluster and running this audit scrip
 
 The website repository is located at 
 <a href="https://github.com/apache/spark-website">https://github.com/apache/spark-website</a>. 
-Ensure the docs were generated with the PRODUCTION=1 environment variable and with Java 7.
+Ensure the docs were generated with the PRODUCTION=1 environment variable.
  
 ```
 # Build the latest docs
 $ git checkout v1.1.1
 $ cd docs
-$ JAVA_HOME=$JAVA_7_HOME PRODUCTION=1 jekyll build
+$ PRODUCTION=1 jekyll build
  
 # Copy the new documentation to apache
 $ git clone https://github.com/apache/spark-website

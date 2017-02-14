@@ -115,8 +115,7 @@ When running tests for a pull request on Jenkins, you can add special phrases to
 your pull request to change testing behavior. This includes:
 
 - `[test-maven]` - signals to test the pull request using maven
-- `[test-hadoop1.0]` - signals to test using Spark's Hadoop 1.0 profile (other options include 
-Hadoop 2.0, 2.2, and 2.3)
+- `[test-hadoop2.7]` - signals to test using Spark's Hadoop 2.7 profile
 
 <h3>Organizing Imports</h3>
 
@@ -143,8 +142,8 @@ automatically update the IntelliJ project.
 - As documented in <a href="http://spark.apache.org/docs/latest/building-spark.html">Building Spark</a>, 
 some build configurations require specific profiles to be 
 enabled. The same profiles that are enabled with `-P[profile name]` above may be enabled on the 
-Profiles screen in the Import wizard. For example, if developing for Hadoop 2.4 with YARN support, 
-enable profiles yarn and hadoop-2.4. These selections can be changed later by accessing the 
+Profiles screen in the Import wizard. For example, if developing for Hadoop 2.7 with YARN support, 
+enable profiles `yarn` and `hadoop-2.7`. These selections can be changed later by accessing the 
 "Maven Projects" tool window from the View menu, and expanding the Profiles section.
 
 Other tips:

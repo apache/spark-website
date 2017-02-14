@@ -16,25 +16,17 @@ var hadoop2p3 = {pretty: "Pre-built for Hadoop 2.3", tag: "hadoop2.3"};
 var hadoop2p4 = {pretty: "Pre-built for Hadoop 2.4", tag: "hadoop2.4"};
 var hadoop2p6 = {pretty: "Pre-built for Hadoop 2.6", tag: "hadoop2.6"};
 var hadoop2p7 = {pretty: "Pre-built for Hadoop 2.7 and later", tag: "hadoop2.7"};
-//var mapr3 = {pretty: "Pre-built for MapR 3.X", tag: "mapr3"};
-//var mapr4 = {pretty: "Pre-built for MapR 4.X", tag: "mapr4"};
 
-// 0.7+
-//var packagesV1 = [hadoop1, cdh4, sources];
-// 0.8.1+
-//var packagesV2 = [hadoop2].concat(packagesV1);
-// 1.0.1+
-//var packagesV3 = [mapr3, mapr4].concat(packagesV2);
-// 1.1.0+
-//var packagesV4 = [hadoop2p4, hadoop2p3, mapr3, mapr4].concat(packagesV1);
-// 1.3.1+
-//var packagesV5 = [hadoop2p6].concat(packagesV4);
 // 1.4.0+
 var packagesV6 = [hadoop2p6, hadoop2p4, hadoop2p3, hadoopFree, hadoop1, cdh4, sources];
 // 2.0.0+
 var packagesV7 = [hadoop2p7, hadoop2p6, hadoop2p4, hadoop2p3, hadoopFree, sources];
+// 2.2.0+
+var packagesV8 = [hadoop2p7, hadoop2p6, hadoopFree, sources]
 
 // addRelease("2.0.0-preview", new Date("05/24/2016"), sources.concat(packagesV7), true, false);
+
+//addRelease("2.2.0", new Date("x/x/2017"), packagesV8, true);
 
 addRelease("2.1.0", new Date("12/28/2016"), packagesV7, true);
 addRelease("2.0.2", new Date("11/14/2016"), packagesV7, true);
