@@ -165,6 +165,9 @@ Slides, videos and EC2-based exercises from each of these are available online:
   <li><a href="https://www.packtpub.com/big-data-and-business-intelligence/apache-spark-graph-processing">Apache Spark Graph Processing</a>, by Rindra Ramamonjison (Packt Publishing)</li>
   <li><a href="https://www.packtpub.com/big-data-and-business-intelligence/mastering-apache-spark">Mastering Apache Spark</a>, by Mike Frampton (Packt Publishing)</li>
   <li><a href="http://www.apress.com/9781484209653">Big Data Analytics with Spark: A Practitioner's Guide to Using Spark for Large Scale Data Analysis</a>, by Mohammed Guller (Apress)</li>
+  <li><a href="https://www.packtpub.com/big-data-and-business-intelligence/real-time-big-data-analytics">Real-Time Big Data Analytics</a>, by Sumit Gupta and Shilpi (Packt Publishing)</li>
+  <li><a href="https://www.packtpub.com/big-data-and-business-intelligence/apache-spark-machine-learning-blueprints">Apache Spark Machine Learning Blueprints</a>, by Alex Liu (Packt Publishing)</li>
+  <li><a href="https://www.packtpub.com/hardware-and-creative/learning-iot-particle-photon-and-electron">Learning IoT with Particle Photon and Electron</a>, by Rashid Khan, Kajari Ghoshdastidar and Ajith Vasudevan (Packt Publishing)</li>
   <li><a href="https://www.packtpub.com/big-data-and-business-intelligence/large-scale-machine-learning-spark">Large Scale Machine Learning with Spark</a>, by Md. Rezaul Karim, Md. Mahedi Kaysar (Packt Publishing)</li>
   <li><a href="https://www.packtpub.com/big-data-and-business-intelligence/big-data-analytics">Big Data Analytics with Spark and Hadoop</a>, by Venkat Ankam (Packt Publishing)</li>
 </ul>
