@@ -61,9 +61,10 @@ counts.saveAsTextFile("hdfs://...")
 <div class="code code-tab">
 {% highlight java %}
 JavaRDD<String> textFile = sc.textFile("hdfs://...");
-JavaRDD<String> words = textFile.flatMap(s -> Arrays.asList(s.split(" ")).iterator())
-                            .mapToPair(word -> new Tuple2<>(word, 1))
-                            .reduceByKey((a, b) -> a + b);
+JavaPairRDD<String, Integer> counts = textFile
+    .flatMap(s -> Arrays.asList(s.split(" ")).iterator())
+    .mapToPair(word -> new Tuple2<>(word, 1))
+    .reduceByKey((a, b) -> a + b);
 counts.saveAsTextFile("hdfs://...");
 {% endhighlight %}
 </div>
