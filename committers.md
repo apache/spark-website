@@ -28,6 +28,7 @@ navigation:
 |Herman van Hovell|QuestTec B.V.|
 |Yin Huai|Databricks|
 |Shane Huang|Intel|
+|Holden Karau|IBM|
 |Andy Konwinski|Databricks|
 |Ryan LeCompte|Quantifind|
 |Haoyuan Li|Alluxio, UC Berkeley|
@@ -50,11 +51,13 @@ navigation:
 |Prashant Sharma|IBM|
 |Ram Sriharsha|Databricks|
 |DB Tsai|Netflix|
+|Takuya Ueshin||
 |Marcelo Vanzin|Cloudera|
 |Shivaram Venkataraman|UC Berkeley|
 |Patrick Wendell|Databricks|
 |Andrew Xia|Alibaba|
 |Reynold Xin|Databricks|
+|Burak Yavuz|Databricks|
 |Matei Zaharia|Databricks, Stanford|
 |Shixiong Zhu|Databricks|
 
@@ -117,6 +120,7 @@ You can verify the result is one change with `git log`. Then resume the script i
 
 Also, please remember to set Assignee on JIRAs where applicable when they are resolved. The script 
 can't do this automatically.
+Once a PR is merged please leave a comment on the PR stating which branch(es) it has been merged with.
 
 <!--
 <h3>Minimize use of MINOR, BUILD, and HOTFIX with no JIRA</h3>
