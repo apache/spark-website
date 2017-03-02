@@ -28,6 +28,7 @@ navigation:
 |Herman van Hovell|QuestTec B.V.|
 |Yin Huai|Databricks|
 |Shane Huang|Intel|
+|Holden Karau|IBM|
 |Andy Konwinski|Databricks|
 |Ryan LeCompte|Quantifind|
 |Haoyuan Li|Alluxio, UC Berkeley|
@@ -50,11 +51,13 @@ navigation:
 |Prashant Sharma|IBM|
 |Ram Sriharsha|Databricks|
 |DB Tsai|Netflix|
+|Takuya Ueshin||
 |Marcelo Vanzin|Cloudera|
 |Shivaram Venkataraman|UC Berkeley|
 |Patrick Wendell|Databricks|
 |Andrew Xia|Alibaba|
 |Reynold Xin|Databricks|
+|Burak Yavuz|Databricks|
 |Matei Zaharia|Databricks, Stanford|
 |Shixiong Zhu|Databricks|
 
