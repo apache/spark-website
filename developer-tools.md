@@ -48,6 +48,7 @@ builds. This process will auto-start after the first time `build/mvn` is called 
 shut down at any time by running `build/zinc-<version>/bin/zinc -shutdown` and will automatically
 restart whenever `build/mvn` is called.
 
+<a name="individual-tests"></a>
 <h3 id="running-individual-tests">Running Individual Tests</h3>
 
 When developing locally, it's often convenient to run a single test or a few tests, rather than running the entire test suite.
@@ -155,14 +156,21 @@ $ build/mvn -DskipTests install
 $ build/mvn dependency:tree
 ```
 
-<a name="individual-tests"></a>
-<h3>Running Build Targets For Individual Projects</h3>
+<h3>Building submodules individually</h3>
+
+For instance, you can build the Spark Core module using:
 
 ```
 $ # sbt
-$ build/sbt package
+$ build/sbt
+> project core
+> package
+
+$ # or you can build the spark-core module with sbt directly using:
+$ build/sbt core/package
+
 $ # Maven
-$ build/mvn package -DskipTests -pl assembly
+$ build/mvn package -DskipTests -pl :spark-core_2.11
 ```
 
 <h3>ScalaTest Issues</h3>
