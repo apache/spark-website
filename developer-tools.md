@@ -48,6 +48,23 @@ builds. This process will auto-start after the first time `build/mvn` is called 
 shut down at any time by running `build/zinc-<version>/bin/zinc -shutdown` and will automatically
 restart whenever `build/mvn` is called.
 
+<h3>Building submodules individually</h3>
+
+For instance, you can build the Spark Core module using:
+
+```
+$ # sbt
+$ build/sbt
+> project core
+> package
+
+$ # or you can build the spark-core module with sbt directly using:
+$ build/sbt core/package
+
+$ # Maven
+$ build/mvn package -DskipTests -pl :spark-core_2.11
+```
+
 <a name="individual-tests"></a>
 <h3 id="running-individual-tests">Running Individual Tests</h3>
 
@@ -95,7 +112,6 @@ $ build/sbt "core/testOnly *DAGSchedulerSuite -- -z SPARK-12345"
 
 For more about how to run individual tests with sbt, see the [sbt documentation](http://www.scala-sbt.org/0.13/docs/Testing.html).
 
-
 <h4>Testing with Maven</h4>
 
 With Maven, you can use the `-DwildcardSuites` flag to run individual Scala tests:
@@ -111,6 +127,37 @@ To run individual Java tests, you can use the `-Dtest` flag:
 ```
 build/mvn test -DwildcardSuites=none -Dtest=org.apache.spark.streaming.JavaAPISuite test
 ```
+
+<h3>ScalaTest Issues</h3>
+
+If the following error occurs when running ScalaTest
+
+```
+An internal error occurred during: "Launching XYZSuite.scala".
+java.lang.NullPointerException
+```
+It is due to an incorrect Scala library in the classpath. To fix it:
+
+- Right click on project
+- Select `Build Path | Configure Build Path`
+- `Add Library | Scala Library`
+- Remove `scala-library-2.10.4.jar - lib_managed\jars`
+
+In the event of "Could not find resource path for Web UI: org/apache/spark/ui/static", 
+it's due to a classpath issue (some classes were probably not compiled). To fix this, it 
+sufficient to run a test from the command line:
+
+```
+build/sbt "test-only org.apache.spark.rdd.SortingSuite"
+```
+
+<h3>Running Different Test Permutations on Jenkins</h3>
+
+When running tests for a pull request on Jenkins, you can add special phrases to the title of 
+your pull request to change testing behavior. This includes:
+
+- `[test-maven]` - signals to test the pull request using maven
+- `[test-hadoop2.7]` - signals to test using Spark's Hadoop 2.7 profile
 
 <h3>Checking Out Pull Requests</h3>
 
@@ -155,54 +202,6 @@ $ # Maven
 $ build/mvn -DskipTests install
 $ build/mvn dependency:tree
 ```
-
-<h3>Building submodules individually</h3>
-
-For instance, you can build the Spark Core module using:
-
-```
-$ # sbt
-$ build/sbt
-> project core
-> package
-
-$ # or you can build the spark-core module with sbt directly using:
-$ build/sbt core/package
-
-$ # Maven
-$ build/mvn package -DskipTests -pl :spark-core_2.11
-```
-
-<h3>ScalaTest Issues</h3>
-
-If the following error occurs when running ScalaTest
-
-```
-An internal error occurred during: "Launching XYZSuite.scala".
-java.lang.NullPointerException
-```
-It is due to an incorrect Scala library in the classpath. To fix it:
-
-- Right click on project
-- Select `Build Path | Configure Build Path`
-- `Add Library | Scala Library`
-- Remove `scala-library-2.10.4.jar - lib_managed\jars`
-
-In the event of "Could not find resource path for Web UI: org/apache/spark/ui/static", 
-it's due to a classpath issue (some classes were probably not compiled). To fix this, it 
-sufficient to run a test from the command line:
-
-```
-build/sbt "test-only org.apache.spark.rdd.SortingSuite"
-```
-
-<h3>Running Different Test Permutations on Jenkins</h3>
-
-When running tests for a pull request on Jenkins, you can add special phrases to the title of 
-your pull request to change testing behavior. This includes:
-
-- `[test-maven]` - signals to test the pull request using maven
-- `[test-hadoop2.7]` - signals to test using Spark's Hadoop 2.7 profile
 
 <h3>Organizing Imports</h3>
 
