@@ -301,7 +301,7 @@ incorporated into a maintenance release. These should only be used by Spark deve
 may have bugs and have not undergone the same level of testing as releases. Spark nightly packages 
 are available at:
 
-- Latest master build: <a href="http://people.apache.org/~pwendell/spark-nightly/spark-master-bin/latest">http://people.apache.org/~pwendell/spark-nightly/spark-master-bin/latest</a>
+- Latest master build: <a href="http://people.apache.org/~pwendell/spark-nightly/spark-master-bin/">http://people.apache.org/~pwendell/spark-nightly/spark-master-bin/</a>
 - All nightly builds: <a href="http://people.apache.org/~pwendell/spark-nightly/">http://people.apache.org/~pwendell/spark-nightly/</a>
 
 Spark also publishes SNAPSHOT releases of its Maven artifacts for both master and maintenance 
