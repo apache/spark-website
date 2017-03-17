@@ -62,7 +62,7 @@ $ # or you can build the spark-core module with sbt directly using:
 $ build/sbt core/package
 
 $ # Maven
-$ build/mvn package -DskipTests -pl :spark-core_2.11
+$ build/mvn package -DskipTests -pl core
 ```
 
 <a name="individual-tests"></a>
