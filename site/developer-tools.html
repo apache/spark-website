@@ -287,6 +287,55 @@ restart whenever <code>build/mvn</code> is called.</p>
 <pre><code>build/mvn test -DwildcardSuites=none -Dtest=org.apache.spark.streaming.JavaAPISuite test
 </code></pre>
 
+<h3>Binary compatibility</h3>
+
+<p>To ensure binary compatibility, Spark uses <a href="https://github.com/typesafehub/migration-manager">MiMa</a>.</p>
+
+<h4>Ensuring binary compatibility</h4>
+
+<p>When working on an issue, it&#8217;s always a good idea to check that your changes do
+not introduce binary incompatibilities before opening a pull request.</p>
+
+<p>You can do so by running the following command:</p>
+
+<pre><code>$ dev/mima
+</code></pre>
+
+<p>A binary incompatibility reported by MiMa might look like the following:</p>
+
+<pre><code>[error] method this(org.apache.spark.sql.Dataset)Unit in class org.apache.spark.SomeClass does not have a correspondent in current version
+[error] filter with: ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.spark.SomeClass.this")
+</code></pre>
+
+<p>If you open a pull request containing binary incompatibilities anyway, Jenkins
+will remind you by failing the test build with the following message:</p>
+
+<pre><code>Test build #xx has finished for PR yy at commit ffffff.
+
+  This patch fails MiMa tests.
+  This patch merges cleanly.
+  This patch adds no public classes.
+</code></pre>
+
+<h4>Solving a binary incompatibility</h4>
+
+<p>If you believe that your binary incompatibilies are justified or that MiMa
+reported false positives (e.g. the reported binary incompatibilities are about a
+non-user facing API), you can filter them out by adding an exclusion in
+<a href="https://github.com/apache/spark/blob/master/project/MimaExcludes.scala">project/MimaExcludes.scala</a>
+containing what was suggested by the MiMa report and a comment containing the
+JIRA number of the issue you&#8217;re working on as well as its title.</p>
+
+<p>For the problem described above, we might add the following:</p>
+
+<figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="c1">// [SPARK-zz][CORE] Fix an issue</span>
+<span class="nc">ProblemFilters</span><span class="o">.</span><span class="n">exclude</span><span class="o">[</span><span class="kt">DirectMissingMethodProblem</span><span class="o">](</span><span class="s">&quot;org.apache.spark.SomeClass.this&quot;</span><span class="o">)</span></code></pre></figure>
+
+<p>Otherwise, you will have to resolve those incompatibilies before opening or
+updating your pull request. Usually, the problems reported by MiMa are
+self-explanatory and revolve around missing members (methods or fields) that
+you will have to add back in order to maintain binary compatibility.</p>
+
 <h3>Checking Out Pull Requests</h3>
 
 <p>Git provides a mechanism for fetching remote pull requests into your own local repository. 
@@ -353,7 +402,7 @@ java.lang.NullPointerException
 </ul>
 
 <p>In the event of &#8220;Could not find resource path for Web UI: org/apache/spark/ui/static&#8221;, 
-it&#8217;s due to a classpath issue (some classes were probably not compiled). To fix this, it 
+it&#8217;s due to a classpath issue (some classes were probably not compiled). To fix this, it is
 sufficient to run a test from the command line:</p>
 
 <pre><code>build/sbt "test-only org.apache.spark.rdd.SortingSuite"

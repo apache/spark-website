@@ -111,6 +111,60 @@ To run individual Java tests, you can use the `-Dtest` flag:
 build/mvn test -DwildcardSuites=none -Dtest=org.apache.spark.streaming.JavaAPISuite test
 ```
 
+<h3>Binary compatibility</h3>
+
+To ensure binary compatibility, Spark uses [MiMa](https://github.com/typesafehub/migration-manager).
+
+<h4>Ensuring binary compatibility</h4>
+
+When working on an issue, it's always a good idea to check that your changes do
+not introduce binary incompatibilities before opening a pull request.
+
+You can do so by running the following command:
+
+```
+$ dev/mima
+```
+
+A binary incompatibility reported by MiMa might look like the following:
+
+```
+[error] method this(org.apache.spark.sql.Dataset)Unit in class org.apache.spark.SomeClass does not have a correspondent in current version
+[error] filter with: ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.spark.SomeClass.this")
+```
+
+If you open a pull request containing binary incompatibilities anyway, Jenkins
+will remind you by failing the test build with the following message:
+
+```
+Test build #xx has finished for PR yy at commit ffffff.
+
+  This patch fails MiMa tests.
+  This patch merges cleanly.
+  This patch adds no public classes.
+```
+
+<h4>Solving a binary incompatibility</h4>
+
+If you believe that your binary incompatibilies are justified or that MiMa
+reported false positives (e.g. the reported binary incompatibilities are about a
+non-user facing API), you can filter them out by adding an exclusion in
+[project/MimaExcludes.scala](https://github.com/apache/spark/blob/master/project/MimaExcludes.scala)
+containing what was suggested by the MiMa report and a comment containing the
+JIRA number of the issue you're working on as well as its title.
+
+For the problem described above, we might add the following:
+
+{% highlight scala %}
+// [SPARK-zz][CORE] Fix an issue
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.spark.SomeClass.this")
+{% endhighlight %}
+
+Otherwise, you will have to resolve those incompatibilies before opening or
+updating your pull request. Usually, the problems reported by MiMa are
+self-explanatory and revolve around missing members (methods or fields) that
+you will have to add back in order to maintain binary compatibility.
+
 <h3>Checking Out Pull Requests</h3>
 
 Git provides a mechanism for fetching remote pull requests into your own local repository. 
@@ -181,7 +235,7 @@ It is due to an incorrect Scala library in the classpath. To fix it:
 - Remove `scala-library-2.10.4.jar - lib_managed\jars`
 
 In the event of "Could not find resource path for Web UI: org/apache/spark/ui/static", 
-it's due to a classpath issue (some classes were probably not compiled). To fix this, it 
+it's due to a classpath issue (some classes were probably not compiled). To fix this, it is
 sufficient to run a test from the command line:
 
 ```
