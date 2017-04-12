@@ -88,6 +88,12 @@ Chat rooms are great for quick questions or discussions on specialized topics. T
 <h4>Conferences</h4>
 <ul>
   <li>
+    <a href="https://spark-summit.org/eu-2017/">Spark Summit Europe 2017.</a> Oct 24 - 26 in Dublin.
+  </li>
+  <li>
+    <a href="https://spark-summit.org/2017/">Spark Summit 2017.</a> June 5 - 7 in San Francisco.
+  </li>
+  <li>
     <a href="https://spark-summit.org/eu-2016/">Spark Summit Europe 2016.</a> Oct 25 - 27 in Brussels.
   </li>
   <li>
