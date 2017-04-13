@@ -292,6 +292,7 @@ so, open the "Project Settings" and select "Modules". Based on your selected Mav
 may need to add source folders to the following modules:
     - spark-hive: add v0.13.1/src/main/scala
     - spark-streaming-flume-sink: add target\scala-2.10\src_managed\main\compiled_avro
+    - spark-catalyst: add target\scala-2.11\src_managed\main
 - Compilation may fail with an error like "scalac: bad option: 
 -P:/home/jakub/.m2/repository/org/scalamacros/paradise_2.10.4/2.0.1/paradise_2.10.4-2.0.1.jar". 
 If so, go to Preferences > Build, Execution, Deployment > Scala Compiler and clear the "Additional 
