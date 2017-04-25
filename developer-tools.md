@@ -159,6 +159,60 @@ your pull request to change testing behavior. This includes:
 - `[test-maven]` - signals to test the pull request using maven
 - `[test-hadoop2.7]` - signals to test using Spark's Hadoop 2.7 profile
 
+<h3>Binary compatibility</h3>
+
+To ensure binary compatibility, Spark uses [MiMa](https://github.com/typesafehub/migration-manager).
+
+<h4>Ensuring binary compatibility</h4>
+
+When working on an issue, it's always a good idea to check that your changes do
+not introduce binary incompatibilities before opening a pull request.
+
+You can do so by running the following command:
+
+```
+$ dev/mima
+```
+
+A binary incompatibility reported by MiMa might look like the following:
+
+```
+[error] method this(org.apache.spark.sql.Dataset)Unit in class org.apache.spark.SomeClass does not have a correspondent in current version
+[error] filter with: ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.spark.SomeClass.this")
+```
+
+If you open a pull request containing binary incompatibilities anyway, Jenkins
+will remind you by failing the test build with the following message:
+
+```
+Test build #xx has finished for PR yy at commit ffffff.
+
+  This patch fails MiMa tests.
+  This patch merges cleanly.
+  This patch adds no public classes.
+```
+
+<h4>Solving a binary incompatibility</h4>
+
+If you believe that your binary incompatibilies are justified or that MiMa
+reported false positives (e.g. the reported binary incompatibilities are about a
+non-user facing API), you can filter them out by adding an exclusion in
+[project/MimaExcludes.scala](https://github.com/apache/spark/blob/master/project/MimaExcludes.scala)
+containing what was suggested by the MiMa report and a comment containing the
+JIRA number of the issue you're working on as well as its title.
+
+For the problem described above, we might add the following:
+
+{% highlight scala %}
+// [SPARK-zz][CORE] Fix an issue
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.spark.SomeClass.this")
+{% endhighlight %}
+
+Otherwise, you will have to resolve those incompatibilies before opening or
+updating your pull request. Usually, the problems reported by MiMa are
+self-explanatory and revolve around missing members (methods or fields) that
+you will have to add back in order to maintain binary compatibility.
+
 <h3>Checking Out Pull Requests</h3>
 
 Git provides a mechanism for fetching remote pull requests into your own local repository. 
@@ -244,7 +298,8 @@ In these cases, you may need to add source locations explicitly to compile the e
 so, open the "Project Settings" and select "Modules". Based on your selected Maven profiles, you 
 may need to add source folders to the following modules:
     - spark-hive: add v0.13.1/src/main/scala
-    - spark-streaming-flume-sink: add target\scala-2.10\src_managed\main\compiled_avro
+    - spark-streaming-flume-sink: add target\scala-2.11\src_managed\main\compiled_avro
+    - spark-catalyst: add target\scala-2.11\src_managed\main
 - Compilation may fail with an error like "scalac: bad option: 
 -P:/home/jakub/.m2/repository/org/scalamacros/paradise_2.10.4/2.0.1/paradise_2.10.4-2.0.1.jar". 
 If so, go to Preferences > Build, Execution, Deployment > Scala Compiler and clear the "Additional 

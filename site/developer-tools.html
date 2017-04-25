@@ -119,6 +119,7 @@
         <ul class="dropdown-menu">
           <li><a href="/community.html">Mailing Lists &amp; Resources</a></li>
           <li><a href="/contributing.html">Contributing to Spark</a></li>
+          <li><a href="/improvement-proposals.html">Improvement Proposals (SPIP)</a></li>
           <li><a href="https://issues.apache.org/jira/browse/SPARK">Issue Tracker</a></li>
           <li><a href="/powered-by.html">Powered By</a></li>
           <li><a href="/committers.html">Project Committers</a></li>
@@ -159,6 +160,9 @@
       <h5>Latest News</h5>
       <ul class="list-unstyled">
         
+          <li><a href="/news/spark-summit-june-2017-agenda-posted.html">Spark Summit (June 5-7th, 2017, San Francisco) agenda posted</a>
+          <span class="small">(Mar 31, 2017)</span></li>
+        
           <li><a href="/news/spark-summit-east-2017-agenda-posted.html">Spark Summit East (Feb 7-9th, 2017, Boston) agenda posted</a>
           <span class="small">(Jan 04, 2017)</span></li>
         
@@ -167,9 +171,6 @@
         
           <li><a href="/news/spark-wins-cloudsort-100tb-benchmark.html">Spark wins CloudSort Benchmark as the most efficient engine</a>
           <span class="small">(Nov 15, 2016)</span></li>
-        
-          <li><a href="/news/spark-2-0-2-released.html">Spark 2.0.2 released</a>
-          <span class="small">(Nov 14, 2016)</span></li>
         
       </ul>
       <p class="small" style="text-align: right;"><a href="/news/index.html">Archive</a></p>
@@ -303,6 +304,7 @@ $ build/mvn package -DskipTests -pl core
 <pre><code>build/mvn test -DwildcardSuites=none -Dtest=org.apache.spark.streaming.JavaAPISuite test
 </code></pre>
 
+<<<<<<< HEAD
 <h3>ScalaTest Issues</h3>
 
 <p>If the following error occurs when running ScalaTest</p>
@@ -335,6 +337,56 @@ your pull request to change testing behavior. This includes:</p>
   <li><code>[test-maven]</code> - signals to test the pull request using maven</li>
   <li><code>[test-hadoop2.7]</code> - signals to test using Spark&#8217;s Hadoop 2.7 profile</li>
 </ul>
+=======
+<h3>Binary compatibility</h3>
+
+<p>To ensure binary compatibility, Spark uses <a href="https://github.com/typesafehub/migration-manager">MiMa</a>.</p>
+
+<h4>Ensuring binary compatibility</h4>
+
+<p>When working on an issue, it&#8217;s always a good idea to check that your changes do
+not introduce binary incompatibilities before opening a pull request.</p>
+
+<p>You can do so by running the following command:</p>
+
+<pre><code>$ dev/mima
+</code></pre>
+
+<p>A binary incompatibility reported by MiMa might look like the following:</p>
+
+<pre><code>[error] method this(org.apache.spark.sql.Dataset)Unit in class org.apache.spark.SomeClass does not have a correspondent in current version
+[error] filter with: ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.spark.SomeClass.this")
+</code></pre>
+
+<p>If you open a pull request containing binary incompatibilities anyway, Jenkins
+will remind you by failing the test build with the following message:</p>
+
+<pre><code>Test build #xx has finished for PR yy at commit ffffff.
+
+  This patch fails MiMa tests.
+  This patch merges cleanly.
+  This patch adds no public classes.
+</code></pre>
+
+<h4>Solving a binary incompatibility</h4>
+
+<p>If you believe that your binary incompatibilies are justified or that MiMa
+reported false positives (e.g. the reported binary incompatibilities are about a
+non-user facing API), you can filter them out by adding an exclusion in
+<a href="https://github.com/apache/spark/blob/master/project/MimaExcludes.scala">project/MimaExcludes.scala</a>
+containing what was suggested by the MiMa report and a comment containing the
+JIRA number of the issue you&#8217;re working on as well as its title.</p>
+
+<p>For the problem described above, we might add the following:</p>
+
+<figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span></span><span class="c1">// [SPARK-zz][CORE] Fix an issue</span>
+<span class="nc">ProblemFilters</span><span class="o">.</span><span class="n">exclude</span><span class="o">[</span><span class="kt">DirectMissingMethodProblem</span><span class="o">](</span><span class="s">&quot;org.apache.spark.SomeClass.this&quot;</span><span class="o">)</span></code></pre></figure>
+
+<p>Otherwise, you will have to resolve those incompatibilies before opening or
+updating your pull request. Usually, the problems reported by MiMa are
+self-explanatory and revolve around missing members (methods or fields) that
+you will have to add back in order to maintain binary compatibility.</p>
+>>>>>>> aa1c66e424e024cb2e9f962aae8952bb4ad75cb5
 
 <h3>Checking Out Pull Requests</h3>
 
@@ -376,6 +428,51 @@ $ build/mvn -DskipTests install
 $ build/mvn dependency:tree
 </code></pre>
 
+<<<<<<< HEAD
+=======
+<p><a name="individual-tests"></a></p>
+<h3>Running Build Targets For Individual Projects</h3>
+
+<pre><code>$ # sbt
+$ build/sbt package
+$ # Maven
+$ build/mvn package -DskipTests -pl assembly
+</code></pre>
+
+<h3>ScalaTest Issues</h3>
+
+<p>If the following error occurs when running ScalaTest</p>
+
+<pre><code>An internal error occurred during: "Launching XYZSuite.scala".
+java.lang.NullPointerException
+</code></pre>
+<p>It is due to an incorrect Scala library in the classpath. To fix it:</p>
+
+<ul>
+  <li>Right click on project</li>
+  <li>Select <code>Build Path | Configure Build Path</code></li>
+  <li><code>Add Library | Scala Library</code></li>
+  <li>Remove <code>scala-library-2.10.4.jar - lib_managed\jars</code></li>
+</ul>
+
+<p>In the event of &#8220;Could not find resource path for Web UI: org/apache/spark/ui/static&#8221;, 
+it&#8217;s due to a classpath issue (some classes were probably not compiled). To fix this, it is
+sufficient to run a test from the command line:</p>
+
+<pre><code>build/sbt "test-only org.apache.spark.rdd.SortingSuite"
+</code></pre>
+
+<h3>Running Different Test Permutations on Jenkins</h3>
+
+<p>When running tests for a pull request on Jenkins, you can add special phrases to the title of 
+your pull request to change testing behavior. This includes:</p>
+
+<ul>
+  <li><code>[test-maven]</code> - signals to test the pull request using maven</li>
+  <li><code>[test-hadoop2.7]</code> - signals to test using Spark&#8217;s Hadoop 2.7 profile</li>
+</ul>
+
+>>>>>>> aa1c66e424e024cb2e9f962aae8952bb4ad75cb5
 <h3>Organizing Imports</h3>
 
 <p>You can use a <a href="https://plugins.jetbrains.com/plugin/7350">IntelliJ Imports Organizer</a> 
@@ -421,7 +518,8 @@ so, open the &#8220;Project Settings&#8221; and select &#8220;Modules&#8221;. Ba
 may need to add source folders to the following modules:
     <ul>
       <li>spark-hive: add v0.13.1/src/main/scala</li>
-      <li>spark-streaming-flume-sink: add target\scala-2.10\src_managed\main\compiled_avro</li>
+      <li>spark-streaming-flume-sink: add target\scala-2.11\src_managed\main\compiled_avro</li>
+      <li>spark-catalyst: add target\scala-2.11\src_managed\main</li>
     </ul>
   </li>
   <li>Compilation may fail with an error like &#8220;scalac: bad option: 
