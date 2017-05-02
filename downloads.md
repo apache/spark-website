@@ -51,7 +51,7 @@ Spark artifacts are [hosted in Maven Central](http://search.maven.org/#search%7C
 
     groupId: org.apache.spark
     artifactId: spark-core_2.11
-    version: 2.1.0
+    version: 2.1.1
 
 ### Spark Source Code Management
 If you are interested in working with the newest under-development code or contributing to Apache Spark development, you can also check out the master branch from Git:

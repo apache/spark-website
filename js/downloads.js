@@ -28,6 +28,7 @@ var packagesV8 = [hadoop2p7, hadoop2p6, hadoopFree, sources]
 
 //addRelease("2.2.0", new Date("x/x/2017"), packagesV8, true);
 
+addRelease("2.1.1", new Date("05/02/2017"), packagesV7, true);
 addRelease("2.1.0", new Date("12/28/2016"), packagesV7, true);
 addRelease("2.0.2", new Date("11/14/2016"), packagesV7, true);
 addRelease("2.0.1", new Date("10/03/2016"), packagesV7, true);
