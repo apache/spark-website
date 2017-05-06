@@ -113,7 +113,7 @@ mkdir spark-1.1.1-rc2
 $ sftp -r andrewor14@people.apache.org:~/public_html/spark-1.1.1-rc2/* spark-1.1.1-rc2
  
 # NOTE: Remove any binaries you don’t want to publish
-# E.g. never push MapR and *without-hive artifacts to apache
+# E.g. never push MapR and *without-hive artifacts to Apache
 $ rm spark-1.1.1-rc2/*mapr*
 $ rm spark-1.1.1-rc2/*without-hive*
 $ svn add spark-1.1.1-rc2
@@ -128,6 +128,23 @@ $ svn mv https://dist.apache.org/repos/dist/dev/spark/spark-1.1.1-rc2 https://di
 Verify that the resources are present in <a href="https://www.apache.org/dist/spark/">https://www.apache.org/dist/spark/</a>.
 It may take a while for them to be visible. This will be mirrored throughout the Apache network. 
 There are a few remaining steps.
+
+<h4>Upload to PyPI</h4>
+
+Uploading to PyPI is done after the release has been uploaded to Apache. To get started, go to the <a href="https://pypi.python.org">PyPI website</a> and log in with the spark-upload account (see the PMC mailing list for account permissions).
+
+
+Once you have logged in it is time to register the new release, on the <a href="https://pypi.python.org/pypi?%3Aaction=submit_form">submitting package information</a> page by uploading the PKG-INFO file from inside the pyspark packaged artifact.
+
+
+Once the release has been registered you can upload the artifacts
+to the <b>legacy</b> pypi interface, using <a href="https://pypi.python.org/pypi/twine">twine</a>.
+If you don't have twine setup you will need to create a .pypirc file with the reository pointing to `https://upload.pypi.org/legacy/` and the same username and password for the spark-upload account.
+
+In the release directory run `twine upload -r legacy pyspark-version.tar.gz pyspark-version.tar.gz.asc`.
+If for some reason the twine upload is incorrect (e.g. http failure or other issue), you can rename the artifact to `pyspark-version.post0.tar.gz`, delete the old artifact from PyPI and re-upload.
+
+
 
 <h4>Remove Old Releases from Mirror Network</h4>
 
@@ -190,7 +207,7 @@ $ git checkout v1.1.1
 $ cd docs
 $ PRODUCTION=1 jekyll build
  
-# Copy the new documentation to apache
+# Copy the new documentation to Apache
 $ git clone https://github.com/apache/spark-website
 ...
 $ cp -R _site spark-website/site/docs/1.1.1
