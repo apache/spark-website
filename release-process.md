@@ -134,12 +134,12 @@ There are a few remaining steps.
 
 <h4>Upload to PyPI</h4>
 
-Uploading to PyPI is done after the release has been uploaded to apache. To get started, go to the <a href="https://pypi.python.org">PyPI website at https://pypi.python.org</a> and log in with the spark-upload account (see the PMC mailing list for account permissions).
+Uploading to PyPI is done after the release has been uploaded to apache. To get started, go to the <a href="https://pypi.python.org">PyPI website</a> and log in with the spark-upload account (see the PMC mailing list for account permissions).
 
 
-Once you have logged in it is time to register the new release, on the <a href="https://pypi.python.org/pypi?%3Aaction=submit_form">submitting package information https://pypi.python.org/pypi?%3Aaction=submit_form</a> page by uploading the PKG-INFO file from inside the pyspark packaged artifact.
+Once you have logged in it is time to register the new release, on the <a href="https://pypi.python.org/pypi?%3Aaction=submit_form">submitting package information</a> page by uploading the PKG-INFO file from inside the pyspark packaged artifact.
 
-Once the release has been registered you can upload the artifacts on the <a href="https://pypi.python.org/pypi?%3Aaction=pkg_edit&name=pyspark"> pyspark package edit page https://pypi.python.org/pypi?%3Aaction=pkg_edit&name=pyspark</a>.
+Once the release has been registered you can upload the artifacts on the <a href="https://pypi.python.org/pypi?%3Aaction=pkg_edit&name=pyspark"> pyspark package edit page</a>.
 Click "edit" for the version being uploaded and select the packaged Python file and corresponding .asc file. For safety always supply the generated MD5 from the release process in the "MD5 Digest" field.
 
 <h4>Remove Old Releases from Mirror Network</h4>
