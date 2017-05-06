@@ -132,6 +132,15 @@ Verify that the resources are present in <a href="https://www.apache.org/dist/sp
 It may take a while for them to be visible. This will be mirrored throughout the Apache network. 
 There are a few remaining steps.
 
+<h4>Upload to PyPI</h4>
+
+Uploading to PyPI is done after the release has been uploaded to . Go to the <a href="https://pypi.python.org">PyPI website at https://pypi.python.org</a> and log in with the spark-upload account (see the PMC mailing list for account permissions).
+
+
+Go to the <a href="https://pypi.python.org/pypi?%3Aaction=submit_form">submitting package information</a> page and upload the PKG-INFO file from inside the pyspark packaged file.
+
+Then on the <a href="https://pypi.python.org/pypi?%3Aaction=pkg_edit&name=pyspark"> package edit page</a> click "edit" for the version being uploaded and upload the current Python packaged file and corresponding .asc file. For safety always supply the generated MD5 from the release process in the "MD5 Digest" field.
+
 <h4>Remove Old Releases from Mirror Network</h4>
 
 Spark always keeps two releases in the mirror network: the most recent release on the current and 
