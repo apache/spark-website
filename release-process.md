@@ -142,6 +142,9 @@ Once you have logged in it is time to register the new release, on the <a href="
 Once the release has been registered you can upload the artifacts on the <a href="https://pypi.python.org/pypi?%3Aaction=pkg_edit&name=pyspark"> pyspark package edit page</a>.
 Click "edit" for the version being uploaded and select the packaged Python file and corresponding .asc file. For safety always supply the generated MD5 from the release process in the "MD5 Digest" field.
 
+
+You can also use <a href="https://pypi.python.org/pypi/twine">twine</a> to upload the pre-signed artifacts from the release.
+
 <h4>Remove Old Releases from Mirror Network</h4>
 
 Spark always keeps two releases in the mirror network: the most recent release on the current and 
