@@ -8,14 +8,14 @@ function addRelease(version, releaseDate, packages, stable) {
 }
 
 var sources = {pretty: "Source Code", tag: "sources"};
-var hadoopFree = {pretty: "Pre-build with user-provided Hadoop [can use with most Hadoop distributions]", tag: "without-hadoop"};
-var hadoop1 = {pretty: "Pre-built for Hadoop 1.X", tag: "hadoop1"};
+var hadoopFree = {pretty: "Pre-build with user-provided Apache Hadoop", tag: "without-hadoop"};
+var hadoop1 = {pretty: "Pre-built for Apache Hadoop 1.X", tag: "hadoop1"};
 var cdh4 = {pretty: "Pre-built for CDH 4", tag: "cdh4"};
-var hadoop2 = {pretty: "Pre-built for Hadoop 2.2", tag: "hadoop2"};
-var hadoop2p3 = {pretty: "Pre-built for Hadoop 2.3", tag: "hadoop2.3"};
-var hadoop2p4 = {pretty: "Pre-built for Hadoop 2.4", tag: "hadoop2.4"};
-var hadoop2p6 = {pretty: "Pre-built for Hadoop 2.6", tag: "hadoop2.6"};
-var hadoop2p7 = {pretty: "Pre-built for Hadoop 2.7 and later", tag: "hadoop2.7"};
+var hadoop2 = {pretty: "Pre-built for Apache Hadoop 2.2", tag: "hadoop2"};
+var hadoop2p3 = {pretty: "Pre-built for Apache Hadoop 2.3", tag: "hadoop2.3"};
+var hadoop2p4 = {pretty: "Pre-built for Apache Hadoop 2.4", tag: "hadoop2.4"};
+var hadoop2p6 = {pretty: "Pre-built for Apache Hadoop 2.6", tag: "hadoop2.6"};
+var hadoop2p7 = {pretty: "Pre-built for Apache Hadoop 2.7 and later", tag: "hadoop2.7"};
 
 // 1.4.0+
 var packagesV6 = [hadoop2p6, hadoop2p4, hadoop2p3, hadoopFree, hadoop1, cdh4, sources];
@@ -135,7 +135,7 @@ function onVersionSelect() {
     append(packageSelect, option);
   }
 
-  var href = "http://www.apache.org/dist/spark/spark-" + version + "/";
+  var href = "https://www.apache.org/dist/spark/spark-" + version + "/";
   var link = "<a href=\"" + href + "\">" + versionShort(version) + " signatures and checksums</a>";
   append(verifyLink, link);
 
@@ -152,13 +152,8 @@ function onPackageSelect() {
 
   var pkg = getSelectedValue(packageSelect);
 
-  //if (pkg.toLowerCase().indexOf("mapr") > -1) {
-  //  var external = "External Download (MAY CONTAIN INCOMPATIBLE LICENSES)";
-  //  append(downloadSelect, "<option value='external'>" + external + "</option>");
-  //} else {
-    append(downloadSelect, "<option value='direct'>Direct Download</option>");
-    append(downloadSelect, "<option value='apache'>Select Apache Mirror</option>");
-  //}
+  append(downloadSelect, "<option value='direct'>Direct Download</option>");
+  append(downloadSelect, "<option value='apache'>Select Apache Mirror</option>");
   updateDownloadLink();
 }
 
@@ -184,18 +179,14 @@ function updateDownloadLink() {
     .replace(/\$pkg/g, pkg)
     .replace(/-bin-sources/, ""); // special case for source packages
 
-  var link = "http://d3kbcqa49mib13.cloudfront.net/$artifact";
-  if (version < "0.8.0") {
-    link = "http://spark-project.org/download/$artifact";
-  }
-  if (pkg.toLowerCase().indexOf("mapr") > -1) {
-    link = "http://package.mapr.com/tools/apache-spark/$ver/$artifact"
-  } else if (download == "apache") {
+  var link = "https://d3kbcqa49mib13.cloudfront.net/$artifact";
+  if (download == "apache") {
     if (version < "1.6.3" ||
-        (version >= "2.0.0" && version < "2.0.1")) {
-      link = "http://archive.apache.org/dist/spark/spark-$ver/$artifact";
+        (version >= "2.0.0" && version <= "2.0.1") ||
+        (version >= "2.1.0" && version <= "2.1.0")) {
+      link = "https://archive.apache.org/dist/spark/spark-$ver/$artifact";
     } else {
-      link = "http://www.apache.org/dyn/closer.lua/spark/spark-$ver/$artifact";
+      link = "https://www.apache.org/dyn/closer.lua/spark/spark-$ver/$artifact";
     }
   }
   link = link
