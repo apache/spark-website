@@ -23,13 +23,13 @@ REST interface for managing and submitting Spark jobs on the same cluster
 for details)
 - <a href="https://github.com/amplab-extras/SparkR-pkg">SparkR</a> - R frontend for Spark
 - <a href="http://mlbase.org/">MLbase</a> - Machine Learning research project on top of Spark
-- <a href="http://mesos.apache.org/">Apache Mesos</a> - Cluster management system that supports 
+- <a href="https://mesos.apache.org/">Apache Mesos</a> - Cluster management system that supports 
 running Spark
 - <a href="http://alluxio.org/">Alluxio</a> (née Tachyon) - Memory speed virtual distributed 
 storage system that supports running Spark    
 - <a href="https://github.com/datastax/spark-cassandra-connector">Spark Cassandra Connector</a> - 
 Easily load your Cassandra data into Spark and Spark SQL; from Datastax
-- <a href="http://github.com/tuplejump/FiloDB">FiloDB</a> - a Spark integrated analytical/columnar 
+- <a href="https://github.com/filodb/FiloDB">FiloDB</a> - a Spark integrated analytical/columnar 
 database, with in-memory option capable of sub-second concurrent queries
 - <a href="http://www.elasticsearch.org/guide/en/elasticsearch/hadoop/master/spark.html#spark-sql">ElasticSearch - 
 Spark SQL</a> Integration
@@ -49,7 +49,7 @@ OLTP + OLAP database integrated with Spark on the same JVMs.
 
 <h2>Applications Using Spark</h2>
 
-- <a href="http://mahout.apache.org/">Apache Mahout</a> - Previously on Hadoop MapReduce, 
+- <a href="https://mahout.apache.org/">Apache Mahout</a> - Previously on Hadoop MapReduce, 
 Mahout has switched to using Spark as the backend
 - <a href="https://wiki.apache.org/mrql/">Apache MRQL</a> - A query processing and optimization 
 system for large-scale, distributed data analysis, built on top of Apache Hadoop, Hama, and Spark
@@ -77,7 +77,7 @@ transforming, and analyzing genomic data using Apache Spark
 <h3>Clojure</h3>
 
 - <a href="https://github.com/TheClimateCorporation/clj-spark">clj-spark</a>
-- <a href="http://spark-packages.org/package/21">Sparkling</a>
+- <a href="https://spark-packages.org/package/21">Sparkling</a>
 
 <h3>Groovy</h3>
 

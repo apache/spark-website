@@ -11,8 +11,8 @@ navigation:
 
 Organizations creating products and projects for use with Apache Spark, along with associated 
 marketing materials, should take care to respect the trademark in "Apache Spark" and its logo. 
-Please refer to <a href="http://www.apache.org/foundation/marks/">ASF Trademarks Guidance</a> and 
-associated <a href="http://www.apache.org/foundation/marks/faq/">FAQ</a> 
+Please refer to <a href="https://www.apache.org/foundation/marks/">ASF Trademarks Guidance</a> and 
+associated <a href="https://www.apache.org/foundation/marks/faq/">FAQ</a> 
 for comprehensive and authoritative guidance on proper usage of ASF trademarks.
 
 Names that do not include "Spark" at all have no potential trademark issue with the Spark project. 
@@ -90,17 +90,17 @@ and external data sources, driving holistic and actionable insights.
   anomaly detection, machine learning.
 - <a href="http://www.conviva.com">Conviva</a> – Experience Live
   - See our talk at <a href="http://ampcamp.berkeley.edu/3/">AmpCamp</a> on how we are 
-  <a href="http://www.youtube.com/watch?feature=player_detailpage&v=YaayAatdRNs">using Spark to 
+  <a href="https://www.youtube.com/watch?feature=player_detailpage&v=YaayAatdRNs">using Spark to 
   provide real time video optimization</a>
 - <a href="https://www.creditkarma.com/">Credit Karma</a>
   - We create personalized experiences using Spark.
-- <a href="http://databricks.com">Databricks</a>
+- <a href="https://databricks.com">Databricks</a>
   - Formed by the creators of Apache Spark and Shark, Databricks is working to greatly expand these 
   open source projects and transform big data analysis in the process. We're deeply committed to 
   keeping all work on these systems open source.
   - We provided a hosted service to run Spark, 
   <a href="http://www.databricks.com/cloud">Databricks Cloud</a>, and partner to 
-  <a href="http://databricks.com/support/">support Apache Spark</a> with other Hadoop and big 
+  <a href="https://databricks.com/support/">support Apache Spark</a> with other Hadoop and big 
   data companies.
 - <a href="http://dianping.com">Dianping.com</a>
 - <a href="http://www.digby.com">Digby</a>
@@ -220,8 +220,6 @@ efficiently.
   - Automatic pulling of all your data in to Spark for enterprise visualisation, predictive 
   analytics and data exploration at a low cost.
 - <a href="http://www.trueffect.com">TruEffect Inc</a>
-- <a href="http://www.tuplejump.com">Tuplejump</a>
-  - Software development partners for Apache Spark and Cassandra projects
 - <a href="http://www.ucsc.edu">UC Santa Cruz</a>
 - <a href="http://missouri.edu/">University of Missouri Data Analytics and Discover Lab</a>
 - <a href="http://videoamp.com/">VideoAmp</a>

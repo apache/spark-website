@@ -31,7 +31,7 @@ $(document).ready(function() {
 
 _Note: Starting version 2.0, Spark is built with Scala 2.11 by default.
 Scala 2.10 users should download the Spark source package and build
-[with Scala 2.10 support](http://spark.apache.org/docs/latest/building-spark.html#building-for-scala-210)._
+[with Scala 2.10 support](https://spark.apache.org/docs/latest/building-spark.html#building-for-scala-210)._
 
 <!--
 ### Latest Preview Release
@@ -47,7 +47,7 @@ You can select and download it above.
 -->
 
 ### Link with Spark
-Spark artifacts are [hosted in Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.apache.spark%22). You can add a Maven dependency with the following coordinates:
+Spark artifacts are [hosted in Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.apache.spark%22). You can add a Maven dependency with the following coordinates:
 
     groupId: org.apache.spark
     artifactId: spark-core_2.11

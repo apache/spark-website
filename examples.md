@@ -11,13 +11,13 @@ navigation:
 These examples give a quick overview of the Spark API.
 Spark is built on the concept of <em>distributed datasets</em>, which contain arbitrary Java or
 Python objects. You create a dataset from external data, then apply parallel operations
-to it. The building block of the Spark API is its [RDD API](http://spark.apache.org/docs/latest/programming-guide.html#resilient-distributed-datasets-rdds).
+to it. The building block of the Spark API is its [RDD API](https://spark.apache.org/docs/latest/programming-guide.html#resilient-distributed-datasets-rdds).
 In the RDD API,
 there are two types of operations: <em>transformations</em>, which define a new dataset based on previous ones,
 and <em>actions</em>, which kick off a job to execute on a cluster.
 On top of Spark’s RDD API, high level APIs are provided, e.g.
-[DataFrame API](http://spark.apache.org/docs/latest/sql-programming-guide.html#dataframes) and
-[Machine Learning API](http://spark.apache.org/docs/latest/mllib-guide.html).
+[DataFrame API](https://spark.apache.org/docs/latest/sql-programming-guide.html#dataframes) and
+[Machine Learning API](https://spark.apache.org/docs/latest/mllib-guide.html).
 These high level APIs provide a concise way to conduct certain data operations.
 In this page, we will show examples using RDD API as well as examples using high level APIs.
 
@@ -129,7 +129,7 @@ System.out.println("Pi is roughly " + 4.0 * count / NUM_SAMPLES);
 
 <h2>DataFrame API Examples</h2>
 <p>
-In Spark, a <a href="http://spark.apache.org/docs/latest/sql-programming-guide.html#dataframes">DataFrame</a>
+In Spark, a <a href="https://spark.apache.org/docs/latest/sql-programming-guide.html#dataframes">DataFrame</a>
 is a distributed collection of data organized into named columns.
 Users can use DataFrame API to perform various relational operations on both external
 data sources and Spark’s built-in distributed collections without providing specific procedures for processing data.
@@ -304,7 +304,7 @@ countsByAge.write().format("json").save("s3a://...");
 
 <h2>Machine Learning Example</h2>
 <p>
-<a href="http://spark.apache.org/docs/latest/mllib-guide.html">MLlib</a>, Spark’s Machine Learning (ML) library, provides many distributed ML algorithms.
+<a href="https://spark.apache.org/docs/latest/mllib-guide.html">MLlib</a>, Spark’s Machine Learning (ML) library, provides many distributed ML algorithms.
 These algorithms cover tasks such as feature extraction, classification, regression, clustering,
 recommendation, and more. 
 MLlib also provides tools such as ML Pipelines for building workflows, CrossValidator for tuning parameters,

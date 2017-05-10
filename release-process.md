@@ -81,9 +81,9 @@ The recommended process is to ask the previous release manager to walk you throu
 
 The release voting takes place on the Apache Spark developers list (the PMC is voting). 
 Look at past voting threads to see how this proceeds. The email should follow 
-<a href="http://mail-archives.apache.org/mod_mbox/spark-dev/201407.mbox/%3cCABPQxss7Cf+YaUuxCk0jnusH4207hCP4dkWn3BWFSvdnD86HHQ@mail.gmail.com%3e">this format</a>.
+<a href="https://mail-archives.apache.org/mod_mbox/spark-dev/201407.mbox/%3cCABPQxss7Cf+YaUuxCk0jnusH4207hCP4dkWn3BWFSvdnD86HHQ@mail.gmail.com%3e">this format</a>.
 
-- Make a shortened link to the full list of JIRAs using <a href="http://s.apache.org/">http://s.apache.org/</a>
+- Make a shortened link to the full list of JIRAs using <a href="https://s.apache.org/">https://s.apache.org/</a>
 - If possible, attach a draft of the release notes with the email
 - Make sure the voting closing time is in UTC format. Use this script to generate it
 - Make sure the email is in text format and the links are correct
@@ -126,7 +126,7 @@ $ export SVN_EDITOR=vim
 $ svn mv https://dist.apache.org/repos/dist/dev/spark/spark-1.1.1-rc2 https://dist.apache.org/repos/dist/release/spark/spark-1.1.1
 ```
 
-Verify that the resources are present in <a href="http://www.apache.org/dist/spark/">http://www.apache.org/dist/spark/</a>.
+Verify that the resources are present in <a href="https://www.apache.org/dist/spark/">https://www.apache.org/dist/spark/</a>.
 It may take a while for them to be visible. This will be mirrored throughout the Apache network. 
 There are a few remaining steps.
 

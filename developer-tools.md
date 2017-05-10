@@ -279,7 +279,7 @@ To create a Spark project for IntelliJ:
 - In the Import wizard, it's fine to leave settings at their default. However it is usually useful 
 to enable "Import Maven projects automatically", since changes to the project structure will 
 automatically update the IntelliJ project.
-- As documented in <a href="http://spark.apache.org/docs/latest/building-spark.html">Building Spark</a>, 
+- As documented in <a href="https://spark.apache.org/docs/latest/building-spark.html">Building Spark</a>, 
 some build configurations require specific profiles to be 
 enabled. The same profiles that are enabled with `-P[profile name]` above may be enabled on the 
 Profiles screen in the Import wizard. For example, if developing for Hadoop 2.7 with YARN support, 
@@ -363,14 +363,14 @@ incorporated into a maintenance release. These should only be used by Spark deve
 may have bugs and have not undergone the same level of testing as releases. Spark nightly packages 
 are available at:
 
-- Latest master build: <a href="http://people.apache.org/~pwendell/spark-nightly/spark-master-bin/latest">http://people.apache.org/~pwendell/spark-nightly/spark-master-bin/latest</a>
-- All nightly builds: <a href="http://people.apache.org/~pwendell/spark-nightly/">http://people.apache.org/~pwendell/spark-nightly/</a>
+- Latest master build: <a href="https://people.apache.org/~pwendell/spark-nightly/spark-master-bin/latest">https://people.apache.org/~pwendell/spark-nightly/spark-master-bin/latest</a>
+- All nightly builds: <a href="https://people.apache.org/~pwendell/spark-nightly/">https://people.apache.org/~pwendell/spark-nightly/</a>
 
 Spark also publishes SNAPSHOT releases of its Maven artifacts for both master and maintenance 
 branches on a nightly basis. To link to a SNAPSHOT you need to add the ASF snapshot 
 repository to your build. Note that SNAPSHOT artifacts are ephemeral and may change or
 be removed. To use these you must add the ASF snapshot repository at 
-<a href="http://repository.apache.org/snapshots/">http://repository.apache.org/snapshots/<a>.
+<a href="https://repository.apache.org/snapshots/<a>.
 
 ```
 groupId: org.apache.spark
