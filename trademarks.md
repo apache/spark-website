@@ -55,7 +55,7 @@ the official policy always takes precedence.
 * **Events, books, and merchandise** have their own guidelines.
   Please refer to the
   <a href="https://www.apache.org/foundation/marks/">ASF trademark policy</a>
-  and <a href="http://www.apache.org/foundation/marks/faq/">FAQ</a> for details.
+  and <a href="https://www.apache.org/foundation/marks/faq/">FAQ</a> for details.
   
 We appreciate the community's help in respecting these guidelines.
 If you have any questions about the Apache trademark policy, please email

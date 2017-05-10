@@ -89,9 +89,9 @@ subproject: Streaming
     <h3>Deployment Options</h3>
     <p>
       Spark Streaming can read data from
-      <a href="http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html">HDFS</a>,
-      <a href="http://flume.apache.org">Flume</a>,
-      <a href="http://kafka.apache.org">Kafka</a>,
+      <a href="https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html">HDFS</a>,
+      <a href="https://flume.apache.org">Flume</a>,
+      <a href="https://kafka.apache.org">Kafka</a>,
       <a href="https://dev.twitter.com">Twitter</a> and
       <a href="http://zeromq.org">ZeroMQ</a>.
       You can also define your own custom data sources.
@@ -101,7 +101,7 @@ subproject: Streaming
       or <a href="{{site.baseurl}}/docs/latest/ec2-scripts.html">EC2</a>.
       It also includes a local run mode for development.
       In production,
-      Spark Streaming uses <a href="http://zookeeper.apache.org">ZooKeeper</a> and <a href="http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html">HDFS</a> for high availability.
+      Spark Streaming uses <a href="https://zookeeper.apache.org">ZooKeeper</a> and <a href="https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html">HDFS</a> for high availability.
     </p>
   </div>
 

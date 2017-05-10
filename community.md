@@ -15,18 +15,18 @@ navigation:
 <h4>StackOverflow</h4>
 
 For usage questions and help (e.g. how to use this Spark API), it is recommended you use the 
-StackOverflow tag <a href="http://stackoverflow.com/questions/tagged/apache-spark">`apache-spark`</a> 
+StackOverflow tag <a href="https://stackoverflow.com/questions/tagged/apache-spark">`apache-spark`</a> 
 as it is an active forum for Spark users' questions and answers.
 
 Some quick tips when using StackOverflow:
 
 - Prior to asking submitting questions, please:
   - Search StackOverflow's 
-  <a href="http://stackoverflow.com/questions/tagged/apache-spark">`apache-spark`</a> tag to see if 
+  <a href="https://stackoverflow.com/questions/tagged/apache-spark">`apache-spark`</a> tag to see if 
   your question has already been answered
   - Search the nabble archive for
   <a href="http://apache-spark-user-list.1001560.n3.nabble.com/">users@spark.apache.org</a> 
-- Please follow the StackOverflow <a href="http://stackoverflow.com/help/how-to-ask">code of conduct</a>  
+- Please follow the StackOverflow <a href="https://stackoverflow.com/help/how-to-ask">code of conduct</a>  
 - Always use the `apache-spark` tag when asking questions
 - Please also use a secondary tag to specify components so subject matter experts can more easily find them.
  Examples include: `pyspark`, `spark-dataframe`, `spark-streaming`, `spark-r`, `spark-mllib`, 
@@ -58,7 +58,7 @@ project, and scenarios, it is recommended you use the user@spark.apache.org mail
 Some quick tips when using email:
 
 - Prior to asking submitting questions, please:
-  - Search StackOverflow at <a href="http://stackoverflow.com/questions/tagged/apache-spark">`apache-spark`</a> 
+  - Search StackOverflow at <a href="https://stackoverflow.com/questions/tagged/apache-spark">`apache-spark`</a> 
   to see if your question has already been answered
   - Search the nabble archive for
   <a href="http://apache-spark-user-list.1001560.n3.nabble.com/">users@spark.apache.org</a> 
