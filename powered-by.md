@@ -51,11 +51,8 @@ initially launched Spark
   - enhancing big data. 360 customer view, log analysis, BI
 - <a href="http://www.taobao.com/">Alibaba Taobao</a>
   - We built one of the world's first Spark on YARN production clusters.
-  - See our blog posts (in Chinese) about Spark at Taobao: 
-  <a href="http://rdc.taobao.org/?tag=spark">http://rdc.taobao.org/?tag=spark</a>
 - <a href="http://alpinenow.com/">Alpine Data Labs</a>
 - <a href="http://amazon.com">Amazon</a>
-- <a href="http://www.amrita.edu/cyber/">Amrita Center for Cyber Security Systems and Networks</a>
 - <a href="http://www.art.com/">Art.com</a>
   - Trending analytics and personalization
 - <a href="http://www.asiainfo.com">AsiaInfo</a>
@@ -71,7 +68,7 @@ analytics platform, as a replacement for Hadoop MR
 - <a href="http://www.baidu.com">Baidu</a>
 - <a href="http://www.bakdata.com/">Bakdata</a> – using Spark (and Shark) to perform interactive 
 exploration of large datasets
-- <a href="http://http//www.bigindustries.be/">Big Industries</a> - using Spark Streaming: The 
+- <a href="http://www.bigindustries.be/">Big Industries</a> - using Spark Streaming: The 
 Big Content Platform is a business-to-business content asset management service providing a 
 searchable, aggregated source of live news feeds, public domain media and archives of content.
 - <a href="http://www.bizo.com">Bizo</a>
@@ -125,7 +122,7 @@ and external data sources, driving holistic and actionable insights.
   activity in real time
 - <a href="http://www.fundacionctic.org">Fundacion CTIC</a>
 - <a href="http://graphflow.com">GraphFlow, Inc.</a>
-- <a href="http://www.groupon.com/app/subscriptions/new_zip?division_p=san-francisco">Groupon</a>
+- <a href="https://www.groupon.com">Groupon</a>
 - <a href="http://www.guavus.com/">Guavus</a>
   - Stream processing of network machine data
 - <a href="http://www.hitachi-solutions.com/">Hitachi Solutions</a>
@@ -170,7 +167,7 @@ across all screens
   - See our presentation on 
   <a href="http://www.slideshare.net/EvanChan2/cassandra2013-spark-talk-final">Cassandra, Spark, 
   and Shark</a>
-- <a href="http://www.opentable.com/">Opentable</a>
+- <a href="https://www.opentable.com/">Opentable</a>
   - Using Apache Spark for log processing and ETL. The data obtained feeds the recommender 
   system powered by Spark MLLIB Matrix Factorization. We are evaluating the use of Spark 
   Streaming for real-time analytics.
