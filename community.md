@@ -72,6 +72,14 @@ Some quick tips when using email:
 and include only a few lines of the pertinent code / log within the email.
 - No jobs, sales, or solicitation is permitted on the Apache Spark mailing lists.
 
+<h5>Reporting Security issues</h5>
+
+If you need to report a possible security vulnerability, please email `private@spark.apache.org`. This is a
+non-public list that will reach the Spark PMC. Messages to `security@apache.org` will also reach the PMC. 
+
+Please review the <a href="https://www.apache.org/security/">Apache Security Team's guidance</a> on reporting
+vulnerabilities.
+
 <a name="chat"></a>
 <h4>Chat Rooms</h4>
 
