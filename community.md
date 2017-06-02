@@ -25,7 +25,7 @@ Some quick tips when using StackOverflow:
   <a href="https://stackoverflow.com/questions/tagged/apache-spark">`apache-spark`</a> tag to see if 
   your question has already been answered
   - Search the nabble archive for
-  <a href="http://apache-spark-user-list.1001560.n3.nabble.com/">users@spark.apache.org</a> 
+  <a href="http://apache-spark-user-list.1001560.n3.nabble.com/">user@spark.apache.org</a> 
 - Please follow the StackOverflow <a href="https://stackoverflow.com/help/how-to-ask">code of conduct</a>  
 - Always use the `apache-spark` tag when asking questions
 - Please also use a secondary tag to specify components so subject matter experts can more easily find them.
@@ -61,7 +61,7 @@ Some quick tips when using email:
   - Search StackOverflow at <a href="https://stackoverflow.com/questions/tagged/apache-spark">`apache-spark`</a> 
   to see if your question has already been answered
   - Search the nabble archive for
-  <a href="http://apache-spark-user-list.1001560.n3.nabble.com/">users@spark.apache.org</a> 
+  <a href="http://apache-spark-user-list.1001560.n3.nabble.com/">user@spark.apache.org</a> 
 - Tagging the subject line of your email will help you get a faster response, e.g. 
 `[Spark SQL]: Does Spark SQL support LEFT SEMI JOIN?`
 - Tags may help identify a topic by:
