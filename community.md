@@ -74,11 +74,8 @@ and include only a few lines of the pertinent code / log within the email.
 
 <h5>Reporting Security issues</h5>
 
-If you need to report a possible security vulnerability, please email `private@spark.apache.org`. This is a
-non-public list that will reach the Spark PMC. Messages to `security@apache.org` will also reach the PMC. 
-
-Please review the <a href="https://www.apache.org/security/">Apache Security Team's guidance</a> on reporting
-vulnerabilities.
+Please see the [Security](security.html) page for information on how to report sensitive security
+vulnerabilities, and for information on known security issues.
 
 <a name="chat"></a>
 <h4>Chat Rooms</h4>
