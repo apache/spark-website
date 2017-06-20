@@ -46,6 +46,8 @@ Maven when cutting the release. Note that there are a few exceptions that should
 - **Spark REPLs**. Look for the Spark ASCII art in `SparkILoopInit.scala` for the Scala shell 
 and in `shell.py` for the Python REPL.
 - **Docs**. Search for VERSION in `docs/_config.yml`
+- **PySpark**. Search for `__version__` in `python/pyspark/version.py`
+- **SparkR**. Search for `Version` in `R/pkg/DESCRIPTION`
 
 Finally, update `CHANGES.txt` with this script in the Spark repository. `CHANGES.txt` captures 
 all the patches that have made it into this release candidate since the last release.
