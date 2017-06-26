@@ -23,7 +23,7 @@ An SPIP:
 - Follows the template defined below
 - Includes discussions on the JIRA ticket and dev@ list about the proposal
 
-<a href="https://issues.apache.org/jira/browse/SPARK-19904?jql=project%20%3D%20SPARK%20AND%20status%20in%20(Open%2C%20Reopened%2C%20%22In%20Progress%22)%20AND%20labels%20%3D%20SPIP%20ORDER%20BY%20createdDate%20DESC">Current SPIPs</a>
+<a href="https://issues.apache.org/jira/issues/?jql=project%20%3D%20SPARK%20AND%20status%20in%20(Open%2C%20Reopened%2C%20%22In%20Progress%22)%20AND%20labels%20%3D%20SPIP%20ORDER%20BY%20createdDate%20DESC">Current SPIPs</a>
 
 <a href="https://issues.apache.org/jira/issues/?jql=project%20%3D%20SPARK%20AND%20status%20in%20(Resolved)%20AND%20labels%20%3D%20SPIP%20ORDER%20BY%20createdDate%20DESC">Past SPIPs</a>
 
