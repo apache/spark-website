@@ -46,7 +46,7 @@ navigation:
 |Imran Rashid|Cloudera|
 |Charles Reiss|UC Berkeley|
 |Josh Rosen|Databricks|
-|Sandy Ryza|Clover Health|
+|Sandy Ryza|Remix|
 |Kousuke Saruta|NTT Data|
 |Prashant Sharma|IBM|
 |Ram Sriharsha|Databricks|
