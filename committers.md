@@ -12,7 +12,7 @@ navigation:
 |----|------------|
 |Michael Armbrust|Databricks|
 |Joseph Bradley|Databricks|
-|Felix Cheung|Automattic|
+|Felix Cheung|Microsoft|
 |Mosharaf Chowdhury|University of Michigan, Ann Arbor|
 |Jason Dai|Intel|
 |Tathagata Das|Databricks|
@@ -32,7 +32,7 @@ navigation:
 |Andy Konwinski|Databricks|
 |Ryan LeCompte|Quantifind|
 |Haoyuan Li|Alluxio, UC Berkeley|
-|Xiao Li|IBM|
+|Xiao Li|Databricks|
 |Davies Liu|Databricks|
 |Cheng Lian|Databricks|
 |Yanbo Liang|Hortonworks|
@@ -51,7 +51,7 @@ navigation:
 |Prashant Sharma|IBM|
 |Ram Sriharsha|Databricks|
 |DB Tsai|Netflix|
-|Takuya Ueshin||
+|Takuya Ueshin|Databricks|
 |Marcelo Vanzin|Cloudera|
 |Shivaram Venkataraman|UC Berkeley|
 |Patrick Wendell|Databricks|
