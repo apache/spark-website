@@ -59,7 +59,7 @@ To download Apache Spark 2.2.0, visit the <a href="{{site.baseurl}}/downloads.ht
    - SPARK-19464: Remove support for Hadoop 2.5 and earlier
    - SPARK-19493: Remove Java 7 support
 
-*Programming guides: <a href="{{site.baseurl}}/docs/2.2.0/programming-guide.html">Spark Programming Guide</a> and <a href="{{site.baseurl}}/docs/2.2.0/sql-programming-guide.html">Spark SQL, DataFrames and Datasets Guide</a>.*
+*Programming guides: <a href="{{site.baseurl}}/docs/2.2.0/rdd-programming-guide.html">Spark RDD Programming Guide</a> and <a href="{{site.baseurl}}/docs/2.2.0/sql-programming-guide.html">Spark SQL, DataFrames and Datasets Guide</a>.*
 
 
 ### Structured Streaming

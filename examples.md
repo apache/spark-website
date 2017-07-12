@@ -11,7 +11,7 @@ navigation:
 These examples give a quick overview of the Spark API.
 Spark is built on the concept of <em>distributed datasets</em>, which contain arbitrary Java or
 Python objects. You create a dataset from external data, then apply parallel operations
-to it. The building block of the Spark API is its [RDD API](https://spark.apache.org/docs/latest/programming-guide.html#resilient-distributed-datasets-rdds).
+to it. The building block of the Spark API is its [RDD API](https://spark.apache.org/docs/latest/rdd-programming-guide.html#resilient-distributed-datasets-rdds).
 In the RDD API,
 there are two types of operations: <em>transformations</em>, which define a new dataset based on previous ones,
 and <em>actions</em>, which kick off a job to execute on a cluster.
