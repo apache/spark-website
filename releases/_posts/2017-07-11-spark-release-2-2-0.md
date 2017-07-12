@@ -128,6 +128,8 @@ The main focus of SparkR in the 2.2.0 release was adding extensive support for e
 
 ### Deprecations
 
+ - **Python**
+   - SPARK-12661: Drop support for Python 2.6
  - **MLlib**
    - SPARK-18613: spark.ml LDA classes should not expose spark.mllib in APIs.  In spark.ml.LDAModel, deprecated `oldLocalModel` and `getModel`.
  - **SparkR**
@@ -143,7 +145,7 @@ The main focus of SparkR in the 2.2.0 release was adding extensive support for e
 
 ### Known Issues
 
-- None
+- SPARK-21093: Multiple gapply execution occasionally failed in SparkR
 
 
 ### Credits
