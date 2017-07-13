@@ -14,6 +14,7 @@ meta:
 
 Apache Spark 2.2.0 is the third release on the 2.x line. This release removes the experimental tag from Structured Streaming. In addition, this release focuses more on usability, stability, and polish, resolving over 1100 tickets.
 
+Additionally, we are excited to announce that <a href="https://pypi.python.org/pypi/pyspark">PySpark</a> is now available in pypi. To install just run `pip install pyspark`.
 
 To download Apache Spark 2.2.0, visit the <a href="{{site.baseurl}}/downloads.html">downloads</a> page. You can consult JIRA for the [detailed changes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315420&version=12338275). We have curated a list of high level changes here, grouped by major modules.
 

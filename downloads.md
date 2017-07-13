@@ -53,6 +53,9 @@ Spark artifacts are [hosted in Maven Central](https://search.maven.org/#search%7
     artifactId: spark-core_2.11
     version: 2.2.0
 
+### Installing with PyPi
+<a href="https://pypi.python.org/pypi/pyspark">PySpark</a> is now available in pypi. To install just run `pip install pyspark`.
+
 ### Spark Source Code Management
 If you are interested in working with the newest under-development code or contributing to Apache Spark development, you can also check out the master branch from Git:
 
