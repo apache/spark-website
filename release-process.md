@@ -139,11 +139,15 @@ Uploading to PyPI is done after the release has been uploaded to apache. To get 
 
 Once you have logged in it is time to register the new release, on the <a href="https://pypi.python.org/pypi?%3Aaction=submit_form">submitting package information</a> page by uploading the PKG-INFO file from inside the pyspark packaged artifact.
 
-Once the release has been registered you can upload the artifacts on the <a href="https://pypi.python.org/pypi?%3Aaction=pkg_edit&name=pyspark"> pyspark package edit page</a>.
-Click "edit" for the version being uploaded and select the packaged Python file and corresponding .asc file. For safety always supply the generated MD5 from the release process in the "MD5 Digest" field.
+
+Once the release has been registered you can upload the artifacts on the
+to the <b>legacy</b> pypi interface, using <a href="https://pypi.python.org/pypi/twine">twine</a>.
+If you don't have twine setup you will need to create a .pypirc file with the reository pointing to `https://upload.pypi.org/legacy/` and the same username and password for the spark-upload account.
+
+In the release directory run `twine upload -r legacy pyspark-version.tar.gz pyspark-version.tar.gz.asc`.
+If for some reason the twine upload is incorrect (e.g. http failure or other issue), you can rename the artifact to `pyspark-version.post0.tar.gz`, delete the old artifact from PyPI and re-upload.
 
 
-You can also use <a href="https://pypi.python.org/pypi/twine">twine</a> to upload the pre-signed artifacts from the release.
 
 <h4>Remove Old Releases from Mirror Network</h4>
 
