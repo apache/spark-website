@@ -116,7 +116,7 @@ mkdir spark-1.1.1-rc2
 $ scp andrewor14@people.apache.org:~/public_html/spark-1.1.1-rc2/* spark-1.1.1-rc2
  
 # NOTE: Remove any binaries you don’t want to publish
-# E.g. never push MapR and *without-hive artifacts to apache
+# E.g. never push MapR and *without-hive artifacts to Apache
 $ rm spark-1.1.1-rc2/*mapr*
 $ rm spark-1.1.1-rc2/*without-hive*
 $ svn add spark-1.1.1-rc2
@@ -134,7 +134,7 @@ There are a few remaining steps.
 
 <h4>Upload to PyPI</h4>
 
-Uploading to PyPI is done after the release has been uploaded to apache. To get started, go to the <a href="https://pypi.python.org">PyPI website</a> and log in with the spark-upload account (see the PMC mailing list for account permissions).
+Uploading to PyPI is done after the release has been uploaded to Apache. To get started, go to the <a href="https://pypi.python.org">PyPI website</a> and log in with the spark-upload account (see the PMC mailing list for account permissions).
 
 
 Once you have logged in it is time to register the new release, on the <a href="https://pypi.python.org/pypi?%3Aaction=submit_form">submitting package information</a> page by uploading the PKG-INFO file from inside the pyspark packaged artifact.
@@ -210,7 +210,7 @@ $ git checkout v1.1.1
 $ cd docs
 $ PRODUCTION=1 jekyll build
  
-# Copy the new documentation to apache
+# Copy the new documentation to Apache
 $ git clone https://github.com/apache/spark-website
 ...
 $ cp -R _site spark-website/site/docs/1.1.1
