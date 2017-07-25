@@ -311,9 +311,10 @@ looked at this thoroughly and take as much ownership as if I wrote the patch mys
 comment LGTM you will be expected to help with bugs or follow-up issues on the patch. Consistent, 
 judicious use of LGTMs is a great way to gain credibility as a reviewer with the broader community.
 - Sometimes, other changes will be merged which conflict with your pull request's changes. The 
-PR can't be merged until the conflict is resolved. This can be resolved with `git fetch origin` 
-followed by `git merge origin/master` and resolving the conflicts by hand, then pushing the result 
-to your branch.
+PR can't be merged until the conflict is resolved. This can be resolved by, for example, adding a remote
+to keep up with upstream changes by `git remote add upstream https://github.com/apache/spark.git`,
+running `git fetch upstream` followed by `git rebase upstream/master` and resolving the conflicts by hand,
+then pushing the result to your branch.
 - Try to be responsive to the discussion rather than let days pass between replies
 
 <h3>Closing Your Pull Request / JIRA</h3>
