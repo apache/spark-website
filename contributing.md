@@ -295,8 +295,12 @@ with a link to the full results on Jenkins.
      1. Fixes can simply be pushed to the same branch from which you opened your pull request
      1. Jenkins will automatically re-test when new commits are pushed
      1. If the tests failed for reasons unrelated to the change (e.g. Jenkins outage), then a 
-     committer can request a re-test with "Jenkins, retest this please". 
-     Ask if you need a test restarted.
+     committer can request a re-test with "Jenkins, retest this please".
+     Ask if you need a test restarted. If you were added by "Jenkins, add to whitelist" from a
+     committer before, you can also request the re-test.
+1. If there is a change related to SparkR in your pull request, AppVeyor will be triggered
+automatically to test SparkR on Windows, which takes roughly an hour. Similarly to the steps
+above, fix failures and push new commits which will request the re-test in AppVeyor.
 
 <h3>The Review Process</h3>
 
