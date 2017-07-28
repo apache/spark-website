@@ -30,6 +30,7 @@ navigation:
 |Shane Huang|Intel|
 |Holden Karau|IBM|
 |Andy Konwinski|Databricks|
+|Hyukjin Kwon|Mobigen|
 |Ryan LeCompte|Quantifind|
 |Haoyuan Li|Alluxio, UC Berkeley|
 |Xiao Li|Databricks|
