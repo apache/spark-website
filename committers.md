@@ -10,6 +10,7 @@ navigation:
 
 |Name|Organization|
 |----|------------|
+|Sameer Agarwal|Databricks|
 |Michael Armbrust|Databricks|
 |Joseph Bradley|Databricks|
 |Felix Cheung|Microsoft|
