@@ -140,7 +140,7 @@ Uploading to PyPI is done after the release has been uploaded to Apache. To get 
 Once you have logged in it is time to register the new release, on the <a href="https://pypi.python.org/pypi?%3Aaction=submit_form">submitting package information</a> page by uploading the PKG-INFO file from inside the pyspark packaged artifact.
 
 
-Once the release has been registered you can upload the artifacts on the
+Once the release has been registered you can upload the artifacts
 to the <b>legacy</b> pypi interface, using <a href="https://pypi.python.org/pypi/twine">twine</a>.
 If you don't have twine setup you will need to create a .pypirc file with the reository pointing to `https://upload.pypi.org/legacy/` and the same username and password for the spark-upload account.
 
