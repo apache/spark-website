@@ -21,7 +21,6 @@ Each Spark release will be versioned: `[MAJOR].[FEATURE].[MAINTENANCE]`
 Major version numbers will remain stable over long periods of time. For instance, 1.X.Y may last 
 1 year or more.
 - **FEATURE**: Feature releases will typically contain new features, improvements, and bug fixes. 
-The target frequency for feature releases is every 4 months. 
 Each feature release will have a merge window where new patches can be merged, a QA window when 
 only fixes can be merged, then a final period where voting occurs on release candidates. These 
 windows will be announced immediately after the previous feature release to give people plenty 
