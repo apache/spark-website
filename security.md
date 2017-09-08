@@ -17,6 +17,31 @@ non-public list that will reach the Spark PMC. Messages to `security@apache.org`
 
 <h2>Known Security Issues</h2>
 
+<h3 id="CVE-2017-12612">CVE-2017-12612 Unsafe deserialization in Apache Spark launcher API</h3>
+
+Severity: Medium
+
+Vendor: The Apache Software Foundation
+
+Versions Affected:
+Versions of Apache Spark from 1.6.0 until 2.1.1
+
+Description:
+In Apache Spark 1.6.0 until 2.1.1, the launcher API performs unsafe
+deserialization of data received by  its socket. This makes applications
+launched programmatically using the launcher API potentially
+vulnerable to arbitrary code execution by an attacker with access to any user
+account on the local machine. It does not affect apps run by spark-submit or
+spark-shell. The attacker would be able to execute code as the user that ran
+the Spark application. Users are encouraged to update to version 2.2.0 or
+later.
+
+Mitigation:
+Update to Apache Spark 2.2.0 or later.
+
+Credit:
+- Aditya Sharad, Semmle
+
 <h3 id="CVE-2017-7678">CVE-2017-7678 Apache Spark XSS web UI MHTML vulnerability</h3>
 
 Severity: Low
