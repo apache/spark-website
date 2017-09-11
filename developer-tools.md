@@ -396,6 +396,8 @@ and adding the lines
 ```
 SPARK_DAEMON_JAVA_OPTS+=" -agentpath:/root/YourKit-JavaProfiler-2017.02/bin/linux-x86-64/libyjpagent.so=sampling"
 export SPARK_DAEMON_JAVA_OPTS
+SPARK_EXECUTOR_OPTS+=" -agentpath:/root/YourKit-JavaProfiler-2017.02/bin/linux-x86-64/libyjpagent.so=sampling"
+export SPARK_EXECUTOR_OPTS
 ```
 - Copy the updated configuration to each node: `~/spark-ec2/copy-dir ~/spark/conf/spark-env.sh`
 - Restart your Spark cluster: `~/spark/bin/stop-all.sh` and `~/spark/bin/start-all.sh`
