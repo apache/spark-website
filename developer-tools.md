@@ -394,20 +394,19 @@ consider mirroring this file or including it on a custom AMI.
 - Configure the Spark JVMs to use the YourKit profiling agent by editing `~/spark/conf/spark-env.sh` 
 and adding the lines
 ```
-SPARK_DAEMON_JAVA_OPTS+=" -agentpath:/root/YourKit-JavaProfiler-2017.02/bin/linux-x86-64/libyjpagent.so=sampling,port=10001"
+SPARK_DAEMON_JAVA_OPTS+=" -agentpath:/root/YourKit-JavaProfiler-2017.02/bin/linux-x86-64/libyjpagent.so=sampling"
 export SPARK_DAEMON_JAVA_OPTS
 ```
 - Copy the updated configuration to each node: `~/spark-ec2/copy-dir ~/spark/conf/spark-env.sh`
 - Restart your Spark cluster: `~/spark/bin/stop-all.sh` and `~/spark/bin/start-all.sh`
-- By default, the YourKit profiler agents use ports `10001-10010`. In the example above,
-we explicitly use `10001` for the agents. To connect the YourKit desktop
+- By default, the YourKit profiler agents use ports `10001-10010`. To connect the YourKit desktop
 application to the remote profiler agents, you'll have to open these ports in the cluster's EC2 
 security groups. To do this, sign into the AWS Management Console. Go to the EC2 section and 
 select `Security Groups` from the `Network & Security` section on the left side of the page. 
 Find the security groups corresponding to your cluster; if you launched a cluster named `test_cluster`, 
 then you will want to modify the settings for the `test_cluster-slaves` and `test_cluster-master` 
 security groups. For each group, select it from the list, click the `Inbound` tab, and create a 
-new `Custom TCP Rule` opening the port range `10001` in the example. Finally, click `Apply Rule Changes`.
+new `Custom TCP Rule` opening the port range `10001-10010`. Finally, click `Apply Rule Changes`. 
 Make sure to do this for both security groups.
 Note: by default, `spark-ec2` re-uses security groups: if you stop this cluster and launch another 
 cluster with the same name, your security group settings will be re-used.
