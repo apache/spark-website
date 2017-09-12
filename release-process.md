@@ -64,11 +64,11 @@ The process of cutting a release candidate has been automated via the AMPLab Jen
 Jenkins jobs that can tag a release candidate and create various packages based on that candidate. 
 
 
-If you have access to the <a href="https://amplab.cs.berkeley.edu/jenkins/view/Spark%20Release/">Spark Release Jobs</a> the general process is:
+If you have access to the <a href="https://amplab.cs.berkeley.edu/jenkins/view/Spark%20Release/">Spark Release Jobs</a>. The jobs can be launched with "Build with Parameters" and the general order is:
 
 - Create a tag for the current RC with <a href="https://amplab.cs.berkeley.edu/jenkins/view/Spark%20Release/job/spark-release-tag/">spark-release-tag</a> job.
 - Kick off the rest of the jobs except spark-release-publish after the current RC has been configured.
-- Once the packaging and doc jobs have finished kick off the spark-release-publish job.
+- Once the packaging and doc jobs have finished kick off the <a href="https://amplab.cs.berkeley.edu/jenkins/view/Spark%20Release/job/spark-release-publish">spark-release-publish</a> job.
 
 The jobs are configured through build parameters. If the build parameters are unclear you can look at previous releases or if available, the recommended process is to ask the previous release manager to walk you through the Jenkins jobs as this document may not be 100% up to date.
 
