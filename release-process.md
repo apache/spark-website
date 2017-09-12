@@ -43,26 +43,11 @@ places to change are:
 (e.g. `1.1.1-SNAPSHOT`). This will be changed to `<SPARK-VERSION>` (e.g. 1.1.1) automatically by 
 Maven when cutting the release. Note that there are a few exceptions that should just use 
 `<SPARK-VERSION>`. These modules are not published as artifacts.
-- **Spark REPLs**. Look for the Spark ASCII art in `SparkILoopInit.scala` for the Scala shell 
+- **Spark REPLs**. In Spark 1.x Look for the Spark ASCII art in `SparkILoopInit.scala` for the Scala shell
 and in `shell.py` for the Python REPL.
 - **Docs**. Search for VERSION in `docs/_config.yml`
 - **PySpark**. Search for `__version__` in `python/pyspark/version.py`
 - **SparkR**. Search for `Version` in `R/pkg/DESCRIPTION`
-
-Finally, update `CHANGES.txt` with this script in the Spark repository. `CHANGES.txt` captures 
-all the patches that have made it into this release candidate since the last release.
-
-```
-$ export SPARK_HOME=<your Spark home>
-$ cd spark
-# Update release versions
-$ vim dev/create-release/generate-changelist.py
-$ dev/create-release/generate-changelist.py
-```
-
-This produces a `CHANGES.txt.new` that should be a superset of the existing `CHANGES.txt`. 
-Replace the old `CHANGES.txt` with the new one (see 
-<a href="https://github.com/apache/spark/commit/131c62672a39a6f71f6834e9aad54b587237f13c">this example commit</a>).
 
 <h3>Cutting a Release Candidate</h3>
 
@@ -77,7 +62,15 @@ release, and change them to the current release.
 
 The process of cutting a release candidate has been automated via the AMPLab Jenkins. There are 
 Jenkins jobs that can tag a release candidate and create various packages based on that candidate. 
-The recommended process is to ask the previous release manager to walk you through the Jenkins jobs.
+
+
+If you have access to the <a href="https://amplab.cs.berkeley.edu/jenkins/view/Spark%20Release/">Spark Release Jobs</a> the general process is:
+
+- Create a tag for the current RC with <a href="https://amplab.cs.berkeley.edu/jenkins/view/Spark%20Release/job/spark-release-tag/">spark-release-tag</a> job.
+- Kick off the rest of the jobs except spark-release-publish after the current RC has been configured.
+- Once the packaging and doc jobs have finished kick off the spark-release-publish job.
+
+The jobs are configured through build parameters. If the build parameters are unclear you can look at previous releases or if available, the recommended process is to ask the previous release manager to walk you through the Jenkins jobs as this document may not be 100% up to date.
 
 <h3>Call a Vote on the Release Candidate</h3>
 
