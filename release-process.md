@@ -33,22 +33,6 @@ standard Git branching mechanism and should be announced to the community once t
 created. It is also good to set up Jenkins jobs for the release branch once it is cut to 
 ensure tests are passing (consult Josh Rosen and Shane Knapp for help with this).
 
-Next, ensure that all Spark versions are correct in the code base on the release branch (see 
-<a href="https://github.com/apache/spark/commit/01d233e4aede65ffa39b9d2322196d4b64186526">this example commit</a>).
-You should grep through the codebase to find all instances of the version string. Some known 
-places to change are:
-
-- **SparkContext**. Search for VERSION (only for branch 1.x)
-- **Maven build**. Ensure that the version in all the `pom.xml` files is `<SPARK-VERSION>-SNAPSHOT` 
-(e.g. `1.1.1-SNAPSHOT`). This will be changed to `<SPARK-VERSION>` (e.g. 1.1.1) automatically by 
-Maven when cutting the release. Note that there are a few exceptions that should just use 
-`<SPARK-VERSION>`. These modules are not published as artifacts.
-- **Spark REPLs**. In Spark 1.x Look for the Spark ASCII art in `SparkILoopInit.scala` for the Scala shell
-and in `shell.py` for the Python REPL.
-- **Docs**. Search for VERSION in `docs/_config.yml`
-- **PySpark**. Search for `__version__` in `python/pyspark/version.py`
-- **SparkR**. Search for `Version` in `R/pkg/DESCRIPTION`
-
 <h3>Cutting a Release Candidate</h3>
 
 If this is not the first RC, then make sure that the JIRA issues that have been solved since the 
