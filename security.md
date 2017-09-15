@@ -19,6 +19,8 @@ non-public list that will reach the Spark PMC. Messages to `security@apache.org`
 
 <h3 id="CVE-2017-12612">CVE-2017-12612 Unsafe deserialization in Apache Spark launcher API</h3>
 
+JIRA: [SPARK-20922](https://issues.apache.org/jira/browse/SPARK-20922)
+
 Severity: Medium
 
 Vendor: The Apache Software Foundation
@@ -43,6 +45,8 @@ Credit:
 - Aditya Sharad, Semmle
 
 <h3 id="CVE-2017-7678">CVE-2017-7678 Apache Spark XSS web UI MHTML vulnerability</h3>
+
+JIRA: [SPARK-20393](https://issues.apache.org/jira/browse/SPARK-20393)
 
 Severity: Low
 
