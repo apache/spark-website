@@ -44,6 +44,7 @@ navigation:
 |Andrew Or|Princeton University|
 |Kay Ousterhout|UC Berkeley|
 |Sean Owen|Cloudera|
+|Tejas Patil|Facebook|
 |Nick Pentreath|IBM|
 |Imran Rashid|Cloudera|
 |Charles Reiss|UC Berkeley|
