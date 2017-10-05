@@ -82,3 +82,7 @@ transforming, and analyzing genomic data using Apache Spark
 <h3>Groovy</h3>
 
 - <a href="https://github.com/bunions1/groovy-spark-example">groovy-spark-example</a>
+
+<h3>Julia</h3>
+
+- <a href="https://github.com/dfdx/Spark.jl">Spark.jl</a>
