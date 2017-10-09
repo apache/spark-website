@@ -244,10 +244,29 @@ release, and change them to the current release.</li>
   <li>Verify from <code>git log</code> whether they are actually making it in the new RC or not.</li>
 </ul>
 
-<p>The process of cutting a release candidate has been automated via the AMPLab Jenkins. There are 
+<p>The process of cutting a release candidate has been partially automated via the AMPLab Jenkins. There are
 Jenkins jobs that can tag a release candidate and create various packages based on that candidate.</p>
 
-<p>The job required for a release are located in the <a href="https://amplab.cs.berkeley.edu/jenkins/view/Spark%20Release/">Spark Release Jobs</a> collection.
+<p>At present the Jenkins jobs <em>SHOULD NOT BE USED</em> as they use a legacy shared key for signing.
+Instead much of the same release logic can be accessed in <code>dev/create-release/release-tag.sh</code> and <code>dev/create-release/release-build.sh</code>. The general order of creating a release using the scripts is:</p>
+
+<ul>
+  <li>Verify Jenkins test pass on your desired commit</li>
+  <li>Set the shell enviroment variables used by the scripts (run with &#8220;help&#8221; for details)</li>
+  <li>Verify your JAVA_HOME is set to the correct Java version (2.2+ Java 8, pre-2.2 Java 7)</li>
+  <li>You may find Felix&#8217;s docker env useful - https://github.com/felixcheung/spark-build/blob/master/Dockerfile .</li>
+  <li>Ensure you have the required dependcies to build the docs <code>docs/README.md</code></li>
+  <li>R, for some reason, requires e1071 to be installed as part of the packaging tests.</li>
+  <li>In addition R uses LaTeX for some things, and requires some additional fonts. On debian based systems you may wish to install <code>texlive-fonts-recommended</code> and <code>texlive-fonts-extra</code>.</li>
+  <li>Make sure you required Python packages for packaging (see <code>dev/requirements.txt</code>)</li>
+  <li>Tag the release candidate with <code>dev/create-release/release-tag.sh</code> (e.g. for creating 2.1.2 RC2 we did <code>ASF_USERNAME=holden ASF_PASSWORD=yoursecretgoeshere GIT_NAME="Holden Karau" GIT_BRANCH=branch-2.1 GIT_EMAIL="holden@us.ibm.com" RELEASE_VERSION=2.1.2 RELEASE_TAG=v2.1.2-rc2 NEXT_VERSION=2.1.3-SNAPSHOT ./dev/create-release/release-tag.sh</code>)</li>
+  <li>Package the release binaries &amp; sources with <code>dev/create-release/release-build.sh package</code></li>
+  <li>Create the release docs with <code>dev/create-release/release-build.sh docs</code></li>
+  <li>For Spark versions prior to 2.1.2, change the SPARK_VERSION from X.Y.Z to X.Y.Z-rcA then run <code>dev/create-release/release-build.sh publish-release</code>.</li>
+  <li>Publish a snapshot to the Apache release repo <code>dev/create-release/release-build.sh publish-release</code></li>
+</ul>
+
+<p>If the Jenkins jobs have been updated to support signing with your key you can look at the job required for a release are located in the <a href="https://amplab.cs.berkeley.edu/jenkins/view/Spark%20Release/">Spark Release Jobs</a> collection.
 If you don&#8217;t have access, talk to a previous release manager for guidance and to get access.
 The jobs can be launched with &#8220;Build with Parameters&#8221; and the general order is:</p>
 
@@ -294,7 +313,7 @@ $ svn co https://dist.apache.org/repos/dist/dev/spark/
 mkdir spark-1.1.1-rc2
  
 # Download the voted binaries and add them to the directory
-$ scp andrewor14@people.apache.org:~/public_html/spark-1.1.1-rc2/* spark-1.1.1-rc2
+$ sftp -r andrewor14@people.apache.org:~/public_html/spark-1.1.1-rc2/* spark-1.1.1-rc2
  
 # NOTE: Remove any binaries you don’t want to publish
 # E.g. never push MapR and *without-hive artifacts to apache
