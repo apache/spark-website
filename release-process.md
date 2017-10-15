@@ -222,7 +222,7 @@ pick the release version from the list, then click on "Release Notes". Copy this
 
 Then run `jekyll build` to update the `site` directory.
 
-(This is generally no longer done) The contributors list can be automatically generated through 
+(Generally, this is only for major and minor, but not patch releases) The contributors list can be automatically generated through 
 <a href="https://github.com/apache/spark/blob/branch-1.1/dev/create-release/generate-contributors.py">this script</a>.
 It accepts the tag that corresponds to the current release and another tag that 
 corresponds to the previous (not including maintenance release). For instance, if you are 
