@@ -35,11 +35,11 @@ launched programmatically using the launcher API potentially
 vulnerable to arbitrary code execution by an attacker with access to any user
 account on the local machine. It does not affect apps run by spark-submit or
 spark-shell. The attacker would be able to execute code as the user that ran
-the Spark application. Users are encouraged to update to version 2.2.0 or
+the Spark application. Users are encouraged to update to version 2.1.2, 2.2.0 or
 later.
 
 Mitigation:
-Update to Apache Spark 2.2.0 or later.
+Update to Apache Spark 2.1.2, 2.2.0 or later.
 
 Credit:
 - Aditya Sharad, Semmle
@@ -53,13 +53,13 @@ Severity: Low
 Vendor: The Apache Software Foundation
 
 Versions Affected:
-Versions of Apache Spark before 2.2.0
+Versions of Apache Spark before 2.1.2, 2.2.0
 
 Description:
 It is possible for an attacker to take advantage of a user's trust in the server to trick them into visiting a link that points to a shared Spark cluster and submits data including MHTML to the Spark master, or history server. This data, which could contain a script, would then be reflected back to the user and could be evaluated and executed by MS Windows-based clients. It is not an attack on Spark itself, but on the user, who may then execute the script inadvertently when viewing elements of the Spark web UIs.
 
 Mitigation:
-Update to Apache Spark 2.2.0 or later.
+Update to Apache Spark 2.1.2, 2.2.0 or later.
 
 Example:
 Request:
