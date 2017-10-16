@@ -222,6 +222,9 @@ pick the release version from the list, then click on "Release Notes". Copy this
 
 Then run `jekyll build` to update the `site` directory.
 
+On a related note, make sure the version is marked as released on JIRA. Go find the release page as above, eg., 
+`https://issues.apache.org/jira/projects/SPARK/versions/12340295`, and click the "Release" button on the right and enter the release date.
+
 (Generally, this is only for major and minor, but not patch releases) The contributors list can be automatically generated through 
 <a href="https://github.com/apache/spark/blob/branch-1.1/dev/create-release/generate-contributors.py">this script</a>.
 It accepts the tag that corresponds to the current release and another tag that 
