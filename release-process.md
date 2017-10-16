@@ -55,9 +55,9 @@ Instead much of the same release logic can be accessed in `dev/create-release/re
 - Set the shell enviroment variables used by the scripts (run with "help" for details)
 - Verify your JAVA_HOME is set to the correct Java version (2.2+ Java 8, pre-2.2 Java 7)
 - You may find Felix's docker env useful - https://github.com/felixcheung/spark-build/blob/master/Dockerfile .
-- Ensure you have the required dependcies to build the docs `docs/README.md`
-- R, for some reason, requires e1071 to be installed as part of the packaging tests.
-- In addition R uses LaTeX for some things, and requires some additional fonts. On debian based systems you may wish to install `texlive-fonts-recommended` and `texlive-fonts-extra`.
+- Ensure you have the required dependencies to build the docs `docs/README.md`
+- R, for CRAN packaging tests, requires e1071 to be installed as part of the packaging tests.
+- In addition R uses LaTeX for some things, and requires some additional fonts. On Debian based systems you may wish to install `texlive-fonts-recommended` and `texlive-fonts-extra`.
 - Make sure you required Python packages for packaging (see `dev/requirements.txt`)
 - Tag the release candidate with `dev/create-release/release-tag.sh` (e.g. for creating 2.1.2 RC2 we did `ASF_USERNAME=holden ASF_PASSWORD=yoursecretgoeshere GIT_NAME="Holden Karau" GIT_BRANCH=branch-2.1 GIT_EMAIL="holden@us.ibm.com" RELEASE_VERSION=2.1.2 RELEASE_TAG=v2.1.2-rc2 NEXT_VERSION=2.1.3-SNAPSHOT ./dev/create-release/release-tag.sh`)
 - Package the release binaries & sources with `dev/create-release/release-build.sh package`
@@ -66,13 +66,13 @@ Instead much of the same release logic can be accessed in `dev/create-release/re
 - Publish a snapshot to the Apache release repo `dev/create-release/release-build.sh publish-release`
 
 
-If the Jenkins jobs have been updated to support signing with your key you can look at the job required for a release are located in the <a href="https://amplab.cs.berkeley.edu/jenkins/view/Spark%20Release/">Spark Release Jobs</a> collection.
+If the Jenkins jobs have been updated to support signing with your key you can look at the job required for a release are located in the [Spark Release Jobs](https://amplab.cs.berkeley.edu/jenkins/view/Spark%20Release/) collection.
 If you don't have access, talk to a previous release manager for guidance and to get access.
 The jobs can be launched with "Build with Parameters" and the general order is:
 
-- Create a tag for the current RC with <a href="https://amplab.cs.berkeley.edu/jenkins/view/Spark%20Release/job/spark-release-tag/">spark-release-tag</a> job.
+- Create a tag for the current RC with [spark-release-tag](https://amplab.cs.berkeley.edu/jenkins/view/Spark%20Release/job/spark-release-tag/) job.
 - Kick off the rest of the jobs except spark-release-publish after the current RC has been configured.
-- Once the packaging and doc jobs have finished kick off the <a href="https://amplab.cs.berkeley.edu/jenkins/view/Spark%20Release/job/spark-release-publish">spark-release-publish</a> job.
+- Once the packaging and doc jobs have finished kick off the [spark-release-publish](https://amplab.cs.berkeley.edu/jenkins/view/Spark%20Release/job/spark-release-publish) job.
 
 The jobs are configured through build parameters. If the build parameters are unclear you can look at previous releases or if available, the recommended process is to ask the previous release manager to walk you through the Jenkins jobs as this document may not be 100% up to date.
 
