@@ -1,0 +1,1869 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Structured Streaming Programming Guide - Spark 2.1.2 Documentation</title>
+        
+
+        
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 60px;
+                padding-bottom: 40px;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+
+        <link rel="stylesheet" href="css/pygments-default.css">
+
+        
+        <!-- Google analytics script -->
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-32518208-2']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+        </script>
+        
+
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="http://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
+
+        <div class="navbar navbar-fixed-top" id="topbar">
+            <div class="navbar-inner">
+                <div class="container">
+                    <div class="brand"><a href="index.html">
+                      <img src="img/spark-logo-hd.png" style="height:50px;"/></a><span class="version">2.1.2</span>
+                    </div>
+                    <ul class="nav">
+                        <!--TODO(andyk): Add class="active" attribute to li some how.-->
+                        <li><a href="index.html">Overview</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Programming Guides<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="quick-start.html">Quick Start</a></li>
+                                <li><a href="programming-guide.html">Spark Programming Guide</a></li>
+                                <li class="divider"></li>
+                                <li><a href="streaming-programming-guide.html">Spark Streaming</a></li>
+                                <li><a href="sql-programming-guide.html">DataFrames, Datasets and SQL</a></li>
+                                <li><a href="structured-streaming-programming-guide.html">Structured Streaming</a></li>
+                                <li><a href="ml-guide.html">MLlib (Machine Learning)</a></li>
+                                <li><a href="graphx-programming-guide.html">GraphX (Graph Processing)</a></li>
+                                <li><a href="sparkr.html">SparkR (R on Spark)</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">API Docs<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="api/scala/index.html#org.apache.spark.package">Scala</a></li>
+                                <li><a href="api/java/index.html">Java</a></li>
+                                <li><a href="api/python/index.html">Python</a></li>
+                                <li><a href="api/R/index.html">R</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Deploying<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="cluster-overview.html">Overview</a></li>
+                                <li><a href="submitting-applications.html">Submitting Applications</a></li>
+                                <li class="divider"></li>
+                                <li><a href="spark-standalone.html">Spark Standalone</a></li>
+                                <li><a href="running-on-mesos.html">Mesos</a></li>
+                                <li><a href="running-on-yarn.html">YARN</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="api.html" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="configuration.html">Configuration</a></li>
+                                <li><a href="monitoring.html">Monitoring</a></li>
+                                <li><a href="tuning.html">Tuning Guide</a></li>
+                                <li><a href="job-scheduling.html">Job Scheduling</a></li>
+                                <li><a href="security.html">Security</a></li>
+                                <li><a href="hardware-provisioning.html">Hardware Provisioning</a></li>
+                                <li class="divider"></li>
+                                <li><a href="building-spark.html">Building Spark</a></li>
+                                <li><a href="http://spark.apache.org/contributing.html">Contributing to Spark</a></li>
+                                <li><a href="http://spark.apache.org/third-party-projects.html">Third Party Projects</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <!--<p class="navbar-text pull-right"><span class="version-text">v2.1.2</span></p>-->
+                </div>
+            </div>
+        </div>
+
+        <div class="container-wrapper">
+
+            
+                <div class="content" id="content">
+                    
+                        <h1 class="title">Structured Streaming Programming Guide [Alpha]</h1>
+                    
+
+                    <ul id="markdown-toc">
+  <li><a href="#overview" id="markdown-toc-overview">Overview</a></li>
+  <li><a href="#quick-example" id="markdown-toc-quick-example">Quick Example</a></li>
+  <li><a href="#programming-model" id="markdown-toc-programming-model">Programming Model</a>    <ul>
+      <li><a href="#basic-concepts" id="markdown-toc-basic-concepts">Basic Concepts</a></li>
+      <li><a href="#handling-event-time-and-late-data" id="markdown-toc-handling-event-time-and-late-data">Handling Event-time and Late Data</a></li>
+      <li><a href="#fault-tolerance-semantics" id="markdown-toc-fault-tolerance-semantics">Fault Tolerance Semantics</a></li>
+    </ul>
+  </li>
+  <li><a href="#api-using-datasets-and-dataframes" id="markdown-toc-api-using-datasets-and-dataframes">API using Datasets and DataFrames</a>    <ul>
+      <li><a href="#creating-streaming-dataframes-and-streaming-datasets" id="markdown-toc-creating-streaming-dataframes-and-streaming-datasets">Creating streaming DataFrames and streaming Datasets</a>        <ul>
+          <li><a href="#input-sources" id="markdown-toc-input-sources">Input Sources</a></li>
+          <li><a href="#schema-inference-and-partition-of-streaming-dataframesdatasets" id="markdown-toc-schema-inference-and-partition-of-streaming-dataframesdatasets">Schema inference and partition of streaming DataFrames/Datasets</a></li>
+        </ul>
+      </li>
+      <li><a href="#operations-on-streaming-dataframesdatasets" id="markdown-toc-operations-on-streaming-dataframesdatasets">Operations on streaming DataFrames/Datasets</a>        <ul>
+          <li><a href="#basic-operations---selection-projection-aggregation" id="markdown-toc-basic-operations---selection-projection-aggregation">Basic Operations - Selection, Projection, Aggregation</a></li>
+          <li><a href="#window-operations-on-event-time" id="markdown-toc-window-operations-on-event-time">Window Operations on Event Time</a></li>
+          <li><a href="#handling-late-data-and-watermarking" id="markdown-toc-handling-late-data-and-watermarking">Handling Late Data and Watermarking</a></li>
+          <li><a href="#join-operations" id="markdown-toc-join-operations">Join Operations</a></li>
+          <li><a href="#unsupported-operations" id="markdown-toc-unsupported-operations">Unsupported Operations</a></li>
+        </ul>
+      </li>
+      <li><a href="#starting-streaming-queries" id="markdown-toc-starting-streaming-queries">Starting Streaming Queries</a>        <ul>
+          <li><a href="#output-modes" id="markdown-toc-output-modes">Output Modes</a></li>
+          <li><a href="#output-sinks" id="markdown-toc-output-sinks">Output Sinks</a></li>
+          <li><a href="#using-foreach" id="markdown-toc-using-foreach">Using Foreach</a></li>
+        </ul>
+      </li>
+      <li><a href="#managing-streaming-queries" id="markdown-toc-managing-streaming-queries">Managing Streaming Queries</a></li>
+      <li><a href="#monitoring-streaming-queries" id="markdown-toc-monitoring-streaming-queries">Monitoring Streaming Queries</a>        <ul>
+          <li><a href="#interactive-apis" id="markdown-toc-interactive-apis">Interactive APIs</a></li>
+          <li><a href="#asynchronous-api" id="markdown-toc-asynchronous-api">Asynchronous API</a></li>
+        </ul>
+      </li>
+      <li><a href="#recovering-from-failures-with-checkpointing" id="markdown-toc-recovering-from-failures-with-checkpointing">Recovering from Failures with Checkpointing</a></li>
+    </ul>
+  </li>
+  <li><a href="#where-to-go-from-here" id="markdown-toc-where-to-go-from-here">Where to go from here</a></li>
+</ul>
+
+<h1 id="overview">Overview</h1>
+<p>Structured Streaming is a scalable and fault-tolerant stream processing engine built on the Spark SQL engine. You can express your streaming computation the same way you would express a batch computation on static data. The Spark SQL engine will take care of running it incrementally and continuously and updating the final result as streaming data continues to arrive. You can use the <a href="sql-programming-guide.html">Dataset/DataFrame API</a> in Scala, Java or Python to express streaming aggregations, event-time windows, stream-to-batch joins, etc. The computation is executed on the same optimized Spark SQL engine. Finally, the system ensures end-to-end exactly-once fault-tolerance guarantees through checkpointing and Write Ahead Logs. In short, <em>Structured Streaming provides fast, scalable, fault-tolerant, end-to-end exactly-once stream processing without the user having to reason about streaming.</em></p>
+
+<p><strong>Structured Streaming is still ALPHA in Spark 2.1</strong> and the APIs are still experimental. In this guide, we are going to walk you through the programming model and the APIs. First, let&#8217;s start with a simple example - a streaming word count.</p>
+
+<h1 id="quick-example">Quick Example</h1>
+<p>Let’s say you want to maintain a running word count of text data received from a data server listening on a TCP socket. Let’s see how you can express this using Structured Streaming. You can see the full code in 
+<a href="https://github.com/apache/spark/blob/v2.1.2/examples/src/main/scala/org/apache/spark/examples/sql/streaming/StructuredNetworkWordCount.scala">Scala</a>/<a href="https://github.com/apache/spark/blob/v2.1.2/examples/src/main/java/org/apache/spark/examples/sql/streaming/JavaStructuredNetworkWordCount.java">Java</a>/<a href="https://github.com/apache/spark/blob/v2.1.2/examples/src/main/python/sql/streaming/structured_network_wordcount.py">Python</a>.
+And if you <a href="http://spark.apache.org/downloads.html">download Spark</a>, you can directly run the example. In any case, let’s walk through the example step-by-step and understand how it works. First, we have to import the necessary classes and create a local SparkSession, the starting point of all functionalities related to Spark.</p>
+
+<div class="codetabs">
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">import</span> <span class="nn">org.apache.spark.sql.functions._</span>
+<span class="k">import</span> <span class="nn">org.apache.spark.sql.SparkSession</span>
+
+<span class="k">val</span> <span class="n">spark</span> <span class="k">=</span> <span class="nc">SparkSession</span>
+  <span class="o">.</span><span class="n">builder</span>
+  <span class="o">.</span><span class="n">appName</span><span class="o">(</span><span class="s">&quot;StructuredNetworkWordCount&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">getOrCreate</span><span class="o">()</span>
+  
+<span class="k">import</span> <span class="nn">spark.implicits._</span></code></pre></figure>
+
+  </div>
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kn">import</span> <span class="nn">org.apache.spark.api.java.function.FlatMapFunction</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.spark.sql.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.spark.sql.streaming.StreamingQuery</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.Arrays</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Iterator</span><span class="o">;</span>
+
+<span class="n">SparkSession</span> <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span>
+  <span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">appName</span><span class="o">(</span><span class="s">&quot;JavaStructuredNetworkWordCount&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">getOrCreate</span><span class="o">();</span></code></pre></figure>
+
+  </div>
+<div data-lang="python">
+
+    <figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">SparkSession</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="kn">import</span> <span class="n">explode</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="kn">import</span> <span class="n">split</span>
+
+<span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span> \
+    <span class="o">.</span><span class="n">builder</span> \
+    <span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s">&quot;StructuredNetworkWordCount&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span></code></pre></figure>
+
+  </div>
+</div>
+
+<p>Next, let’s create a streaming DataFrame that represents text data received from a server listening on localhost:9999, and transform the DataFrame to calculate word counts.</p>
+
+<div class="codetabs">
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="c1">// Create DataFrame representing the stream of input lines from connection to localhost:9999</span>
+<span class="k">val</span> <span class="n">lines</span> <span class="k">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">readStream</span>
+  <span class="o">.</span><span class="n">format</span><span class="o">(</span><span class="s">&quot;socket&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">option</span><span class="o">(</span><span class="s">&quot;host&quot;</span><span class="o">,</span> <span class="s">&quot;localhost&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">option</span><span class="o">(</span><span class="s">&quot;port&quot;</span><span class="o">,</span> <span class="mi">9999</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">load</span><span class="o">()</span>
+
+<span class="c1">// Split the lines into words</span>
+<span class="k">val</span> <span class="n">words</span> <span class="k">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">as</span><span class="o">[</span><span class="kt">String</span><span class="o">].</span><span class="n">flatMap</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="s">&quot; &quot;</span><span class="o">))</span>
+
+<span class="c1">// Generate running word count</span>
+<span class="k">val</span> <span class="n">wordCounts</span> <span class="k">=</span> <span class="n">words</span><span class="o">.</span><span class="n">groupBy</span><span class="o">(</span><span class="s">&quot;value&quot;</span><span class="o">).</span><span class="n">count</span><span class="o">()</span></code></pre></figure>
+
+    <p>This <code>lines</code> DataFrame represents an unbounded table containing the streaming text data. This table contains one column of strings named &#8220;value&#8221;, and each line in the streaming text data becomes a row in the table. Note, that this is not currently receiving any data as we are just setting up the transformation, and have not yet started it. Next, we have converted the DataFrame to a  Dataset of String using <code>.as[String]</code>, so that we can apply the <code>flatMap</code> operation to split each line into multiple words. The resultant <code>words</code> Dataset contains all the words. Finally, we have defined the <code>wordCounts</code> DataFrame by grouping by the unique values in the Dataset and counting them. Note that this is a streaming DataFrame which represents the running word counts of the stream.</p>
+
+  </div>
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="c1">// Create DataFrame representing the stream of input lines from connection to localhost:9999</span>
+<span class="n">Dataset</span><span class="o">&lt;</span><span class="n">Row</span><span class="o">&gt;</span> <span class="n">lines</span> <span class="o">=</span> <span class="n">spark</span>
+  <span class="o">.</span><span class="na">readStream</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;socket&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">&quot;host&quot;</span><span class="o">,</span> <span class="s">&quot;localhost&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">&quot;port&quot;</span><span class="o">,</span> <span class="mi">9999</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">load</span><span class="o">();</span>
+
+<span class="c1">// Split the lines into words</span>
+<span class="n">Dataset</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">words</span> <span class="o">=</span> <span class="n">lines</span>
+  <span class="o">.</span><span class="na">as</span><span class="o">(</span><span class="n">Encoders</span><span class="o">.</span><span class="na">STRING</span><span class="o">())</span>
+  <span class="o">.</span><span class="na">flatMap</span><span class="o">(</span>
+    <span class="k">new</span> <span class="n">FlatMapFunction</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;()</span> <span class="o">{</span>
+      <span class="nd">@Override</span>
+      <span class="kd">public</span> <span class="n">Iterator</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="nf">call</span><span class="o">(</span><span class="n">String</span> <span class="n">x</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="n">x</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">&quot; &quot;</span><span class="o">)).</span><span class="na">iterator</span><span class="o">();</span>
+      <span class="o">}</span>
+    <span class="o">},</span> <span class="n">Encoders</span><span class="o">.</span><span class="na">STRING</span><span class="o">());</span>
+
+<span class="c1">// Generate running word count</span>
+<span class="n">Dataset</span><span class="o">&lt;</span><span class="n">Row</span><span class="o">&gt;</span> <span class="n">wordCounts</span> <span class="o">=</span> <span class="n">words</span><span class="o">.</span><span class="na">groupBy</span><span class="o">(</span><span class="s">&quot;value&quot;</span><span class="o">).</span><span class="na">count</span><span class="o">();</span></code></pre></figure>
+
+    <p>This <code>lines</code> DataFrame represents an unbounded table containing the streaming text data. This table contains one column of strings named &#8220;value&#8221;, and each line in the streaming text data becomes a row in the table. Note, that this is not currently receiving any data as we are just setting up the transformation, and have not yet started it. Next, we have converted the DataFrame to a  Dataset of String using <code>.as(Encoders.STRING())</code>, so that we can apply the <code>flatMap</code> operation to split each line into multiple words. The resultant <code>words</code> Dataset contains all the words. Finally, we have defined the <code>wordCounts</code> DataFrame by grouping by the unique values in the Dataset and counting them. Note that this is a streaming DataFrame which represents the running word counts of the stream.</p>
+
+  </div>
+<div data-lang="python">
+
+    <figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c"># Create DataFrame representing the stream of input lines from connection to localhost:9999</span>
+<span class="n">lines</span> <span class="o">=</span> <span class="n">spark</span> \
+    <span class="o">.</span><span class="n">readStream</span> \
+    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;socket&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s">&quot;host&quot;</span><span class="p">,</span> <span class="s">&quot;localhost&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s">&quot;port&quot;</span><span class="p">,</span> <span class="mi">9999</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">load</span><span class="p">()</span>
+
+<span class="c"># Split the lines into words</span>
+<span class="n">words</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+   <span class="n">explode</span><span class="p">(</span>
+       <span class="n">split</span><span class="p">(</span><span class="n">lines</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="s">&quot; &quot;</span><span class="p">)</span>
+   <span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s">&quot;word&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c"># Generate running word count</span>
+<span class="n">wordCounts</span> <span class="o">=</span> <span class="n">words</span><span class="o">.</span><span class="n">groupBy</span><span class="p">(</span><span class="s">&quot;word&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span></code></pre></figure>
+
+    <p>This <code>lines</code> DataFrame represents an unbounded table containing the streaming text data. This table contains one column of strings named &#8220;value&#8221;, and each line in the streaming text data becomes a row in the table. Note, that this is not currently receiving any data as we are just setting up the transformation, and have not yet started it. Next, we have used two built-in SQL functions - split and explode, to split each line into multiple rows with a word each. In addition, we use the function <code>alias</code> to name the new column as &#8220;word&#8221;. Finally, we have defined the <code>wordCounts</code> DataFrame by grouping by the unique values in the Dataset and counting them. Note that this is a streaming DataFrame which represents the running word counts of the stream.</p>
+
+  </div>
+</div>
+
+<p>We have now set up the query on the streaming data. All that is left is to actually start receiving data and computing the counts. To do this, we set it up to print the complete set of counts (specified by <code>outputMode("complete")</code>) to the console every time they are updated. And then start the streaming computation using <code>start()</code>.</p>
+
+<div class="codetabs">
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="c1">// Start running the query that prints the running counts to the console</span>
+<span class="k">val</span> <span class="n">query</span> <span class="k">=</span> <span class="n">wordCounts</span><span class="o">.</span><span class="n">writeStream</span>
+  <span class="o">.</span><span class="n">outputMode</span><span class="o">(</span><span class="s">&quot;complete&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">format</span><span class="o">(</span><span class="s">&quot;console&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">start</span><span class="o">()</span>
+
+<span class="n">query</span><span class="o">.</span><span class="n">awaitTermination</span><span class="o">()</span></code></pre></figure>
+
+  </div>
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="c1">// Start running the query that prints the running counts to the console</span>
+<span class="n">StreamingQuery</span> <span class="n">query</span> <span class="o">=</span> <span class="n">wordCounts</span><span class="o">.</span><span class="na">writeStream</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">outputMode</span><span class="o">(</span><span class="s">&quot;complete&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;console&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">start</span><span class="o">();</span>
+
+<span class="n">query</span><span class="o">.</span><span class="na">awaitTermination</span><span class="o">();</span></code></pre></figure>
+
+  </div>
+<div data-lang="python">
+
+    <figure class="highlight"><pre><code class="language-python" data-lang="python"> <span class="c"># Start running the query that prints the running counts to the console</span>
+<span class="n">query</span> <span class="o">=</span> <span class="n">wordCounts</span> \
+    <span class="o">.</span><span class="n">writeStream</span> \
+    <span class="o">.</span><span class="n">outputMode</span><span class="p">(</span><span class="s">&quot;complete&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;console&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="n">query</span><span class="o">.</span><span class="n">awaitTermination</span><span class="p">()</span></code></pre></figure>
+
+  </div>
+</div>
+
+<p>After this code is executed, the streaming computation will have started in the background. The <code>query</code> object is a handle to that active streaming query, and we have decided to wait for the termination of the query using <code>query.awaitTermination()</code> to prevent the process from exiting while the query is active.</p>
+
+<p>To actually execute this example code, you can either compile the code in your own 
+<a href="quick-start.html#self-contained-applications">Spark application</a>, or simply 
+<a href="index.html#running-the-examples-and-shell">run the example</a> once you have downloaded Spark. We are showing the latter. You will first need to run Netcat (a small utility found in most Unix-like systems) as a data server by using</p>
+
+<pre><code>$ nc -lk 9999
+</code></pre>
+
+<p>Then, in a different terminal, you can start the example by using</p>
+
+<div class="codetabs">
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>./bin/run-example org.apache.spark.examples.sql.streaming.StructuredNetworkWordCount localhost 9999</code></pre></figure>
+
+  </div>
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>./bin/run-example org.apache.spark.examples.sql.streaming.JavaStructuredNetworkWordCount localhost 9999</code></pre></figure>
+
+  </div>
+<div data-lang="python">
+
+    <figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>./bin/spark-submit examples/src/main/python/sql/streaming/structured_network_wordcount.py localhost 9999</code></pre></figure>
+
+  </div>
+</div>
+
+<p>Then, any lines typed in the terminal running the netcat server will be counted and printed on screen every second. It will look something like the following.</p>
+
+<table width="100%">
+    <td>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># TERMINAL 1:</span>
+<span class="c"># Running Netcat</span>
+
+<span class="nv">$ </span>nc -lk 9999
+apache spark
+apache hadoop
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+...</code></pre></figure>
+
+    </td>
+    <td width="2%"></td>
+    <td>
+<div class="codetabs">
+
+<div data-lang="scala">
+
+        <figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># TERMINAL 2: RUNNING StructuredNetworkWordCount</span>
+
+<span class="nv">$ </span>./bin/run-example org.apache.spark.examples.sql.streaming.StructuredNetworkWordCount localhost 9999
+
+-------------------------------------------
+Batch: 0
+-------------------------------------------
++------+-----+
+<span class="p">|</span> value<span class="p">|</span>count<span class="p">|</span>
++------+-----+
+<span class="p">|</span>apache<span class="p">|</span>    1<span class="p">|</span>
+<span class="p">|</span> spark<span class="p">|</span>    1<span class="p">|</span>
++------+-----+
+
+-------------------------------------------
+Batch: 1
+-------------------------------------------
++------+-----+
+<span class="p">|</span> value<span class="p">|</span>count<span class="p">|</span>
++------+-----+
+<span class="p">|</span>apache<span class="p">|</span>    2<span class="p">|</span>
+<span class="p">|</span> spark<span class="p">|</span>    1<span class="p">|</span>
+<span class="p">|</span>hadoop<span class="p">|</span>    1<span class="p">|</span>
++------+-----+
+...</code></pre></figure>
+
+      </div>
+
+<div data-lang="java">
+
+        <figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># TERMINAL 2: RUNNING JavaStructuredNetworkWordCount</span>
+
+<span class="nv">$ </span>./bin/run-example org.apache.spark.examples.sql.streaming.JavaStructuredNetworkWordCount localhost 9999
+
+-------------------------------------------
+Batch: 0
+-------------------------------------------
++------+-----+
+<span class="p">|</span> value<span class="p">|</span>count<span class="p">|</span>
++------+-----+
+<span class="p">|</span>apache<span class="p">|</span>    1<span class="p">|</span>
+<span class="p">|</span> spark<span class="p">|</span>    1<span class="p">|</span>
++------+-----+
+
+-------------------------------------------
+Batch: 1
+-------------------------------------------
++------+-----+
+<span class="p">|</span> value<span class="p">|</span>count<span class="p">|</span>
++------+-----+
+<span class="p">|</span>apache<span class="p">|</span>    2<span class="p">|</span>
+<span class="p">|</span> spark<span class="p">|</span>    1<span class="p">|</span>
+<span class="p">|</span>hadoop<span class="p">|</span>    1<span class="p">|</span>
++------+-----+
+...</code></pre></figure>
+
+      </div>
+<div data-lang="python">
+
+        <figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="c"># TERMINAL 2: RUNNING structured_network_wordcount.py</span>
+
+<span class="nv">$ </span>./bin/spark-submit examples/src/main/python/sql/streaming/structured_network_wordcount.py localhost 9999
+
+-------------------------------------------
+Batch: 0
+-------------------------------------------
++------+-----+
+<span class="p">|</span> value<span class="p">|</span>count<span class="p">|</span>
++------+-----+
+<span class="p">|</span>apache<span class="p">|</span>    1<span class="p">|</span>
+<span class="p">|</span> spark<span class="p">|</span>    1<span class="p">|</span>
++------+-----+
+
+-------------------------------------------
+Batch: 1
+-------------------------------------------
++------+-----+
+<span class="p">|</span> value<span class="p">|</span>count<span class="p">|</span>
++------+-----+
+<span class="p">|</span>apache<span class="p">|</span>    2<span class="p">|</span>
+<span class="p">|</span> spark<span class="p">|</span>    1<span class="p">|</span>
+<span class="p">|</span>hadoop<span class="p">|</span>    1<span class="p">|</span>
++------+-----+
+...</code></pre></figure>
+
+      </div>
+</div>
+    </td>
+</table>
+
+<h1 id="programming-model">Programming Model</h1>
+
+<p>The key idea in Structured Streaming is to treat a live data stream as a 
+table that is being continuously appended. This leads to a new stream 
+processing model that is very similar to a batch processing model. You will 
+express your streaming computation as standard batch-like query as on a static 
+table, and Spark runs it as an <em>incremental</em> query on the <em>unbounded</em> input 
+table. Let’s understand this model in more detail.</p>
+
+<h2 id="basic-concepts">Basic Concepts</h2>
+<p>Consider the input data stream as the &#8220;Input Table&#8221;. Every data item that is 
+arriving on the stream is like a new row being appended to the Input Table.</p>
+
+<p><img src="img/structured-streaming-stream-as-a-table.png" alt="Stream as a Table" title="Stream as a Table" /></p>
+
+<p>A query on the input will generate the &#8220;Result Table&#8221;. Every trigger interval (say, every 1 second), new rows get appended to the Input Table, which eventually updates the Result Table. Whenever the result table gets updated, we would want to write the changed result rows to an external sink.</p>
+
+<p><img src="img/structured-streaming-model.png" alt="Model" /></p>
+
+<p>The &#8220;Output&#8221; is defined as what gets written out to the external storage. The output can be defined in a different mode:</p>
+
+<ul>
+  <li>
+    <p><em>Complete Mode</em> - The entire updated Result Table will be written to the external storage. It is up to the storage connector to decide how to handle writing of the entire table.</p>
+  </li>
+  <li>
+    <p><em>Append Mode</em> - Only the new rows appended in the Result Table since the last trigger will be written to the external storage. This is applicable only on the queries where existing rows in the Result Table are not expected to change.</p>
+  </li>
+  <li>
+    <p><em>Update Mode</em> - Only the rows that were updated in the Result Table since the last trigger will be written to the external storage (available since Spark 2.1.1). Note that this is different from the Complete Mode in that this mode only outputs the rows that have changed since the last trigger. If the query doesn&#8217;t contain aggregations, it will be equivalent to Append mode.</p>
+  </li>
+</ul>
+
+<p>Note that each mode is applicable on certain types of queries. This is discussed in detail <a href="#output-modes">later</a>.</p>
+
+<p>To illustrate the use of this model, let’s understand the model in context of 
+the <a href="#quick-example">Quick Example</a> above. The first <code>lines</code> DataFrame is the input table, and 
+the final <code>wordCounts</code> DataFrame is the result table. Note that the query on 
+streaming <code>lines</code> DataFrame to generate <code>wordCounts</code> is <em>exactly the same</em> as 
+it would be a static DataFrame. However, when this query is started, Spark 
+will continuously check for new data from the socket connection. If there is 
+new data, Spark will run an &#8220;incremental&#8221; query that combines the previous 
+running counts with the new data to compute updated counts, as shown below.</p>
+
+<p><img src="img/structured-streaming-example-model.png" alt="Model" /></p>
+
+<p>This model is significantly different from many other stream processing 
+engines. Many streaming systems require the user to maintain running 
+aggregations themselves, thus having to reason about fault-tolerance, and 
+data consistency (at-least-once, or at-most-once, or exactly-once). In this 
+model, Spark is responsible for updating the Result Table when there is new 
+data, thus relieving the users from reasoning about it. As an example, let’s 
+see how this model handles event-time based processing and late arriving data.</p>
+
+<h2 id="handling-event-time-and-late-data">Handling Event-time and Late Data</h2>
+<p>Event-time is the time embedded in the data itself. For many applications, you may want to operate on this event-time. For example, if you want to get the number of events generated by IoT devices every minute, then you probably want to use the time when the data was generated (that is, event-time in the data), rather than the time Spark receives them. This event-time is very naturally expressed in this model &#8211; each event from the devices is a row in the table, and event-time is a column value in the row. This allows window-based aggregations (e.g. number of events every minute) to be just a special type of grouping and aggregation on the even-time column &#8211; each time window is a group and each row can belong to multiple windows/groups. Therefore, such event-time-window-based aggregation queries can be defined consistently on both a static dataset (e.g. from collected device events logs) as well as on a data stream, making the life of the user much easier.</p>
+
+<p>Furthermore, this model naturally handles data that has arrived later than 
+expected based on its event-time. Since Spark is updating the Result Table, 
+it has full control over updating old aggregates when there is late data, 
+as well as cleaning up old aggregates to limit the size of intermediate
+state data. Since Spark 2.1, we have support for watermarking which 
+allows the user to specify the threshold of late data, and allows the engine
+to accordingly clean up old state. These are explained later in more 
+details in the <a href="#window-operations-on-event-time">Window Operations</a> section.</p>
+
+<h2 id="fault-tolerance-semantics">Fault Tolerance Semantics</h2>
+<p>Delivering end-to-end exactly-once semantics was one of key goals behind the design of Structured Streaming. To achieve that, we have designed the Structured Streaming sources, the sinks and the execution engine to reliably track the exact progress of the processing so that it can handle any kind of failure by restarting and/or reprocessing. Every streaming source is assumed to have offsets (similar to Kafka offsets, or Kinesis sequence numbers)
+to track the read position in the stream. The engine uses checkpointing and write ahead logs to record the offset range of the data being processed in each trigger. The streaming sinks are designed to be idempotent for handling reprocessing. Together, using replayable sources and idempotent sinks, Structured Streaming can ensure <strong>end-to-end exactly-once semantics</strong> under any failure.</p>
+
+<h1 id="api-using-datasets-and-dataframes">API using Datasets and DataFrames</h1>
+<p>Since Spark 2.0, DataFrames and Datasets can represent static, bounded data, as well as streaming, unbounded data. Similar to static Datasets/DataFrames, you can use the common entry point <code>SparkSession</code>
+(<a href="api/scala/index.html#org.apache.spark.sql.SparkSession">Scala</a>/<a href="api/java/org/apache/spark/sql/SparkSession.html">Java</a>/<a href="api/python/pyspark.sql.html#pyspark.sql.SparkSession">Python</a> docs)
+to create streaming DataFrames/Datasets from streaming sources, and apply the same operations on them as static DataFrames/Datasets. If you are not familiar with Datasets/DataFrames, you are strongly advised to familiarize yourself with them using the
+<a href="sql-programming-guide.html">DataFrame/Dataset Programming Guide</a>.</p>
+
+<h2 id="creating-streaming-dataframes-and-streaming-datasets">Creating streaming DataFrames and streaming Datasets</h2>
+<p>Streaming DataFrames can be created through the <code>DataStreamReader</code> interface 
+(<a href="api/scala/index.html#org.apache.spark.sql.streaming.DataStreamReader">Scala</a>/<a href="api/java/org/apache/spark/sql/streaming/DataStreamReader.html">Java</a>/<a href="api/python/pyspark.sql.html#pyspark.sql.streaming.DataStreamReader">Python</a> docs)
+returned by <code>SparkSession.readStream()</code>. Similar to the read interface for creating static DataFrame, you can specify the details of the source – data format, schema, options, etc.</p>
+
+<h4 id="input-sources">Input Sources</h4>
+<p>In Spark 2.0, there are a few built-in sources.</p>
+
+<ul>
+  <li>
+    <p><strong>File source</strong> - Reads files written in a directory as a stream of data. Supported file formats are text, csv, json, parquet. See the docs of the DataStreamReader interface for a more up-to-date list, and supported options for each file format. Note that the files must be atomically placed in the given directory, which in most file systems, can be achieved by file move operations.</p>
+  </li>
+  <li>
+    <p><strong>Kafka source</strong> - Poll data from Kafka. It&#8217;s compatible with Kafka broker versions 0.10.0 or higher. See the <a href="structured-streaming-kafka-integration.html">Kafka Integration Guide</a> for more details.</p>
+  </li>
+  <li>
+    <p><strong>Socket source (for testing)</strong> - Reads UTF8 text data from a socket connection. The listening server socket is at the driver. Note that this should be used only for testing as this does not provide end-to-end fault-tolerance guarantees.</p>
+  </li>
+</ul>
+
+<p>Some sources are not fault-tolerant because they do not guarantee that data can be replayed using 
+checkpointed offsets after a failure. See the earlier section on 
+<a href="#fault-tolerance-semantics">fault-tolerance semantics</a>.
+Here are the details of all the sources in Spark.</p>
+
+<table class="table">
+  <tr>
+    <th>Source</th>
+    <th>Options</th>
+    <th>Fault-tolerant</th>
+    <th>Notes</th>
+  </tr>
+  <tr>
+    <td><b>File source</b></td>
+    <td>
+        <code>path</code>: path to the input directory, and common to all file formats.
+        <br />
+        <code>maxFilesPerTrigger</code>: maximum number of new files to be considered in every trigger (default: no max)
+        <br />
+        <code>latestFirst</code>: whether to processs the latest new files first, useful when there is a large backlog of files(default: false)
+        <br /><br />
+        For file-format-specific options, see the related methods in <code>DataStreamReader</code>
+        (<a href="api/scala/index.html#org.apache.spark.sql.streaming.DataStreamReader">Scala</a>/<a href="api/java/org/apache/spark/sql/streaming/DataStreamReader.html">Java</a>/<a href="api/python/pyspark.sql.html#pyspark.sql.streaming.DataStreamReader">Python</a>).
+        E.g. for "parquet" format options see <code>DataStreamReader.parquet()</code></td>
+    <td>Yes</td>
+    <td>Supports glob paths, but does not support multiple comma-separated paths/globs.</td>
+  </tr>
+  <tr>
+    <td><b>Socket Source</b></td>
+    <td>
+        <code>host</code>: host to connect to, must be specified<br />
+        <code>port</code>: port to connect to, must be specified
+    </td>
+    <td>No</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td><b>Kafka Source</b></td>
+    <td>
+        See the <a href="structured-streaming-kafka-integration.html">Kafka Integration Guide</a>.
+    </td>
+    <td>Yes</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
+
+<p>Here are some examples.</p>
+
+<div class="codetabs">
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">val</span> <span class="n">spark</span><span class="k">:</span> <span class="kt">SparkSession</span> <span class="o">=</span> <span class="o">...</span>
+
+<span class="c1">// Read text from socket </span>
+<span class="k">val</span> <span class="n">socketDF</span> <span class="k">=</span> <span class="n">spark</span>
+  <span class="o">.</span><span class="n">readStream</span>
+  <span class="o">.</span><span class="n">format</span><span class="o">(</span><span class="s">&quot;socket&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">option</span><span class="o">(</span><span class="s">&quot;host&quot;</span><span class="o">,</span> <span class="s">&quot;localhost&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">option</span><span class="o">(</span><span class="s">&quot;port&quot;</span><span class="o">,</span> <span class="mi">9999</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">load</span><span class="o">()</span>
+
+<span class="n">socketDF</span><span class="o">.</span><span class="n">isStreaming</span>    <span class="c1">// Returns True for DataFrames that have streaming sources</span>
+
+<span class="n">socketDF</span><span class="o">.</span><span class="n">printSchema</span> 
+
+<span class="c1">// Read all the csv files written atomically in a directory</span>
+<span class="k">val</span> <span class="n">userSchema</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">StructType</span><span class="o">().</span><span class="n">add</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">,</span> <span class="s">&quot;string&quot;</span><span class="o">).</span><span class="n">add</span><span class="o">(</span><span class="s">&quot;age&quot;</span><span class="o">,</span> <span class="s">&quot;integer&quot;</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">csvDF</span> <span class="k">=</span> <span class="n">spark</span>
+  <span class="o">.</span><span class="n">readStream</span>
+  <span class="o">.</span><span class="n">option</span><span class="o">(</span><span class="s">&quot;sep&quot;</span><span class="o">,</span> <span class="s">&quot;;&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">schema</span><span class="o">(</span><span class="n">userSchema</span><span class="o">)</span>      <span class="c1">// Specify schema of the csv files</span>
+  <span class="o">.</span><span class="n">csv</span><span class="o">(</span><span class="s">&quot;/path/to/directory&quot;</span><span class="o">)</span>    <span class="c1">// Equivalent to format(&quot;csv&quot;).load(&quot;/path/to/directory&quot;)</span></code></pre></figure>
+
+  </div>
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">SparkSession</span> <span class="n">spark</span> <span class="o">=</span> <span class="o">...</span>
+
+<span class="c1">// Read text from socket </span>
+<span class="n">Dataset</span><span class="o">[</span><span class="n">Row</span><span class="o">]</span> <span class="n">socketDF</span> <span class="o">=</span> <span class="n">spark</span>
+  <span class="o">.</span><span class="na">readStream</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;socket&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">&quot;host&quot;</span><span class="o">,</span> <span class="s">&quot;localhost&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">&quot;port&quot;</span><span class="o">,</span> <span class="mi">9999</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">load</span><span class="o">();</span>
+
+<span class="n">socketDF</span><span class="o">.</span><span class="na">isStreaming</span><span class="o">();</span>    <span class="c1">// Returns True for DataFrames that have streaming sources</span>
+
+<span class="n">socketDF</span><span class="o">.</span><span class="na">printSchema</span><span class="o">();</span>
+
+<span class="c1">// Read all the csv files written atomically in a directory</span>
+<span class="n">StructType</span> <span class="n">userSchema</span> <span class="o">=</span> <span class="k">new</span> <span class="nf">StructType</span><span class="o">().</span><span class="na">add</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">,</span> <span class="s">&quot;string&quot;</span><span class="o">).</span><span class="na">add</span><span class="o">(</span><span class="s">&quot;age&quot;</span><span class="o">,</span> <span class="s">&quot;integer&quot;</span><span class="o">);</span>
+<span class="n">Dataset</span><span class="o">[</span><span class="n">Row</span><span class="o">]</span> <span class="n">csvDF</span> <span class="o">=</span> <span class="n">spark</span>
+  <span class="o">.</span><span class="na">readStream</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">&quot;sep&quot;</span><span class="o">,</span> <span class="s">&quot;;&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">schema</span><span class="o">(</span><span class="n">userSchema</span><span class="o">)</span>      <span class="c1">// Specify schema of the csv files</span>
+  <span class="o">.</span><span class="na">csv</span><span class="o">(</span><span class="s">&quot;/path/to/directory&quot;</span><span class="o">);</span>    <span class="c1">// Equivalent to format(&quot;csv&quot;).load(&quot;/path/to/directory&quot;)</span></code></pre></figure>
+
+  </div>
+<div data-lang="python">
+
+    <figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span> <span class="o">...</span>
+
+<span class="c"># Read text from socket </span>
+<span class="n">socketDF</span> <span class="o">=</span> <span class="n">spark</span> \
+    <span class="o">.</span><span class="n">readStream</span> \
+    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;socket&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s">&quot;host&quot;</span><span class="p">,</span> <span class="s">&quot;localhost&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s">&quot;port&quot;</span><span class="p">,</span> <span class="mi">9999</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">load</span><span class="p">()</span>
+
+<span class="n">socketDF</span><span class="o">.</span><span class="n">isStreaming</span><span class="p">()</span>    <span class="c"># Returns True for DataFrames that have streaming sources</span>
+
+<span class="n">socketDF</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span> 
+
+<span class="c"># Read all the csv files written atomically in a directory</span>
+<span class="n">userSchema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="s">&quot;string&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">&quot;age&quot;</span><span class="p">,</span> <span class="s">&quot;integer&quot;</span><span class="p">)</span>
+<span class="n">csvDF</span> <span class="o">=</span> <span class="n">spark</span> \
+    <span class="o">.</span><span class="n">readStream</span> \
+    <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s">&quot;sep&quot;</span><span class="p">,</span> <span class="s">&quot;;&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">schema</span><span class="p">(</span><span class="n">userSchema</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">csv</span><span class="p">(</span><span class="s">&quot;/path/to/directory&quot;</span><span class="p">)</span>  <span class="c"># Equivalent to format(&quot;csv&quot;).load(&quot;/path/to/directory&quot;)</span></code></pre></figure>
+
+  </div>
+</div>
+
+<p>These examples generate streaming DataFrames that are untyped, meaning that the schema of the DataFrame is not checked at compile time, only checked at runtime when the query is submitted. Some operations like <code>map</code>, <code>flatMap</code>, etc. need the type to be known at compile time. To do those, you can convert these untyped streaming DataFrames to typed streaming Datasets using the same methods as static DataFrame. See the <a href="sql-programming-guide.html">SQL Programming Guide</a> for more details. Additionally, more details on the supported streaming sources are discussed later in the document.</p>
+
+<h3 id="schema-inference-and-partition-of-streaming-dataframesdatasets">Schema inference and partition of streaming DataFrames/Datasets</h3>
+
+<p>By default, Structured Streaming from file based sources requires you to specify the schema, rather than rely on Spark to infer it automatically. This restriction ensures a consistent schema will be used for the streaming query, even in the case of failures. For ad-hoc use cases, you can reenable schema inference by setting <code>spark.sql.streaming.schemaInference</code> to <code>true</code>.</p>
+
+<p>Partition discovery does occur when subdirectories that are named <code>/key=value/</code> are present and listing will automatically recurse into these directories. If these columns appear in the user provided schema, they will be filled in by Spark based on the path of the file being read. The directories that make up the partitioning scheme must be present when the query starts and must remain static. For example, it is okay to add <code>/data/year=2016/</code> when <code>/data/year=2015/</code> was present, but it is invalid to change the partitioning column (i.e. by creating the directory <code>/data/date=2016-04-17/</code>).</p>
+
+<h2 id="operations-on-streaming-dataframesdatasets">Operations on streaming DataFrames/Datasets</h2>
+<p>You can apply all kinds of operations on streaming DataFrames/Datasets – ranging from untyped, SQL-like operations (e.g. <code>select</code>, <code>where</code>, <code>groupBy</code>), to typed RDD-like operations (e.g. <code>map</code>, <code>filter</code>, <code>flatMap</code>). See the <a href="sql-programming-guide.html">SQL programming guide</a> for more details. Let’s take a look at a few example operations that you can use.</p>
+
+<h3 id="basic-operations---selection-projection-aggregation">Basic Operations - Selection, Projection, Aggregation</h3>
+<p>Most of the common operations on DataFrame/Dataset are supported for streaming. The few operations that are not supported are <a href="#unsupported-operations">discussed later</a> in this section.</p>
+
+<div class="codetabs">
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">case</span> <span class="k">class</span> <span class="nc">DeviceData</span><span class="o">(</span><span class="n">device</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">deviceType</span><span class="k">:</span> <span class="kt">String</span><span class="o">,</span> <span class="n">signal</span><span class="k">:</span> <span class="kt">Double</span><span class="o">,</span> <span class="n">time</span><span class="k">:</span> <span class="kt">DateTime</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">df</span><span class="k">:</span> <span class="kt">DataFrame</span> <span class="o">=</span> <span class="o">...</span> <span class="c1">// streaming DataFrame with IOT device data with schema { device: string, deviceType: string, signal: double, time: string }</span>
+<span class="k">val</span> <span class="n">ds</span><span class="k">:</span> <span class="kt">Dataset</span><span class="o">[</span><span class="kt">DeviceData</span><span class="o">]</span> <span class="k">=</span> <span class="n">df</span><span class="o">.</span><span class="n">as</span><span class="o">[</span><span class="kt">DeviceData</span><span class="o">]</span>    <span class="c1">// streaming Dataset with IOT device data</span>
+
+<span class="c1">// Select the devices which have signal more than 10</span>
+<span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="o">(</span><span class="s">&quot;device&quot;</span><span class="o">).</span><span class="n">where</span><span class="o">(</span><span class="s">&quot;signal &gt; 10&quot;</span><span class="o">)</span>      <span class="c1">// using untyped APIs   </span>
+<span class="n">ds</span><span class="o">.</span><span class="n">filter</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">signal</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">device</span><span class="o">)</span>         <span class="c1">// using typed APIs</span>
+
+<span class="c1">// Running count of the number of updates for each device type</span>
+<span class="n">df</span><span class="o">.</span><span class="n">groupBy</span><span class="o">(</span><span class="s">&quot;deviceType&quot;</span><span class="o">).</span><span class="n">count</span><span class="o">()</span>                          <span class="c1">// using untyped API</span>
+
+<span class="c1">// Running average signal for each device type</span>
+<span class="k">import</span> <span class="nn">org.apache.spark.sql.expressions.scalalang.typed</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">groupByKey</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">deviceType</span><span class="o">).</span><span class="n">agg</span><span class="o">(</span><span class="n">typed</span><span class="o">.</span><span class="n">avg</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">signal</span><span class="o">))</span>    <span class="c1">// using typed API</span></code></pre></figure>
+
+  </div>
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kn">import</span> <span class="nn">org.apache.spark.api.java.function.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.spark.sql.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.spark.sql.expressions.javalang.typed</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.spark.sql.catalyst.encoders.ExpressionEncoder</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">DeviceData</span> <span class="o">{</span>
+  <span class="kd">private</span> <span class="n">String</span> <span class="n">device</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="n">String</span> <span class="n">deviceType</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="n">Double</span> <span class="n">signal</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="n">java</span><span class="o">.</span><span class="na">sql</span><span class="o">.</span><span class="na">Date</span> <span class="n">time</span><span class="o">;</span>
+  <span class="o">...</span>
+  <span class="c1">// Getter and setter methods for each field</span>
+<span class="o">}</span>
+
+<span class="n">Dataset</span><span class="o">&lt;</span><span class="n">Row</span><span class="o">&gt;</span> <span class="n">df</span> <span class="o">=</span> <span class="o">...;</span>    <span class="c1">// streaming DataFrame with IOT device data with schema { device: string, type: string, signal: double, time: DateType }</span>
+<span class="n">Dataset</span><span class="o">&lt;</span><span class="n">DeviceData</span><span class="o">&gt;</span> <span class="n">ds</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="na">as</span><span class="o">(</span><span class="n">ExpressionEncoder</span><span class="o">.</span><span class="na">javaBean</span><span class="o">(</span><span class="n">DeviceData</span><span class="o">.</span><span class="na">class</span><span class="o">));</span> <span class="c1">// streaming Dataset with IOT device data</span>
+
+<span class="c1">// Select the devices which have signal more than 10</span>
+<span class="n">df</span><span class="o">.</span><span class="na">select</span><span class="o">(</span><span class="s">&quot;device&quot;</span><span class="o">).</span><span class="na">where</span><span class="o">(</span><span class="s">&quot;signal &gt; 10&quot;</span><span class="o">);</span> <span class="c1">// using untyped APIs</span>
+<span class="n">ds</span><span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="k">new</span> <span class="n">FilterFunction</span><span class="o">&lt;</span><span class="n">DeviceData</span><span class="o">&gt;()</span> <span class="o">{</span> <span class="c1">// using typed APIs</span>
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">call</span><span class="o">(</span><span class="n">DeviceData</span> <span class="n">value</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="na">getSignal</span><span class="o">()</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}).</span><span class="na">map</span><span class="o">(</span><span class="k">new</span> <span class="n">MapFunction</span><span class="o">&lt;</span><span class="n">DeviceData</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;()</span> <span class="o">{</span>
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="n">String</span> <span class="nf">call</span><span class="o">(</span><span class="n">DeviceData</span> <span class="n">value</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="na">getDevice</span><span class="o">();</span>
+  <span class="o">}</span>
+<span class="o">},</span> <span class="n">Encoders</span><span class="o">.</span><span class="na">STRING</span><span class="o">());</span>
+
+<span class="c1">// Running count of the number of updates for each device type</span>
+<span class="n">df</span><span class="o">.</span><span class="na">groupBy</span><span class="o">(</span><span class="s">&quot;deviceType&quot;</span><span class="o">).</span><span class="na">count</span><span class="o">();</span> <span class="c1">// using untyped API</span>
+
+<span class="c1">// Running average signal for each device type</span>
+<span class="n">ds</span><span class="o">.</span><span class="na">groupByKey</span><span class="o">(</span><span class="k">new</span> <span class="n">MapFunction</span><span class="o">&lt;</span><span class="n">DeviceData</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;()</span> <span class="o">{</span> <span class="c1">// using typed API</span>
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="n">String</span> <span class="nf">call</span><span class="o">(</span><span class="n">DeviceData</span> <span class="n">value</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="na">getDeviceType</span><span class="o">();</span>
+  <span class="o">}</span>
+<span class="o">},</span> <span class="n">Encoders</span><span class="o">.</span><span class="na">STRING</span><span class="o">()).</span><span class="na">agg</span><span class="o">(</span><span class="n">typed</span><span class="o">.</span><span class="na">avg</span><span class="o">(</span><span class="k">new</span> <span class="n">MapFunction</span><span class="o">&lt;</span><span class="n">DeviceData</span><span class="o">,</span> <span class="n">Double</span><span class="o">&gt;()</span> <span class="o">{</span>
+  <span class="nd">@Override</span>
+  <span class="kd">public</span> <span class="n">Double</span> <span class="nf">call</span><span class="o">(</span><span class="n">DeviceData</span> <span class="n">value</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="na">getSignal</span><span class="o">();</span>
+  <span class="o">}</span>
+<span class="o">}));</span></code></pre></figure>
+
+  </div>
+<div data-lang="python">
+
+    <figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">df</span> <span class="o">=</span> <span class="o">...</span>  <span class="c"># streaming DataFrame with IOT device data with schema { device: string, deviceType: string, signal: double, time: DateType }</span>
+
+<span class="c"># Select the devices which have signal more than 10</span>
+<span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;device&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="s">&quot;signal &gt; 10&quot;</span><span class="p">)</span>                              
+
+<span class="c"># Running count of the number of updates for each device type</span>
+<span class="n">df</span><span class="o">.</span><span class="n">groupBy</span><span class="p">(</span><span class="s">&quot;deviceType&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span></code></pre></figure>
+
+  </div>
+</div>
+
+<h3 id="window-operations-on-event-time">Window Operations on Event Time</h3>
+<p>Aggregations over a sliding event-time window are straightforward with Structured Streaming. The key idea to understand about window-based aggregations are very similar to grouped aggregations. In a grouped aggregation, aggregate values (e.g. counts) are maintained for each unique value in the user-specified grouping column. In case of window-based aggregations, aggregate values are maintained for each window the event-time of a row falls into. Let&#8217;s understand this with an illustration.</p>
+
+<p>Imagine our <a href="#quick-example">quick example</a> is modified and the stream now contains lines along with the time when the line was generated. Instead of running word counts, we want to count words within 10 minute windows, updating every 5 minutes. That is, word counts in words received between 10 minute windows 12:00 - 12:10, 12:05 - 12:15, 12:10 - 12:20, etc. Note that 12:00 - 12:10 means data that arrived after 12:00 but before 12:10. Now, consider a word that was received at 12:07. This word should increment the counts corresponding to two windows 12:00 - 12:10 and 12:05 - 12:15. So the counts will be indexed by both, the grouping key (i.e. the word) and the window (can be calculated from the event-time).</p>
+
+<p>The result tables would look something like the following.</p>
+
+<p><img src="img/structured-streaming-window.png" alt="Window Operations" /></p>
+
+<p>Since this windowing is similar to grouping, in code, you can use <code>groupBy()</code> and <code>window()</code> operations to express windowed aggregations. You can see the full code for the below examples in
+<a href="https://github.com/apache/spark/blob/v2.1.2/examples/src/main/scala/org/apache/spark/examples/sql/streaming/StructuredNetworkWordCountWindowed.scala">Scala</a>/<a href="https://github.com/apache/spark/blob/v2.1.2/examples/src/main/java/org/apache/spark/examples/sql/streaming/JavaStructuredNetworkWordCountWindowed.java">Java</a>/<a href="https://github.com/apache/spark/blob/v2.1.2/examples/src/main/python/sql/streaming/structured_network_wordcount_windowed.py">Python</a>.</p>
+
+<div class="codetabs">
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">import</span> <span class="nn">spark.implicits._</span>
+
+<span class="k">val</span> <span class="n">words</span> <span class="k">=</span> <span class="o">...</span> <span class="c1">// streaming DataFrame of schema { timestamp: Timestamp, word: String }</span>
+
+<span class="c1">// Group the data by window and word and compute the count of each group</span>
+<span class="k">val</span> <span class="n">windowedCounts</span> <span class="k">=</span> <span class="n">words</span><span class="o">.</span><span class="n">groupBy</span><span class="o">(</span>
+  <span class="n">window</span><span class="o">(</span><span class="n">$</span><span class="s">&quot;timestamp&quot;</span><span class="o">,</span> <span class="s">&quot;10 minutes&quot;</span><span class="o">,</span> <span class="s">&quot;5 minutes&quot;</span><span class="o">),</span>
+  <span class="n">$</span><span class="s">&quot;word&quot;</span>
+<span class="o">).</span><span class="n">count</span><span class="o">()</span></code></pre></figure>
+
+  </div>
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">Dataset</span><span class="o">&lt;</span><span class="n">Row</span><span class="o">&gt;</span> <span class="n">words</span> <span class="o">=</span> <span class="o">...</span> <span class="c1">// streaming DataFrame of schema { timestamp: Timestamp, word: String }</span>
+
+<span class="c1">// Group the data by window and word and compute the count of each group</span>
+<span class="n">Dataset</span><span class="o">&lt;</span><span class="n">Row</span><span class="o">&gt;</span> <span class="n">windowedCounts</span> <span class="o">=</span> <span class="n">words</span><span class="o">.</span><span class="na">groupBy</span><span class="o">(</span>
+  <span class="n">functions</span><span class="o">.</span><span class="na">window</span><span class="o">(</span><span class="n">words</span><span class="o">.</span><span class="na">col</span><span class="o">(</span><span class="s">&quot;timestamp&quot;</span><span class="o">),</span> <span class="s">&quot;10 minutes&quot;</span><span class="o">,</span> <span class="s">&quot;5 minutes&quot;</span><span class="o">),</span>
+  <span class="n">words</span><span class="o">.</span><span class="na">col</span><span class="o">(</span><span class="s">&quot;word&quot;</span><span class="o">)</span>
+<span class="o">).</span><span class="na">count</span><span class="o">();</span></code></pre></figure>
+
+  </div>
+<div data-lang="python">
+
+    <figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">words</span> <span class="o">=</span> <span class="o">...</span>  <span class="c"># streaming DataFrame of schema { timestamp: Timestamp, word: String }</span>
+
+<span class="c"># Group the data by window and word and compute the count of each group</span>
+<span class="n">windowedCounts</span> <span class="o">=</span> <span class="n">words</span><span class="o">.</span><span class="n">groupBy</span><span class="p">(</span>
+    <span class="n">window</span><span class="p">(</span><span class="n">words</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="s">&quot;10 minutes&quot;</span><span class="p">,</span> <span class="s">&quot;5 minutes&quot;</span><span class="p">),</span>
+    <span class="n">words</span><span class="o">.</span><span class="n">word</span>
+<span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span></code></pre></figure>
+
+  </div>
+</div>
+
+<h3 id="handling-late-data-and-watermarking">Handling Late Data and Watermarking</h3>
+<p>Now consider what happens if one of the events arrives late to the application.
+For example, say, a word generated at 12:04 (i.e. event time) could be received received by 
+the application at 12:11. The application should use the time 12:04 instead of 12:11
+to update the older counts for the window <code>12:00 - 12:10</code>. This occurs 
+naturally in our window-based grouping – Structured Streaming can maintain the intermediate state 
+for partial aggregates for a long period of time such that late data can update aggregates of 
+old windows correctly, as illustrated below.</p>
+
+<p><img src="img/structured-streaming-late-data.png" alt="Handling Late Data" /></p>
+
+<p>However, to run this query for days, its necessary for the system to bound the amount of 
+intermediate in-memory state it accumulates. This means the system needs to know when an old 
+aggregate can be dropped from the in-memory state because the application is not going to receive 
+late data for that aggregate any more. To enable this, in Spark 2.1, we have introduced 
+<strong>watermarking</strong>, which let&#8217;s the engine automatically track the current event time in the data and
+and attempt to clean up old state accordingly. You can define the watermark of a query by 
+specifying the event time column and the threshold on how late the data is expected be in terms of 
+event time. For a specific window starting at time <code>T</code>, the engine will maintain state and allow late
+data to be update the state until <code>(max event time seen by the engine - late threshold &gt; T)</code>. 
+In other words, late data within the threshold will be aggregated, 
+but data later than the threshold will be dropped. Let&#8217;s understand this with an example. We can 
+easily define watermarking on the previous example using <code>withWatermark()</code> as shown below.</p>
+
+<div class="codetabs">
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">import</span> <span class="nn">spark.implicits._</span>
+
+<span class="k">val</span> <span class="n">words</span> <span class="k">=</span> <span class="o">...</span> <span class="c1">// streaming DataFrame of schema { timestamp: Timestamp, word: String }</span>
+
+<span class="c1">// Group the data by window and word and compute the count of each group</span>
+<span class="k">val</span> <span class="n">windowedCounts</span> <span class="k">=</span> <span class="n">words</span>
+    <span class="o">.</span><span class="n">withWatermark</span><span class="o">(</span><span class="s">&quot;timestamp&quot;</span><span class="o">,</span> <span class="s">&quot;10 minutes&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="n">groupBy</span><span class="o">(</span>
+        <span class="n">window</span><span class="o">(</span><span class="n">$</span><span class="s">&quot;timestamp&quot;</span><span class="o">,</span> <span class="s">&quot;10 minutes&quot;</span><span class="o">,</span> <span class="s">&quot;5 minutes&quot;</span><span class="o">),</span>
+        <span class="n">$</span><span class="s">&quot;word&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="n">count</span><span class="o">()</span></code></pre></figure>
+
+  </div>
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">Dataset</span><span class="o">&lt;</span><span class="n">Row</span><span class="o">&gt;</span> <span class="n">words</span> <span class="o">=</span> <span class="o">...</span> <span class="c1">// streaming DataFrame of schema { timestamp: Timestamp, word: String }</span>
+
+<span class="c1">// Group the data by window and word and compute the count of each group</span>
+<span class="n">Dataset</span><span class="o">&lt;</span><span class="n">Row</span><span class="o">&gt;</span> <span class="n">windowedCounts</span> <span class="o">=</span> <span class="n">words</span>
+    <span class="o">.</span><span class="na">withWatermark</span><span class="o">(</span><span class="s">&quot;timestamp&quot;</span><span class="o">,</span> <span class="s">&quot;10 minutes&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="na">groupBy</span><span class="o">(</span>
+        <span class="n">functions</span><span class="o">.</span><span class="na">window</span><span class="o">(</span><span class="n">words</span><span class="o">.</span><span class="na">col</span><span class="o">(</span><span class="s">&quot;timestamp&quot;</span><span class="o">),</span> <span class="s">&quot;10 minutes&quot;</span><span class="o">,</span> <span class="s">&quot;5 minutes&quot;</span><span class="o">),</span>
+        <span class="n">words</span><span class="o">.</span><span class="na">col</span><span class="o">(</span><span class="s">&quot;word&quot;</span><span class="o">))</span>
+    <span class="o">.</span><span class="na">count</span><span class="o">();</span></code></pre></figure>
+
+  </div>
+<div data-lang="python">
+
+    <figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">words</span> <span class="o">=</span> <span class="o">...</span>  <span class="c"># streaming DataFrame of schema { timestamp: Timestamp, word: String }</span>
+
+<span class="c"># Group the data by window and word and compute the count of each group</span>
+<span class="n">windowedCounts</span> <span class="o">=</span> <span class="n">words</span> \
+    <span class="o">.</span><span class="n">withWatermark</span><span class="p">(</span><span class="s">&quot;timestamp&quot;</span><span class="p">,</span> <span class="s">&quot;10 minutes&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">groupBy</span><span class="p">(</span>
+        <span class="n">window</span><span class="p">(</span><span class="n">words</span><span class="o">.</span><span class="n">timestamp</span><span class="p">,</span> <span class="s">&quot;10 minutes&quot;</span><span class="p">,</span> <span class="s">&quot;5 minutes&quot;</span><span class="p">),</span>
+        <span class="n">words</span><span class="o">.</span><span class="n">word</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">count</span><span class="p">()</span></code></pre></figure>
+
+  </div>
+</div>
+
+<p>In this example, we are defining the watermark of the query on the value of the column &#8220;timestamp&#8221;, 
+and also defining &#8220;10 minutes&#8221; as the threshold of how late is the data allowed to be. If this query 
+is run in Update output mode (discussed later in <a href="#output-modes">Output Modes</a> section), 
+the engine will keep updating counts of a window in the Resule Table until the window is older 
+than the watermark, which lags behind the current event time in column &#8220;timestamp&#8221; by 10 minutes.
+Here is an illustration.</p>
+
+<p><img src="img/structured-streaming-watermark-update-mode.png" alt="Watermarking in Update Mode" /></p>
+
+<p>As shown in the illustration, the maximum event time tracked by the engine is the 
+<em>blue dashed line</em>, and the watermark set as <code>(max event time - '10 mins')</code>
+at the beginning of every trigger is the red line  For example, when the engine observes the data 
+<code>(12:14, dog)</code>, it sets the watermark for the next trigger as <code>12:04</code>.
+This watermark lets the engine maintain intermediate state for additional 10 minutes to allow late
+data to be counted. For example, the data <code>(12:09, cat)</code> is out of order and late, and it falls in
+windows <code>12:05 - 12:15</code> and <code>12:10 - 12:20</code>. Since, it is still ahead of the watermark <code>12:04</code> in 
+the trigger, the engine still maintains the intermediate counts as state and correctly updates the 
+counts of the related windows. However, when the watermark is updated to 12:11, the intermediate 
+state for window <code>(12:00 - 12:10)</code> is cleared, and all subsequent data (e.g. <code>(12:04, donkey)</code>) 
+is considered &#8220;too late&#8221; and therefore ignored. Note that after every trigger, 
+the updated counts (i.e. purple rows) are written to sink as the trigger output, as dictated by 
+the Update mode.</p>
+
+<p>Some sinks (e.g. files) may not supported fine-grained updates that Update Mode requires. To work
+with them, we have also support Append Mode, where only the <em>final counts</em> are written to sink.
+This is illustrated below.</p>
+
+<p><img src="img/structured-streaming-watermark-append-mode.png" alt="Watermarking in Append Mode" /></p>
+
+<p>Similar to the Update Mode earlier, the engine maintains intermediate counts for each window. 
+However, the partial counts are not updated to the Result Table and not written to sink. The engine
+waits for &#8220;10 mins&#8221; for late date to be counted, 
+then drops intermediate state of a window &lt; watermark, and appends the final
+counts to the Result Table/sink. For example, the final counts of window <code>12:00 - 12:10</code> is 
+appended to the Result Table only after the watermark is updated to <code>12:11</code>.</p>
+
+<p><strong>Conditions for watermarking to clean aggregation state</strong>
+It is important to note that the following conditions must be satisfied for the watermarking to 
+clean the state in aggregation queries <em>(as of Spark 2.1.1, subject to change in the future)</em>.</p>
+
+<ul>
+  <li>
+    <p><strong>Output mode must be Append or Update.</strong> Complete mode requires all aggregate data to be preserved, 
+and hence cannot use watermarking to drop intermediate state. See the <a href="#output-modes">Output Modes</a> 
+section for detailed explanation of the semantics of each output mode.</p>
+  </li>
+  <li>
+    <p>The aggregation must have either the event-time column, or a <code>window</code> on the event-time column.</p>
+  </li>
+  <li>
+    <p><code>withWatermark</code> must be called on the 
+same column as the timestamp column used in the aggregate. For example, 
+<code>df.withWatermark("time", "1 min").groupBy("time2").count()</code> is invalid 
+in Append output mode, as watermark is defined on a different column
+as the aggregation column.</p>
+  </li>
+  <li>
+    <p><code>withWatermark</code> must be called before the aggregation for the watermark details to be used. 
+For example, <code>df.groupBy("time").count().withWatermark("time", "1 min")</code> is invalid in Append 
+output mode.</p>
+  </li>
+</ul>
+
+<h3 id="join-operations">Join Operations</h3>
+<p>Streaming DataFrames can be joined with static DataFrames to create new streaming DataFrames. Here are a few examples.</p>
+
+<div class="codetabs">
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">val</span> <span class="n">staticDf</span> <span class="k">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span> <span class="o">...</span>
+<span class="k">val</span> <span class="n">streamingDf</span> <span class="k">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">readStream</span><span class="o">.</span> <span class="o">...</span> 
+
+<span class="n">streamingDf</span><span class="o">.</span><span class="n">join</span><span class="o">(</span><span class="n">staticDf</span><span class="o">,</span> <span class="s">&quot;type&quot;</span><span class="o">)</span>          <span class="c1">// inner equi-join with a static DF</span>
+<span class="n">streamingDf</span><span class="o">.</span><span class="n">join</span><span class="o">(</span><span class="n">staticDf</span><span class="o">,</span> <span class="s">&quot;type&quot;</span><span class="o">,</span> <span class="s">&quot;right_join&quot;</span><span class="o">)</span>  <span class="c1">// right outer join with a static DF  </span></code></pre></figure>
+
+  </div>
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">Dataset</span><span class="o">&lt;</span><span class="n">Row</span><span class="o">&gt;</span> <span class="n">staticDf</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="na">read</span><span class="o">.</span> <span class="o">...;</span>
+<span class="n">Dataset</span><span class="o">&lt;</span><span class="n">Row</span><span class="o">&gt;</span> <span class="n">streamingDf</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="na">readStream</span><span class="o">.</span> <span class="o">...;</span>
+<span class="n">streamingDf</span><span class="o">.</span><span class="na">join</span><span class="o">(</span><span class="n">staticDf</span><span class="o">,</span> <span class="s">&quot;type&quot;</span><span class="o">);</span>         <span class="c1">// inner equi-join with a static DF</span>
+<span class="n">streamingDf</span><span class="o">.</span><span class="na">join</span><span class="o">(</span><span class="n">staticDf</span><span class="o">,</span> <span class="s">&quot;type&quot;</span><span class="o">,</span> <span class="s">&quot;right_join&quot;</span><span class="o">);</span>  <span class="c1">// right outer join with a static DF</span></code></pre></figure>
+
+  </div>
+<div data-lang="python">
+
+    <figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">staticDf</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span> <span class="o">...</span>
+<span class="n">streamingDf</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">readStream</span><span class="o">.</span> <span class="o">...</span>
+<span class="n">streamingDf</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">staticDf</span><span class="p">,</span> <span class="s">&quot;type&quot;</span><span class="p">)</span>  <span class="c"># inner equi-join with a static DF</span>
+<span class="n">streamingDf</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">staticDf</span><span class="p">,</span> <span class="s">&quot;type&quot;</span><span class="p">,</span> <span class="s">&quot;right_join&quot;</span><span class="p">)</span>  <span class="c"># right outer join with a static DF</span></code></pre></figure>
+
+  </div>
+</div>
+
+<h3 id="unsupported-operations">Unsupported Operations</h3>
+<p>There are a few DataFrame/Dataset operations that are not supported with streaming DataFrames/Datasets. 
+Some of them are as follows.</p>
+
+<ul>
+  <li>
+    <p>Multiple streaming aggregations (i.e. a chain of aggregations on a streaming DF) are not yet supported on streaming Datasets.</p>
+  </li>
+  <li>
+    <p>Limit and take first N rows are not supported on streaming Datasets.</p>
+  </li>
+  <li>
+    <p>Distinct operations on streaming Datasets are not supported.</p>
+  </li>
+  <li>
+    <p>Sorting operations are supported on streaming Datasets only after an aggregation and in Complete Output Mode.</p>
+  </li>
+  <li>
+    <p>Outer joins between a streaming and a static Datasets are conditionally supported.</p>
+
+    <ul>
+      <li>
+        <p>Full outer join with a streaming Dataset is not supported</p>
+      </li>
+      <li>
+        <p>Left outer join with a streaming Dataset on the right is not supported</p>
+      </li>
+      <li>
+        <p>Right outer join with a streaming Dataset on the left is not supported</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>Any kind of joins between two streaming Datasets are not yet supported.</p>
+  </li>
+</ul>
+
+<p>In addition, there are some Dataset methods that will not work on streaming Datasets. They are actions that will immediately run queries and return results, which does not make sense on a streaming Dataset. Rather, those functionalities can be done by explicitly starting a streaming query (see the next section regarding that).</p>
+
+<ul>
+  <li>
+    <p><code>count()</code> - Cannot return a single count from a streaming Dataset. Instead, use <code>ds.groupBy.count()</code> which returns a streaming Dataset containing a running count.</p>
+  </li>
+  <li>
+    <p><code>foreach()</code> - Instead use <code>ds.writeStream.foreach(...)</code> (see next section).</p>
+  </li>
+  <li>
+    <p><code>show()</code> - Instead use the console sink (see next section).</p>
+  </li>
+</ul>
+
+<p>If you try any of these operations, you will see an <code>AnalysisException</code> like &#8220;operation XYZ is not supported with streaming DataFrames/Datasets&#8221;.
+While some of them may be supported in future releases of Spark, 
+there are others which are fundamentally hard to implement on streaming data efficiently. 
+For example, sorting on the input stream is not supported, as it requires keeping 
+track of all the data received in the stream. This is therefore fundamentally hard to execute 
+efficiently.</p>
+
+<h2 id="starting-streaming-queries">Starting Streaming Queries</h2>
+<p>Once you have defined the final result DataFrame/Dataset, all that is left is for you start the streaming computation. To do that, you have to use the <code>DataStreamWriter</code>
+(<a href="api/scala/index.html#org.apache.spark.sql.streaming.DataStreamWriter">Scala</a>/<a href="api/java/org/apache/spark/sql/streaming/DataStreamWriter.html">Java</a>/<a href="api/python/pyspark.sql.html#pyspark.sql.streaming.DataStreamWriter">Python</a> docs)
+returned through <code>Dataset.writeStream()</code>. You will have to specify one or more of the following in this interface.</p>
+
+<ul>
+  <li>
+    <p><em>Details of the output sink:</em> Data format, location, etc.</p>
+  </li>
+  <li>
+    <p><em>Output mode:</em> Specify what gets written to the output sink.</p>
+  </li>
+  <li>
+    <p><em>Query name:</em> Optionally, specify a unique name of the query for identification.</p>
+  </li>
+  <li>
+    <p><em>Trigger interval:</em> Optionally, specify the trigger interval. If it is not specified, the system will check for availability of new data as soon as the previous processing has completed. If a trigger time is missed because the previous processing has not completed, then the system will attempt to trigger at the next trigger point, not immediately after the processing has completed.</p>
+  </li>
+  <li>
+    <p><em>Checkpoint location:</em> For some output sinks where the end-to-end fault-tolerance can be guaranteed, specify the location where the system will write all the checkpoint information. This should be a directory in an HDFS-compatible fault-tolerant file system. The semantics of checkpointing is discussed in more detail in the next section.</p>
+  </li>
+</ul>
+
+<h4 id="output-modes">Output Modes</h4>
+<p>There are a few types of output modes.</p>
+
+<ul>
+  <li>
+    <p><strong>Append mode (default)</strong> - This is the default mode, where only the 
+new rows added to the Result Table since the last trigger will be 
+outputted to the sink. This is supported for only those queries where 
+rows added to the Result Table is never going to change. Hence, this mode 
+guarantees that each row will be output only once (assuming 
+fault-tolerant sink). For example, queries with only <code>select</code>, 
+<code>where</code>, <code>map</code>, <code>flatMap</code>, <code>filter</code>, <code>join</code>, etc. will support Append mode.</p>
+  </li>
+  <li>
+    <p><strong>Complete mode</strong> - The whole Result Table will be outputted to the sink after every trigger.
+ This is supported for aggregation queries.</p>
+  </li>
+  <li>
+    <p><strong>Update mode</strong> - (<em>Available since Spark 2.1.1</em>) Only the rows in the Result Table that were 
+updated since the last trigger will be outputted to the sink. 
+More information to be added in future releases.</p>
+  </li>
+</ul>
+
+<p>Different types of streaming queries support different output modes.
+Here is the compatibility matrix.</p>
+
+<table class="table">
+  <tr>
+    <th>Query Type</th>
+    <th></th>
+    <th>Supported Output Modes</th>
+    <th>Notes</th>        
+  </tr>
+  <tr>
+    <td colspan="2" style="vertical-align: middle;">Queries without aggregation</td>
+    <td style="vertical-align: middle;">Append, Update</td>
+    <td style="vertical-align: middle;">
+        Complete mode not supported as it is infeasible to keep all data in the Result Table.
+    </td>
+  </tr>
+  <tr>
+    <td rowspan="2" style="vertical-align: middle;">Queries with aggregation</td>
+    <td style="vertical-align: middle;">Aggregation on event-time with watermark</td>
+    <td style="vertical-align: middle;">Append, Update, Complete</td>
+    <td>
+        Append mode uses watermark to drop old aggregation state. But the output of a 
+        windowed aggregation is delayed the late threshold specified in `withWatermark()` as by
+        the modes semantics, rows can be added to the Result Table only once after they are 
+        finalized (i.e. after watermark is crossed). See the
+        <a href="#handling-late-data-and-watermarking">Late Data</a> section for more details.
+        <br /><br />
+        Update mode uses watermark to drop old aggregation state.
+        <br /><br />
+        Complete mode does not drop old aggregation state since by definition this mode
+        preserves all data in the Result Table.
+    </td>    
+  </tr>
+  <tr>
+    <td style="vertical-align: middle;">Other aggregations</td>
+    <td style="vertical-align: middle;">Complete, Update</td>
+    <td>
+        Since no watermark is defined (only defined in other category), 
+        old aggregation state is not dropped.
+        <br /><br />
+        Append mode is not supported as aggregates can update thus violating the semantics of 
+        this mode.
+    </td>  
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
+
+<h4 id="output-sinks">Output Sinks</h4>
+<p>There are a few types of built-in output sinks.</p>
+
+<ul>
+  <li><strong>File sink</strong> - Stores the output to a directory.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="n">writeStream</span>
+    <span class="o">.</span><span class="n">format</span><span class="o">(</span><span class="s">&quot;parquet&quot;</span><span class="o">)</span>        <span class="c1">// can be &quot;orc&quot;, &quot;json&quot;, &quot;csv&quot;, etc.</span>
+    <span class="o">.</span><span class="n">option</span><span class="o">(</span><span class="s">&quot;path&quot;</span><span class="o">,</span> <span class="s">&quot;path/to/destination/dir&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="n">start</span><span class="o">()</span></code></pre></figure>
+
+<ul>
+  <li><strong>Foreach sink</strong> - Runs arbitrary computation on the records in the output. See later in the section for more details.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="n">writeStream</span>
+    <span class="o">.</span><span class="n">foreach</span><span class="o">(...)</span>
+    <span class="o">.</span><span class="n">start</span><span class="o">()</span></code></pre></figure>
+
+<ul>
+  <li><strong>Console sink (for debugging)</strong> - Prints the output to the console/stdout every time there is a trigger. Both, Append and Complete output modes, are supported. This should be used for debugging purposes on low data volumes as the entire output is collected and stored in the driver&#8217;s memory after every trigger.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="n">writeStream</span>
+    <span class="o">.</span><span class="n">format</span><span class="o">(</span><span class="s">&quot;console&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="n">start</span><span class="o">()</span></code></pre></figure>
+
+<ul>
+  <li><strong>Memory sink (for debugging)</strong> - The output is stored in memory as an in-memory table.
+Both, Append and Complete output modes, are supported. This should be used for debugging purposes
+on low data volumes as the entire output is collected and stored in the driver&#8217;s memory.
+Hence, use it with caution.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="n">writeStream</span>
+    <span class="o">.</span><span class="n">format</span><span class="o">(</span><span class="s">&quot;memory&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="n">queryName</span><span class="o">(</span><span class="s">&quot;tableName&quot;</span><span class="o">)</span>
+    <span class="o">.</span><span class="n">start</span><span class="o">()</span></code></pre></figure>
+
+<p>Some sinks are not fault-tolerant because they do not guarantee persistence of the output and are 
+meant for debugging purposes only. See the earlier section on 
+<a href="#fault-tolerance-semantics">fault-tolerance semantics</a>. 
+Here are the details of all the sinks in Spark.</p>
+
+<table class="table">
+  <tr>
+    <th>Sink</th>
+    <th>Supported Output Modes</th>
+    <th>Options</th>
+    <th>Fault-tolerant</th>
+    <th>Notes</th>
+  </tr>
+  <tr>
+    <td><b>File Sink</b></td>
+    <td>Append</td>
+    <td>
+        <code>path</code>: path to the output directory, must be specified.
+        <br /><br />
+        For file-format-specific options, see the related methods in DataFrameWriter
+        (<a href="api/scala/index.html#org.apache.spark.sql.DataFrameWriter">Scala</a>/<a href="api/java/org/apache/spark/sql/DataFrameWriter.html">Java</a>/<a href="api/python/pyspark.sql.html#pyspark.sql.DataFrameWriter">Python</a>).
+        E.g. for "parquet" format options see <code>DataFrameWriter.parquet()</code>
+    </td>
+    <td>Yes</td>
+    <td>Supports writes to partitioned tables. Partitioning by time may be useful.</td>
+  </tr>
+  <tr>
+    <td><b>Foreach Sink</b></td>
+    <td>Append, Update, Compelete</td>
+    <td>None</td>
+    <td>Depends on ForeachWriter implementation</td>
+    <td>More details in the <a href="#using-foreach">next section</a></td>
+  </tr>
+  <tr>
+    <td><b>Console Sink</b></td>
+    <td>Append, Update, Complete</td>
+    <td>
+        <code>numRows</code>: Number of rows to print every trigger (default: 20)
+        <br />
+        <code>truncate</code>: Whether to truncate the output if too long (default: true)
+    </td>
+    <td>No</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td><b>Memory Sink</b></td>
+    <td>Append, Complete</td>
+    <td>None</td>
+    <td>No. But in Complete Mode, restarted query will recreate the full table.</td>
+    <td>Table name is the query name.</td>
+  </tr>
+  <tr>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+    <td></td>
+  </tr>
+</table>
+
+<p>Note that you have to call <code>start()</code> to actually start the execution of the query. This returns a StreamingQuery object which is a handle to the continuously running execution. You can use this object to manage the query, which we will discuss in the next subsection. For now, let’s understand all this with a few examples.</p>
+
+<div class="codetabs">
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="c1">// ========== DF with no aggregations ==========</span>
+<span class="k">val</span> <span class="n">noAggDF</span> <span class="k">=</span> <span class="n">deviceDataDf</span><span class="o">.</span><span class="n">select</span><span class="o">(</span><span class="s">&quot;device&quot;</span><span class="o">).</span><span class="n">where</span><span class="o">(</span><span class="s">&quot;signal &gt; 10&quot;</span><span class="o">)</span>   
+
+<span class="c1">// Print new data to console</span>
+<span class="n">noAggDF</span>
+  <span class="o">.</span><span class="n">writeStream</span>
+  <span class="o">.</span><span class="n">format</span><span class="o">(</span><span class="s">&quot;console&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">start</span><span class="o">()</span>
+
+<span class="c1">// Write new data to Parquet files</span>
+<span class="n">noAggDF</span>
+  <span class="o">.</span><span class="n">writeStream</span>
+  <span class="o">.</span><span class="n">format</span><span class="o">(</span><span class="s">&quot;parquet&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">option</span><span class="o">(</span><span class="s">&quot;checkpointLocation&quot;</span><span class="o">,</span> <span class="s">&quot;path/to/checkpoint/dir&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">option</span><span class="o">(</span><span class="s">&quot;path&quot;</span><span class="o">,</span> <span class="s">&quot;path/to/destination/dir&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">start</span><span class="o">()</span>
+   
+<span class="c1">// ========== DF with aggregation ==========</span>
+<span class="k">val</span> <span class="n">aggDF</span> <span class="k">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupBy</span><span class="o">(</span><span class="s">&quot;device&quot;</span><span class="o">).</span><span class="n">count</span><span class="o">()</span>
+
+<span class="c1">// Print updated aggregations to console</span>
+<span class="n">aggDF</span>
+  <span class="o">.</span><span class="n">writeStream</span>
+  <span class="o">.</span><span class="n">outputMode</span><span class="o">(</span><span class="s">&quot;complete&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">format</span><span class="o">(</span><span class="s">&quot;console&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">start</span><span class="o">()</span>
+
+<span class="c1">// Have all the aggregates in an in-memory table </span>
+<span class="n">aggDF</span>
+  <span class="o">.</span><span class="n">writeStream</span>
+  <span class="o">.</span><span class="n">queryName</span><span class="o">(</span><span class="s">&quot;aggregates&quot;</span><span class="o">)</span>    <span class="c1">// this query name will be the table name</span>
+  <span class="o">.</span><span class="n">outputMode</span><span class="o">(</span><span class="s">&quot;complete&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">format</span><span class="o">(</span><span class="s">&quot;memory&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">start</span><span class="o">()</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="o">(</span><span class="s">&quot;select * from aggregates&quot;</span><span class="o">).</span><span class="n">show</span><span class="o">()</span>   <span class="c1">// interactively query in-memory table</span></code></pre></figure>
+
+  </div>
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="c1">// ========== DF with no aggregations ==========</span>
+<span class="n">Dataset</span><span class="o">&lt;</span><span class="n">Row</span><span class="o">&gt;</span> <span class="n">noAggDF</span> <span class="o">=</span> <span class="n">deviceDataDf</span><span class="o">.</span><span class="na">select</span><span class="o">(</span><span class="s">&quot;device&quot;</span><span class="o">).</span><span class="na">where</span><span class="o">(</span><span class="s">&quot;signal &gt; 10&quot;</span><span class="o">);</span>
+
+<span class="c1">// Print new data to console</span>
+<span class="n">noAggDF</span>
+  <span class="o">.</span><span class="na">writeStream</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;console&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">start</span><span class="o">();</span>
+
+<span class="c1">// Write new data to Parquet files</span>
+<span class="n">noAggDF</span>
+  <span class="o">.</span><span class="na">writeStream</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;parquet&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">&quot;checkpointLocation&quot;</span><span class="o">,</span> <span class="s">&quot;path/to/checkpoint/dir&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">&quot;path&quot;</span><span class="o">,</span> <span class="s">&quot;path/to/destination/dir&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">start</span><span class="o">();</span>
+   
+<span class="c1">// ========== DF with aggregation ==========</span>
+<span class="n">Dataset</span><span class="o">&lt;</span><span class="n">Row</span><span class="o">&gt;</span> <span class="n">aggDF</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="na">groupBy</span><span class="o">(</span><span class="s">&quot;device&quot;</span><span class="o">).</span><span class="na">count</span><span class="o">();</span>
+
+<span class="c1">// Print updated aggregations to console</span>
+<span class="n">aggDF</span>
+  <span class="o">.</span><span class="na">writeStream</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">outputMode</span><span class="o">(</span><span class="s">&quot;complete&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;console&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">start</span><span class="o">();</span>
+
+<span class="c1">// Have all the aggregates in an in-memory table </span>
+<span class="n">aggDF</span>
+  <span class="o">.</span><span class="na">writeStream</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">queryName</span><span class="o">(</span><span class="s">&quot;aggregates&quot;</span><span class="o">)</span>    <span class="c1">// this query name will be the table name</span>
+  <span class="o">.</span><span class="na">outputMode</span><span class="o">(</span><span class="s">&quot;complete&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;memory&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">start</span><span class="o">();</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="na">sql</span><span class="o">(</span><span class="s">&quot;select * from aggregates&quot;</span><span class="o">).</span><span class="na">show</span><span class="o">();</span>   <span class="c1">// interactively query in-memory table</span></code></pre></figure>
+
+  </div>
+<div data-lang="python">
+
+    <figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c"># ========== DF with no aggregations ==========</span>
+<span class="n">noAggDF</span> <span class="o">=</span> <span class="n">deviceDataDf</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s">&quot;device&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="s">&quot;signal &gt; 10&quot;</span><span class="p">)</span>   
+
+<span class="c"># Print new data to console</span>
+<span class="n">noAggDF</span> \
+    <span class="o">.</span><span class="n">writeStream</span> \
+    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;console&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="c"># Write new data to Parquet files</span>
+<span class="n">noAggDF</span> \
+    <span class="o">.</span><span class="n">writeStream</span> \
+    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;parquet&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s">&quot;checkpointLocation&quot;</span><span class="p">,</span> <span class="s">&quot;path/to/checkpoint/dir&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s">&quot;path&quot;</span><span class="p">,</span> <span class="s">&quot;path/to/destination/dir&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">start</span><span class="p">()</span>
+   
+<span class="c"># ========== DF with aggregation ==========</span>
+<span class="n">aggDF</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupBy</span><span class="p">(</span><span class="s">&quot;device&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+
+<span class="c"># Print updated aggregations to console</span>
+<span class="n">aggDF</span> \
+    <span class="o">.</span><span class="n">writeStream</span> \
+    <span class="o">.</span><span class="n">outputMode</span><span class="p">(</span><span class="s">&quot;complete&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;console&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="c"># Have all the aggregates in an in memory table. The query name will be the table name</span>
+<span class="n">aggDF</span> \
+    <span class="o">.</span><span class="n">writeStream</span> \
+    <span class="o">.</span><span class="n">queryName</span><span class="p">(</span><span class="s">&quot;aggregates&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">outputMode</span><span class="p">(</span><span class="s">&quot;complete&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;memory&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s">&quot;select * from aggregates&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>   <span class="c"># interactively query in-memory table</span></code></pre></figure>
+
+  </div>
+</div>
+
+<h4 id="using-foreach">Using Foreach</h4>
+<p>The <code>foreach</code> operation allows arbitrary operations to be computed on the output data. As of Spark 2.1, this is available only for Scala and Java. To use this, you will have to implement the interface <code>ForeachWriter</code>
+(<a href="api/scala/index.html#org.apache.spark.sql.ForeachWriter">Scala</a>/<a href="api/java/org/apache/spark/sql/ForeachWriter.html">Java</a> docs),
+which has methods that get called whenever there is a sequence of rows generated as output after a trigger. Note the following important points.</p>
+
+<ul>
+  <li>
+    <p>The writer must be serializable, as it will be serialized and sent to the executors for execution.</p>
+  </li>
+  <li>
+    <p>All the three methods, <code>open</code>, <code>process</code> and <code>close</code> will be called on the executors.</p>
+  </li>
+  <li>
+    <p>The writer must do all the initialization (e.g. opening connections, starting a transaction, etc.) only when the <code>open</code> method is called. Be aware that, if there is any initialization in the class as soon as the object is created, then that initialization will happen in the driver (because that is where the instance is being created), which may not be what you intend.</p>
+  </li>
+  <li>
+    <p><code>version</code> and <code>partition</code> are two parameters in <code>open</code> that uniquely represent a set of rows that needs to be pushed out. <code>version</code> is a monotonically increasing id that increases with every trigger. <code>partition</code> is an id that represents a partition of the output, since the output is distributed and will be processed on multiple executors.</p>
+  </li>
+  <li>
+    <p><code>open</code> can use the <code>version</code> and <code>partition</code> to choose whether it needs to write the sequence of rows. Accordingly, it can return <code>true</code> (proceed with writing), or <code>false</code> (no need to write). If <code>false</code> is returned, then <code>process</code> will not be called on any row. For example, after a partial failure, some of the output partitions of the failed trigger may have already been committed to a database. Based on metadata stored in the database, the writer can identify partitions that have already been committed and accordingly return false to skip committing them again.</p>
+  </li>
+  <li>
+    <p>Whenever <code>open</code> is called, <code>close</code> will also be called (unless the JVM exits due to some error). This is true even if <code>open</code> returns false. If there is any error in processing and writing the data, <code>close</code> will be called with the error. It is your responsibility to clean up state (e.g. connections, transactions, etc.) that have been created in <code>open</code> such that there are no resource leaks.</p>
+  </li>
+</ul>
+
+<h2 id="managing-streaming-queries">Managing Streaming Queries</h2>
+<p>The <code>StreamingQuery</code> object created when a query is started can be used to monitor and manage the query.</p>
+
+<div class="codetabs">
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">val</span> <span class="n">query</span> <span class="k">=</span> <span class="n">df</span><span class="o">.</span><span class="n">writeStream</span><span class="o">.</span><span class="n">format</span><span class="o">(</span><span class="s">&quot;console&quot;</span><span class="o">).</span><span class="n">start</span><span class="o">()</span>   <span class="c1">// get the query object</span>
+
+<span class="n">query</span><span class="o">.</span><span class="n">id</span>          <span class="c1">// get the unique identifier of the running query that persists across restarts from checkpoint data</span>
+
+<span class="n">query</span><span class="o">.</span><span class="n">runId</span>       <span class="c1">// get the unique id of this run of the query, which will be generated at every start/restart</span>
+
+<span class="n">query</span><span class="o">.</span><span class="n">name</span>        <span class="c1">// get the name of the auto-generated or user-specified name</span>
+
+<span class="n">query</span><span class="o">.</span><span class="n">explain</span><span class="o">()</span>   <span class="c1">// print detailed explanations of the query</span>
+
+<span class="n">query</span><span class="o">.</span><span class="n">stop</span><span class="o">()</span>      <span class="c1">// stop the query </span>
+
+<span class="n">query</span><span class="o">.</span><span class="n">awaitTermination</span><span class="o">()</span>   <span class="c1">// block until query is terminated, with stop() or with error</span>
+
+<span class="n">query</span><span class="o">.</span><span class="n">exception</span>       <span class="c1">// the exception if the query has been terminated with error</span>
+
+<span class="n">query</span><span class="o">.</span><span class="n">recentProgress</span>  <span class="c1">// an array of the most recent progress updates for this query</span>
+
+<span class="n">query</span><span class="o">.</span><span class="n">lastProgress</span>    <span class="c1">// the most recent progress update of this streaming query</span></code></pre></figure>
+
+  </div>
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">StreamingQuery</span> <span class="n">query</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="na">writeStream</span><span class="o">().</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;console&quot;</span><span class="o">).</span><span class="na">start</span><span class="o">();</span>   <span class="c1">// get the query object</span>
+
+<span class="n">query</span><span class="o">.</span><span class="na">id</span><span class="o">();</span>          <span class="c1">// get the unique identifier of the running query that persists across restarts from checkpoint data</span>
+
+<span class="n">query</span><span class="o">.</span><span class="na">runId</span><span class="o">();</span>       <span class="c1">// get the unique id of this run of the query, which will be generated at every start/restart</span>
+
+<span class="n">query</span><span class="o">.</span><span class="na">name</span><span class="o">();</span>        <span class="c1">// get the name of the auto-generated or user-specified name</span>
+
+<span class="n">query</span><span class="o">.</span><span class="na">explain</span><span class="o">();</span>   <span class="c1">// print detailed explanations of the query</span>
+
+<span class="n">query</span><span class="o">.</span><span class="na">stop</span><span class="o">();</span>      <span class="c1">// stop the query</span>
+
+<span class="n">query</span><span class="o">.</span><span class="na">awaitTermination</span><span class="o">();</span>   <span class="c1">// block until query is terminated, with stop() or with error</span>
+
+<span class="n">query</span><span class="o">.</span><span class="na">exception</span><span class="o">();</span>       <span class="c1">// the exception if the query has been terminated with error</span>
+
+<span class="n">query</span><span class="o">.</span><span class="na">recentProgress</span><span class="o">();</span>  <span class="c1">// an array of the most recent progress updates for this query</span>
+
+<span class="n">query</span><span class="o">.</span><span class="na">lastProgress</span><span class="o">();</span>    <span class="c1">// the most recent progress update of this streaming query</span></code></pre></figure>
+
+  </div>
+<div data-lang="python">
+
+    <figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">query</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">writeStream</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;console&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>   <span class="c"># get the query object</span>
+
+<span class="n">query</span><span class="o">.</span><span class="n">id</span><span class="p">()</span>          <span class="c"># get the unique identifier of the running query that persists across restarts from checkpoint data</span>
+
+<span class="n">query</span><span class="o">.</span><span class="n">runId</span><span class="p">()</span>       <span class="c"># get the unique id of this run of the query, which will be generated at every start/restart</span>
+
+<span class="n">query</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>        <span class="c"># get the name of the auto-generated or user-specified name</span>
+
+<span class="n">query</span><span class="o">.</span><span class="n">explain</span><span class="p">()</span>   <span class="c"># print detailed explanations of the query</span>
+
+<span class="n">query</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>      <span class="c"># stop the query </span>
+
+<span class="n">query</span><span class="o">.</span><span class="n">awaitTermination</span><span class="p">()</span>   <span class="c"># block until query is terminated, with stop() or with error</span>
+
+<span class="n">query</span><span class="o">.</span><span class="n">exception</span><span class="p">()</span>       <span class="c"># the exception if the query has been terminated with error</span>
+
+<span class="n">query</span><span class="o">.</span><span class="n">recentProgress</span><span class="p">()</span>  <span class="c"># an array of the most recent progress updates for this query</span>
+
+<span class="n">query</span><span class="o">.</span><span class="n">lastProgress</span><span class="p">()</span>    <span class="c"># the most recent progress update of this streaming query</span></code></pre></figure>
+
+  </div>
+</div>
+
+<p>You can start any number of queries in a single SparkSession. They will all be running concurrently sharing the cluster resources. You can use <code>sparkSession.streams()</code> to get the <code>StreamingQueryManager</code>
+(<a href="api/scala/index.html#org.apache.spark.sql.streaming.StreamingQueryManager">Scala</a>/<a href="api/java/org/apache/spark/sql/streaming/StreamingQueryManager.html">Java</a>/<a href="api/python/pyspark.sql.html#pyspark.sql.streaming.StreamingQueryManager">Python</a> docs)
+that can be used to manage the currently active queries.</p>
+
+<div class="codetabs">
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">val</span> <span class="n">spark</span><span class="k">:</span> <span class="kt">SparkSession</span> <span class="o">=</span> <span class="o">...</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">active</span>    <span class="c1">// get the list of currently active streaming queries</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">get</span><span class="o">(</span><span class="n">id</span><span class="o">)</span>   <span class="c1">// get a query object by its unique id</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">awaitAnyTermination</span><span class="o">()</span>   <span class="c1">// block until any one of them terminates</span></code></pre></figure>
+
+  </div>
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">SparkSession</span> <span class="n">spark</span> <span class="o">=</span> <span class="o">...</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="na">streams</span><span class="o">().</span><span class="na">active</span><span class="o">();</span>    <span class="c1">// get the list of currently active streaming queries</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="na">streams</span><span class="o">().</span><span class="na">get</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>   <span class="c1">// get a query object by its unique id</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="na">streams</span><span class="o">().</span><span class="na">awaitAnyTermination</span><span class="o">();</span>   <span class="c1">// block until any one of them terminates</span></code></pre></figure>
+
+  </div>
+<div data-lang="python">
+
+    <figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">spark</span> <span class="o">=</span> <span class="o">...</span>  <span class="c"># spark session</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="n">streams</span><span class="p">()</span><span class="o">.</span><span class="n">active</span>  <span class="c"># get the list of currently active streaming queries</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="n">streams</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>  <span class="c"># get a query object by its unique id</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="n">streams</span><span class="p">()</span><span class="o">.</span><span class="n">awaitAnyTermination</span><span class="p">()</span>  <span class="c"># block until any one of them terminates</span></code></pre></figure>
+
+  </div>
+</div>
+
+<h2 id="monitoring-streaming-queries">Monitoring Streaming Queries</h2>
+<p>There are two APIs for monitoring and debugging active queries - 
+interactively and asynchronously.</p>
+
+<h3 id="interactive-apis">Interactive APIs</h3>
+
+<p>You can directly get the current status and metrics of an active query using 
+<code>streamingQuery.lastProgress()</code> and <code>streamingQuery.status()</code>. 
+<code>lastProgress()</code> returns a <code>StreamingQueryProgress</code> object 
+in <a href="api/scala/index.html#org.apache.spark.sql.streaming.StreamingQueryProgress">Scala</a> 
+and <a href="api/java/org/apache/spark/sql/streaming/StreamingQueryProgress.html">Java</a>
+and an dictionary with the same fields in Python. It has all the information about
+the progress made in the last trigger of the stream - what data was processed, 
+what were the processing rates, latencies, etc. There is also 
+<code>streamingQuery.recentProgress</code> which returns an array of last few progresses.</p>
+
+<p>In addition, <code>streamingQuery.status()</code> returns <code>StreamingQueryStatus</code> object 
+in <a href="api/scala/index.html#org.apache.spark.sql.streaming.StreamingQueryStatus">Scala</a> 
+and <a href="api/java/org/apache/spark/sql/streaming/StreamingQueryStatus.html">Java</a>
+and an dictionary with the same fields in Python. It gives information about
+what the query is immediately doing - is a trigger active, is data being processed, etc.</p>
+
+<p>Here are a few examples.</p>
+
+<div class="codetabs">
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">val</span> <span class="n">query</span><span class="k">:</span> <span class="kt">StreamingQuery</span> <span class="o">=</span> <span class="o">...</span>
+
+<span class="n">println</span><span class="o">(</span><span class="n">query</span><span class="o">.</span><span class="n">lastProgress</span><span class="o">)</span>
+
+<span class="cm">/* Will print something like the following.</span>
+
+<span class="cm">{</span>
+<span class="cm">  &quot;id&quot; : &quot;ce011fdc-8762-4dcb-84eb-a77333e28109&quot;,</span>
+<span class="cm">  &quot;runId&quot; : &quot;88e2ff94-ede0-45a8-b687-6316fbef529a&quot;,</span>
+<span class="cm">  &quot;name&quot; : &quot;MyQuery&quot;,</span>
+<span class="cm">  &quot;timestamp&quot; : &quot;2016-12-14T18:45:24.873Z&quot;,</span>
+<span class="cm">  &quot;numInputRows&quot; : 10,</span>
+<span class="cm">  &quot;inputRowsPerSecond&quot; : 120.0,</span>
+<span class="cm">  &quot;processedRowsPerSecond&quot; : 200.0,</span>
+<span class="cm">  &quot;durationMs&quot; : {</span>
+<span class="cm">    &quot;triggerExecution&quot; : 3,</span>
+<span class="cm">    &quot;getOffset&quot; : 2</span>
+<span class="cm">  },</span>
+<span class="cm">  &quot;eventTime&quot; : {</span>
+<span class="cm">    &quot;watermark&quot; : &quot;2016-12-14T18:45:24.873Z&quot;</span>
+<span class="cm">  },</span>
+<span class="cm">  &quot;stateOperators&quot; : [ ],</span>
+<span class="cm">  &quot;sources&quot; : [ {</span>
+<span class="cm">    &quot;description&quot; : &quot;KafkaSource[Subscribe[topic-0]]&quot;,</span>
+<span class="cm">    &quot;startOffset&quot; : {</span>
+<span class="cm">      &quot;topic-0&quot; : {</span>
+<span class="cm">        &quot;2&quot; : 0,</span>
+<span class="cm">        &quot;4&quot; : 1,</span>
+<span class="cm">        &quot;1&quot; : 1,</span>
+<span class="cm">        &quot;3&quot; : 1,</span>
+<span class="cm">        &quot;0&quot; : 1</span>
+<span class="cm">      }</span>
+<span class="cm">    },</span>
+<span class="cm">    &quot;endOffset&quot; : {</span>
+<span class="cm">      &quot;topic-0&quot; : {</span>
+<span class="cm">        &quot;2&quot; : 0,</span>
+<span class="cm">        &quot;4&quot; : 115,</span>
+<span class="cm">        &quot;1&quot; : 134,</span>
+<span class="cm">        &quot;3&quot; : 21,</span>
+<span class="cm">        &quot;0&quot; : 534</span>
+<span class="cm">      }</span>
+<span class="cm">    },</span>
+<span class="cm">    &quot;numInputRows&quot; : 10,</span>
+<span class="cm">    &quot;inputRowsPerSecond&quot; : 120.0,</span>
+<span class="cm">    &quot;processedRowsPerSecond&quot; : 200.0</span>
+<span class="cm">  } ],</span>
+<span class="cm">  &quot;sink&quot; : {</span>
+<span class="cm">    &quot;description&quot; : &quot;MemorySink&quot;</span>
+<span class="cm">  }</span>
+<span class="cm">}</span>
+<span class="cm">*/</span>
+
+
+<span class="n">println</span><span class="o">(</span><span class="n">query</span><span class="o">.</span><span class="n">status</span><span class="o">)</span>
+
+<span class="cm">/*  Will print something like the following.</span>
+<span class="cm">{</span>
+<span class="cm">  &quot;message&quot; : &quot;Waiting for data to arrive&quot;,</span>
+<span class="cm">  &quot;isDataAvailable&quot; : false,</span>
+<span class="cm">  &quot;isTriggerActive&quot; : false</span>
+<span class="cm">}</span>
+<span class="cm">*/</span></code></pre></figure>
+
+  </div>
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">StreamingQuery</span> <span class="n">query</span> <span class="o">=</span> <span class="o">...</span>
+
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">query</span><span class="o">.</span><span class="na">lastProgress</span><span class="o">());</span>
+<span class="cm">/* Will print something like the following.</span>
+
+<span class="cm">{</span>
+<span class="cm">  &quot;id&quot; : &quot;ce011fdc-8762-4dcb-84eb-a77333e28109&quot;,</span>
+<span class="cm">  &quot;runId&quot; : &quot;88e2ff94-ede0-45a8-b687-6316fbef529a&quot;,</span>
+<span class="cm">  &quot;name&quot; : &quot;MyQuery&quot;,</span>
+<span class="cm">  &quot;timestamp&quot; : &quot;2016-12-14T18:45:24.873Z&quot;,</span>
+<span class="cm">  &quot;numInputRows&quot; : 10,</span>
+<span class="cm">  &quot;inputRowsPerSecond&quot; : 120.0,</span>
+<span class="cm">  &quot;processedRowsPerSecond&quot; : 200.0,</span>
+<span class="cm">  &quot;durationMs&quot; : {</span>
+<span class="cm">    &quot;triggerExecution&quot; : 3,</span>
+<span class="cm">    &quot;getOffset&quot; : 2</span>
+<span class="cm">  },</span>
+<span class="cm">  &quot;eventTime&quot; : {</span>
+<span class="cm">    &quot;watermark&quot; : &quot;2016-12-14T18:45:24.873Z&quot;</span>
+<span class="cm">  },</span>
+<span class="cm">  &quot;stateOperators&quot; : [ ],</span>
+<span class="cm">  &quot;sources&quot; : [ {</span>
+<span class="cm">    &quot;description&quot; : &quot;KafkaSource[Subscribe[topic-0]]&quot;,</span>
+<span class="cm">    &quot;startOffset&quot; : {</span>
+<span class="cm">      &quot;topic-0&quot; : {</span>
+<span class="cm">        &quot;2&quot; : 0,</span>
+<span class="cm">        &quot;4&quot; : 1,</span>
+<span class="cm">        &quot;1&quot; : 1,</span>
+<span class="cm">        &quot;3&quot; : 1,</span>
+<span class="cm">        &quot;0&quot; : 1</span>
+<span class="cm">      }</span>
+<span class="cm">    },</span>
+<span class="cm">    &quot;endOffset&quot; : {</span>
+<span class="cm">      &quot;topic-0&quot; : {</span>
+<span class="cm">        &quot;2&quot; : 0,</span>
+<span class="cm">        &quot;4&quot; : 115,</span>
+<span class="cm">        &quot;1&quot; : 134,</span>
+<span class="cm">        &quot;3&quot; : 21,</span>
+<span class="cm">        &quot;0&quot; : 534</span>
+<span class="cm">      }</span>
+<span class="cm">    },</span>
+<span class="cm">    &quot;numInputRows&quot; : 10,</span>
+<span class="cm">    &quot;inputRowsPerSecond&quot; : 120.0,</span>
+<span class="cm">    &quot;processedRowsPerSecond&quot; : 200.0</span>
+<span class="cm">  } ],</span>
+<span class="cm">  &quot;sink&quot; : {</span>
+<span class="cm">    &quot;description&quot; : &quot;MemorySink&quot;</span>
+<span class="cm">  }</span>
+<span class="cm">}</span>
+<span class="cm">*/</span>
+
+
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">query</span><span class="o">.</span><span class="na">status</span><span class="o">());</span>
+<span class="cm">/*  Will print something like the following.</span>
+<span class="cm">{</span>
+<span class="cm">  &quot;message&quot; : &quot;Waiting for data to arrive&quot;,</span>
+<span class="cm">  &quot;isDataAvailable&quot; : false,</span>
+<span class="cm">  &quot;isTriggerActive&quot; : false</span>
+<span class="cm">}</span>
+<span class="cm">*/</span></code></pre></figure>
+
+  </div>
+<div data-lang="python">
+
+    <figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">query</span> <span class="o">=</span> <span class="o">...</span>  <span class="c"># a StreamingQuery</span>
+<span class="k">print</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">lastProgress</span><span class="p">)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Will print something like the following.</span>
+
+<span class="sd">{u&#39;stateOperators&#39;: [], u&#39;eventTime&#39;: {u&#39;watermark&#39;: u&#39;2016-12-14T18:45:24.873Z&#39;}, u&#39;name&#39;: u&#39;MyQuery&#39;, u&#39;timestamp&#39;: u&#39;2016-12-14T18:45:24.873Z&#39;, u&#39;processedRowsPerSecond&#39;: 200.0, u&#39;inputRowsPerSecond&#39;: 120.0, u&#39;numInputRows&#39;: 10, u&#39;sources&#39;: [{u&#39;description&#39;: u&#39;KafkaSource[Subscribe[topic-0]]&#39;, u&#39;endOffset&#39;: {u&#39;topic-0&#39;: {u&#39;1&#39;: 134, u&#39;0&#39;: 534, u&#39;3&#39;: 21, u&#39;2&#39;: 0, u&#39;4&#39;: 115}}, u&#39;processedRowsPerSecond&#39;: 200.0, u&#39;inputRowsPerSecond&#39;: 120.0, u&#39;numInputRows&#39;: 10, u&#39;startOffset&#39;: {u&#39;topic-0&#39;: {u&#39;1&#39;: 1, u&#39;0&#39;: 1, u&#39;3&#39;: 1, u&#39;2&#39;: 0, u&#39;4&#39;: 1}}}], u&#39;durationMs&#39;: {u&#39;getOffset&#39;: 2, u&#39;triggerExecution&#39;: 3}, u&#39;runId&#39;: u&#39;88e2ff94-ede0-45a8-b687-6316fbef529a&#39;, u&#39;id&#39;: u&#39;ce011fdc-8762-4dcb-84eb-a77333e28109&#39;, u&#39;sink&#39;: {u&#39;description&#39;: u&#39;MemorySink&#39;}}</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">query</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
+<span class="sd">&#39;&#39;&#39; </span>
+<span class="sd">Will print something like the following.</span>
+
+<span class="sd">{u&#39;message&#39;: u&#39;Waiting for data to arrive&#39;, u&#39;isTriggerActive&#39;: False, u&#39;isDataAvailable&#39;: False}</span>
+<span class="sd">&#39;&#39;&#39;</span></code></pre></figure>
+
+  </div>
+</div>
+
+<h3 id="asynchronous-api">Asynchronous API</h3>
+
+<p>You can also asynchronously monitor all queries associated with a
+<code>SparkSession</code> by attaching a <code>StreamingQueryListener</code>
+(<a href="api/scala/index.html#org.apache.spark.sql.streaming.StreamingQueryListener">Scala</a>/<a href="api/java/org/apache/spark/sql/streaming/StreamingQueryListener.html">Java</a> docs).
+Once you attach your custom <code>StreamingQueryListener</code> object with
+<code>sparkSession.streams.attachListener()</code>, you will get callbacks when a query is started and
+stopped and when there is progress made in an active query. Here is an example,</p>
+
+<div class="codetabs">
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">val</span> <span class="n">spark</span><span class="k">:</span> <span class="kt">SparkSession</span> <span class="o">=</span> <span class="o">...</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">addListener</span><span class="o">(</span><span class="k">new</span> <span class="nc">StreamingQueryListener</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">override</span> <span class="k">def</span> <span class="n">onQueryStarted</span><span class="o">(</span><span class="n">queryStarted</span><span class="k">:</span> <span class="kt">QueryStartedEvent</span><span class="o">)</span><span class="k">:</span> <span class="kt">Unit</span> <span class="o">=</span> <span class="o">{</span>
+        <span class="n">println</span><span class="o">(</span><span class="s">&quot;Query started: &quot;</span> <span class="o">+</span> <span class="n">queryStarted</span><span class="o">.</span><span class="n">id</span><span class="o">)</span>
+    <span class="o">}</span>
+    <span class="k">override</span> <span class="k">def</span> <span class="n">onQueryTerminated</span><span class="o">(</span><span class="n">queryTerminated</span><span class="k">:</span> <span class="kt">QueryTerminatedEvent</span><span class="o">)</span><span class="k">:</span> <span class="kt">Unit</span> <span class="o">=</span> <span class="o">{</span>
+        <span class="n">println</span><span class="o">(</span><span class="s">&quot;Query terminated: &quot;</span> <span class="o">+</span> <span class="n">queryTerminated</span><span class="o">.</span><span class="n">id</span><span class="o">)</span>
+    <span class="o">}</span>
+    <span class="k">override</span> <span class="k">def</span> <span class="n">onQueryProgress</span><span class="o">(</span><span class="n">queryProgress</span><span class="k">:</span> <span class="kt">QueryProgressEvent</span><span class="o">)</span><span class="k">:</span> <span class="kt">Unit</span> <span class="o">=</span> <span class="o">{</span>
+        <span class="n">println</span><span class="o">(</span><span class="s">&quot;Query made progress: &quot;</span> <span class="o">+</span> <span class="n">queryProgress</span><span class="o">.</span><span class="n">progress</span><span class="o">)</span>
+    <span class="o">}</span>
+<span class="o">})</span></code></pre></figure>
+
+  </div>
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">SparkSession</span> <span class="n">spark</span> <span class="o">=</span> <span class="o">...</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="na">streams</span><span class="o">().</span><span class="na">addListener</span><span class="o">(</span><span class="k">new</span> <span class="nf">StreamingQueryListener</span><span class="o">()</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onQueryStarted</span><span class="o">(</span><span class="n">QueryStartedEvent</span> <span class="n">queryStarted</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Query started: &quot;</span> <span class="o">+</span> <span class="n">queryStarted</span><span class="o">.</span><span class="na">id</span><span class="o">());</span>
+    <span class="o">}</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onQueryTerminated</span><span class="o">(</span><span class="n">QueryTerminatedEvent</span> <span class="n">queryTerminated</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Query terminated: &quot;</span> <span class="o">+</span> <span class="n">queryTerminated</span><span class="o">.</span><span class="na">id</span><span class="o">());</span>
+    <span class="o">}</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onQueryProgress</span><span class="o">(</span><span class="n">QueryProgressEvent</span> <span class="n">queryProgress</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Query made progress: &quot;</span> <span class="o">+</span> <span class="n">queryProgress</span><span class="o">.</span><span class="na">progress</span><span class="o">());</span>
+    <span class="o">}</span>
+<span class="o">});</span></code></pre></figure>
+
+  </div>
+<div data-lang="python">
+
+    <figure class="highlight"><pre><code class="language-bash" data-lang="bash">Not available in Python.</code></pre></figure>
+
+  </div>
+</div>
+
+<h2 id="recovering-from-failures-with-checkpointing">Recovering from Failures with Checkpointing</h2>
+<p>In case of a failure or intentional shutdown, you can recover the previous progress and state of a previous query, and continue where it left off. This is done using checkpointing and write ahead logs. You can configure a query with a checkpoint location, and the query will save all the progress information (i.e. range of offsets processed in each trigger) and the running aggregates (e.g. word counts in the <a href="#quick-example">quick example</a>) to the checkpoint location. This checkpoint location has to be a path in an HDFS compatible file system, and can be set as an option in the DataStreamWriter when <a href="#starting-streaming-queries">starting a query</a>.</p>
+
+<div class="codetabs">
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="n">aggDF</span>
+  <span class="o">.</span><span class="n">writeStream</span>
+  <span class="o">.</span><span class="n">outputMode</span><span class="o">(</span><span class="s">&quot;complete&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">option</span><span class="o">(</span><span class="s">&quot;checkpointLocation&quot;</span><span class="o">,</span> <span class="s">&quot;path/to/HDFS/dir&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">format</span><span class="o">(</span><span class="s">&quot;memory&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">start</span><span class="o">()</span></code></pre></figure>
+
+  </div>
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="n">aggDF</span>
+  <span class="o">.</span><span class="na">writeStream</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">outputMode</span><span class="o">(</span><span class="s">&quot;complete&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">&quot;checkpointLocation&quot;</span><span class="o">,</span> <span class="s">&quot;path/to/HDFS/dir&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;memory&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">start</span><span class="o">();</span></code></pre></figure>
+
+  </div>
+<div data-lang="python">
+
+    <figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">aggDF</span> \
+    <span class="o">.</span><span class="n">writeStream</span> \
+    <span class="o">.</span><span class="n">outputMode</span><span class="p">(</span><span class="s">&quot;complete&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s">&quot;checkpointLocation&quot;</span><span class="p">,</span> <span class="s">&quot;path/to/HDFS/dir&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot;memory&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">start</span><span class="p">()</span></code></pre></figure>
+
+  </div>
+</div>
+
+<h1 id="where-to-go-from-here">Where to go from here</h1>
+<ul>
+  <li>Examples: See and run the 
+<a href="https://github.com/apache/spark/tree/master/examples/src/main/scala/org/apache/spark/examples/sql/streaming">Scala</a>/<a href="https://github.com/apache/spark/tree/master/examples/src/main/java/org/apache/spark/examples/sql/streaming">Java</a>/<a href="https://github.com/apache/spark/tree/master/examples/src/main/python/sql/streaming">Python</a> 
+examples.</li>
+  <li>Spark Summit 2016 Talk - <a href="https://spark-summit.org/2016/events/a-deep-dive-into-structured-streaming/">A Deep Dive into Structured Streaming</a></li>
+</ul>
+
+
+
+                </div>
+            
+             <!-- /container -->
+        </div>
+
+        <script src="js/vendor/jquery-1.8.0.min.js"></script>
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/vendor/anchor.min.js"></script>
+        <script src="js/main.js"></script>
+
+        <!-- MathJax Section -->
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({
+                TeX: { equationNumbers: { autoNumber: "AMS" } }
+            });
+        </script>
+        <script>
+            // Note that we load MathJax this way to work with local file (file://), HTTP and HTTPS.
+            // We could use "//cdn.mathjax...", but that won't support "file://".
+            (function(d, script) {
+                script = d.createElement('script');
+                script.type = 'text/javascript';
+                script.async = true;
+                script.onload = function(){
+                    MathJax.Hub.Config({
+                        tex2jax: {
+                            inlineMath: [ ["$", "$"], ["\\\\(","\\\\)"] ],
+                            displayMath: [ ["$$","$$"], ["\\[", "\\]"] ],
+                            processEscapes: true,
+                            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+                        }
+                    });
+                };
+                script.src = ('https:' == document.location.protocol ? 'https://' : 'http://') +
+                    'cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+                d.getElementsByTagName('head')[0].appendChild(script);
+            }(document));
+        </script>
+    </body>
+</html>
