@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: window</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/languages/r.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</head><body>
+
+<table width="100%" summary="page for window {SparkR}"><tr><td>window {SparkR}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>window</h2>
+
+<h3>Description</h3>
+
+<p>Bucketize rows into one or more time windows given a timestamp specifying column. Window
+starts are inclusive but the window ends are exclusive, e.g. 12:05 will be in the window
+[12:05,12:10) but not in [12:00,12:05). Windows can support microsecond precision. Windows in
+the order of months are not supported.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+window(x, ...)
+
+## S4 method for signature 'Column'
+window(x, windowDuration, slideDuration = NULL,
+  startTime = NULL)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a time Column. Must be of TimestampType.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>further arguments to be passed to or from other methods.</p>
+</td></tr>
+<tr valign="top"><td><code>windowDuration</code></td>
+<td>
+<p>a string specifying the width of the window, e.g. '1 second',
+'1 day 12 hours', '2 minutes'. Valid interval strings are 'week',
+'day', 'hour', 'minute', 'second', 'millisecond', 'microsecond'. Note that
+the duration is a fixed length of time, and does not vary over time
+according to a calendar. For example, '1 day' always means 86,400,000
+milliseconds, not a calendar day.</p>
+</td></tr>
+<tr valign="top"><td><code>slideDuration</code></td>
+<td>
+<p>a string specifying the sliding interval of the window. Same format as
+<code>windowDuration</code>. A new window will be generated every
+<code>slideDuration</code>. Must be less than or equal to
+the <code>windowDuration</code>. This duration is likewise absolute, and does not
+vary according to a calendar.</p>
+</td></tr>
+<tr valign="top"><td><code>startTime</code></td>
+<td>
+<p>the offset with respect to 1970-01-01 00:00:00 UTC with which to start
+window intervals. For example, in order to have hourly tumbling windows
+that start 15 minutes past the hour, e.g. 12:15-13:15, 13:15-14:15... provide
+<code>startTime</code> as <code>"15 minutes"</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p>An output column of struct called 'window' by default with the nested columns 'start'
+and 'end'.
+</p>
+
+
+<h3>Note</h3>
+
+<p>window since 2.0.0
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other datetime_funcs: <code><a href="add_months.html">add_months</a></code>,
+<code><a href="date_add.html">date_add</a></code>, <code><a href="date_format.html">date_format</a></code>,
+<code><a href="date_sub.html">date_sub</a></code>, <code><a href="datediff.html">datediff</a></code>,
+<code><a href="dayofmonth.html">dayofmonth</a></code>, <code><a href="dayofyear.html">dayofyear</a></code>,
+<code><a href="from_unixtime.html">from_unixtime</a></code>,
+<code><a href="from_utc_timestamp.html">from_utc_timestamp</a></code>, <code><a href="hour.html">hour</a></code>,
+<code><a href="last_day.html">last_day</a></code>, <code><a href="minute.html">minute</a></code>,
+<code><a href="months_between.html">months_between</a></code>, <code><a href="month.html">month</a></code>,
+<code><a href="next_day.html">next_day</a></code>, <code><a href="quarter.html">quarter</a></code>,
+<code><a href="second.html">second</a></code>, <code><a href="to_date.html">to_date</a></code>,
+<code><a href="to_utc_timestamp.html">to_utc_timestamp</a></code>,
+<code><a href="unix_timestamp.html">unix_timestamp</a></code>, <code><a href="weekofyear.html">weekofyear</a></code>,
+<code><a href="year.html">year</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre><code class="r">## Not run: 
+##D   # One minute windows every 15 seconds 10 seconds after the minute, e.g. 09:00:10-09:01:10,
+##D   # 09:00:25-09:01:25, 09:00:40-09:01:40, ...
+##D   window(df$time, &quot;1 minute&quot;, &quot;15 seconds&quot;, &quot;10 seconds&quot;)
+##D 
+##D   # One minute tumbling windows 15 seconds after the minute, e.g. 09:00:15-09:01:15,
+##D    # 09:01:15-09:02:15...
+##D   window(df$time, &quot;1 minute&quot;, startTime = &quot;15 seconds&quot;)
+##D 
+##D   # Thirty-second windows every 10 seconds, e.g. 09:00:00-09:00:30, 09:00:10-09:00:40, ...
+##D   window(df$time, &quot;30 seconds&quot;, &quot;10 seconds&quot;)
+## End(Not run)
+</code></pre>
+
+
+<hr /><div style="text-align: center;">[Package <em>SparkR</em> version 2.1.2 <a href="00Index.html">Index</a>]</div>
+</body></html>
