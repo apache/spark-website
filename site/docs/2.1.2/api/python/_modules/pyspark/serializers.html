@@ -1,0 +1,685 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyspark.serializers &#8212; PySpark 2.1.2 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pyspark.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '2.1.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../_static/pyspark.js"></script>
+    <link rel="top" title="PySpark 2.1.2 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../index.html">PySpark 2.1.2 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.serializers</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">PySpark supports custom serializers for transferring data; this can improve</span>
+<span class="sd">performance.</span>
+
+<span class="sd">By default, PySpark uses L{PickleSerializer} to serialize objects using Python&#39;s</span>
+<span class="sd">C{cPickle} serializer, which can serialize nearly any Python object.</span>
+<span class="sd">Other serializers, like L{MarshalSerializer}, support fewer datatypes but can be</span>
+<span class="sd">faster.</span>
+
+<span class="sd">The serializer is chosen when creating L{SparkContext}:</span>
+
+<span class="sd">&gt;&gt;&gt; from pyspark.context import SparkContext</span>
+<span class="sd">&gt;&gt;&gt; from pyspark.serializers import MarshalSerializer</span>
+<span class="sd">&gt;&gt;&gt; sc = SparkContext(&#39;local&#39;, &#39;test&#39;, serializer=MarshalSerializer())</span>
+<span class="sd">&gt;&gt;&gt; sc.parallelize(list(range(1000))).map(lambda x: 2 * x).take(10)</span>
+<span class="sd">[0, 2, 4, 6, 8, 10, 12, 14, 16, 18]</span>
+<span class="sd">&gt;&gt;&gt; sc.stop()</span>
+
+<span class="sd">PySpark serialize objects in batches; By default, the batch size is chosen based</span>
+<span class="sd">on the size of objects, also configurable by SparkContext&#39;s C{batchSize} parameter:</span>
+
+<span class="sd">&gt;&gt;&gt; sc = SparkContext(&#39;local&#39;, &#39;test&#39;, batchSize=2)</span>
+<span class="sd">&gt;&gt;&gt; rdd = sc.parallelize(range(16), 4).map(lambda x: x)</span>
+
+<span class="sd">Behind the scenes, this creates a JavaRDD with four partitions, each of</span>
+<span class="sd">which contains two batches of two objects:</span>
+
+<span class="sd">&gt;&gt;&gt; rdd.glom().collect()</span>
+<span class="sd">[[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15]]</span>
+<span class="sd">&gt;&gt;&gt; int(rdd._jrdd.count())</span>
+<span class="sd">8</span>
+<span class="sd">&gt;&gt;&gt; sc.stop()</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">chain</span><span class="p">,</span> <span class="n">product</span>
+<span class="kn">import</span> <span class="nn">marshal</span>
+<span class="kn">import</span> <span class="nn">struct</span>
+<span class="kn">import</span> <span class="nn">types</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">zlib</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span> <span class="o">&lt;</span> <span class="s1">&#39;3&#39;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">cPickle</span> <span class="k">as</span> <span class="nn">pickle</span>
+    <span class="n">protocol</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">izip</span> <span class="k">as</span> <span class="nb">zip</span><span class="p">,</span> <span class="n">imap</span> <span class="k">as</span> <span class="nb">map</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">pickle</span>
+    <span class="n">protocol</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">xrange</span> <span class="o">=</span> <span class="nb">range</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="k">import</span> <span class="n">cloudpickle</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;PickleSerializer&quot;</span><span class="p">,</span> <span class="s2">&quot;MarshalSerializer&quot;</span><span class="p">,</span> <span class="s2">&quot;UTF8Deserializer&quot;</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">SpecialLengths</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">END_OF_DATA_SECTION</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">PYTHON_EXCEPTION_THROWN</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
+    <span class="n">TIMING_DATA</span> <span class="o">=</span> <span class="o">-</span><span class="mi">3</span>
+    <span class="n">END_OF_STREAM</span> <span class="o">=</span> <span class="o">-</span><span class="mi">4</span>
+    <span class="n">NULL</span> <span class="o">=</span> <span class="o">-</span><span class="mi">5</span>
+
+
+<span class="k">class</span> <span class="nc">Serializer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">dump_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterator</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Serialize an iterator of objects to the output stream.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">load_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return an iterator of deserialized objects from the input stream.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">_load_stream_without_unbatching</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return an iterator of deserialized batches (iterable) of objects from the input stream.</span>
+<span class="sd">        if the serializer does not operate on batches the default implementation returns an</span>
+<span class="sd">        iterator of single element lists.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_stream</span><span class="p">(</span><span class="n">stream</span><span class="p">))</span>
+
+    <span class="c1"># Note: our notion of &quot;equality&quot; is that output generated by</span>
+    <span class="c1"># equal serializers can be deserialized using the same serializer.</span>
+
+    <span class="c1"># This default implementation handles the simple cases;</span>
+    <span class="c1"># subclasses should override __eq__ as appropriate.</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">__dict__</span>
+
+    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">()&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">FramedSerializer</span><span class="p">(</span><span class="n">Serializer</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Serializer that writes objects as a stream of (length, data) pairs,</span>
+<span class="sd">    where C{length} is a 32-bit integer and data is C{length} bytes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># On Python 2.6, we can&#39;t write bytearrays to streams, so we need to convert them</span>
+        <span class="c1"># to strings first. Check if the version number is that old.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_only_write_strings</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">dump_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterator</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">iterator</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_with_length</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">stream</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">load_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_with_length</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">EOFError</span><span class="p">:</span>
+                <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">_write_with_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="n">serialized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">serialized</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;serialized value should not be None&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">serialized</span><span class="p">)</span> <span class="o">&gt;</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">31</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;can not serialize object larger than 2G&quot;</span><span class="p">)</span>
+        <span class="n">write_int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">serialized</span><span class="p">),</span> <span class="n">stream</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_only_write_strings</span><span class="p">:</span>
+            <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">serialized</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">serialized</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_read_with_length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="n">read_int</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">length</span> <span class="o">==</span> <span class="n">SpecialLengths</span><span class="o">.</span><span class="n">END_OF_DATA_SECTION</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">EOFError</span>
+        <span class="k">elif</span> <span class="n">length</span> <span class="o">==</span> <span class="n">SpecialLengths</span><span class="o">.</span><span class="n">NULL</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">EOFError</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">dumps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Serialize an object into a byte array.</span>
+<span class="sd">        When batching is used, this will be called with an array of objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">loads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deserialize an object from a byte array.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+
+<span class="k">class</span> <span class="nc">BatchedSerializer</span><span class="p">(</span><span class="n">Serializer</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Serializes a stream of objects in batches by calling its wrapped</span>
+<span class="sd">    Serializer with streams of objects.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">UNLIMITED_BATCH_SIZE</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="n">UNKNOWN_BATCH_SIZE</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serializer</span><span class="p">,</span> <span class="n">batchSize</span><span class="o">=</span><span class="n">UNLIMITED_BATCH_SIZE</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">serializer</span> <span class="o">=</span> <span class="n">serializer</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batchSize</span> <span class="o">=</span> <span class="n">batchSize</span>
+
+    <span class="k">def</span> <span class="nf">_batched</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterator</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">batchSize</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">UNLIMITED_BATCH_SIZE</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="nb">list</span><span class="p">(</span><span class="n">iterator</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">iterator</span><span class="p">,</span> <span class="s2">&quot;__len__&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">iterator</span><span class="p">,</span> <span class="s2">&quot;__getslice__&quot;</span><span class="p">):</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">iterator</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">batchSize</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">iterator</span><span class="p">[</span><span class="n">i</span><span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">batchSize</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">iterator</span><span class="p">:</span>
+                <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">batchSize</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">items</span>
+                    <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">if</span> <span class="n">items</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">items</span>
+
+    <span class="k">def</span> <span class="nf">dump_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterator</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">dump_stream</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_batched</span><span class="p">(</span><span class="n">iterator</span><span class="p">),</span> <span class="n">stream</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">load_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_load_stream_without_unbatching</span><span class="p">(</span><span class="n">stream</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_load_stream_without_unbatching</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">load_stream</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;BatchedSerializer(</span><span class="si">%s</span><span class="s2">, </span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">serializer</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">batchSize</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">FlattenedValuesSerializer</span><span class="p">(</span><span class="n">BatchedSerializer</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Serializes a stream of list of pairs, split the list of values</span>
+<span class="sd">    which contain more than a certain number of objects to make them</span>
+<span class="sd">    have similar sizes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serializer</span><span class="p">,</span> <span class="n">batchSize</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="n">BatchedSerializer</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serializer</span><span class="p">,</span> <span class="n">batchSize</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_batched</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterator</span><span class="p">):</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">batchSize</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">iterator</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="n">n</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">key</span><span class="p">,</span> <span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">n</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">load_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">load_stream</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;FlattenedValuesSerializer(</span><span class="si">%s</span><span class="s2">, </span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">serializer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">batchSize</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">AutoBatchedSerializer</span><span class="p">(</span><span class="n">BatchedSerializer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Choose the size of batch automatically based on the size of object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serializer</span><span class="p">,</span> <span class="n">bestSize</span><span class="o">=</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">16</span><span class="p">):</span>
+        <span class="n">BatchedSerializer</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serializer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">UNKNOWN_BATCH_SIZE</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bestSize</span> <span class="o">=</span> <span class="n">bestSize</span>
+
+    <span class="k">def</span> <span class="nf">dump_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterator</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="n">batch</span><span class="p">,</span> <span class="n">best</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bestSize</span>
+        <span class="n">iterator</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">iterator</span><span class="p">)</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">vs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">islice</span><span class="p">(</span><span class="n">iterator</span><span class="p">,</span> <span class="n">batch</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">vs</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="nb">bytes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">vs</span><span class="p">)</span>
+            <span class="n">write_int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nb">bytes</span><span class="p">),</span> <span class="n">stream</span><span class="p">)</span>
+            <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">bytes</span><span class="p">)</span>
+
+            <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">bytes</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">size</span> <span class="o">&lt;</span> <span class="n">best</span><span class="p">:</span>
+                <span class="n">batch</span> <span class="o">*=</span> <span class="mi">2</span>
+            <span class="k">elif</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="n">best</span> <span class="o">*</span> <span class="mi">10</span> <span class="ow">and</span> <span class="n">batch</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">batch</span> <span class="o">//=</span> <span class="mi">2</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;AutoBatchedSerializer(</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">serializer</span>
+
+
+<span class="k">class</span> <span class="nc">CartesianDeserializer</span><span class="p">(</span><span class="n">Serializer</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Deserializes the JavaRDD cartesian() of two PythonRDDs.</span>
+<span class="sd">    Due to pyspark batching we cannot simply use the result of the Java RDD cartesian,</span>
+<span class="sd">    we additionally need to do the cartesian within each pair of batches.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key_ser</span><span class="p">,</span> <span class="n">val_ser</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key_ser</span> <span class="o">=</span> <span class="n">key_ser</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">val_ser</span> <span class="o">=</span> <span class="n">val_ser</span>
+
+    <span class="k">def</span> <span class="nf">_load_stream_without_unbatching</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="n">key_batch_stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_ser</span><span class="o">.</span><span class="n">_load_stream_without_unbatching</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+        <span class="n">val_batch_stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_ser</span><span class="o">.</span><span class="n">_load_stream_without_unbatching</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">key_batch</span><span class="p">,</span> <span class="n">val_batch</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">key_batch_stream</span><span class="p">,</span> <span class="n">val_batch_stream</span><span class="p">):</span>
+            <span class="c1"># for correctness with repeated cartesian/zip this must be returned as one batch</span>
+            <span class="k">yield</span> <span class="n">product</span><span class="p">(</span><span class="n">key_batch</span><span class="p">,</span> <span class="n">val_batch</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">load_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_load_stream_without_unbatching</span><span class="p">(</span><span class="n">stream</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;CartesianDeserializer(</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> \
+               <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key_ser</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">val_ser</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">PairDeserializer</span><span class="p">(</span><span class="n">Serializer</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Deserializes the JavaRDD zip() of two PythonRDDs.</span>
+<span class="sd">    Due to pyspark batching we cannot simply use the result of the Java RDD zip,</span>
+<span class="sd">    we additionally need to do the zip within each pair of batches.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key_ser</span><span class="p">,</span> <span class="n">val_ser</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key_ser</span> <span class="o">=</span> <span class="n">key_ser</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">val_ser</span> <span class="o">=</span> <span class="n">val_ser</span>
+
+    <span class="k">def</span> <span class="nf">_load_stream_without_unbatching</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="n">key_batch_stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">key_ser</span><span class="o">.</span><span class="n">_load_stream_without_unbatching</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+        <span class="n">val_batch_stream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_ser</span><span class="o">.</span><span class="n">_load_stream_without_unbatching</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">key_batch</span><span class="p">,</span> <span class="n">val_batch</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">key_batch_stream</span><span class="p">,</span> <span class="n">val_batch_stream</span><span class="p">):</span>
+            <span class="c1"># For double-zipped RDDs, the batches can be iterators from other PairDeserializer,</span>
+            <span class="c1"># instead of lists. We need to convert them to lists if needed.</span>
+            <span class="n">key_batch</span> <span class="o">=</span> <span class="n">key_batch</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">key_batch</span><span class="p">,</span> <span class="s1">&#39;__len__&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">key_batch</span><span class="p">)</span>
+            <span class="n">val_batch</span> <span class="o">=</span> <span class="n">val_batch</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">val_batch</span><span class="p">,</span> <span class="s1">&#39;__len__&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">val_batch</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">key_batch</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">val_batch</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Can not deserialize PairRDD with different number of items&quot;</span>
+                                 <span class="s2">&quot; in batches: (</span><span class="si">%d</span><span class="s2">, </span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">key_batch</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">val_batch</span><span class="p">)))</span>
+            <span class="c1"># for correctness with repeated cartesian/zip this must be returned as one batch</span>
+            <span class="k">yield</span> <span class="nb">zip</span><span class="p">(</span><span class="n">key_batch</span><span class="p">,</span> <span class="n">val_batch</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">load_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_load_stream_without_unbatching</span><span class="p">(</span><span class="n">stream</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;PairDeserializer(</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">key_ser</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">val_ser</span><span class="p">))</span>
+
+
+<span class="k">class</span> <span class="nc">NoOpSerializer</span><span class="p">(</span><span class="n">FramedSerializer</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">loads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span>
+
+    <span class="k">def</span> <span class="nf">dumps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span>
+
+
+<span class="c1"># Hook namedtuple, make it picklable</span>
+
+<span class="n">__cls</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<span class="k">def</span> <span class="nf">_restore</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Restore an object of namedtuple&quot;&quot;&quot;</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">fields</span><span class="p">)</span>
+    <span class="n">cls</span> <span class="o">=</span> <span class="n">__cls</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cls</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cls</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">fields</span><span class="p">)</span>
+        <span class="n">__cls</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">cls</span>
+    <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="o">*</span><span class="n">value</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_hack_namedtuple</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Make class generated by namedtuple picklable &quot;&quot;&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">__name__</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">_fields</span>
+
+    <span class="k">def</span> <span class="nf">__reduce__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">_restore</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">)))</span>
+    <span class="n">cls</span><span class="o">.</span><span class="n">__reduce__</span> <span class="o">=</span> <span class="n">__reduce__</span>
+    <span class="n">cls</span><span class="o">.</span><span class="n">_is_namedtuple_</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">cls</span>
+
+
+<span class="k">def</span> <span class="nf">_hijack_namedtuple</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; Hack namedtuple() to make it picklable &quot;&quot;&quot;</span>
+    <span class="c1"># hijack only one time</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">,</span> <span class="s2">&quot;__hijack&quot;</span><span class="p">):</span>
+        <span class="k">return</span>
+
+    <span class="k">global</span> <span class="n">_old_namedtuple</span>  <span class="c1"># or it will put in closure</span>
+    <span class="k">global</span> <span class="n">_old_namedtuple_kwdefaults</span>  <span class="c1"># or it will put in closure too</span>
+
+    <span class="k">def</span> <span class="nf">_copy_func</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">types</span><span class="o">.</span><span class="n">FunctionType</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">__code__</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">__globals__</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
+                                  <span class="n">f</span><span class="o">.</span><span class="n">__defaults__</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">__closure__</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_kwdefaults</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+        <span class="c1"># __kwdefaults__ contains the default values of keyword-only arguments which are</span>
+        <span class="c1"># introduced from Python 3. The possible cases for __kwdefaults__ in namedtuple</span>
+        <span class="c1"># are as below:</span>
+        <span class="c1">#</span>
+        <span class="c1"># - Does not exist in Python 2.</span>
+        <span class="c1"># - Returns None in &lt;= Python 3.5.x.</span>
+        <span class="c1"># - Returns a dictionary containing the default values to the keys from Python 3.6.x</span>
+        <span class="c1">#    (See https://bugs.python.org/issue25628).</span>
+        <span class="n">kargs</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s2">&quot;__kwdefaults__&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">kargs</span>
+
+    <span class="n">_old_namedtuple</span> <span class="o">=</span> <span class="n">_copy_func</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">)</span>
+    <span class="n">_old_namedtuple_kwdefaults</span> <span class="o">=</span> <span class="n">_kwdefaults</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">namedtuple</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_old_namedtuple_kwdefaults</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="n">cls</span> <span class="o">=</span> <span class="n">_old_namedtuple</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_hack_namedtuple</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span>
+
+    <span class="c1"># replace namedtuple with new one</span>
+    <span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="o">.</span><span class="n">__globals__</span><span class="p">[</span><span class="s2">&quot;_old_namedtuple_kwdefaults&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_old_namedtuple_kwdefaults</span>
+    <span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="o">.</span><span class="n">__globals__</span><span class="p">[</span><span class="s2">&quot;_old_namedtuple&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_old_namedtuple</span>
+    <span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="o">.</span><span class="n">__globals__</span><span class="p">[</span><span class="s2">&quot;_hack_namedtuple&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_hack_namedtuple</span>
+    <span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="o">.</span><span class="n">__code__</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="o">.</span><span class="n">__code__</span>
+    <span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="o">.</span><span class="n">__hijack</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># hack the cls already generated by namedtuple</span>
+    <span class="c1"># those created in other module can be pickled as normal,</span>
+    <span class="c1"># so only hack those in __main__ module</span>
+    <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s2">&quot;__main__&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">o</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">type</span> <span class="ow">and</span> <span class="n">o</span><span class="o">.</span><span class="n">__base__</span> <span class="ow">is</span> <span class="nb">tuple</span>
+                <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">o</span><span class="p">,</span> <span class="s2">&quot;_fields&quot;</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="s2">&quot;__reduce__&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">o</span><span class="o">.</span><span class="n">__dict__</span><span class="p">):</span>
+            <span class="n">_hack_namedtuple</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>  <span class="c1"># hack inplace</span>
+
+
+<span class="n">_hijack_namedtuple</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="PickleSerializer"><a class="viewcode-back" href="../../pyspark.html#pyspark.PickleSerializer">[docs]</a><span class="k">class</span> <span class="nc">PickleSerializer</span><span class="p">(</span><span class="n">FramedSerializer</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Serializes objects using Python&#39;s pickle serializer:</span>
+
+<span class="sd">        http://docs.python.org/2/library/pickle.html</span>
+
+<span class="sd">    This serializer supports nearly any Python object, but may</span>
+<span class="sd">    not be as fast as more specialized serializers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PickleSerializer.dumps"><a class="viewcode-back" href="../../pyspark.html#pyspark.PickleSerializer.dumps">[docs]</a>    <span class="k">def</span> <span class="nf">dumps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">protocol</span><span class="p">)</span></div>
+
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span> <span class="o">&gt;=</span> <span class="s1">&#39;3&#39;</span><span class="p">:</span>
+        <span class="k">def</span> <span class="nf">loads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;bytes&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+<div class="viewcode-block" id="PickleSerializer.loads"><a class="viewcode-back" href="../../pyspark.html#pyspark.PickleSerializer.loads">[docs]</a>        <span class="k">def</span> <span class="nf">loads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">CloudPickleSerializer</span><span class="p">(</span><span class="n">PickleSerializer</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">dumps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">cloudpickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="MarshalSerializer"><a class="viewcode-back" href="../../pyspark.html#pyspark.MarshalSerializer">[docs]</a><span class="k">class</span> <span class="nc">MarshalSerializer</span><span class="p">(</span><span class="n">FramedSerializer</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Serializes objects using Python&#39;s Marshal serializer:</span>
+
+<span class="sd">        http://docs.python.org/2/library/marshal.html</span>
+
+<span class="sd">    This serializer is faster than PickleSerializer but supports fewer datatypes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MarshalSerializer.dumps"><a class="viewcode-back" href="../../pyspark.html#pyspark.MarshalSerializer.dumps">[docs]</a>    <span class="k">def</span> <span class="nf">dumps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">marshal</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MarshalSerializer.loads"><a class="viewcode-back" href="../../pyspark.html#pyspark.MarshalSerializer.loads">[docs]</a>    <span class="k">def</span> <span class="nf">loads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">marshal</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">AutoSerializer</span><span class="p">(</span><span class="n">FramedSerializer</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Choose marshal or pickle as serialization protocol automatically</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">FramedSerializer</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">dumps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">b</span><span class="s1">&#39;P&#39;</span> <span class="o">+</span> <span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">b</span><span class="s1">&#39;M&#39;</span> <span class="o">+</span> <span class="n">marshal</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_type</span> <span class="o">=</span> <span class="n">b</span><span class="s1">&#39;P&#39;</span>
+            <span class="k">return</span> <span class="n">b</span><span class="s1">&#39;P&#39;</span> <span class="o">+</span> <span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">loads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="n">_type</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">_type</span> <span class="o">==</span> <span class="n">b</span><span class="s1">&#39;M&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">marshal</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="k">elif</span> <span class="n">_type</span> <span class="o">==</span> <span class="n">b</span><span class="s1">&#39;P&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid sevialization type: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">_type</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">CompressedSerializer</span><span class="p">(</span><span class="n">FramedSerializer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compress the serialized data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serializer</span><span class="p">):</span>
+        <span class="n">FramedSerializer</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">serializer</span><span class="p">,</span> <span class="n">FramedSerializer</span><span class="p">),</span> <span class="s2">&quot;serializer must be a FramedSerializer&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">serializer</span> <span class="o">=</span> <span class="n">serializer</span>
+
+    <span class="k">def</span> <span class="nf">dumps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">zlib</span><span class="o">.</span><span class="n">compress</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">loads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">serializer</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">zlib</span><span class="o">.</span><span class="n">decompress</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;CompressedSerializer(</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">serializer</span>
+
+
+<span class="k">class</span> <span class="nc">UTF8Deserializer</span><span class="p">(</span><span class="n">Serializer</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Deserializes streams written by String.getBytes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_unicode</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_unicode</span> <span class="o">=</span> <span class="n">use_unicode</span>
+
+    <span class="k">def</span> <span class="nf">loads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="n">read_int</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">length</span> <span class="o">==</span> <span class="n">SpecialLengths</span><span class="o">.</span><span class="n">END_OF_DATA_SECTION</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">EOFError</span>
+        <span class="k">elif</span> <span class="n">length</span> <span class="o">==</span> <span class="n">SpecialLengths</span><span class="o">.</span><span class="n">NULL</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_unicode</span> <span class="k">else</span> <span class="n">s</span>
+
+    <span class="k">def</span> <span class="nf">load_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">struct</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">except</span> <span class="ne">EOFError</span><span class="p">:</span>
+            <span class="k">return</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;UTF8Deserializer(</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_unicode</span>
+
+
+<span class="k">def</span> <span class="nf">read_long</span><span class="p">(</span><span class="n">stream</span><span class="p">):</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">length</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">EOFError</span>
+    <span class="k">return</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;!q&quot;</span><span class="p">,</span> <span class="n">length</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">write_long</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+    <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!q&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">pack_long</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!q&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">read_int</span><span class="p">(</span><span class="n">stream</span><span class="p">):</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">length</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">EOFError</span>
+    <span class="k">return</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="n">length</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">write_int</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+    <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;!i&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">write_with_length</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+    <span class="n">write_int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span> <span class="n">stream</span><span class="p">)</span>
+    <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../index.html">PySpark 2.1.2 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+    </div>
+  </body>
+</html>
