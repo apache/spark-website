@@ -449,6 +449,7 @@ For inline comment with the code, use `//` and not `/*  .. */`.
 Always import packages using absolute paths (e.g. `scala.util.Random`) instead of relative ones 
 (e.g. `util.Random`). In addition, sort imports in the following order 
 (use alphabetical order within each group):
+
 - `java.*` and `javax.*`
 - `scala.*`
 - Third-party libraries (`org.*`, `com.*`, etc)
