@@ -156,6 +156,7 @@ The trade off when backporting is you get to deliver the fix to people running o
 The decision point is when you have a bug fix and it's not clear whether it is worth backporting.
 
 I think the following facets are important to consider:
+
 - Backports are an extremely valuable service to the community and should be considered for 
 any bug fix.
 - Introducing a new bug in a maintenance release must be avoided at all costs. It over time would 
@@ -163,11 +164,13 @@ erode confidence in our release process.
 - Distributions or advanced users can always backport risky patches on their own, if they see fit.
 
 For me, the consequence of these is that we should backport in the following situations:
+
 - Both the bug and the fix are well understood and isolated. Code being modified is well tested.
 - The bug being addressed is high priority to the community.
 - The backported fix does not vary widely from the master branch fix.
 
 We tend to avoid backports in the converse situations:
+
 - The bug or fix are not well understood. For instance, it relates to interactions between complex 
 components or third party libraries (e.g. Hadoop libraries). The code is not well tested outside 
 of the immediate bug being fixed.
