@@ -99,6 +99,14 @@ function initReleaseNotes() {
   }
 }
 
+function onPackageSelect() {
+  var packageSelect = document.getElementById("sparkPackageSelect");
+
+  var pkg = getSelectedValue(packageSelect);
+
+  updateDownloadLink();
+}
+
 function onVersionSelect() {
   var versionSelect = document.getElementById("sparkVersionSelect");
   var packageSelect = document.getElementById("sparkPackageSelect");
