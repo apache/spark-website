@@ -124,6 +124,10 @@ function onVersionSelect() {
   updateDownloadLink();
 }
 
+function onPackageSelect() {
+  updateDownloadLink();
+}
+
 function updateDownloadLink() {
   var versionSelect = document.getElementById("sparkVersionSelect");
   var packageSelect = document.getElementById("sparkPackageSelect");
