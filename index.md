@@ -129,7 +129,7 @@ navigation:
 
     <p>
       Spark is used at a wide range of organizations to process large datasets.
-      You can find example use cases at the <a href="https://spark-summit.org/summit-2013/">Spark Summit</a>
+      You can find example use cases at the <a href="https://spark-summit.org/">Spark Summit</a>
       conference, or on the <a href="{{site.baseurl}}/powered-by.html">Powered By</a> page.
     </p>
 
