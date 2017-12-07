@@ -57,7 +57,9 @@ an existing issue with that target version and click on the version (eg. find an
 and click on the version link of its Target Versions field)
 
 
-Verify from `git log` whether they are actually making it in the new RC or not.
+Verify from `git log` whether they are actually making it in the new RC or not. Check for JIRA issues
+with `release-notes` label, and make sure they are documented in relevant migration guide for breaking
+changes or in the release news on the website later.
 
 
 Also check that all build and test passes are green from the RISELab Jenkins: https://amplab.cs.berkeley.edu/jenkins/ particularly look for Spark Packaging, QA Compile, QA Test.
@@ -124,27 +126,13 @@ that looks something like `[RESULT] [VOTE]...`.
 **THIS STEP IS IRREVERSIBLE so make sure you selected the correct staging repository. Once you
 move the artifacts into the release folder, they cannot be removed.**
 
-After the vote passes, find the staging repository and click Release and confirm. To upload the
-binaries, you have to first upload them to the dev directory in the Apache Distribution repo,
-and then move the binaries from dev directory to release directory. This "moving" is the only
- way you can add stuff to the actual release directory.
+After the vote passes, for Maven, find the staging repository and click Release and confirm. To upload the
+binaries to Apache mirrors, you move the binaries from dev directory (this should be where they are voted)
+to release directory. This "moving" is the only way you can add stuff to the actual release directory.
 
 ```
 # Checkout the Spark directory in Apache distribution SVN "dev" repo
 $ svn co https://dist.apache.org/repos/dist/dev/spark/
-
-# Make directory for this RC in the above directory
-mkdir spark-1.1.1-rc2
-
-# Download the voted binaries and add them to the directory
-$ sftp -r andrewor14@people.apache.org:~/public_html/spark-1.1.1-rc2/* spark-1.1.1-rc2
-
-# NOTE: Remove any binaries you don’t want to publish
-# E.g. never push MapR and *without-hive artifacts to Apache
-$ rm spark-1.1.1-rc2/*mapr*
-$ rm spark-1.1.1-rc2/*without-hive*
-$ svn add spark-1.1.1-rc2
-$ svn commit -m "Add spark-1.1.1-rc2" --username "andrewor14"
 
 # Move the sub-directory in "dev" to the
 # corresponding directory in "release"
