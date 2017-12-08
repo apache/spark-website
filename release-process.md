@@ -126,9 +126,7 @@ that looks something like `[RESULT] [VOTE]...`.
 **THIS STEP IS IRREVERSIBLE so make sure you selected the correct staging repository. Once you
 move the artifacts into the release folder, they cannot be removed.**
 
-After the vote passes, for Maven, find the staging repository and click Release and confirm. To upload the
-binaries to Apache mirrors, you move the binaries from dev directory (this should be where they are voted)
-to release directory. This "moving" is the only way you can add stuff to the actual release directory.
+After the vote passes, to upload the binaries to Apache mirrors, you move the binaries from dev directory (this should be where they are voted) to release directory. This "moving" is the only way you can add stuff to the actual release directory.
 
 ```
 # Checkout the Spark directory in Apache distribution SVN "dev" repo
@@ -143,6 +141,11 @@ $ svn mv https://dist.apache.org/repos/dist/dev/spark/spark-1.1.1-rc2 https://di
 Verify that the resources are present in <a href="https://www.apache.org/dist/spark/">https://www.apache.org/dist/spark/</a>.
 It may take a while for them to be visible. This will be mirrored throughout the Apache network.
 There are a few remaining steps.
+
+
+For Maven Central Repository, you can Release from the <a href="https://repository.apache.org/">Apache Nexus Repository Manager</a>. This is already populated by the `release-build.sh publish-release` step. Log in, open Staging Repositories, find the one voted on (eg. orgapachespark-1257 for https://repository.apache.org/content/repositories/orgapachespark-1257/), select and click Release and confirm. If successful, it should show up under https://repository.apache.org/content/repositories/releases/org/apache/spark/spark-core_2.11/2.2.1/
+and the same under https://repository.apache.org/content/groups/maven-staging-group/org/apache/spark/spark-core_2.11/2.2.1/ (look for the correct release version). After some time this will be sync'd to <a href="https://search.maven.org/">Maven Central</a> automatically.
+
 
 <h4>Upload to PyPI</h4>
 
