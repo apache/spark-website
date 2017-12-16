@@ -27,7 +27,7 @@ Spark now runs on Scala 2.10, letting users benefit from the language and librar
 
 ### Configuration System
 
-The new [SparkConf]({{site.baseurl}}/docs/latest/api/core/index.html#org.apache.spark.SparkConf) class is now the preferred way to configure advanced settings on your SparkContext, though the previous Java system property method still works. SparkConf is especially useful in tests to make sure properties don’t stay set across tests.
+The new [SparkConf]({{site.baseurl}}/docs/0.9.0/api/core/index.html#org.apache.spark.SparkConf) class is now the preferred way to configure advanced settings on your SparkContext, though the previous Java system property method still works. SparkConf is especially useful in tests to make sure properties don’t stay set across tests.
 
 ### Spark Streaming Improvements
 

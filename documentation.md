@@ -48,7 +48,7 @@ navigation:
 -->
 
 <p>The documentation linked to above covers getting started with Spark, as well the built-in components <a href="{{site.baseurl}}/docs/latest/mllib-guide.html">MLlib</a>,
-<a href="{{site.baseurl}}/docs/latest/streaming-programming-guide.html">Spark Streaming</a>, and <a href="{{site.baseurl}}/docs/latest/graphx-guide.html">GraphX</a>.</p>
+<a href="{{site.baseurl}}/docs/latest/streaming-programming-guide.html">Spark Streaming</a>, and <a href="{{site.baseurl}}/docs/latest/graphx-programming-guide.html">GraphX</a>.</p>
 
 <p>In addition, this page lists other resources for learning Spark.</p>
 
