@@ -22,7 +22,7 @@ var packagesV6 = [hadoop2p6, hadoop2p4, hadoop2p3, hadoopFree, hadoop1, cdh4, so
 // 2.0.0+
 var packagesV7 = [hadoop2p7, hadoop2p6, hadoop2p4, hadoop2p3, hadoopFree, sources];
 // 2.2.0+
-var packagesV8 = [hadoop2p7, hadoop2p6, hadoopFree, sources]
+var packagesV8 = [hadoop2p7, hadoop2p6, hadoopFree, sources];
 
 addRelease("2.2.1", new Date("12/01/2017"), packagesV8, true);
 addRelease("2.2.0", new Date("07/11/2017"), packagesV8, true);
@@ -98,6 +98,10 @@ function initReleaseNotes() {
       .replace(/\$date/, releaseDate.toDateString().slice(4));
     append(releaseNotes, contents);
   }
+}
+
+function onPackageSelect() {
+  updateDownloadLink();
 }
 
 function onVersionSelect() {
