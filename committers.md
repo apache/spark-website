@@ -20,10 +20,10 @@ navigation:
 |Ankur Dave|UC Berkeley|
 |Aaron Davidson|Databricks|
 |Thomas Dudziak|Facebook|
-|Robert Evans|Yahoo!|
+|Robert Evans|Oath|
 |Wenchen Fan|Databricks|
 |Joseph Gonzalez|UC Berkeley|
-|Thomas Graves|Yahoo!|
+|Thomas Graves|Oath|
 |Stephen Haberman|Bizo|
 |Mark Hamstra|ClearStory Data|
 |Herman van Hovell|QuestTec B.V.|
