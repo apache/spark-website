@@ -109,11 +109,11 @@ navigation:
     <h2>Runs Everywhere</h2>
 
     <p class="lead">
-      Spark runs on Hadoop, Mesos, standalone, or in the cloud. It can access diverse data sources including HDFS, Cassandra, HBase, and S3.
+      Spark runs on Hadoop, Mesos, Kubernetes, standalone, or in the cloud. It can access diverse data sources including HDFS, Cassandra, HBase, and S3.
     </p>
 
     <p>
-      You can run Spark using its <a href="{{site.baseurl}}/docs/latest/spark-standalone.html">standalone cluster mode</a>, on <a href="https://github.com/amplab/spark-ec2">EC2</a>, on <a href="https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/YARN.html">Hadoop YARN</a>, or on <a href="https://mesos.apache.org">Apache Mesos</a>.
+      You can run Spark using its <a href="{{site.baseurl}}/docs/latest/spark-standalone.html">standalone cluster mode</a>, on <a href="https://github.com/amplab/spark-ec2">EC2</a>, on <a href="https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/YARN.html">Hadoop YARN</a>, on <a href="https://mesos.apache.org">Apache Mesos</a>, or on <a href="https://kubernetes.io/">Kubernetes</a>.
       Access data in <a href="https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html">HDFS</a>, <a href="https://cassandra.apache.org">Cassandra</a>, <a href="https://hbase.apache.org">HBase</a>,
       <a href="https://hive.apache.org">Hive</a>, <a href="http://tachyon-project.org">Tachyon</a>, and any Hadoop data source.
     </p>
