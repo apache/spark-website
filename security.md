@@ -12,8 +12,8 @@ navigation:
 Apache Spark uses the standard process outlined by the [Apache Security Team](https://www.apache.org/security/)
 for reporting vulnerabilities.
 
-If you need to report a possible security vulnerability, please email `private@spark.apache.org`. This is a
-non-public list that will reach the Spark PMC. Messages to `security@apache.org` will also reach the PMC. 
+To report a possible security vulnerability, please email `security@apache.org`. This is a
+non-public list that will reach the Apache Security team, as well as the Spark PMC.
 
 <h2>Known Security Issues</h2>
 
