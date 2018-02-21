@@ -26,6 +26,7 @@ navigation:
 |Thomas Graves|Oath|
 |Stephen Haberman|Bizo|
 |Mark Hamstra|ClearStory Data|
+|Seth Hendrickson|Cloudera|
 |Herman van Hovell|QuestTec B.V.|
 |Yin Huai|Databricks|
 |Shane Huang|Intel|
