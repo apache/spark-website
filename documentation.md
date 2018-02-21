@@ -155,6 +155,7 @@ Slides, videos and EC2-based exercises from each of these are available online:
   <li><a href="http://www.slideshare.net/EvanChan2/cassandra2013-spark-talk-final">Real-time Analytics with Cassandra, Spark, and Shark</a> &mdash; Presentation by Evan Chan from Ooyala at 2013 Cassandra Summit</li>
   <li><a href="http://aws.amazon.com/articles/Elastic-MapReduce/4926593393724923">Run Spark and Shark on Amazon Elastic MapReduce</a> &mdash; Article by Amazon Elastic MapReduce team member Parviz Deyhim</li>
   <li><a href="http://www.ibm.com/developerworks/library/os-spark/">Spark, an alternative for fast data analytics</a> &mdash; IBM Developer Works article by M. Tim Jones</li>
+  <li><a href="https://www.packtpub.com/big-data-and-business-intelligence/advanced-analytics-and-real-time-data-processing-apache-spark-vid">Advanced Analytics and Real-Time Data Processing in Apache Spark [Video]</a>, by Tomasz Lelek (Packt)</li>
 </ul>
 
 <h3>Books</h3>
