@@ -15,6 +15,7 @@ navigation:
 |Joseph Bradley|Databricks|
 |Felix Cheung|Microsoft|
 |Mosharaf Chowdhury|University of Michigan, Ann Arbor|
+|Bryan Cutler|IBM|
 |Jason Dai|Intel|
 |Tathagata Das|Databricks|
 |Ankur Dave|UC Berkeley|
