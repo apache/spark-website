@@ -21,6 +21,7 @@ navigation:
 |Ankur Dave|UC Berkeley|
 |Aaron Davidson|Databricks|
 |Thomas Dudziak|Facebook|
+|Erik Erlandson|Red Hat|
 |Robert Evans|Oath|
 |Wenchen Fan|Databricks|
 |Joseph Gonzalez|UC Berkeley|
