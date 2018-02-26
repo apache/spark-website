@@ -65,6 +65,7 @@ navigation:
 |Burak Yavuz|Databricks|
 |Matei Zaharia|Databricks, Stanford|
 |Shixiong Zhu|Databricks|
+|Matthew Cheah|Palantir|
 
 <h3>Becoming a Committer</h3>
 
