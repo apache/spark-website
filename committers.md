@@ -50,6 +50,7 @@ navigation:
 |Sean Owen|Cloudera|
 |Tejas Patil|Facebook|
 |Nick Pentreath|IBM|
+|Anirudh Ramanathan|Google|
 |Imran Rashid|Cloudera|
 |Charles Reiss|UC Berkeley|
 |Josh Rosen|Databricks|
