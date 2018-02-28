@@ -46,6 +46,7 @@ navigation:
 |Sean Owen|Cloudera|
 |Tejas Patil|Facebook|
 |Nick Pentreath|IBM|
+|Anirudh Ramanathan|Google|
 |Imran Rashid|Cloudera|
 |Charles Reiss|UC Berkeley|
 |Josh Rosen|Databricks|
@@ -64,7 +65,6 @@ navigation:
 |Burak Yavuz|Databricks|
 |Matei Zaharia|Databricks, Stanford|
 |Shixiong Zhu|Databricks|
-|Anirudh Ramanathan|Google|
 
 <h3>Becoming a Committer</h3>
 
