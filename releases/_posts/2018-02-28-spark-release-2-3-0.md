@@ -12,7 +12,7 @@ meta:
 ---
 
 
-Apache Spark 2.3.0 is the fourth release on the 2.x line. This release adds support for Continuous Processing in Structured Streaming along with a brand new Kubernetes Scheduler backend. Other major updates include the new DataSource and Structured Streaming v2 APIs, and a number of PySpark performance and enhancements. In addition, this release continues to focus on usability, stability, and polish while resolving around 1400 tickets.
+Apache Spark 2.3.0 is the fourth release in the 2.x line. This release adds support for Continuous Processing in Structured Streaming along with a brand new Kubernetes Scheduler backend. Other major updates include the new DataSource and Structured Streaming v2 APIs, and a number of PySpark performance enhancements. In addition, this release continues to focus on usability, stability, and polish while resolving around 1400 tickets.
 
 To download Apache Spark 2.3.0, visit the <a href="{{site.baseurl}}/downloads.html">downloads</a> page. You can consult JIRA for the [detailed changes](https://s.apache.org/spark-2.3.0). We have curated a list of high level changes here, grouped by major modules.
 
