@@ -13,6 +13,7 @@ navigation:
 |Sameer Agarwal|Databricks|
 |Michael Armbrust|Databricks|
 |Joseph Bradley|Databricks|
+|Matthew Cheah|Palantir|
 |Felix Cheung|Microsoft|
 |Mosharaf Chowdhury|University of Michigan, Ann Arbor|
 |Bryan Cutler|IBM|
@@ -65,7 +66,6 @@ navigation:
 |Burak Yavuz|Databricks|
 |Matei Zaharia|Databricks, Stanford|
 |Shixiong Zhu|Databricks|
-|Matthew Cheah|Palantir|
 
 <h3>Becoming a Committer</h3>
 
