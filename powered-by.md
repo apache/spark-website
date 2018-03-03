@@ -11,8 +11,8 @@ navigation:
 
 Organizations creating products and projects for use with Apache Spark, along with associated 
 marketing materials, should take care to respect the trademark in "Apache Spark" and its logo. 
-Please refer to <a href="http://www.apache.org/foundation/marks/">ASF Trademarks Guidance</a> and 
-associated <a href="http://www.apache.org/foundation/marks/faq/">FAQ</a> 
+Please refer to <a href="https://www.apache.org/foundation/marks/">ASF Trademarks Guidance</a> and 
+associated <a href="https://www.apache.org/foundation/marks/faq/">FAQ</a> 
 for comprehensive and authoritative guidance on proper usage of ASF trademarks.
 
 Names that do not include "Spark" at all have no potential trademark issue with the Spark project. 
@@ -51,11 +51,8 @@ initially launched Spark
   - enhancing big data. 360 customer view, log analysis, BI
 - <a href="http://www.taobao.com/">Alibaba Taobao</a>
   - We built one of the world's first Spark on YARN production clusters.
-  - See our blog posts (in Chinese) about Spark at Taobao: 
-  <a href="http://rdc.taobao.org/?tag=spark">http://rdc.taobao.org/?tag=spark</a>
 - <a href="http://alpinenow.com/">Alpine Data Labs</a>
 - <a href="http://amazon.com">Amazon</a>
-- <a href="http://www.amrita.edu/cyber/">Amrita Center for Cyber Security Systems and Networks</a>
 - <a href="http://www.art.com/">Art.com</a>
   - Trending analytics and personalization
 - <a href="http://www.asiainfo.com">AsiaInfo</a>
@@ -71,7 +68,7 @@ analytics platform, as a replacement for Hadoop MR
 - <a href="http://www.baidu.com">Baidu</a>
 - <a href="http://www.bakdata.com/">Bakdata</a> – using Spark (and Shark) to perform interactive 
 exploration of large datasets
-- <a href="http://http//www.bigindustries.be/">Big Industries</a> - using Spark Streaming: The 
+- <a href="http://www.bigindustries.be/">Big Industries</a> - using Spark Streaming: The 
 Big Content Platform is a business-to-business content asset management service providing a 
 searchable, aggregated source of live news feeds, public domain media and archives of content.
 - <a href="http://www.bizo.com">Bizo</a>
@@ -90,17 +87,17 @@ and external data sources, driving holistic and actionable insights.
   anomaly detection, machine learning.
 - <a href="http://www.conviva.com">Conviva</a> – Experience Live
   - See our talk at <a href="http://ampcamp.berkeley.edu/3/">AmpCamp</a> on how we are 
-  <a href="http://www.youtube.com/watch?feature=player_detailpage&v=YaayAatdRNs">using Spark to 
+  <a href="https://www.youtube.com/watch?feature=player_detailpage&v=YaayAatdRNs">using Spark to 
   provide real time video optimization</a>
 - <a href="https://www.creditkarma.com/">Credit Karma</a>
   - We create personalized experiences using Spark.
-- <a href="http://databricks.com">Databricks</a>
+- <a href="https://databricks.com">Databricks</a>
   - Formed by the creators of Apache Spark and Shark, Databricks is working to greatly expand these 
   open source projects and transform big data analysis in the process. We're deeply committed to 
   keeping all work on these systems open source.
   - We provided a hosted service to run Spark, 
   <a href="http://www.databricks.com/cloud">Databricks Cloud</a>, and partner to 
-  <a href="http://databricks.com/support/">support Apache Spark</a> with other Hadoop and big 
+  <a href="https://databricks.com/support/">support Apache Spark</a> with other Hadoop and big 
   data companies.
 - <a href="http://dianping.com">Dianping.com</a>
 - <a href="http://www.digby.com">Digby</a>
@@ -125,7 +122,7 @@ and external data sources, driving holistic and actionable insights.
   activity in real time
 - <a href="http://www.fundacionctic.org">Fundacion CTIC</a>
 - <a href="http://graphflow.com">GraphFlow, Inc.</a>
-- <a href="http://www.groupon.com/app/subscriptions/new_zip?division_p=san-francisco">Groupon</a>
+- <a href="https://www.groupon.com">Groupon</a>
 - <a href="http://www.guavus.com/">Guavus</a>
   - Stream processing of network machine data
 - <a href="http://www.hitachi-solutions.com/">Hitachi Solutions</a>
@@ -170,7 +167,7 @@ across all screens
   - See our presentation on 
   <a href="http://www.slideshare.net/EvanChan2/cassandra2013-spark-talk-final">Cassandra, Spark, 
   and Shark</a>
-- <a href="http://www.opentable.com/">Opentable</a>
+- <a href="https://www.opentable.com/">Opentable</a>
   - Using Apache Spark for log processing and ETL. The data obtained feeds the recommender 
   system powered by Spark MLLIB Matrix Factorization. We are evaluating the use of Spark 
   Streaming for real-time analytics.
@@ -220,8 +217,6 @@ efficiently.
   - Automatic pulling of all your data in to Spark for enterprise visualisation, predictive 
   analytics and data exploration at a low cost.
 - <a href="http://www.trueffect.com">TruEffect Inc</a>
-- <a href="http://www.tuplejump.com">Tuplejump</a>
-  - Software development partners for Apache Spark and Cassandra projects
 - <a href="http://www.ucsc.edu">UC Santa Cruz</a>
 - <a href="http://missouri.edu/">University of Missouri Data Analytics and Discover Lab</a>
 - <a href="http://videoamp.com/">VideoAmp</a>

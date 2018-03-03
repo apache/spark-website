@@ -61,13 +61,13 @@ subproject: SQL
 
 <div class="row row-padded">
   <div class="col-md-7 col-sm-7">
-    <h2>Hive Compatibility</h2>
+    <h2>Hive Integration</h2>
     <p class="lead">
-      Run unmodified Hive queries on existing data.
+      Run SQL or HiveQL queries on existing warehouses.
     </p>
     <p>
-      Spark SQL reuses the Hive frontend and metastore, giving you full compatibility with
-      existing Hive data, queries, and UDFs. Simply install it alongside Hive.
+      Spark SQL supports the HiveQL syntax as well as Hive SerDes and UDFs, allowing
+      you to access existing Hive warehouses.
     </p>
   </div>
   <div class="col-md-5 col-sm-5 col-padded-top col-center">

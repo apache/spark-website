@@ -109,13 +109,13 @@ navigation:
     <h2>Runs Everywhere</h2>
 
     <p class="lead">
-      Spark runs on Hadoop, Mesos, standalone, or in the cloud. It can access diverse data sources including HDFS, Cassandra, HBase, and S3.
+      Spark runs on Hadoop, Mesos, Kubernetes, standalone, or in the cloud. It can access diverse data sources including HDFS, Cassandra, HBase, and S3.
     </p>
 
     <p>
-      You can run Spark using its <a href="{{site.baseurl}}/docs/latest/spark-standalone.html">standalone cluster mode</a>, on <a href="{{site.baseurl}}/docs/latest/ec2-scripts.html">EC2</a>, on <a href="http://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/index.html">Hadoop YARN</a>, or on <a href="http://mesos.apache.org">Apache Mesos</a>.
-      Access data in <a href="http://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html">HDFS</a>, <a href="http://cassandra.apache.org">Cassandra</a>, <a href="http://hbase.apache.org">HBase</a>,
-      <a href="http://hive.apache.org">Hive</a>, <a href="http://tachyon-project.org">Tachyon</a>, and any Hadoop data source.
+      You can run Spark using its <a href="{{site.baseurl}}/docs/latest/spark-standalone.html">standalone cluster mode</a>, on <a href="https://github.com/amplab/spark-ec2">EC2</a>, on <a href="https://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/YARN.html">Hadoop YARN</a>, on <a href="https://mesos.apache.org">Apache Mesos</a>, or on <a href="https://kubernetes.io/">Kubernetes</a>.
+      Access data in <a href="https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html">HDFS</a>, <a href="https://cassandra.apache.org">Cassandra</a>, <a href="https://hbase.apache.org">HBase</a>,
+      <a href="https://hive.apache.org">Hive</a>, <a href="http://tachyon-project.org">Tachyon</a>, and any Hadoop data source.
     </p>
   </div>
   <div class="col-md-5 col-sm-5 col-padded-top col-center">
@@ -129,7 +129,7 @@ navigation:
 
     <p>
       Spark is used at a wide range of organizations to process large datasets.
-      You can find example use cases at the <a href="http://spark-summit.org/summit-2013/">Spark Summit</a>
+      You can find example use cases at the <a href="https://spark-summit.org/">Spark Summit</a>
       conference, or on the <a href="{{site.baseurl}}/powered-by.html">Powered By</a> page.
     </p>
 
@@ -139,7 +139,7 @@ navigation:
     <ul class="list-narrow">
       <li>Use the <a href="{{site.baseurl}}/community.html#mailing-lists">mailing lists</a> to ask questions.</li>
       <li>In-person events include numerous <a href="http://www.meetup.com/topics/apache-spark/">meetup groups</a> and
-      <a href="http://spark-summit.org/">Spark Summit</a>.</li>
+      <a href="https://spark-summit.org/">Spark Summit</a>.</li>
       <li>We use <a href="https://issues.apache.org/jira/browse/SPARK">JIRA</a> for issue tracking.</li>
     </ul>
   </div>
@@ -172,7 +172,7 @@ navigation:
       <li><a href="{{site.baseurl}}/downloads.html">Download</a> the latest release &mdash; you can run Spark locally on your laptop.</li>
       <li>Read the <a href="{{site.baseurl}}/docs/latest/quick-start.html">quick start guide</a>.</li>
       <li>
-        Spark Summit 2014 contained free <a href="http://spark-summit.org/2014/training">training videos and exercises</a>.
+        Spark Summit 2014 contained free <a href="https://spark-summit.org/2014/training">training videos and exercises</a>.
       </li>
       <li>Learn how to <a href="{{site.baseurl}}/docs/latest/#launching-on-a-cluster">deploy</a> Spark on a cluster.</li>
     </ul>

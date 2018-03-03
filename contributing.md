@@ -43,7 +43,7 @@ feedback on any performance or correctness issues found in the newer release.
 <h2>Contributing by Reviewing Changes</h2>
 
 Changes to Spark source code are proposed, reviewed and committed via 
-<a href="http://github.com/apache/spark/pulls">Github pull requests</a> (described later). 
+<a href="https://github.com/apache/spark/pulls">Github pull requests</a> (described later). 
 Anyone can view and comment on active changes here. 
 Reviewing others' changes is a good way to learn how the change process works and gain exposure 
 to activity in various parts of the code. You can help by reviewing the changes and asking 
@@ -74,7 +74,7 @@ learning algorithms can happily exist outside of MLlib.
 
 To that end, large and independent new functionality is often rejected for inclusion in Spark 
 itself, but, can and should be hosted as a separate project and repository, and included in 
-the <a href="http://spark-packages.org/">spark-packages.org</a> collection.
+the <a href="https://spark-packages.org/">spark-packages.org</a> collection.
 
 <h2>Contributing Bug Reports</h2>
 
@@ -89,7 +89,7 @@ first. Unreproducible bugs, or simple error reports, may be closed.
 
 It is possible to propose new features as well. These are generally not helpful unless 
 accompanied by detail, such as a design document and/or code change. Large new contributions 
-should consider <a href="http://spark-packages.org/">spark-packages.org</a> first (see above), 
+should consider <a href="https://spark-packages.org/">spark-packages.org</a> first (see above), 
 or be discussed on the mailing 
 list first. Feature requests may be rejected, or closed after a long period of inactivity.
 
@@ -194,7 +194,7 @@ rather than receive iterations of review.
 - Introduces complex new functionality, especially an API that needs to be supported
 - Adds complexity that only helps a niche use case
 - Adds user-space functionality that does not need to be maintained in Spark, but could be hosted 
-externally and indexed by <a href="http://spark-packages.org/">spark-packages.org</a> 
+externally and indexed by <a href="https://spark-packages.org/">spark-packages.org</a> 
 - Changes a public API or semantics (rarely allowed)
 - Adds large dependencies
 - Changes versions of existing dependencies
@@ -260,7 +260,7 @@ Example: `Fix typos in Foo scaladoc`
 <h3>Pull Request</h3>
 
 1. <a href="https://help.github.com/articles/fork-a-repo/">Fork</a> the Github repository at 
-<a href="http://github.com/apache/spark">http://github.com/apache/spark</a> if you haven't already
+<a href="https://github.com/apache/spark">https://github.com/apache/spark</a> if you haven't already
 1. Clone your fork, create a new branch, push commits to the branch.
 1. Consider whether documentation or tests need to be added or updated as part of the change, 
 and add them as needed.
@@ -295,8 +295,12 @@ with a link to the full results on Jenkins.
      1. Fixes can simply be pushed to the same branch from which you opened your pull request
      1. Jenkins will automatically re-test when new commits are pushed
      1. If the tests failed for reasons unrelated to the change (e.g. Jenkins outage), then a 
-     committer can request a re-test with "Jenkins, retest this please". 
-     Ask if you need a test restarted.
+     committer can request a re-test with "Jenkins, retest this please".
+     Ask if you need a test restarted. If you were added by "Jenkins, add to whitelist" from a
+     committer before, you can also request the re-test.
+1. If there is a change related to SparkR in your pull request, AppVeyor will be triggered
+automatically to test SparkR on Windows, which takes roughly an hour. Similarly to the steps
+above, fix failures and push new commits which will request the re-test in AppVeyor.
 
 <h3>The Review Process</h3>
 
@@ -311,9 +315,10 @@ looked at this thoroughly and take as much ownership as if I wrote the patch mys
 comment LGTM you will be expected to help with bugs or follow-up issues on the patch. Consistent, 
 judicious use of LGTMs is a great way to gain credibility as a reviewer with the broader community.
 - Sometimes, other changes will be merged which conflict with your pull request's changes. The 
-PR can't be merged until the conflict is resolved. This can be resolved with `git fetch origin` 
-followed by `git merge origin/master` and resolving the conflicts by hand, then pushing the result 
-to your branch.
+PR can't be merged until the conflict is resolved. This can be resolved by, for example, adding a remote
+to keep up with upstream changes by `git remote add upstream https://github.com/apache/spark.git`,
+running `git fetch upstream` followed by `git rebase upstream/master` and resolving the conflicts by hand,
+then pushing the result to your branch.
 - Try to be responsive to the discussion rather than let days pass between replies
 
 <h3>Closing Your Pull Request / JIRA</h3>
@@ -348,6 +353,10 @@ Please follow the style of the existing codebase.
 - For Python code, Apache Spark follows 
 <a href="http://legacy.python.org/dev/peps/pep-0008/">PEP 8</a> with one exception: 
 lines can be up to 100 characters in length, not 79.
+- For R code, Apache Spark follows
+<a href="https://google.github.io/styleguide/Rguide.xml">Google's R Style Guide</a> with three exceptions:
+lines can be up to 100 characters in length, not 80, there is no limit on function name but it has a initial
+lower case latter and S4 objects/methods are allowed.
 - For Java code, Apache Spark follows 
 <a href="http://www.oracle.com/technetwork/java/codeconvtoc-136057.html">Oracle's Java code conventions</a>. 
 Many Scala guidelines below also apply to Java.
@@ -440,6 +449,7 @@ For inline comment with the code, use `//` and not `/*  .. */`.
 Always import packages using absolute paths (e.g. `scala.util.Random`) instead of relative ones 
 (e.g. `util.Random`). In addition, sort imports in the following order 
 (use alphabetical order within each group):
+
 - `java.*` and `javax.*`
 - `scala.*`
 - Third-party libraries (`org.*`, `com.*`, etc)

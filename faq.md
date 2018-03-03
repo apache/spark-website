@@ -15,18 +15,18 @@ Spark is a fast and general processing engine compatible with Hadoop data. It ca
 
 <p class="question">Who is using Spark in production?</p>
 
-<p class="answer">As of 2016, surveys show that more than 1000 organizations are using Spark in production. Some of them are listed on the <a href="{{site.baseurl}}/powered-by.html">Powered By page</a> and at the <a href="http://spark-summit.org">Spark Summit</a>.</p>
+<p class="answer">As of 2016, surveys show that more than 1000 organizations are using Spark in production. Some of them are listed on the <a href="{{site.baseurl}}/powered-by.html">Powered By page</a> and at the <a href="https://spark-summit.org">Spark Summit</a>.</p>
 
 
 <p class="question">How large a cluster can Spark scale to?</p>
-<p class="answer">Many organizations run Spark on clusters of thousands of nodes. The largest cluster we know has 8000 of them. In terms of data size, Spark has been shown to work well up to petabytes. It has been used to sort 100 TB of data 3X faster than Hadoop MapReduce on 1/10th of the machines, <a href="http://databricks.com/blog/2014/11/05/spark-officially-sets-a-new-record-in-large-scale-sorting.html">winning the 2014 Daytona GraySort Benchmark</a>, as well as to <a href="https://databricks.com/blog/2014/10/10/spark-petabyte-sort.html">sort 1 PB</a>. Several production workloads <a href="http://databricks.com/blog/2014/08/14/mining-graph-data-with-spark-at-alibaba-taobao.html">use Spark to do ETL and data analysis on PBs of data</a>.</p>
+<p class="answer">Many organizations run Spark on clusters of thousands of nodes. The largest cluster we know has 8000 of them. In terms of data size, Spark has been shown to work well up to petabytes. It has been used to sort 100 TB of data 3X faster than Hadoop MapReduce on 1/10th of the machines, <a href="https://databricks.com/blog/2014/11/05/spark-officially-sets-a-new-record-in-large-scale-sorting.html">winning the 2014 Daytona GraySort Benchmark</a>, as well as to <a href="https://databricks.com/blog/2014/10/10/spark-petabyte-sort.html">sort 1 PB</a>. Several production workloads <a href="https://databricks.com/blog/2014/08/14/mining-graph-data-with-spark-at-alibaba-taobao.html">use Spark to do ETL and data analysis on PBs of data</a>.</p>
 
 <p class="question">Does my data need to fit in memory to use Spark?</p>
 
 <p class="answer">No. Spark's operators spill data to disk if it does not fit in memory, allowing it to run well on any sized data. Likewise, cached datasets that do not fit in memory are either spilled to disk or recomputed on the fly when needed, as determined by the RDD's <a href="{{site.baseurl}}/docs/latest/scala-programming-guide.html#rdd-persistence">storage level</a>.
 
 <p class="question">How can I run Spark on a cluster?</p>
-<p class="answer">You can use either the <a href="{{site.baseurl}}/docs/latest/spark-standalone.html">standalone deploy mode</a>, which only needs Java to be installed on each node, or the <a href="{{site.baseurl}}/docs/latest/running-on-mesos.html">Mesos</a> and <a href="{{site.baseurl}}/docs/latest/running-on-yarn.html">YARN</a> cluster managers. If you'd like to run on Amazon EC2, Spark provides <a href="{{site.baseurl}}/docs/latest/ec2-scripts.html}}">EC2 scripts</a> to automatically launch a cluster.</p>
+<p class="answer">You can use either the <a href="{{site.baseurl}}/docs/latest/spark-standalone.html">standalone deploy mode</a>, which only needs Java to be installed on each node, or the <a href="{{site.baseurl}}/docs/latest/running-on-mesos.html">Mesos</a> and <a href="{{site.baseurl}}/docs/latest/running-on-yarn.html">YARN</a> cluster managers. If you'd like to run on Amazon EC2, AMPLab provides <a href="https://github.com/amplab/spark-ec2#readme">EC2 scripts</a> to automatically launch a cluster.</p>
 
 <p>Note that you can also run Spark locally (possibly on multiple cores) without any special setup by just passing <code>local[N]</code> as the master URL, where <code>N</code> is the number of parallel threads you want.</p>
 
@@ -71,4 +71,4 @@ Please also refer to our
 
 <p class="question">Where can I get more help?</p>
 
-<p class="answer">Please post on StackOverflow's <a href="http://stackoverflow.com/questions/tagged/apache-spark"><code>apache-spark</code></a> tag or <a href="http://apache-spark-user-list.1001560.n3.nabble.com">Spark Users</a> mailing list.  For more information, please refer to <a href="http://spark.apache.org/community.html#have-questions">Have Questions?</a>.  We'll be glad to help!</p>
+<p class="answer">Please post on StackOverflow's <a href="https://stackoverflow.com/questions/tagged/apache-spark"><code>apache-spark</code></a> tag or <a href="http://apache-spark-user-list.1001560.n3.nabble.com">Spark Users</a> mailing list.  For more information, please refer to <a href="https://spark.apache.org/community.html#have-questions">Have Questions?</a>.  We'll be glad to help!</p>

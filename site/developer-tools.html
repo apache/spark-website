@@ -106,7 +106,7 @@
           Documentation <b class="caret"></b>
         </a>
         <ul class="dropdown-menu">
-          <li><a href="/docs/latest/">Latest Release (Spark 2.1.0)</a></li>
+          <li><a href="/docs/latest/">Latest Release (Spark 2.3.0)</a></li>
           <li><a href="/documentation.html">Older Versions and Other Resources</a></li>
           <li><a href="/faq.html">Frequently Asked Questions</a></li>
         </ul>
@@ -119,6 +119,7 @@
         <ul class="dropdown-menu">
           <li><a href="/community.html">Mailing Lists &amp; Resources</a></li>
           <li><a href="/contributing.html">Contributing to Spark</a></li>
+          <li><a href="/improvement-proposals.html">Improvement Proposals (SPIP)</a></li>
           <li><a href="https://issues.apache.org/jira/browse/SPARK">Issue Tracker</a></li>
           <li><a href="/powered-by.html">Powered By</a></li>
           <li><a href="/committers.html">Project Committers</a></li>
@@ -132,19 +133,20 @@
           <li><a href="/developer-tools.html">Useful Developer Tools</a></li>
           <li><a href="/versioning-policy.html">Versioning Policy</a></li>
           <li><a href="/release-process.html">Release Process</a></li>
+          <li><a href="/security.html">Security</a></li>
         </ul>
       </li>
     </ul>
     <ul class="nav navbar-nav navbar-right">
       <li class="dropdown">
-        <a href="http://www.apache.org/" class="dropdown-toggle" data-toggle="dropdown">
+        <a href="https://www.apache.org/" class="dropdown-toggle" data-toggle="dropdown">
           Apache Software Foundation <b class="caret"></b></a>
         <ul class="dropdown-menu">
-          <li><a href="http://www.apache.org/">Apache Homepage</a></li>
-          <li><a href="http://www.apache.org/licenses/">License</a></li>
-          <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>
-          <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
-          <li><a href="http://www.apache.org/security/">Security</a></li>
+          <li><a href="https://www.apache.org/">Apache Homepage</a></li>
+          <li><a href="https://www.apache.org/licenses/">License</a></li>
+          <li><a href="https://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>
+          <li><a href="https://www.apache.org/foundation/thanks.html">Thanks</a></li>
+          <li><a href="https://www.apache.org/security/">Security</a></li>
         </ul>
       </li>
     </ul>
@@ -159,17 +161,17 @@
       <h5>Latest News</h5>
       <ul class="list-unstyled">
         
-          <li><a href="/news/spark-summit-east-2017-agenda-posted.html">Spark Summit East (Feb 7-9th, 2017, Boston) agenda posted</a>
-          <span class="small">(Jan 04, 2017)</span></li>
+          <li><a href="/news/spark-summit-june-2018-agenda-posted.html">Spark+AI Summit (June 4-6th, 2018, San Francisco) agenda posted</a>
+          <span class="small">(Mar 01, 2018)</span></li>
         
-          <li><a href="/news/spark-2-1-0-released.html">Spark 2.1.0 released</a>
-          <span class="small">(Dec 28, 2016)</span></li>
+          <li><a href="/news/spark-2-3-0-released.html">Spark 2.3.0 released</a>
+          <span class="small">(Feb 28, 2018)</span></li>
         
-          <li><a href="/news/spark-wins-cloudsort-100tb-benchmark.html">Spark wins CloudSort Benchmark as the most efficient engine</a>
-          <span class="small">(Nov 15, 2016)</span></li>
+          <li><a href="/news/spark-2-2-1-released.html">Spark 2.2.1 released</a>
+          <span class="small">(Dec 01, 2017)</span></li>
         
-          <li><a href="/news/spark-2-0-2-released.html">Spark 2.0.2 released</a>
-          <span class="small">(Nov 14, 2016)</span></li>
+          <li><a href="/news/spark-2-1-2-released.html">Spark 2.1.2 released</a>
+          <span class="small">(Oct 09, 2017)</span></li>
         
       </ul>
       <p class="small" style="text-align: right;"><a href="/news/index.html">Archive</a></p>
@@ -194,7 +196,9 @@
   <div class="col-md-9 col-md-pull-3">
     <h2>Useful Developer Tools</h2>
 
-<h3>Reducing Build Times</h3>
+<h3 id="reducing-build-times">Reducing Build Times</h3>
+
+<h4>SBT: Avoiding Re-Creating the Assembly JAR</h4>
 
 <p>Spark&#8217;s default build strategy is to assemble a jar including all of its dependencies. This can 
 be cumbersome when doing iterative development. When developing locally, it is possible to create 
@@ -215,6 +219,173 @@ $ ./bin/spark-shell
 # You can also use ~ to let sbt do incremental builds on file changes without running a new sbt session every time
 $ build/sbt ~compile
 </code></pre>
+
+<h4>Maven: Speeding up Compilation with Zinc</h4>
+
+<p><a href="https://github.com/typesafehub/zinc">Zinc</a> is a long-running server version of SBT&#8217;s incremental
+compiler. When run locally as a background process, it speeds up builds of Scala-based projects
+like Spark. Developers who regularly recompile Spark with Maven will be the most interested in
+Zinc. The project site gives instructions for building and running <code>zinc</code>; OS X users can
+install it using <code>brew install zinc</code>.</p>
+
+<p>If using the <code>build/mvn</code> package <code>zinc</code> will automatically be downloaded and leveraged for all
+builds. This process will auto-start after the first time <code>build/mvn</code> is called and bind to port
+3030 unless the <code>ZINC_PORT</code> environment variable is set. The <code>zinc</code> process can subsequently be
+shut down at any time by running <code>build/zinc-&lt;version&gt;/bin/zinc -shutdown</code> and will automatically
+restart whenever <code>build/mvn</code> is called.</p>
+
+<h3>Building submodules individually</h3>
+
+<p>For instance, you can build the Spark Core module using:</p>
+
+<pre><code>$ # sbt
+$ build/sbt
+&gt; project core
+&gt; package
+
+$ # or you can build the spark-core module with sbt directly using:
+$ build/sbt core/package
+
+$ # Maven
+$ build/mvn package -DskipTests -pl core
+</code></pre>
+
+<p><a name="individual-tests"></a></p>
+<h3 id="running-individual-tests">Running Individual Tests</h3>
+
+<p>When developing locally, it&#8217;s often convenient to run a single test or a few tests, rather than running the entire test suite.</p>
+
+<h4>Testing with SBT</h4>
+
+<p>The fastest way to run individual tests is to use the <code>sbt</code> console. It&#8217;s fastest to keep a <code>sbt</code> console open, and use it to re-run tests as necessary.  For example, to run all of the tests in a particular project, e.g., <code>core</code>:</p>
+
+<pre><code>$ build/sbt
+&gt; project core
+&gt; test
+</code></pre>
+
+<p>You can run a single test suite using the <code>testOnly</code> command.  For example, to run the DAGSchedulerSuite:</p>
+
+<pre><code>&gt; testOnly org.apache.spark.scheduler.DAGSchedulerSuite
+</code></pre>
+
+<p>The <code>testOnly</code> command accepts wildcards; e.g., you can also run the <code>DAGSchedulerSuite</code> with:</p>
+
+<pre><code>&gt; testOnly *DAGSchedulerSuite
+</code></pre>
+
+<p>Or you could run all of the tests in the scheduler package:</p>
+
+<pre><code>&gt; testOnly org.apache.spark.scheduler.*
+</code></pre>
+
+<p>If you&#8217;d like to run just a single test in the <code>DAGSchedulerSuite</code>, e.g., a test that includes &#8220;SPARK-12345&#8221; in the name, you run the following command in the sbt console:</p>
+
+<pre><code>&gt; testOnly *DAGSchedulerSuite -- -z "SPARK-12345"
+</code></pre>
+
+<p>If you&#8217;d prefer, you can run all of these commands on the command line (but this will be slower than running tests using an open cosole).  To do this, you need to surround <code>testOnly</code> and the following arguments in quotes:</p>
+
+<pre><code>$ build/sbt "core/testOnly *DAGSchedulerSuite -- -z SPARK-12345"
+</code></pre>
+
+<p>For more about how to run individual tests with sbt, see the <a href="http://www.scala-sbt.org/0.13/docs/Testing.html">sbt documentation</a>.</p>
+
+<h4>Testing with Maven</h4>
+
+<p>With Maven, you can use the <code>-DwildcardSuites</code> flag to run individual Scala tests:</p>
+
+<pre><code>build/mvn -Dtest=none -DwildcardSuites=org.apache.spark.scheduler.DAGSchedulerSuite test
+</code></pre>
+
+<p>You need <code>-Dtest=none</code> to avoid running the Java tests.  For more information about the ScalaTest Maven Plugin, refer to the <a href="http://www.scalatest.org/user_guide/using_the_scalatest_maven_plugin">ScalaTest documentation</a>.</p>
+
+<p>To run individual Java tests, you can use the <code>-Dtest</code> flag:</p>
+
+<pre><code>build/mvn test -DwildcardSuites=none -Dtest=org.apache.spark.streaming.JavaAPISuite test
+</code></pre>
+
+<h3>ScalaTest Issues</h3>
+
+<p>If the following error occurs when running ScalaTest</p>
+
+<pre><code>An internal error occurred during: "Launching XYZSuite.scala".
+java.lang.NullPointerException
+</code></pre>
+<p>It is due to an incorrect Scala library in the classpath. To fix it:</p>
+
+<ul>
+  <li>Right click on project</li>
+  <li>Select <code>Build Path | Configure Build Path</code></li>
+  <li><code>Add Library | Scala Library</code></li>
+  <li>Remove <code>scala-library-2.10.4.jar - lib_managed\jars</code></li>
+</ul>
+
+<p>In the event of &#8220;Could not find resource path for Web UI: org/apache/spark/ui/static&#8221;, 
+it&#8217;s due to a classpath issue (some classes were probably not compiled). To fix this, it 
+sufficient to run a test from the command line:</p>
+
+<pre><code>build/sbt "test-only org.apache.spark.rdd.SortingSuite"
+</code></pre>
+
+<h3>Running Different Test Permutations on Jenkins</h3>
+
+<p>When running tests for a pull request on Jenkins, you can add special phrases to the title of 
+your pull request to change testing behavior. This includes:</p>
+
+<ul>
+  <li><code>[test-maven]</code> - signals to test the pull request using maven</li>
+  <li><code>[test-hadoop2.7]</code> - signals to test using Spark&#8217;s Hadoop 2.7 profile</li>
+</ul>
+
+<h3>Binary compatibility</h3>
+
+<p>To ensure binary compatibility, Spark uses <a href="https://github.com/typesafehub/migration-manager">MiMa</a>.</p>
+
+<h4>Ensuring binary compatibility</h4>
+
+<p>When working on an issue, it&#8217;s always a good idea to check that your changes do
+not introduce binary incompatibilities before opening a pull request.</p>
+
+<p>You can do so by running the following command:</p>
+
+<pre><code>$ dev/mima
+</code></pre>
+
+<p>A binary incompatibility reported by MiMa might look like the following:</p>
+
+<pre><code>[error] method this(org.apache.spark.sql.Dataset)Unit in class org.apache.spark.SomeClass does not have a correspondent in current version
+[error] filter with: ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.spark.SomeClass.this")
+</code></pre>
+
+<p>If you open a pull request containing binary incompatibilities anyway, Jenkins
+will remind you by failing the test build with the following message:</p>
+
+<pre><code>Test build #xx has finished for PR yy at commit ffffff.
+
+  This patch fails MiMa tests.
+  This patch merges cleanly.
+  This patch adds no public classes.
+</code></pre>
+
+<h4>Solving a binary incompatibility</h4>
+
+<p>If you believe that your binary incompatibilies are justified or that MiMa
+reported false positives (e.g. the reported binary incompatibilities are about a
+non-user facing API), you can filter them out by adding an exclusion in
+<a href="https://github.com/apache/spark/blob/master/project/MimaExcludes.scala">project/MimaExcludes.scala</a>
+containing what was suggested by the MiMa report and a comment containing the
+JIRA number of the issue you&#8217;re working on as well as its title.</p>
+
+<p>For the problem described above, we might add the following:</p>
+
+<figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span></span><span class="c1">// [SPARK-zz][CORE] Fix an issue</span>
+<span class="nc">ProblemFilters</span><span class="o">.</span><span class="n">exclude</span><span class="o">[</span><span class="kt">DirectMissingMethodProblem</span><span class="o">](</span><span class="s">&quot;org.apache.spark.SomeClass.this&quot;</span><span class="o">)</span></code></pre></figure>
+
+<p>Otherwise, you will have to resolve those incompatibilies before opening or
+updating your pull request. Usually, the problems reported by MiMa are
+self-explanatory and revolve around missing members (methods or fields) that
+you will have to add back in order to maintain binary compatibility.</p>
 
 <h3>Checking Out Pull Requests</h3>
 
@@ -256,49 +427,6 @@ $ build/mvn -DskipTests install
 $ build/mvn dependency:tree
 </code></pre>
 
-<p><a name="individual-tests"></a></p>
-<h3>Running Build Targets For Individual Projects</h3>
-
-<pre><code>$ # sbt
-$ build/sbt package
-$ # Maven
-$ build/mvn package -DskipTests -pl assembly
-</code></pre>
-
-<h3>ScalaTest Issues</h3>
-
-<p>If the following error occurs when running ScalaTest</p>
-
-<pre><code>An internal error occurred during: "Launching XYZSuite.scala".
-java.lang.NullPointerException
-</code></pre>
-<p>It is due to an incorrect Scala library in the classpath. To fix it:</p>
-
-<ul>
-  <li>Right click on project</li>
-  <li>Select <code>Build Path | Configure Build Path</code></li>
-  <li><code>Add Library | Scala Library</code></li>
-  <li>Remove <code>scala-library-2.10.4.jar - lib_managed\jars</code></li>
-</ul>
-
-<p>In the event of &#8220;Could not find resource path for Web UI: org/apache/spark/ui/static&#8221;, 
-it&#8217;s due to a classpath issue (some classes were probably not compiled). To fix this, it 
-sufficient to run a test from the command line:</p>
-
-<pre><code>build/sbt "test-only org.apache.spark.rdd.SortingSuite"
-</code></pre>
-
-<h3>Running Different Test Permutations on Jenkins</h3>
-
-<p>When running tests for a pull request on Jenkins, you can add special phrases to the title of 
-your pull request to change testing behavior. This includes:</p>
-
-<ul>
-  <li><code>[test-maven]</code> - signals to test the pull request using maven</li>
-  <li><code>[test-hadoop1.0]</code> - signals to test using Spark&#8217;s Hadoop 1.0 profile (other options include 
-Hadoop 2.0, 2.2, and 2.3)</li>
-</ul>
-
 <h3>Organizing Imports</h3>
 
 <p>You can use a <a href="https://plugins.jetbrains.com/plugin/7350">IntelliJ Imports Organizer</a> 
@@ -322,11 +450,11 @@ free IntelliJ Ultimate Edition licenses) and install the JetBrains Scala plugin 
   <li>In the Import wizard, it&#8217;s fine to leave settings at their default. However it is usually useful 
 to enable &#8220;Import Maven projects automatically&#8221;, since changes to the project structure will 
 automatically update the IntelliJ project.</li>
-  <li>As documented in <a href="http://spark.apache.org/docs/latest/building-spark.html">Building Spark</a>, 
+  <li>As documented in <a href="https://spark.apache.org/docs/latest/building-spark.html">Building Spark</a>, 
 some build configurations require specific profiles to be 
 enabled. The same profiles that are enabled with <code>-P[profile name]</code> above may be enabled on the 
-Profiles screen in the Import wizard. For example, if developing for Hadoop 2.4 with YARN support, 
-enable profiles yarn and hadoop-2.4. These selections can be changed later by accessing the 
+Profiles screen in the Import wizard. For example, if developing for Hadoop 2.7 with YARN support, 
+enable profiles <code>yarn</code> and <code>hadoop-2.7</code>. These selections can be changed later by accessing the 
 &#8220;Maven Projects&#8221; tool window from the View menu, and expanding the Profiles section.</li>
 </ul>
 
@@ -344,7 +472,8 @@ so, open the &#8220;Project Settings&#8221; and select &#8220;Modules&#8221;. Ba
 may need to add source folders to the following modules:
     <ul>
       <li>spark-hive: add v0.13.1/src/main/scala</li>
-      <li>spark-streaming-flume-sink: add target\scala-2.10\src_managed\main\compiled_avro</li>
+      <li>spark-streaming-flume-sink: add target\scala-2.11\src_managed\main\compiled_avro</li>
+      <li>spark-catalyst: add target\scala-2.11\src_managed\main</li>
     </ul>
   </li>
   <li>Compilation may fail with an error like &#8220;scalac: bad option: 
@@ -412,15 +541,15 @@ may have bugs and have not undergone the same level of testing as releases. Spar
 are available at:</p>
 
 <ul>
-  <li>Latest master build: <a href="http://people.apache.org/~pwendell/spark-nightly/spark-master-bin/latest">http://people.apache.org/~pwendell/spark-nightly/spark-master-bin/latest</a></li>
-  <li>All nightly builds: <a href="http://people.apache.org/~pwendell/spark-nightly/">http://people.apache.org/~pwendell/spark-nightly/</a></li>
+  <li>Latest master build: <a href="https://people.apache.org/~pwendell/spark-nightly/spark-master-bin/latest">https://people.apache.org/~pwendell/spark-nightly/spark-master-bin/latest</a></li>
+  <li>All nightly builds: <a href="https://people.apache.org/~pwendell/spark-nightly/">https://people.apache.org/~pwendell/spark-nightly/</a></li>
 </ul>
 
 <p>Spark also publishes SNAPSHOT releases of its Maven artifacts for both master and maintenance 
 branches on a nightly basis. To link to a SNAPSHOT you need to add the ASF snapshot 
 repository to your build. Note that SNAPSHOT artifacts are ephemeral and may change or
 be removed. To use these you must add the ASF snapshot repository at 
-<a href="http://repository.apache.org/snapshots/">http://repository.apache.org/snapshots/<a>.</a></a></p>
+&lt;a href=&#8221;https://repository.apache.org/snapshots/<a>.</a></p>
 
 <pre><code>groupId: org.apache.spark
 artifactId: spark-core_2.10
@@ -439,19 +568,26 @@ version: 1.5.0-SNAPSHOT
 <a href="https://www.yourkit.com/download/index.jsp">YourKit downloads page</a>. 
 This file is pretty big (~100 MB) and YourKit downloads site is somewhat slow, so you may 
 consider mirroring this file or including it on a custom AMI.</li>
-  <li>Untar this file somewhere (in <code>/root</code> in our case): <code>tar xvjf yjp-12.0.5-linux.tar.bz2</code></li>
-  <li>Copy the expanded YourKit files to each node using copy-dir: <code>~/spark-ec2/copy-dir /root/yjp-12.0.5</code></li>
+  <li>Unzip this file somewhere (in <code>/root</code> in our case): <code>unzip YourKit-JavaProfiler-2017.02-b66.zip</code></li>
+  <li>Copy the expanded YourKit files to each node using copy-dir: <code>~/spark-ec2/copy-dir /root/YourKit-JavaProfiler-2017.02</code></li>
   <li>Configure the Spark JVMs to use the YourKit profiling agent by editing <code>~/spark/conf/spark-env.sh</code> 
 and adding the lines
+
     <pre><code>SPARK_DAEMON_JAVA_OPTS+=" -agentpath:/root/yjp-12.0.5/bin/linux-x86-64/libyjpagent.so=sampling"
 export SPARK_DAEMON_JAVA_OPTS
 SPARK_JAVA_OPTS+=" -agentpath:/root/yjp-12.0.5/bin/linux-x86-64/libyjpagent.so=sampling"
 export SPARK_JAVA_OPTS
+
+    <pre><code>SPARK_DAEMON_JAVA_OPTS+=" -agentpath:/root/YourKit-JavaProfiler-2017.02/bin/linux-x86-64/libyjpagent.so=sampling"
+export SPARK_DAEMON_JAVA_OPTS
+SPARK_EXECUTOR_OPTS+=" -agentpath:/root/YourKit-JavaProfiler-2017.02/bin/linux-x86-64/libyjpagent.so=sampling"
+export SPARK_EXECUTOR_OPTS
+
 </code></pre>
   </li>
   <li>Copy the updated configuration to each node: <code>~/spark-ec2/copy-dir ~/spark/conf/spark-env.sh</code></li>
   <li>Restart your Spark cluster: <code>~/spark/bin/stop-all.sh</code> and <code>~/spark/bin/start-all.sh</code></li>
-  <li>By default, the YourKit profiler agents use ports 10001-10010. To connect the YourKit desktop 
+  <li>By default, the YourKit profiler agents use ports <code>10001-10010</code>. To connect the YourKit desktop
 application to the remote profiler agents, you&#8217;ll have to open these ports in the cluster&#8217;s EC2 
 security groups. To do this, sign into the AWS Management Console. Go to the EC2 section and 
 select <code>Security Groups</code> from the <code>Network &amp; Security</code> section on the left side of the page. 
@@ -468,7 +604,7 @@ cluster with the same name, your security group settings will be re-used.</li>
 </ul>
 
 <p>Please see the full YourKit documentation for the full list of profiler agent
-<a href="http://www.yourkit.com/docs/80/help/startup_options.jsp">startup options</a>.</p>
+<a href="https://www.yourkit.com/docs/java/help/startup_options.jsp">startup options</a>.</p>
 
 <h4>In Spark unit tests</h4>
 
@@ -485,7 +621,9 @@ The platform-specific paths to the profiler agents are listed in the
 <footer class="small">
   <hr>
   Apache Spark, Spark, Apache, and the Spark logo are <a href="/trademarks.html">trademarks</a> of
-  <a href="http://www.apache.org">The Apache Software Foundation</a>.
+  <a href="https://www.apache.org">The Apache Software Foundation</a>.
+  Copyright &copy; 2018 The Apache Software Foundation, Licensed under the
+  <a href="https://www.apache.org/licenses/LICENSE-2.0.html">Apache License, Version 2.0</a>.
 </footer>
 
 </div>

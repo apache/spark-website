@@ -15,18 +15,18 @@ navigation:
 <h4>StackOverflow</h4>
 
 For usage questions and help (e.g. how to use this Spark API), it is recommended you use the 
-StackOverflow tag <a href="http://stackoverflow.com/questions/tagged/apache-spark">`apache-spark`</a> 
+StackOverflow tag <a href="https://stackoverflow.com/questions/tagged/apache-spark">`apache-spark`</a> 
 as it is an active forum for Spark users' questions and answers.
 
 Some quick tips when using StackOverflow:
 
 - Prior to asking submitting questions, please:
   - Search StackOverflow's 
-  <a href="http://stackoverflow.com/questions/tagged/apache-spark">`apache-spark`</a> tag to see if 
+  <a href="https://stackoverflow.com/questions/tagged/apache-spark">`apache-spark`</a> tag to see if 
   your question has already been answered
   - Search the nabble archive for
-  <a href="http://apache-spark-user-list.1001560.n3.nabble.com/">users@spark.apache.org</a> 
-- Please follow the StackOverflow <a href="http://stackoverflow.com/help/how-to-ask">code of conduct</a>  
+  <a href="http://apache-spark-user-list.1001560.n3.nabble.com/">user@spark.apache.org</a> 
+- Please follow the StackOverflow <a href="https://stackoverflow.com/help/how-to-ask">code of conduct</a>  
 - Always use the `apache-spark` tag when asking questions
 - Please also use a secondary tag to specify components so subject matter experts can more easily find them.
  Examples include: `pyspark`, `spark-dataframe`, `spark-streaming`, `spark-r`, `spark-mllib`, 
@@ -58,10 +58,10 @@ project, and scenarios, it is recommended you use the user@spark.apache.org mail
 Some quick tips when using email:
 
 - Prior to asking submitting questions, please:
-  - Search StackOverflow at <a href="http://stackoverflow.com/questions/tagged/apache-spark">`apache-spark`</a> 
+  - Search StackOverflow at <a href="https://stackoverflow.com/questions/tagged/apache-spark">`apache-spark`</a> 
   to see if your question has already been answered
   - Search the nabble archive for
-  <a href="http://apache-spark-user-list.1001560.n3.nabble.com/">users@spark.apache.org</a> 
+  <a href="http://apache-spark-user-list.1001560.n3.nabble.com/">user@spark.apache.org</a> 
 - Tagging the subject line of your email will help you get a faster response, e.g. 
 `[Spark SQL]: Does Spark SQL support LEFT SEMI JOIN?`
 - Tags may help identify a topic by:
@@ -71,6 +71,11 @@ Some quick tips when using email:
 - For error logs or long code examples, please use <a href="https://gist.github.com/">GitHub gist</a> 
 and include only a few lines of the pertinent code / log within the email.
 - No jobs, sales, or solicitation is permitted on the Apache Spark mailing lists.
+
+<h5>Reporting Security issues</h5>
+
+Please see the [Security](security.html) page for information on how to report sensitive security
+vulnerabilities, and for information on known security issues.
 
 <a name="chat"></a>
 <h4>Chat Rooms</h4>
@@ -87,6 +92,12 @@ Chat rooms are great for quick questions or discussions on specialized topics. T
 
 <h4>Conferences</h4>
 <ul>
+  <li>
+    <a href="https://spark-summit.org/eu-2017/">Spark Summit Europe 2017.</a> Oct 24 - 26 in Dublin.
+  </li>
+  <li>
+    <a href="https://spark-summit.org/2017/">Spark Summit 2017.</a> June 5 - 7 in San Francisco.
+  </li>
   <li>
     <a href="https://spark-summit.org/eu-2016/">Spark Summit Europe 2016.</a> Oct 25 - 27 in Brussels.
   </li>

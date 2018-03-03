@@ -11,13 +11,13 @@ navigation:
 These examples give a quick overview of the Spark API.
 Spark is built on the concept of <em>distributed datasets</em>, which contain arbitrary Java or
 Python objects. You create a dataset from external data, then apply parallel operations
-to it. The building block of the Spark API is its [RDD API](http://spark.apache.org/docs/latest/programming-guide.html#resilient-distributed-datasets-rdds).
+to it. The building block of the Spark API is its [RDD API](https://spark.apache.org/docs/latest/rdd-programming-guide.html#resilient-distributed-datasets-rdds).
 In the RDD API,
 there are two types of operations: <em>transformations</em>, which define a new dataset based on previous ones,
 and <em>actions</em>, which kick off a job to execute on a cluster.
 On top of Spark’s RDD API, high level APIs are provided, e.g.
-[DataFrame API](http://spark.apache.org/docs/latest/sql-programming-guide.html#dataframes) and
-[Machine Learning API](http://spark.apache.org/docs/latest/mllib-guide.html).
+[DataFrame API](https://spark.apache.org/docs/latest/sql-programming-guide.html#dataframes) and
+[Machine Learning API](https://spark.apache.org/docs/latest/mllib-guide.html).
 These high level APIs provide a concise way to conduct certain data operations.
 In this page, we will show examples using RDD API as well as examples using high level APIs.
 
@@ -61,15 +61,10 @@ counts.saveAsTextFile("hdfs://...")
 <div class="code code-tab">
 {% highlight java %}
 JavaRDD<String> textFile = sc.textFile("hdfs://...");
-JavaRDD<String> words = textFile.flatMap(new FlatMapFunction<String, String>() {
-  public Iterator<String> call(String s) { return Arrays.asList(s.split(" ")).iterator(); }
-});
-JavaPairRDD<String, Integer> pairs = words.mapToPair(new PairFunction<String, String, Integer>() {
-  public Tuple2<String, Integer> call(String s) { return new Tuple2<String, Integer>(s, 1); }
-});
-JavaPairRDD<String, Integer> counts = pairs.reduceByKey(new Function2<Integer, Integer, Integer>() {
-  public Integer call(Integer a, Integer b) { return a + b; }
-});
+JavaPairRDD<String, Integer> counts = textFile
+    .flatMap(s -> Arrays.asList(s.split(" ")).iterator())
+    .mapToPair(word -> new Tuple2<>(word, 1))
+    .reduceByKey((a, b) -> a + b);
 counts.saveAsTextFile("hdfs://...");
 {% endhighlight %}
 </div>
@@ -89,12 +84,12 @@ counts.saveAsTextFile("hdfs://...");
 <div class="tab-pane tab-pane-python active">
 <div class="code code-tab">
 {% highlight python %}
-def sample(p):
-    x, y = random(), random()
-    return 1 if x*x + y*y < 1 else 0
+def inside(p):
+    x, y = random.random(), random.random()
+    return x*x + y*y < 1
 
-count = sc.parallelize(xrange(0, NUM_SAMPLES)).map(sample) \
-             .reduce(lambda a, b: a + b)
+count = sc.parallelize(xrange(0, NUM_SAMPLES)) \
+             .filter(inside).count()
 print "Pi is roughly %f" % (4.0 * count / NUM_SAMPLES)
 {% endhighlight %}
 </div>
@@ -103,12 +98,12 @@ print "Pi is roughly %f" % (4.0 * count / NUM_SAMPLES)
 <div class="tab-pane tab-pane-scala">
 <div class="code code-tab">
 {% highlight scala %}
-val count = sc.parallelize(1 to NUM_SAMPLES).map{i =>
-  val x = Math.random()
-  val y = Math.random()
-  if (x*x + y*y < 1) 1 else 0
-}.reduce(_ + _)
-println("Pi is roughly " + 4.0 * count / NUM_SAMPLES)
+val count = sc.parallelize(1 to NUM_SAMPLES).filter { _ =>
+  val x = math.random
+  val y = math.random
+  x*x + y*y < 1
+}.count()
+println(s"Pi is roughly ${4.0 * count / NUM_SAMPLES}")
 {% endhighlight %}
 </div>
 </div>
@@ -116,17 +111,15 @@ println("Pi is roughly " + 4.0 * count / NUM_SAMPLES)
 <div class="tab-pane tab-pane-java">
 <div class="code code-tab">
 {% highlight java %}
-List<Integer> l = new ArrayList<Integer>(NUM_SAMPLES);
+List<Integer> l = new ArrayList<>(NUM_SAMPLES);
 for (int i = 0; i < NUM_SAMPLES; i++) {
   l.add(i);
 }
 
-long count = sc.parallelize(l).filter(new Function<Integer, Boolean>() {
-  public Boolean call(Integer i) {
-    double x = Math.random();
-    double y = Math.random();
-    return x*x + y*y < 1;
-  }
+long count = sc.parallelize(l).filter(i -> {
+  double x = Math.random();
+  double y = Math.random();
+  return x*x + y*y < 1;
 }).count();
 System.out.println("Pi is roughly " + 4.0 * count / NUM_SAMPLES);
 {% endhighlight %}
@@ -136,7 +129,7 @@ System.out.println("Pi is roughly " + 4.0 * count / NUM_SAMPLES);
 
 <h2>DataFrame API Examples</h2>
 <p>
-In Spark, a <a href="http://spark.apache.org/docs/latest/sql-programming-guide.html#dataframes">DataFrame</a>
+In Spark, a <a href="https://spark.apache.org/docs/latest/sql-programming-guide.html#dataframes">DataFrame</a>
 is a distributed collection of data organized into named columns.
 Users can use DataFrame API to perform various relational operations on both external
 data sources and Spark’s built-in distributed collections without providing specific procedures for processing data.
@@ -194,14 +187,9 @@ errors.filter(col("line").like("%MySQL%")).collect()
 {% highlight java %}
 // Creates a DataFrame having a single column named "line"
 JavaRDD<String> textFile = sc.textFile("hdfs://...");
-JavaRDD<Row> rowRDD = textFile.map(
-  new Function<String, Row>() {
-    public Row call(String line) throws Exception {
-      return RowFactory.create(line);
-    }
-  });
-List<StructField> fields = new ArrayList<StructField>();
-fields.add(DataTypes.createStructField("line", DataTypes.StringType, true));
+JavaRDD<Row> rowRDD = textFile.map(RowFactory::create);
+List<StructField> fields = Arrays.asList(
+  DataTypes.createStructField("line", DataTypes.StringType, true));
 StructType schema = DataTypes.createStructType(fields);
 DataFrame df = sqlContext.createDataFrame(rowRDD, schema);
 
@@ -316,7 +304,7 @@ countsByAge.write().format("json").save("s3a://...");
 
 <h2>Machine Learning Example</h2>
 <p>
-<a href="http://spark.apache.org/docs/latest/mllib-guide.html">MLlib</a>, Spark’s Machine Learning (ML) library, provides many distributed ML algorithms.
+<a href="https://spark.apache.org/docs/latest/mllib-guide.html">MLlib</a>, Spark’s Machine Learning (ML) library, provides many distributed ML algorithms.
 These algorithms cover tasks such as feature extraction, classification, regression, clustering,
 recommendation, and more. 
 MLlib also provides tools such as ML Pipelines for building workflows, CrossValidator for tuning parameters,

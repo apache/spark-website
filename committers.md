@@ -10,28 +10,35 @@ navigation:
 
 |Name|Organization|
 |----|------------|
+|Sameer Agarwal|Databricks|
 |Michael Armbrust|Databricks|
 |Joseph Bradley|Databricks|
-|Felix Cheung|Automattic|
+|Matthew Cheah|Palantir|
+|Felix Cheung|Microsoft|
 |Mosharaf Chowdhury|University of Michigan, Ann Arbor|
+|Bryan Cutler|IBM|
 |Jason Dai|Intel|
 |Tathagata Das|Databricks|
 |Ankur Dave|UC Berkeley|
 |Aaron Davidson|Databricks|
 |Thomas Dudziak|Facebook|
-|Robert Evans|Yahoo!|
+|Erik Erlandson|Red Hat|
+|Robert Evans|Oath|
 |Wenchen Fan|Databricks|
 |Joseph Gonzalez|UC Berkeley|
-|Thomas Graves|Yahoo!|
+|Thomas Graves|Oath|
 |Stephen Haberman|Bizo|
 |Mark Hamstra|ClearStory Data|
+|Seth Hendrickson|Cloudera|
 |Herman van Hovell|QuestTec B.V.|
 |Yin Huai|Databricks|
 |Shane Huang|Intel|
+|Holden Karau|IBM|
 |Andy Konwinski|Databricks|
+|Hyukjin Kwon|Mobigen|
 |Ryan LeCompte|Quantifind|
 |Haoyuan Li|Alluxio, UC Berkeley|
-|Xiao Li|IBM|
+|Xiao Li|Databricks|
 |Davies Liu|Databricks|
 |Cheng Lian|Databricks|
 |Yanbo Liang|Hortonworks|
@@ -41,20 +48,25 @@ navigation:
 |Andrew Or|Princeton University|
 |Kay Ousterhout|UC Berkeley|
 |Sean Owen|Cloudera|
+|Tejas Patil|Facebook|
 |Nick Pentreath|IBM|
+|Anirudh Ramanathan|Google|
 |Imran Rashid|Cloudera|
 |Charles Reiss|UC Berkeley|
 |Josh Rosen|Databricks|
-|Sandy Ryza|Clover Health|
+|Sandy Ryza|Remix|
 |Kousuke Saruta|NTT Data|
+|Saisai Shao|Hortonworks|
 |Prashant Sharma|IBM|
 |Ram Sriharsha|Databricks|
 |DB Tsai|Netflix|
+|Takuya Ueshin|Databricks|
 |Marcelo Vanzin|Cloudera|
 |Shivaram Venkataraman|UC Berkeley|
 |Patrick Wendell|Databricks|
 |Andrew Xia|Alibaba|
 |Reynold Xin|Databricks|
+|Burak Yavuz|Databricks|
 |Matei Zaharia|Databricks, Stanford|
 |Shixiong Zhu|Databricks|
 
@@ -117,6 +129,7 @@ You can verify the result is one change with `git log`. Then resume the script i
 
 Also, please remember to set Assignee on JIRAs where applicable when they are resolved. The script 
 can't do this automatically.
+Once a PR is merged please leave a comment on the PR stating which branch(es) it has been merged with.
 
 <!--
 <h3>Minimize use of MINOR, BUILD, and HOTFIX with no JIRA</h3>
@@ -148,6 +161,7 @@ The trade off when backporting is you get to deliver the fix to people running o
 The decision point is when you have a bug fix and it's not clear whether it is worth backporting.
 
 I think the following facets are important to consider:
+
 - Backports are an extremely valuable service to the community and should be considered for 
 any bug fix.
 - Introducing a new bug in a maintenance release must be avoided at all costs. It over time would 
@@ -155,11 +169,13 @@ erode confidence in our release process.
 - Distributions or advanced users can always backport risky patches on their own, if they see fit.
 
 For me, the consequence of these is that we should backport in the following situations:
+
 - Both the bug and the fix are well understood and isolated. Code being modified is well tested.
 - The bug being addressed is high priority to the community.
 - The backported fix does not vary widely from the master branch fix.
 
 We tend to avoid backports in the converse situations:
+
 - The bug or fix are not well understood. For instance, it relates to interactions between complex 
 components or third party libraries (e.g. Hadoop libraries). The code is not well tested outside 
 of the immediate bug being fixed.

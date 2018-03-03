@@ -9,7 +9,9 @@ navigation:
 
 <h2>Useful Developer Tools</h2>
 
-<h3>Reducing Build Times</h3>
+<h3 id="reducing-build-times">Reducing Build Times</h3>
+
+<h4>SBT: Avoiding Re-Creating the Assembly JAR</h4>
 
 Spark's default build strategy is to assemble a jar including all of its dependencies. This can 
 be cumbersome when doing iterative development. When developing locally, it is possible to create 
@@ -31,6 +33,185 @@ $ ./bin/spark-shell
 # You can also use ~ to let sbt do incremental builds on file changes without running a new sbt session every time
 $ build/sbt ~compile
 ```
+
+<h4>Maven: Speeding up Compilation with Zinc</h4>
+
+[Zinc](https://github.com/typesafehub/zinc) is a long-running server version of SBT's incremental
+compiler. When run locally as a background process, it speeds up builds of Scala-based projects
+like Spark. Developers who regularly recompile Spark with Maven will be the most interested in
+Zinc. The project site gives instructions for building and running `zinc`; OS X users can
+install it using `brew install zinc`.
+
+If using the `build/mvn` package `zinc` will automatically be downloaded and leveraged for all
+builds. This process will auto-start after the first time `build/mvn` is called and bind to port
+3030 unless the `ZINC_PORT` environment variable is set. The `zinc` process can subsequently be
+shut down at any time by running `build/zinc-<version>/bin/zinc -shutdown` and will automatically
+restart whenever `build/mvn` is called.
+
+<h3>Building submodules individually</h3>
+
+For instance, you can build the Spark Core module using:
+
+```
+$ # sbt
+$ build/sbt
+> project core
+> package
+
+$ # or you can build the spark-core module with sbt directly using:
+$ build/sbt core/package
+
+$ # Maven
+$ build/mvn package -DskipTests -pl core
+```
+
+<a name="individual-tests"></a>
+<h3 id="running-individual-tests">Running Individual Tests</h3>
+
+When developing locally, it's often convenient to run a single test or a few tests, rather than running the entire test suite.
+
+<h4>Testing with SBT</h4>
+
+The fastest way to run individual tests is to use the `sbt` console. It's fastest to keep a `sbt` console open, and use it to re-run tests as necessary.  For example, to run all of the tests in a particular project, e.g., `core`:
+
+```
+$ build/sbt
+> project core
+> test
+```
+
+You can run a single test suite using the `testOnly` command.  For example, to run the DAGSchedulerSuite:
+
+```
+> testOnly org.apache.spark.scheduler.DAGSchedulerSuite
+```
+
+The `testOnly` command accepts wildcards; e.g., you can also run the `DAGSchedulerSuite` with:
+
+```
+> testOnly *DAGSchedulerSuite
+```
+
+Or you could run all of the tests in the scheduler package:
+
+```
+> testOnly org.apache.spark.scheduler.*
+```
+
+If you'd like to run just a single test in the `DAGSchedulerSuite`, e.g., a test that includes "SPARK-12345" in the name, you run the following command in the sbt console:
+
+```
+> testOnly *DAGSchedulerSuite -- -z "SPARK-12345"
+```
+
+If you'd prefer, you can run all of these commands on the command line (but this will be slower than running tests using an open cosole).  To do this, you need to surround `testOnly` and the following arguments in quotes:
+
+```
+$ build/sbt "core/testOnly *DAGSchedulerSuite -- -z SPARK-12345"
+```
+
+For more about how to run individual tests with sbt, see the [sbt documentation](http://www.scala-sbt.org/0.13/docs/Testing.html).
+
+<h4>Testing with Maven</h4>
+
+With Maven, you can use the `-DwildcardSuites` flag to run individual Scala tests:
+
+```
+build/mvn -Dtest=none -DwildcardSuites=org.apache.spark.scheduler.DAGSchedulerSuite test
+```
+
+You need `-Dtest=none` to avoid running the Java tests.  For more information about the ScalaTest Maven Plugin, refer to the [ScalaTest documentation](http://www.scalatest.org/user_guide/using_the_scalatest_maven_plugin).
+
+To run individual Java tests, you can use the `-Dtest` flag:
+
+```
+build/mvn test -DwildcardSuites=none -Dtest=org.apache.spark.streaming.JavaAPISuite test
+```
+
+<h3>ScalaTest Issues</h3>
+
+If the following error occurs when running ScalaTest
+
+```
+An internal error occurred during: "Launching XYZSuite.scala".
+java.lang.NullPointerException
+```
+It is due to an incorrect Scala library in the classpath. To fix it:
+
+- Right click on project
+- Select `Build Path | Configure Build Path`
+- `Add Library | Scala Library`
+- Remove `scala-library-2.10.4.jar - lib_managed\jars`
+
+In the event of "Could not find resource path for Web UI: org/apache/spark/ui/static", 
+it's due to a classpath issue (some classes were probably not compiled). To fix this, it 
+sufficient to run a test from the command line:
+
+```
+build/sbt "test-only org.apache.spark.rdd.SortingSuite"
+```
+
+<h3>Running Different Test Permutations on Jenkins</h3>
+
+When running tests for a pull request on Jenkins, you can add special phrases to the title of 
+your pull request to change testing behavior. This includes:
+
+- `[test-maven]` - signals to test the pull request using maven
+- `[test-hadoop2.7]` - signals to test using Spark's Hadoop 2.7 profile
+
+<h3>Binary compatibility</h3>
+
+To ensure binary compatibility, Spark uses [MiMa](https://github.com/typesafehub/migration-manager).
+
+<h4>Ensuring binary compatibility</h4>
+
+When working on an issue, it's always a good idea to check that your changes do
+not introduce binary incompatibilities before opening a pull request.
+
+You can do so by running the following command:
+
+```
+$ dev/mima
+```
+
+A binary incompatibility reported by MiMa might look like the following:
+
+```
+[error] method this(org.apache.spark.sql.Dataset)Unit in class org.apache.spark.SomeClass does not have a correspondent in current version
+[error] filter with: ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.spark.SomeClass.this")
+```
+
+If you open a pull request containing binary incompatibilities anyway, Jenkins
+will remind you by failing the test build with the following message:
+
+```
+Test build #xx has finished for PR yy at commit ffffff.
+
+  This patch fails MiMa tests.
+  This patch merges cleanly.
+  This patch adds no public classes.
+```
+
+<h4>Solving a binary incompatibility</h4>
+
+If you believe that your binary incompatibilies are justified or that MiMa
+reported false positives (e.g. the reported binary incompatibilities are about a
+non-user facing API), you can filter them out by adding an exclusion in
+[project/MimaExcludes.scala](https://github.com/apache/spark/blob/master/project/MimaExcludes.scala)
+containing what was suggested by the MiMa report and a comment containing the
+JIRA number of the issue you're working on as well as its title.
+
+For the problem described above, we might add the following:
+
+{% highlight scala %}
+// [SPARK-zz][CORE] Fix an issue
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.spark.SomeClass.this")
+{% endhighlight %}
+
+Otherwise, you will have to resolve those incompatibilies before opening or
+updating your pull request. Usually, the problems reported by MiMa are
+self-explanatory and revolve around missing members (methods or fields) that
+you will have to add back in order to maintain binary compatibility.
 
 <h3>Checking Out Pull Requests</h3>
 
@@ -76,48 +257,6 @@ $ build/mvn -DskipTests install
 $ build/mvn dependency:tree
 ```
 
-<a name="individual-tests"></a>
-<h3>Running Build Targets For Individual Projects</h3>
-
-```
-$ # sbt
-$ build/sbt package
-$ # Maven
-$ build/mvn package -DskipTests -pl assembly
-```
-
-<h3>ScalaTest Issues</h3>
-
-If the following error occurs when running ScalaTest
-
-```
-An internal error occurred during: "Launching XYZSuite.scala".
-java.lang.NullPointerException
-```
-It is due to an incorrect Scala library in the classpath. To fix it:
-
-- Right click on project
-- Select `Build Path | Configure Build Path`
-- `Add Library | Scala Library`
-- Remove `scala-library-2.10.4.jar - lib_managed\jars`
-
-In the event of "Could not find resource path for Web UI: org/apache/spark/ui/static", 
-it's due to a classpath issue (some classes were probably not compiled). To fix this, it 
-sufficient to run a test from the command line:
-
-```
-build/sbt "test-only org.apache.spark.rdd.SortingSuite"
-```
-
-<h3>Running Different Test Permutations on Jenkins</h3>
-
-When running tests for a pull request on Jenkins, you can add special phrases to the title of 
-your pull request to change testing behavior. This includes:
-
-- `[test-maven]` - signals to test the pull request using maven
-- `[test-hadoop1.0]` - signals to test using Spark's Hadoop 1.0 profile (other options include 
-Hadoop 2.0, 2.2, and 2.3)
-
 <h3>Organizing Imports</h3>
 
 You can use a <a href="https://plugins.jetbrains.com/plugin/7350">IntelliJ Imports Organizer</a> 
@@ -140,11 +279,11 @@ To create a Spark project for IntelliJ:
 - In the Import wizard, it's fine to leave settings at their default. However it is usually useful 
 to enable "Import Maven projects automatically", since changes to the project structure will 
 automatically update the IntelliJ project.
-- As documented in <a href="http://spark.apache.org/docs/latest/building-spark.html">Building Spark</a>, 
+- As documented in <a href="https://spark.apache.org/docs/latest/building-spark.html">Building Spark</a>, 
 some build configurations require specific profiles to be 
 enabled. The same profiles that are enabled with `-P[profile name]` above may be enabled on the 
-Profiles screen in the Import wizard. For example, if developing for Hadoop 2.4 with YARN support, 
-enable profiles yarn and hadoop-2.4. These selections can be changed later by accessing the 
+Profiles screen in the Import wizard. For example, if developing for Hadoop 2.7 with YARN support, 
+enable profiles `yarn` and `hadoop-2.7`. These selections can be changed later by accessing the 
 "Maven Projects" tool window from the View menu, and expanding the Profiles section.
 
 Other tips:
@@ -159,7 +298,8 @@ In these cases, you may need to add source locations explicitly to compile the e
 so, open the "Project Settings" and select "Modules". Based on your selected Maven profiles, you 
 may need to add source folders to the following modules:
     - spark-hive: add v0.13.1/src/main/scala
-    - spark-streaming-flume-sink: add target\scala-2.10\src_managed\main\compiled_avro
+    - spark-streaming-flume-sink: add target\scala-2.11\src_managed\main\compiled_avro
+    - spark-catalyst: add target\scala-2.11\src_managed\main
 - Compilation may fail with an error like "scalac: bad option: 
 -P:/home/jakub/.m2/repository/org/scalamacros/paradise_2.10.4/2.0.1/paradise_2.10.4-2.0.1.jar". 
 If so, go to Preferences > Build, Execution, Deployment > Scala Compiler and clear the "Additional 
@@ -223,14 +363,14 @@ incorporated into a maintenance release. These should only be used by Spark deve
 may have bugs and have not undergone the same level of testing as releases. Spark nightly packages 
 are available at:
 
-- Latest master build: <a href="http://people.apache.org/~pwendell/spark-nightly/spark-master-bin/latest">http://people.apache.org/~pwendell/spark-nightly/spark-master-bin/latest</a>
-- All nightly builds: <a href="http://people.apache.org/~pwendell/spark-nightly/">http://people.apache.org/~pwendell/spark-nightly/</a>
+- Latest master build: <a href="https://people.apache.org/~pwendell/spark-nightly/spark-master-bin/latest">https://people.apache.org/~pwendell/spark-nightly/spark-master-bin/latest</a>
+- All nightly builds: <a href="https://people.apache.org/~pwendell/spark-nightly/">https://people.apache.org/~pwendell/spark-nightly/</a>
 
 Spark also publishes SNAPSHOT releases of its Maven artifacts for both master and maintenance 
 branches on a nightly basis. To link to a SNAPSHOT you need to add the ASF snapshot 
 repository to your build. Note that SNAPSHOT artifacts are ephemeral and may change or
 be removed. To use these you must add the ASF snapshot repository at 
-<a href="http://repository.apache.org/snapshots/">http://repository.apache.org/snapshots/<a>.
+<a href="https://repository.apache.org/snapshots/<a>.
 
 ```
 groupId: org.apache.spark
@@ -249,19 +389,19 @@ Here are instructions on profiling Spark applications using YourKit Java Profile
 <a href="https://www.yourkit.com/download/index.jsp">YourKit downloads page</a>. 
 This file is pretty big (~100 MB) and YourKit downloads site is somewhat slow, so you may 
 consider mirroring this file or including it on a custom AMI.
-- Untar this file somewhere (in `/root` in our case): `tar xvjf yjp-12.0.5-linux.tar.bz2`
-- Copy the expanded YourKit files to each node using copy-dir: `~/spark-ec2/copy-dir /root/yjp-12.0.5`
+- Unzip this file somewhere (in `/root` in our case): `unzip YourKit-JavaProfiler-2017.02-b66.zip`
+- Copy the expanded YourKit files to each node using copy-dir: `~/spark-ec2/copy-dir /root/YourKit-JavaProfiler-2017.02`
 - Configure the Spark JVMs to use the YourKit profiling agent by editing `~/spark/conf/spark-env.sh` 
 and adding the lines
 ```
-SPARK_DAEMON_JAVA_OPTS+=" -agentpath:/root/yjp-12.0.5/bin/linux-x86-64/libyjpagent.so=sampling"
+SPARK_DAEMON_JAVA_OPTS+=" -agentpath:/root/YourKit-JavaProfiler-2017.02/bin/linux-x86-64/libyjpagent.so=sampling"
 export SPARK_DAEMON_JAVA_OPTS
-SPARK_JAVA_OPTS+=" -agentpath:/root/yjp-12.0.5/bin/linux-x86-64/libyjpagent.so=sampling"
-export SPARK_JAVA_OPTS
+SPARK_EXECUTOR_OPTS+=" -agentpath:/root/YourKit-JavaProfiler-2017.02/bin/linux-x86-64/libyjpagent.so=sampling"
+export SPARK_EXECUTOR_OPTS
 ```
 - Copy the updated configuration to each node: `~/spark-ec2/copy-dir ~/spark/conf/spark-env.sh`
 - Restart your Spark cluster: `~/spark/bin/stop-all.sh` and `~/spark/bin/start-all.sh`
-- By default, the YourKit profiler agents use ports 10001-10010. To connect the YourKit desktop 
+- By default, the YourKit profiler agents use ports `10001-10010`. To connect the YourKit desktop
 application to the remote profiler agents, you'll have to open these ports in the cluster's EC2 
 security groups. To do this, sign into the AWS Management Console. Go to the EC2 section and 
 select `Security Groups` from the `Network & Security` section on the left side of the page. 
@@ -277,7 +417,7 @@ cluster with the same name, your security group settings will be re-used.
 - YourKit should now be connected to the remote profiling agent. It may take a few moments for profiling information to appear.
 
 Please see the full YourKit documentation for the full list of profiler agent
-<a href="http://www.yourkit.com/docs/80/help/startup_options.jsp">startup options</a>.
+<a href="https://www.yourkit.com/docs/java/help/startup_options.jsp">startup options</a>.
  
 <h4>In Spark unit tests</h4>
 

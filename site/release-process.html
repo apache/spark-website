@@ -106,7 +106,7 @@
           Documentation <b class="caret"></b>
         </a>
         <ul class="dropdown-menu">
-          <li><a href="/docs/latest/">Latest Release (Spark 2.1.0)</a></li>
+          <li><a href="/docs/latest/">Latest Release (Spark 2.3.0)</a></li>
           <li><a href="/documentation.html">Older Versions and Other Resources</a></li>
           <li><a href="/faq.html">Frequently Asked Questions</a></li>
         </ul>
@@ -119,6 +119,7 @@
         <ul class="dropdown-menu">
           <li><a href="/community.html">Mailing Lists &amp; Resources</a></li>
           <li><a href="/contributing.html">Contributing to Spark</a></li>
+          <li><a href="/improvement-proposals.html">Improvement Proposals (SPIP)</a></li>
           <li><a href="https://issues.apache.org/jira/browse/SPARK">Issue Tracker</a></li>
           <li><a href="/powered-by.html">Powered By</a></li>
           <li><a href="/committers.html">Project Committers</a></li>
@@ -132,19 +133,20 @@
           <li><a href="/developer-tools.html">Useful Developer Tools</a></li>
           <li><a href="/versioning-policy.html">Versioning Policy</a></li>
           <li><a href="/release-process.html">Release Process</a></li>
+          <li><a href="/security.html">Security</a></li>
         </ul>
       </li>
     </ul>
     <ul class="nav navbar-nav navbar-right">
       <li class="dropdown">
-        <a href="http://www.apache.org/" class="dropdown-toggle" data-toggle="dropdown">
+        <a href="https://www.apache.org/" class="dropdown-toggle" data-toggle="dropdown">
           Apache Software Foundation <b class="caret"></b></a>
         <ul class="dropdown-menu">
-          <li><a href="http://www.apache.org/">Apache Homepage</a></li>
-          <li><a href="http://www.apache.org/licenses/">License</a></li>
-          <li><a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>
-          <li><a href="http://www.apache.org/foundation/thanks.html">Thanks</a></li>
-          <li><a href="http://www.apache.org/security/">Security</a></li>
+          <li><a href="https://www.apache.org/">Apache Homepage</a></li>
+          <li><a href="https://www.apache.org/licenses/">License</a></li>
+          <li><a href="https://www.apache.org/foundation/sponsorship.html">Sponsorship</a></li>
+          <li><a href="https://www.apache.org/foundation/thanks.html">Thanks</a></li>
+          <li><a href="https://www.apache.org/security/">Security</a></li>
         </ul>
       </li>
     </ul>
@@ -159,17 +161,17 @@
       <h5>Latest News</h5>
       <ul class="list-unstyled">
         
-          <li><a href="/news/spark-summit-east-2017-agenda-posted.html">Spark Summit East (Feb 7-9th, 2017, Boston) agenda posted</a>
-          <span class="small">(Jan 04, 2017)</span></li>
+          <li><a href="/news/spark-summit-june-2018-agenda-posted.html">Spark+AI Summit (June 4-6th, 2018, San Francisco) agenda posted</a>
+          <span class="small">(Mar 01, 2018)</span></li>
         
-          <li><a href="/news/spark-2-1-0-released.html">Spark 2.1.0 released</a>
-          <span class="small">(Dec 28, 2016)</span></li>
+          <li><a href="/news/spark-2-3-0-released.html">Spark 2.3.0 released</a>
+          <span class="small">(Feb 28, 2018)</span></li>
         
-          <li><a href="/news/spark-wins-cloudsort-100tb-benchmark.html">Spark wins CloudSort Benchmark as the most efficient engine</a>
-          <span class="small">(Nov 15, 2016)</span></li>
+          <li><a href="/news/spark-2-2-1-released.html">Spark 2.2.1 released</a>
+          <span class="small">(Dec 01, 2017)</span></li>
         
-          <li><a href="/news/spark-2-0-2-released.html">Spark 2.0.2 released</a>
-          <span class="small">(Nov 14, 2016)</span></li>
+          <li><a href="/news/spark-2-1-2-released.html">Spark 2.1.2 released</a>
+          <span class="small">(Oct 09, 2017)</span></li>
         
       </ul>
       <p class="small" style="text-align: right;"><a href="/news/index.html">Archive</a></p>
@@ -199,6 +201,7 @@
 <p>The release manager role in Spark means you are responsible for a few different things:</p>
 
 <ol>
+  <li>Preparing your setup</li>
   <li>Preparing for release candidates:
     <ol>
       <li>cutting a release branch</li>
@@ -222,119 +225,147 @@
   </li>
 </ol>
 
-<h2>Preparing Spark for Release</h2>
+<h2>Preparing your setup</h2>
 
-<p>The main step towards preparing a release is to create a release branch. This is done via 
-standard Git branching mechanism and should be announced to the community once the branch is 
-created. It is also good to set up Jenkins jobs for the release branch once it is cut to 
-ensure tests are passing (consult Josh Rosen and Shane Knapp for help with this).</p>
-
-<p>Next, ensure that all Spark versions are correct in the code base on the release branch (see 
-<a href="https://github.com/apache/spark/commit/01d233e4aede65ffa39b9d2322196d4b64186526">this example commit</a>).
-You should grep through the codebase to find all instances of the version string. Some known 
-places to change are:</p>
+<p>If you are a new Release Manager, you can read up on the process from the followings:</p>
 
 <ul>
-  <li><strong>SparkContext</strong>. Search for VERSION (only for branch 1.x)</li>
-  <li><strong>Maven build</strong>. Ensure that the version in all the <code>pom.xml</code> files is <code>&lt;SPARK-VERSION&gt;-SNAPSHOT</code> 
-(e.g. <code>1.1.1-SNAPSHOT</code>). This will be changed to <code>&lt;SPARK-VERSION&gt;</code> (e.g. 1.1.1) automatically by 
-Maven when cutting the release. Note that there are a few exceptions that should just use 
-<code>&lt;SPARK-VERSION&gt;</code>, like <code>extras/java8-tests/pom.xml</code>. These modules are not published as artifacts.</li>
-  <li><strong>Spark REPLs</strong>. Look for the Spark ASCII art in <code>SparkILoopInit.scala</code> for the Scala shell 
-and in <code>shell.py</code> for the Python REPL.</li>
-  <li><strong>Docs</strong>. Search for VERSION in <code>docs/_config.yml</code></li>
+  <li>release signing https://www.apache.org/dev/release-signing.html</li>
+  <li>gpg for signing https://www.apache.org/dev/openpgp.html</li>
+  <li>svn https://www.apache.org/dev/version-control.html#https-svn</li>
 </ul>
 
-<p>Finally, update <code>CHANGES.txt</code> with this script in the Spark repository. <code>CHANGES.txt</code> captures 
-all the patches that have made it into this release candidate since the last release.</p>
+<h2>Preparing Spark for Release</h2>
 
-<pre><code>$ export SPARK_HOME=&lt;your Spark home&gt;
-$ cd spark
-# Update release versions
-$ vim dev/create-release/generate-changelist.py
-$ dev/create-release/generate-changelist.py
-</code></pre>
+<p>The main step towards preparing a release is to create a release branch. This is done via
+standard Git branching mechanism and should be announced to the community once the branch is
+created.</p>
 
-<p>This produces a <code>CHANGES.txt.new</code> that should be a superset of the existing <code>CHANGES.txt</code>. 
-Replace the old <code>CHANGES.txt</code> with the new one (see 
-<a href="https://github.com/apache/spark/commit/131c62672a39a6f71f6834e9aad54b587237f13c">this example commit</a>).</p>
+<p>It is also good to set up Jenkins jobs for the release branch once it is cut to
+ensure tests are passing. These are jobs like 
+https://amplab.cs.berkeley.edu/jenkins/view/Spark%20QA%20Test/job/spark-branch-2.3-test-maven-hadoop-2.7/ .
+Consult Josh Rosen and Shane Knapp for help with this. Also remember to add the newly-added jobs
+to the test dashboard at https://amplab.cs.berkeley.edu/jenkins/view/Spark%20QA%20Test%20(Dashboard)/ .</p>
 
 <h3>Cutting a Release Candidate</h3>
 
-<p>If this is not the first RC, then make sure that the JIRA issues that have been solved since the 
-last RC are marked as <code>FIXED</code> in this release version.</p>
+<p>If this is not the first RC, then make sure that the JIRA issues that have been solved since the
+last RC are marked as <code>Resolved</code> and has a <code>Target Versions</code> set to this release version.</p>
+
+<p>To track any issue with pending PR targeting this release, create a filter in JIRA with a query like this
+<code>project = SPARK AND "Target Version/s" = "12340470" AND status in (OPEN, "In Progress")</code></p>
+
+<p>For target version string value to use, find the numeric value corresponds to the release by looking into
+an existing issue with that target version and click on the version (eg. find an issue targeting 2.2.1
+and click on the version link of its Target Versions field)</p>
+
+<p>Verify from <code>git log</code> whether they are actually making it in the new RC or not. Check for JIRA issues
+with <code>release-notes</code> label, and make sure they are documented in relevant migration guide for breaking
+changes or in the release news on the website later.</p>
+
+<p>Also check that all build and test passes are green from the RISELab Jenkins: https://amplab.cs.berkeley.edu/jenkins/ particularly look for Spark Packaging, QA Compile, QA Test.
+Note that not all permutations are run on PR therefore it is important to check Jenkins runs.</p>
+
+<p>The process of cutting a release candidate has been partially automated via the RISELab Jenkins. There are
+Jenkins jobs that can tag a release candidate and create various packages based on that candidate.
+At present the Jenkins jobs <em>SHOULD NOT BE USED</em> as they use a legacy shared key for signing.</p>
+
+<p>Instead much of the same release logic can be accessed in <code>dev/create-release/release-tag.sh</code> and <code>dev/create-release/release-build.sh</code>. The general order of creating a release using the scripts is:</p>
 
 <ul>
-  <li>A possible protocol for this is to mark such issues as <code>FIXED</code> in next maintenance release. 
-For example if you are cutting RC for 1.0.2, mark such issues as <code>FIXED</code> in 1.0.3.</li>
-  <li>When cutting new RC, find all the issues that are marked as <code>FIXED</code> for next maintenance 
-release, and change them to the current release.</li>
-  <li>Verify from <code>git log</code> whether they are actually making it in the new RC or not.</li>
+  <li>Verify Jenkins test pass on your desired commit</li>
+  <li>Set the shell environment variables used by the scripts (run with &#8220;help&#8221; for details)</li>
+  <li>Verify your JAVA_HOME is set to the correct Java version (2.2+ Java 8, pre-2.2 Java 7)</li>
+  <li>You may find Felix&#8217;s docker env useful - https://github.com/felixcheung/spark-build/blob/master/Dockerfile .</li>
+  <li>Ensure you have the required dependencies to build the docs <code>docs/README.md</code></li>
+  <li>R, for CRAN packaging tests, requires e1071 to be installed as part of the packaging tests.</li>
+  <li>In addition R uses LaTeX for some things, and requires some additional fonts. On Debian based systems you may wish to install <code>texlive-fonts-recommended</code> and <code>texlive-fonts-extra</code>.</li>
+  <li>Make sure you required Python packages for packaging (see <code>dev/requirements.txt</code>)</li>
+  <li>Tag the release candidate with <code>dev/create-release/release-tag.sh</code> (e.g. for creating 2.1.2 RC2 we did <code>ASF_USERNAME=holden ASF_PASSWORD=yoursecretgoeshere GIT_NAME="Holden Karau" GIT_BRANCH=branch-2.1 GIT_EMAIL="holden@us.ibm.com" RELEASE_VERSION=2.1.2 RELEASE_TAG=v2.1.2-rc2 NEXT_VERSION=2.1.3-SNAPSHOT ./dev/create-release/release-tag.sh</code>)</li>
+  <li>Package the release binaries &amp; sources with <code>dev/create-release/release-build.sh package</code></li>
+  <li>Create the release docs with <code>dev/create-release/release-build.sh docs</code></li>
+  <li>For Spark versions prior to 2.1.2, change the SPARK_VERSION from X.Y.Z to X.Y.Z-rcA then run <code>dev/create-release/release-build.sh publish-release</code>.</li>
+  <li>Publish a snapshot to the Apache release repo <code>dev/create-release/release-build.sh publish-release</code></li>
+  <li>If you are a new Release Manager, update the KEYS file with your code signing key https://www.apache.org/dev/openpgp.html#export-public-key</li>
 </ul>
 
-<p>The process of cutting a release candidate has been automated via the AMPLab Jenkins. There are 
-Jenkins jobs that can tag a release candidate and create various packages based on that candidate. 
-The recommended process is to ask the previous release manager to walk you through the Jenkins jobs.</p>
+<pre><code># Move dev/ to release/ when the voting is completed. See Finalize the Release below
+svn co "https://dist.apache.org/repos/dist/dev/spark" svn-spark
+# edit svn-spark/KEYS file
+svn ci --username $ASF_USERNAME --password "$ASF_PASSWORD" -m"Update KEYS"
+</code></pre>
+
+<p>If the Jenkins jobs have been updated to support signing with your key you can look at the job required for a release are located in the <a href="https://amplab.cs.berkeley.edu/jenkins/view/Spark%20Release/">Spark Release Jobs</a> collection.
+If you don&#8217;t have access, talk to a previous release manager for guidance and to get access.
+The jobs can be launched with &#8220;Build with Parameters&#8221; and the general order is:</p>
+
+<ul>
+  <li>Create a tag for the current RC with <a href="https://amplab.cs.berkeley.edu/jenkins/view/Spark%20Release/job/spark-release-tag/">spark-release-tag</a> job.</li>
+  <li>Kick off the rest of the jobs except spark-release-publish after the current RC has been configured.</li>
+  <li>Once the packaging and doc jobs have finished kick off the <a href="https://amplab.cs.berkeley.edu/jenkins/view/Spark%20Release/job/spark-release-publish">spark-release-publish</a> job.</li>
+</ul>
+
+<p>The jobs are configured through build parameters. If the build parameters are unclear you can look at previous releases or if available, the recommended process is to ask the previous release manager to walk you through the Jenkins jobs as this document may not be 100% up to date.</p>
 
 <h3>Call a Vote on the Release Candidate</h3>
 
-<p>The release voting takes place on the Apache Spark developers list (the PMC is voting). 
-Look at past voting threads to see how this proceeds. The email should follow 
-<a href="http://mail-archives.apache.org/mod_mbox/spark-dev/201407.mbox/%3cCABPQxss7Cf+YaUuxCk0jnusH4207hCP4dkWn3BWFSvdnD86HHQ@mail.gmail.com%3e">this format</a>.</p>
+<p>The release voting takes place on the Apache Spark developers list (the PMC is voting).
+Look at past voting threads to see how this proceeds. The email should follow
+<a href="https://mail-archives.apache.org/mod_mbox/spark-dev/201407.mbox/%3cCABPQxss7Cf+YaUuxCk0jnusH4207hCP4dkWn3BWFSvdnD86HHQ@mail.gmail.com%3e">this format</a>.</p>
 
 <ul>
-  <li>Make a shortened link to the full list of JIRAs using <a href="http://s.apache.org/">http://s.apache.org/</a></li>
+  <li>Make a shortened link to the full list of JIRAs using <a href="https://s.apache.org/">https://s.apache.org/</a></li>
   <li>If possible, attach a draft of the release notes with the email</li>
   <li>Make sure the voting closing time is in UTC format. Use this script to generate it</li>
   <li>Make sure the email is in text format and the links are correct</li>
 </ul>
 
-<p>Once the vote is done, you should also send out a summary email with the totals, with a subject 
+<p>Once the vote is done, you should also send out a summary email with the totals, with a subject
 that looks something like <code>[RESULT] [VOTE]...</code>.</p>
 
 <h3>Finalize the Release</h3>
 
 <p><strong>Be Careful!</strong></p>
 
-<p><strong>THIS STEP IS IRREVERSIBLE so make sure you selected the correct staging repository. Once you 
+<p><strong>THIS STEP IS IRREVERSIBLE so make sure you selected the correct staging repository. Once you
 move the artifacts into the release folder, they cannot be removed.</strong></p>
 
-<p>After the vote passes, find the staging repository and click Release and confirm. To upload the 
-binaries, you have to first upload them to the dev directory in the Apache Distribution repo, 
-and then move the binaries from dev directory to release directory. This &#8220;moving&#8221; is the only
- way you can add stuff to the actual release directory.</p>
+<p>After the vote passes, to upload the binaries to Apache mirrors, you move the binaries from dev directory (this should be where they are voted) to release directory. This &#8220;moving&#8221; is the only way you can add stuff to the actual release directory.</p>
 
 <pre><code># Checkout the Spark directory in Apache distribution SVN "dev" repo
 $ svn co https://dist.apache.org/repos/dist/dev/spark/
-  
-# Make directory for this RC in the above directory
-mkdir spark-1.1.1-rc2
- 
-# Download the voted binaries and add them to the directory
-$ scp andrewor14@people.apache.org:~/public_html/spark-1.1.1-rc2/* spark-1.1.1-rc2
- 
-# NOTE: Remove any binaries you don’t want to publish
-# E.g. never push MapR and *without-hive artifacts to apache
-$ rm spark-1.1.1-rc2/*mapr*
-$ rm spark-1.1.1-rc2/*without-hive*
-$ svn add spark-1.1.1-rc2
-$ svn commit -m "Add spark-1.1.1-rc2" --username "andrewor14"
-  
+
 # Move the sub-directory in "dev" to the
 # corresponding directory in "release"
 $ export SVN_EDITOR=vim
 $ svn mv https://dist.apache.org/repos/dist/dev/spark/spark-1.1.1-rc2 https://dist.apache.org/repos/dist/release/spark/spark-1.1.1
 </code></pre>
 
-<p>Verify that the resources are present in <a href="http://www.apache.org/dist/spark/">http://www.apache.org/dist/spark/</a>.
-It may take a while for them to be visible. This will be mirrored throughout the Apache network. 
+<p>Verify that the resources are present in <a href="https://www.apache.org/dist/spark/">https://www.apache.org/dist/spark/</a>.
+It may take a while for them to be visible. This will be mirrored throughout the Apache network.
 There are a few remaining steps.</p>
+
+<p>For Maven Central Repository, you can Release from the <a href="https://repository.apache.org/">Apache Nexus Repository Manager</a>. This is already populated by the <code>release-build.sh publish-release</code> step. Log in, open Staging Repositories, find the one voted on (eg. orgapachespark-1257 for https://repository.apache.org/content/repositories/orgapachespark-1257/), select and click Release and confirm. If successful, it should show up under https://repository.apache.org/content/repositories/releases/org/apache/spark/spark-core_2.11/2.2.1/
+and the same under https://repository.apache.org/content/groups/maven-staging-group/org/apache/spark/spark-core_2.11/2.2.1/ (look for the correct release version). After some time this will be sync&#8217;d to <a href="https://search.maven.org/">Maven Central</a> automatically.</p>
+
+<h4>Upload to PyPI</h4>
+
+<p>Uploading to PyPI is done after the release has been uploaded to Apache. To get started, go to the <a href="https://pypi.python.org">PyPI website</a> and log in with the spark-upload account (see the PMC mailing list for account permissions).</p>
+
+<p>Once you have logged in it is time to register the new release, on the <a href="https://pypi.python.org/pypi?%3Aaction=submit_form">submitting package information</a> page by uploading the PKG-INFO file from inside the pyspark packaged artifact.</p>
+
+<p>Once the release has been registered you can upload the artifacts
+to the <b>legacy</b> pypi interface, using <a href="https://pypi.python.org/pypi/twine">twine</a>.
+If you don&#8217;t have twine setup you will need to create a .pypirc file with the reository pointing to <code>https://upload.pypi.org/legacy/</code> and the same username and password for the spark-upload account.</p>
+
+<p>In the release directory run <code>twine upload -r legacy pyspark-version.tar.gz pyspark-version.tar.gz.asc</code>.
+If for some reason the twine upload is incorrect (e.g. http failure or other issue), you can rename the artifact to <code>pyspark-version.post0.tar.gz</code>, delete the old artifact from PyPI and re-upload.</p>
 
 <h4>Remove Old Releases from Mirror Network</h4>
 
-<p>Spark always keeps two releases in the mirror network: the most recent release on the current and 
-previous branches. To delete older versions simply use svn rm. The <code>downloads.js</code> file in the 
-website <code>js/</code> directory must also be updated to reflect the changes. For instance, the two 
+<p>Spark always keeps two releases in the mirror network: the most recent release on the current and
+previous branches. To delete older versions simply use svn rm. The <code>downloads.js</code> file in the
+website <code>js/</code> directory must also be updated to reflect the changes. For instance, the two
 releases should be 1.1.1 and 1.0.2, but not 1.1.1 and 1.1.0.</p>
 
 <pre><code>$ svn rm https://dist.apache.org/repos/dist/release/spark/spark-1.1.0
@@ -347,23 +378,23 @@ releases should be 1.1.1 and 1.0.2, but not 1.1.1 and 1.1.0.</p>
 <pre><code>$ git checkout v1.1.1-rc2 # the RC that passed
 $ git tag v1.1.1
 $ git push apache v1.1.1
- 
+
 # Verify that the tag has been applied correctly
 # If so, remove the old tag
 $ git push apache :v1.1.1-rc2
 $ git tag -d v1.1.1-rc2
 </code></pre>
 
-<p>Next, update remaining version numbers in the release branch. If you are doing a patch release, 
-see the similar commit made after the previous release in that branch. For example, for branch 1.0, 
+<p>Next, update remaining version numbers in the release branch. If you are doing a patch release,
+see the similar commit made after the previous release in that branch. For example, for branch 1.0,
 see <a href="https://github.com/apache/spark/commit/2a5514f7dcb9765b60cb772b97038cbbd1b58983">this example commit</a>.</p>
 
 <p>In general, the rules are as follows:</p>
 
 <ul>
   <li><code>grep</code> through the repository to find such occurrences</li>
-  <li>References to the version just released. Upgrade them to next release version. If it is not a 
-documentation related version (e.g. inside <code>spark/docs/</code> or inside <code>spark/python/epydoc.conf</code>), 
+  <li>References to the version just released. Upgrade them to next release version. If it is not a
+documentation related version (e.g. inside <code>spark/docs/</code> or inside <code>spark/python/epydoc.conf</code>),
 add <code>-SNAPSHOT</code> to the end.</li>
   <li>References to the next version. Ensure these already have <code>-SNAPSHOT</code>.</li>
 </ul>
@@ -381,16 +412,16 @@ You can audit the ec2 set-up by launching a cluster and running this audit scrip
 
 <h4>Update the Spark Website</h4>
 
-<p>The website repository is located at 
-<a href="https://github.com/apache/spark-website">https://github.com/apache/spark-website</a>. 
-Ensure the docs were generated with the PRODUCTION=1 environment variable and with Java 7.</p>
+<p>The website repository is located at
+<a href="https://github.com/apache/spark-website">https://github.com/apache/spark-website</a>.
+Ensure the docs were generated with the PRODUCTION=1 environment variable.</p>
 
 <pre><code># Build the latest docs
 $ git checkout v1.1.1
 $ cd docs
-$ JAVA_HOME=$JAVA_7_HOME PRODUCTION=1 jekyll build
- 
-# Copy the new documentation to apache
+$ PRODUCTION=1 jekyll build
+
+# Copy the new documentation to Apache
 $ git clone https://github.com/apache/spark-website
 ...
 $ cp -R _site spark-website/site/docs/1.1.1
@@ -401,21 +432,33 @@ $ rm latest
 $ ln -s 1.1.1 latest
 </code></pre>
 
-<p>Next, update the rest of the Spark website. See how the previous releases are documented. 
-In particular, have a look at the changes to the <code>*.md</code> files in this commit (all the HTML 
-file changes are generated by <code>jekyll</code>).</p>
+<p>Next, update the rest of the Spark website. See how the previous releases are documented
+(all the HTML file changes are generated by <code>jekyll</code>).
+In particular, update <code>documentation.md</code> to add link to <code>docs</code> for the previous release. Add
+the new release to <code>js/downloads.js</code>. Check <code>security.md</code> for anything to update.</p>
 
 <pre><code>$ git add 1.1.1
-$ git commit -m "Add docs for Spark 1.1.1" 
+$ git commit -m "Add docs for Spark 1.1.1"
 </code></pre>
 
-<p>Then, create the release notes. The contributors list can be automatically generated through 
+<p>Then, create the release notes. Go to the
+<a href="https://issues.apache.org/jira/projects/SPARK?selectedItem=com.atlassian.jira.jira-projects-plugin:release-page">release page in JIRA</a>,
+pick the release version from the list, then click on &#8220;Release Notes&#8221;. Copy this URL and then make a short URL on
+<a href="https://s.apache.org/">s.apache.org</a>, sign in to your Apache account, and pick the ID as something like
+<code>spark-2.1.2</code>. Create a new release post under <code>releases/_posts</code> to include this short URL.</p>
+
+<p>Then run <code>jekyll build</code> to update the <code>site</code> directory.</p>
+
+<p>On a related note, make sure the version is marked as released on JIRA. Go find the release page as above, eg.,
+<code>https://issues.apache.org/jira/projects/SPARK/versions/12340295</code>, and click the &#8220;Release&#8221; button on the right and enter the release date.</p>
+
+<p>(Generally, this is only for major and minor, but not patch releases) The contributors list can be automatically generated through
 <a href="https://github.com/apache/spark/blob/branch-1.1/dev/create-release/generate-contributors.py">this script</a>.
-It accepts the tag that corresponds to the current release and another tag that 
-corresponds to the previous (not including maintenance release). For instance, if you are 
+It accepts the tag that corresponds to the current release and another tag that
+corresponds to the previous (not including maintenance release). For instance, if you are
 releasing Spark 1.2.0, set the current tag to v1.2.0-rc2 and the previous tag to v1.1.0.
-Once you have generated the initial contributors list, it is highly likely that there will be 
-warnings about author names not being properly translated. To fix this, run 
+Once you have generated the initial contributors list, it is highly likely that there will be
+warnings about author names not being properly translated. To fix this, run
 <a href="https://github.com/apache/spark/blob/branch-1.1/dev/create-release/translate-contributors.py">this other script</a>,
 which fetches potential replacements from Github and JIRA. For instance:</p>
 
@@ -430,33 +473,33 @@ $ vim release-spark/dev/translate-contributors.py
 $ ./translate-contributors.py
 </code></pre>
 
-<p>Additionally, if you wish to give more specific credit for developers of larger patches, you may 
-use the the following commands to identify large patches. Extra care must be taken to make sure 
-commits from previous releases are not counted since git cannot easily associate commits that 
+<p>Additionally, if you wish to give more specific credit for developers of larger patches, you may
+use the the following commands to identify large patches. Extra care must be taken to make sure
+commits from previous releases are not counted since git cannot easily associate commits that
 were back ported into different branches.</p>
 
 <pre><code># Determine PR numbers closed only in the new release
 $ git log v1.1.1 | grep "Closes #" | cut -d " " -f 5,6 | grep Closes | sort &gt; closed_1.1.1
 $ git log v1.1.0 | grep "Closes #" | cut -d " " -f 5,6 | grep Closes | sort &gt; closed_1.1.0
 $ diff --new-line-format="" --unchanged-line-format="" closed_1.1.1 closed_1.1.0 &gt; diff.txt
- 
+
 # Grep expression with all new patches
 $ EXPR=$(cat diff.txt | awk '{ print "\\("$1" "$2" \\)"; }' | tr "\n" "|" | sed -e "s/|/\\\|/g" | sed "s/\\\|$//")
- 
+
 # Contributor list
 $ git shortlog v1.1.1 --grep "$EXPR" &gt; contrib.txt
- 
+
 # Large patch list (300+ lines)
 $ git log v1.1.1 --grep "$expr" --shortstat --oneline | grep -B 1 -e "[3-9][0-9][0-9] insert" -e "[1-9][1-9][1-9][1-9] insert" | grep SPARK &gt; large-patches.txt
 </code></pre>
 
-<p>Then, update the downloads page, and then the main page with a news item.</p>
-
 <h4>Create an Announcement</h4>
 
-<p>Once everything is working (website docs, website changes) create an announcement on the website 
-and then send an e-mail to the mailing list. Enjoy an adult beverage of your choice, and 
-congratulations on making a Spark release.</p>
+<p>Once everything is working (website docs, website changes) create an announcement on the website
+and then send an e-mail to the mailing list. To create an announcement, create a post under
+<code>news/_posts</code> and then run <code>jekyll build</code>.</p>
+
+<p>Enjoy an adult beverage of your choice, and congratulations on making a Spark release.</p>
 
   </div>
 </div>
@@ -466,7 +509,9 @@ congratulations on making a Spark release.</p>
 <footer class="small">
   <hr>
   Apache Spark, Spark, Apache, and the Spark logo are <a href="/trademarks.html">trademarks</a> of
-  <a href="http://www.apache.org">The Apache Software Foundation</a>.
+  <a href="https://www.apache.org">The Apache Software Foundation</a>.
+  Copyright &copy; 2018 The Apache Software Foundation, Licensed under the
+  <a href="https://www.apache.org/licenses/LICENSE-2.0.html">Apache License, Version 2.0</a>.
 </footer>
 
 </div>

@@ -22,16 +22,13 @@ $(document).ready(function() {
 2. Choose a package type:
   <select id="sparkPackageSelect" onChange="javascript:onPackageSelect();"></select><br>
 
-3. Choose a download type:
-  <select id="sparkDownloadSelect" onChange="javascript:onDownloadSelect()"></select><br>
+3. Download Spark: <span id="spanDownloadLink"></span>
 
-4. Download Spark: <span id="spanDownloadLink"></span>
-
-5. Verify this release using the <span id="sparkDownloadVerify"></span> and [project release KEYS](https://www.apache.org/dist/spark/KEYS).
+4. Verify this release using the <span id="sparkDownloadVerify"></span> and [project release KEYS](https://www.apache.org/dist/spark/KEYS).
 
 _Note: Starting version 2.0, Spark is built with Scala 2.11 by default.
 Scala 2.10 users should download the Spark source package and build
-[with Scala 2.10 support](http://spark.apache.org/docs/latest/building-spark.html#building-for-scala-210)._
+[with Scala 2.10 support](https://spark.apache.org/docs/latest/building-spark.html#building-for-scala-210)._
 
 <!--
 ### Latest Preview Release
@@ -47,11 +44,14 @@ You can select and download it above.
 -->
 
 ### Link with Spark
-Spark artifacts are [hosted in Maven Central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.apache.spark%22). You can add a Maven dependency with the following coordinates:
+Spark artifacts are [hosted in Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.apache.spark%22). You can add a Maven dependency with the following coordinates:
 
     groupId: org.apache.spark
     artifactId: spark-core_2.11
-    version: 2.1.0
+    version: 2.3.0
+
+### Installing with PyPi
+<a href="https://pypi.python.org/pypi/pyspark">PySpark</a> is now available in pypi. To install just run `pip install pyspark`.
 
 ### Spark Source Code Management
 If you are interested in working with the newest under-development code or contributing to Apache Spark development, you can also check out the master branch from Git:
@@ -59,8 +59,8 @@ If you are interested in working with the newest under-development code or contr
     # Master development branch
     git clone git://github.com/apache/spark.git
 
-    # 2.1 maintenance branch with stability fixes on top of Spark 2.1.0
-    git clone git://github.com/apache/spark.git -b branch-2.1
+    # Maintenance branch with stability fixes on top of Spark 2.3.0
+    git clone git://github.com/apache/spark.git -b branch-2.3
 
 Once you've downloaded Spark, you can find instructions for installing and building it on the <a href="{{site.baseurl}}/documentation.html">documentation page</a>.
 

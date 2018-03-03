@@ -21,7 +21,6 @@ Each Spark release will be versioned: `[MAJOR].[FEATURE].[MAINTENANCE]`
 Major version numbers will remain stable over long periods of time. For instance, 1.X.Y may last 
 1 year or more.
 - **FEATURE**: Feature releases will typically contain new features, improvements, and bug fixes. 
-The target frequency for feature releases is every 4 months. 
 Each feature release will have a merge window where new patches can be merged, a QA window when 
 only fixes can be merged, then a final period where voting occurs on release candidates. These 
 windows will be announced immediately after the previous feature release to give people plenty 
@@ -53,23 +52,15 @@ available APIs.
 
 <h2>Release Cadence</h2>
 
-From Spark 2.0.0, in general, feature ("minor") releases occur every 4 months. Hence, Spark 2.2.0 would
-generally be released about 4 months after 2.1.0. Maintenance releases happen as needed depending
-on need. A minor release usually sees 1-2 maintenance releases in the 6 months following its first
+In general, feature ("minor") releases occur about every 6 months. Hence, Spark 2.3.0 would
+generally be released about 6 months after 2.2.0. Maintenance releases happen as needed.
+A minor release usually sees 1-2 maintenance releases in the 6 months following its first
 release. Major releases do not happen according to a fixed schedule.
 
-<h3>Spark 2.1 Release Window</h3>
+<h3>Spark 2.3 Release Window</h3>
 
 | Date  | | Event  |
 | ----- |-| ------ |
-| ~ Nov 1 2016 || Code freeze. Release branch cut.|
-| Early Nov 2016 || QA period. Focus on bug fixes, tests, stability and docs. Generally, no new features merged.|
-| Late Nov 2016 || Release candidates (RC), voting, etc. until final release passes|
-
-<h3>Spark 2.2 Release Window</h3>
-
-| Date  | | Event  |
-| ----- |-| ------ |
-| ~ Mar 1 2017 || Code freeze. Release branch cut.|
-| Early Mar 2017 || QA period. Focus on bug fixes, tests, stability and docs. Generally, no new features merged.|
-| Late Mar 2017 || Release candidates (RC), voting, etc. until final release passes|
+| Mid Nov 2017 || Code freeze. Release branch cut.|
+| Late Nov 2017 || QA period. Focus on bug fixes, tests, stability and docs. Generally, no new features merged.|
+| Early Dec 2017 || Release candidates (RC), voting, etc. until final release passes|
