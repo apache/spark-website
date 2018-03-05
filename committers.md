@@ -14,7 +14,7 @@ navigation:
 |Michael Armbrust|Databricks|
 |Joseph Bradley|Databricks|
 |Matthew Cheah|Palantir|
-|Felix Cheung|Microsoft|
+|Felix Cheung|Uber|
 |Mosharaf Chowdhury|University of Michigan, Ann Arbor|
 |Bryan Cutler|IBM|
 |Jason Dai|Intel|
