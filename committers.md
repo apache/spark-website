@@ -34,6 +34,7 @@ navigation:
 |Yin Huai|Databricks|
 |Shane Huang|Intel|
 |Holden Karau|IBM|
+|Cody Koeninger|Nexstar Digital|
 |Andy Konwinski|Databricks|
 |Hyukjin Kwon|Mobigen|
 |Ryan LeCompte|Quantifind|
