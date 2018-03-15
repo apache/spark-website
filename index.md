@@ -129,8 +129,8 @@ navigation:
 
     <p>
       Spark is used at a wide range of organizations to process large datasets.
-      You can find example use cases at the <a href="https://spark-summit.org/">Spark Summit</a>
-      conference, or on the <a href="{{site.baseurl}}/powered-by.html">Powered By</a> page.
+      You can find many example use cases on the
+      <a href="{{site.baseurl}}/powered-by.html">Powered By</a> page.
     </p>
 
     <p>
@@ -138,8 +138,7 @@ navigation:
     </p>
     <ul class="list-narrow">
       <li>Use the <a href="{{site.baseurl}}/community.html#mailing-lists">mailing lists</a> to ask questions.</li>
-      <li>In-person events include numerous <a href="http://www.meetup.com/topics/apache-spark/">meetup groups</a> and
-      <a href="https://spark-summit.org/">Spark Summit</a>.</li>
+      <li>In-person events include numerous <a href="{{site.baseurl}}/community.html#events">meetup groups and conferences</a>.</li>
       <li>We use <a href="https://issues.apache.org/jira/browse/SPARK">JIRA</a> for issue tracking.</li>
     </ul>
   </div>
@@ -155,7 +154,7 @@ navigation:
     <p>
       The project's
       <a href="{{site.baseurl}}/committers.html">committers</a>
-      come from 19 organizations.
+      come from more than 20 organizations.
     </p>
 
     <p>
@@ -167,13 +166,10 @@ navigation:
   <div class="col-md-4 col-padded">
     <h3>Getting Started</h3>
 
-    <p>Learning Spark is easy whether you come from a Java or Python background:</p>
+    <p>Learning Apache Spark is easy whether you come from a Java, Scala, Python or R background:</p>
     <ul class="list-narrow">
-      <li><a href="{{site.baseurl}}/downloads.html">Download</a> the latest release &mdash; you can run Spark locally on your laptop.</li>
+      <li><a href="{{site.baseurl}}/downloads.html">Download</a> the latest release: you can run Spark locally on your laptop.</li>
       <li>Read the <a href="{{site.baseurl}}/docs/latest/quick-start.html">quick start guide</a>.</li>
-      <li>
-        Spark Summit 2014 contained free <a href="https://spark-summit.org/2014/training">training videos and exercises</a>.
-      </li>
       <li>Learn how to <a href="{{site.baseurl}}/docs/latest/#launching-on-a-cluster">deploy</a> Spark on a cluster.</li>
     </ul>
   </div>
