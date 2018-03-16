@@ -72,7 +72,7 @@ Some quick tips when using email:
 and include only a few lines of the pertinent code / log within the email.
 - No jobs, sales, or solicitation is permitted on the Apache Spark mailing lists.
 
-<h5>Reporting Security issues</h5>
+<h5>Reporting Security Issues</h5>
 
 Please see the [Security](security.html) page for information on how to report sensitive security
 vulnerabilities, and for information on known security issues.
@@ -125,7 +125,7 @@ Chat rooms are great for quick questions or discussions on specialized topics. T
 </ul>
 
 <h4>Meetups</h4>
-Spark Meetups are grass-roots events organized and hosted by leaders and champions in the community around the world. Check out <a href="http://spark.meetup.com">http://spark.meetup.com</a> to find a Spark meetup in your part of the world. Below is a partial list of Spark meetups.
+Spark Meetups are grass-roots events organized and hosted by individuals in the community around the world. Check out <a href="https://www.meetup.com/topics/apache-spark/">meetup.com/topics/apache-spark</a> to find a Spark meetup in your part of the world. Below is a partial list of Spark meetups.
 <ul>
   <li>
     <a href="https://www.meetup.com/spark-users/">Bay Area Spark Meetup.</a>
@@ -212,7 +212,7 @@ Spark Meetups are grass-roots events organized and hosted by leaders and champio
   </li>
 </ul>
 
-<p>If you'd like your meetup added, email <a href="mailto:user@spark.apache.org">user@spark.apache.org</a>.</p>
+<p>If you'd like your meetup or conference added, please email <a href="mailto:user@spark.apache.org">user@spark.apache.org</a>.</p>
 
 <a name="issue-tracker"></a>
 <h3>Issue Tracker</h3>
@@ -221,20 +221,6 @@ Spark Meetups are grass-roots events organized and hosted by leaders and champio
 
 <h3>Powered By</h3>
 
-<p>Our wiki has a list of <a href="{{site.baseurl}}/powered-by.html">projects and organizations powered by Spark</a>.</p>
-
-<a name="history"></a>
-<h3>Project History</h3>
-
-
-<p>
-Spark started as a research project at the <a href="https://amplab.cs.berkeley.edu">UC Berkeley AMPLab</a>
-in 2009, and was open sourced in early 2010.
-Many of the ideas behind the system are presented in various
-<a href="{{site.baseurl}}/research.html">research papers</a>.
-</p>
-
-<p>
-After being released, Spark grew a developer community on GitHub and moved to Apache in 2013.
-A wide range of contributors now develop the project (over 400 developers from 100 companies).
+<p>Our site has a list of <a href="{{site.baseurl}}/powered-by.html">projects and organizations powered by Spark</a>.
+Add yours by emailing `dev@spark.apache.org`.
 </p>
