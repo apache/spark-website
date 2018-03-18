@@ -38,3 +38,8 @@ compile phase, use the following syntax:
 
  You probably don't need to install that unless you want to regenerate the pygments CSS file. 
  It requires Python, and can be installed by running `sudo easy_install Pygments`.
+
+## Merge PR
+
+To merge pull request, use the merge_pr.py script which also squash the commits.
+
