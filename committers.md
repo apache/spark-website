@@ -64,6 +64,7 @@ navigation:
 |Takuya Ueshin|Databricks|
 |Marcelo Vanzin|Cloudera|
 |Shivaram Venkataraman|UC Berkeley|
+|Zhenhua Wang|Huawei|
 |Patrick Wendell|Databricks|
 |Andrew Xia|Alibaba|
 |Reynold Xin|Databricks|
