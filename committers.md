@@ -36,7 +36,7 @@ navigation:
 |Holden Karau|IBM|
 |Cody Koeninger|Nexstar Digital|
 |Andy Konwinski|Databricks|
-|Hyukjin Kwon|Mobigen|
+|Hyukjin Kwon|Hortonworks|
 |Ryan LeCompte|Quantifind|
 |Haoyuan Li|Alluxio, UC Berkeley|
 |Xiao Li|Databricks|
