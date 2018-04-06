@@ -98,7 +98,7 @@ subproject: Streaming
     </p>
     <p>
       You can run Spark Streaming on Spark's <a href="{{site.baseurl}}/docs/latest/spark-standalone.html">standalone cluster mode</a>
-      or <a href="{{site.baseurl}}/docs/latest/ec2-scripts.html">EC2</a>.
+      or other supported cluster resource managers.
       It also includes a local run mode for development.
       In production,
       Spark Streaming uses <a href="https://zookeeper.apache.org">ZooKeeper</a> and <a href="https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html">HDFS</a> for high availability.

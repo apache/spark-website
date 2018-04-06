@@ -68,7 +68,7 @@ subproject: MLlib
     <p>
       If you have a Hadoop 2 cluster, you can run Spark and MLlib without any pre-installation.
       Otherwise, Spark is easy to run <a href="{{site.baseurl}}/docs/latest/spark-standalone.html">standalone</a>
-      or on <a href="{{site.baseurl}}/docs/latest/ec2-scripts.html">EC2</a> or <a href="https://mesos.apache.org">Mesos</a>.
+      or other supported cluster resource managers.
       You can read from <a href="https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsUserGuide.html">HDFS</a>, <a href="https://hbase.apache.org">HBase</a>, or any Hadoop data source.
     </p>
   </div>
