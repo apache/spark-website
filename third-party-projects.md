@@ -45,6 +45,7 @@ against Spark, and data scientists to use Javascript in Jupyter notebooks.
 OLTP + OLAP database integrated with Spark on the same JVMs.
 - <a href="https://github.com/DataSystemsLab/GeoSpark">GeoSpark</a> - Geospatial RDDs and joins
 - <a href="https://github.com/ispras/spark-openstack">Spark Cluster Deploy Tools for OpenStack</a>
+- <a href="https://github.com/Hydrospheredata/mist">Mist</a> - Serverless proxy for Spark cluster (spark middleware)
 
 <h2>Applications Using Spark</h2>
 
