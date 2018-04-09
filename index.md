@@ -181,9 +181,3 @@ navigation:
     </ul>
   </div>
 </div>
-
-<div class="row">
-  <div class="col-sm-12 col-center">
-    <a href="{{site.baseurl}}/downloads.html" class="btn btn-success btn-lg" style="width: 262px;">Download Apache Spark</a>
-  </div>
-</div>
