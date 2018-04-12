@@ -10,7 +10,7 @@ navigation:
 
 |Name|Organization|
 |----|------------|
-|Sameer Agarwal|Databricks|
+|Sameer Agarwal|Facebook|
 |Michael Armbrust|Databricks|
 |Joseph Bradley|Databricks|
 |Matthew Cheah|Palantir|
@@ -27,33 +27,33 @@ navigation:
 |Wenchen Fan|Databricks|
 |Joseph Gonzalez|UC Berkeley|
 |Thomas Graves|Oath|
-|Stephen Haberman|Bizo|
+|Stephen Haberman|LinkedIn|
 |Mark Hamstra|ClearStory Data|
 |Seth Hendrickson|Cloudera|
-|Herman van Hovell|QuestTec B.V.|
+|Herman van Hovell|Databricks|
 |Yin Huai|Databricks|
 |Shane Huang|Intel|
-|Holden Karau|IBM|
+|Holden Karau|Google|
 |Cody Koeninger|Nexstar Digital|
 |Andy Konwinski|Databricks|
 |Hyukjin Kwon|Hortonworks|
 |Ryan LeCompte|Quantifind|
-|Haoyuan Li|Alluxio, UC Berkeley|
+|Haoyuan Li|Alluxio|
 |Xiao Li|Databricks|
-|Davies Liu|Databricks|
+|Davies Liu|Juicedata|
 |Cheng Lian|Databricks|
 |Yanbo Liang|Hortonworks|
-|Sean McNamara|Webtrends|
+|Sean McNamara|Oracle|
 |Xiangrui Meng|Databricks|
 |Mridul Muralidharam|Hortonworks|
 |Andrew Or|Princeton University|
-|Kay Ousterhout|UC Berkeley|
-|Sean Owen|Cloudera|
+|Kay Ousterhout|LightStep|
+|Sean Owen|unaffiliated|
 |Tejas Patil|Facebook|
 |Nick Pentreath|IBM|
 |Anirudh Ramanathan|Google|
 |Imran Rashid|Cloudera|
-|Charles Reiss|UC Berkeley|
+|Charles Reiss|University of Virginia|
 |Josh Rosen|Databricks|
 |Sandy Ryza|Remix|
 |Kousuke Saruta|NTT Data|
@@ -63,7 +63,7 @@ navigation:
 |DB Tsai|Netflix|
 |Takuya Ueshin|Databricks|
 |Marcelo Vanzin|Cloudera|
-|Shivaram Venkataraman|UC Berkeley|
+|Shivaram Venkataraman|University of Wisconsin, Madison|
 |Zhenhua Wang|Huawei|
 |Patrick Wendell|Databricks|
 |Andrew Xia|Alibaba|

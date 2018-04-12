@@ -1,8 +1,8 @@
 ---
 layout: global
 title: Home
-custom_title: Apache Spark&trade; - Lightning-Fast Cluster Computing
-description: Apache Spark is a fast and general engine for big data processing, with built-in modules for streaming, SQL, machine learning and graph processing.
+custom_title: Apache Spark&trade; - Unified Analytics Engine for Big Data
+description: Apache Spark is a unified analytics engine for big data processing, with built-in modules for streaming, SQL, machine learning and graph processing.
 type: page
 navigation:
   weight: 1
@@ -11,7 +11,7 @@ navigation:
 
 
 <div class="jumbotron">
-  <b>Apache Spark&trade;</b> is a fast and general engine for large-scale data processing.
+  <b>Apache Spark&trade;</b> is a unified analytics engine for large-scale data processing.
 </div>
 
 <div class="row row-padded">
@@ -19,13 +19,11 @@ navigation:
     <h2>Speed</h2>
 
     <p class="lead">
-      Run programs up to 100x faster than
-      Apache Hadoop MapReduce in memory, or 10x faster on disk.
+      Run workloads 100x faster.
     </p>
 
     <p>
-      Apache Spark has an advanced DAG execution engine that supports acyclic data flow and
-      in-memory computing.
+      Apache Spark achieves high performance for both batch and streaming data, using a state-of-the-art DAG scheduler, a query optimizer, and a physical execution engine.
     </p>
   </div>
   <div class="col-md-5 col-sm-5 col-padded-top col-center">
@@ -41,25 +39,23 @@ navigation:
     <h2>Ease of Use</h2>
 
     <p class="lead">
-      Write applications quickly in Java, Scala, Python, R.
+      Write applications quickly in Java, Scala, Python, R, and SQL.
     </p>
 
     <p>
       Spark offers over 80 high-level operators that make it easy to build parallel apps.
       And you can use it <em>interactively</em>
-      from the Scala, Python and R shells.
+      from the Scala, Python, R, and SQL shells.
     </p>
   </div>
   <div class="col-md-5 col-sm-5 col-padded-top col-center">
     <div style="text-align: left; display: inline-block;">
       <div class="code">
-        text_file = spark.textFile(<span class="string">"hdfs://..."</span>)<br/>
-        &nbsp;<br/>
-        text_file.<span class="sparkop">flatMap</span>(<span class="closure">lambda&nbsp;line:&nbsp;line.split()</span>)<br/>
-        &nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">map</span>(<span class="closure">lambda word: (word, 1)</span>)<br/>
-        &nbsp;&nbsp;&nbsp;&nbsp;.<span class="sparkop">reduceByKey</span>(<span class="closure">lambda a, b: a+b</span>)
+df <span style="color: #000080;">=</span> spark.<span style="color: #000000;">read</span>.<span style="color: #000000;">json</span><span style="color: #F78811;">&#40;</span><span style="color: #6666FF;">&quot;logs.json&quot;</span><span style="color: #F78811;">&#41;</span>
+df.<span style="color: #000000;">where</span><span style="color: #F78811;">&#40;</span><span style="color: #6666FF;">&quot;age &gt; 21&quot;</span><span style="color: #F78811;">&#41;</span>
+  &nbsp;&nbsp;.<span style="color: #000000;">select</span><span style="color: #F78811;">&#40;</span><span style="color: #6666FF;">&quot;name.first&quot;</span><span style="color: #F78811;">&#41;</span>.<span style="color: #000000;">show</span><span style="color: #F78811;">&#40;</span><span style="color: #F78811;">&#41;</span>
       </div>
-      <div class="caption">Word count in Spark's Python API</div>
+      <div class="caption">Spark's Python DataFrame API<br/>Read JSON files with automatic schema inference</div>
     </div>
     <!--
     <div class="code" style="margin-top: 20px; text-align: left; display: inline-block;">
@@ -122,7 +118,7 @@ navigation:
       <a href="https://cassandra.apache.org">Apache Cassandra</a>, 
       <a href="https://hbase.apache.org">Apache HBase</a>,
       <a href="https://hive.apache.org">Apache Hive</a>, 
-      and any Hadoop data source.
+      and hundreds of other data sources.
     </p>
   </div>
   <div class="col-md-5 col-sm-5 col-padded-top col-center">
@@ -154,8 +150,8 @@ navigation:
     <h3>Contributors</h3>
 
     <p>
-      Apache Spark is built by a wide set of developers from over 200 companies.
-      Since 2009, more than 1100 developers have contributed to Spark!
+      Apache Spark is built by a wide set of developers from over 300 companies.
+      Since 2009, more than 1200 developers have contributed to Spark!
     </p>
 
     <p>
@@ -173,7 +169,7 @@ navigation:
   <div class="col-md-4 col-padded">
     <h3>Getting Started</h3>
 
-    <p>Learning Apache Spark is easy whether you come from a Java, Scala, Python or R background:</p>
+    <p>Learning Apache Spark is easy whether you come from a Java, Scala, Python, R, or SQL background:</p>
     <ul class="list-narrow">
       <li><a href="{{site.baseurl}}/downloads.html">Download</a> the latest release: you can run Spark locally on your laptop.</li>
       <li>Read the <a href="{{site.baseurl}}/docs/latest/quick-start.html">quick start guide</a>.</li>
