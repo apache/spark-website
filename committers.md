@@ -60,7 +60,7 @@ navigation:
 |Saisai Shao|Hortonworks|
 |Prashant Sharma|IBM|
 |Ram Sriharsha|Databricks|
-|DB Tsai|Netflix|
+|DB Tsai|Apple|
 |Takuya Ueshin|Databricks|
 |Marcelo Vanzin|Cloudera|
 |Shivaram Venkataraman|University of Wisconsin, Madison|
