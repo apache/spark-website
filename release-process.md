@@ -177,7 +177,7 @@ Publishing to CRAN is done using <a href="https://cran.r-project.org/submit.html
 Since it requires further manual steps, please also contact the <a href="mailto:private@spark.apache.org">PMC</a>.
 
 
-<h4>Remove Old Releases from Mirror Network</h4>
+<h4>Remove Old Releases from Development Repository and Mirror Network</h4>
 
 Spark always keeps two releases in the mirror network: the most recent release on the current and
 previous branches. To delete older versions simply use svn rm. The `downloads.js` file in the
@@ -186,6 +186,15 @@ releases should be 1.1.1 and 1.0.2, but not 1.1.1 and 1.1.0.
 
 ```
 $ svn rm https://dist.apache.org/repos/dist/release/spark/spark-1.1.0
+```
+
+You should also delete the RC directories from the staging repository. For example:
+
+```
+svn rm https://dist.apache.org/repos/dist/dev/spark/v2.3.1-rc1-bin/ \
+  https://dist.apache.org/repos/dist/dev/spark/v2.3.1-rc1-docs/ \
+  -m"Removing RC artifacts."
+
 ```
 
 <h4>Update the Spark Apache Repository</h4>
