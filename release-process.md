@@ -196,6 +196,8 @@ svn rm https://dist.apache.org/repos/dist/dev/spark/v2.3.1-rc1-bin/ \
   -m"Removing RC artifacts."
 ```
 
+Make sure to also remove the unpublished staging repositories from the <a href="https://repository.apache.org/">Apache Nexus Repository Manager</a>.
+
 When removing older releases, also update `js/download.js` to indicate the release is not mirrored
 anymore, so that the correct links are generated on the site.
 
