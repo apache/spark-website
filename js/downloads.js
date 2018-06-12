@@ -3,8 +3,13 @@
 
 releases = {};
 
-function addRelease(version, releaseDate, packages, stable) {
-  releases[version] = {released: releaseDate, packages: packages, stable: stable};
+function addRelease(version, releaseDate, packages, stable, mirrored) {
+  releases[version] = {
+    released: releaseDate,
+    packages: packages,
+    stable: stable,
+    mirrored: mirrored
+  };
 }
 
 var sources = {pretty: "Source Code", tag: "sources"};
@@ -24,26 +29,21 @@ var packagesV7 = [hadoop2p7, hadoop2p6, hadoop2p4, hadoop2p3, hadoopFree, source
 // 2.2.0+
 var packagesV8 = [hadoop2p7, hadoop2p6, hadoopFree, sources];
 
-addRelease("2.3.1", new Date("06/08/2018"), packagesV8, true);
-addRelease("2.3.0", new Date("02/28/2018"), packagesV8, true);
-addRelease("2.2.1", new Date("12/01/2017"), packagesV8, true);
-addRelease("2.2.0", new Date("07/11/2017"), packagesV8, true);
-addRelease("2.1.2", new Date("10/09/2017"), packagesV7, true);
-addRelease("2.1.1", new Date("05/02/2017"), packagesV7, true);
-addRelease("2.1.0", new Date("12/28/2016"), packagesV7, true);
-addRelease("2.0.2", new Date("11/14/2016"), packagesV7, true);
-addRelease("2.0.1", new Date("10/03/2016"), packagesV7, true);
-addRelease("2.0.0", new Date("07/26/2016"), packagesV7, true);
+addRelease("2.3.1", new Date("06/08/2018"), packagesV8, true, true);
+addRelease("2.3.0", new Date("02/28/2018"), packagesV8, true, true);
+addRelease("2.2.1", new Date("12/01/2017"), packagesV8, true, true);
+addRelease("2.2.0", new Date("07/11/2017"), packagesV8, true, false);
+addRelease("2.1.2", new Date("10/09/2017"), packagesV7, true, true);
+addRelease("2.1.1", new Date("05/02/2017"), packagesV7, true, false);
+addRelease("2.1.0", new Date("12/28/2016"), packagesV7, true, false);
+addRelease("2.0.2", new Date("11/14/2016"), packagesV7, true, true);
+addRelease("2.0.1", new Date("10/03/2016"), packagesV7, true, false);
+addRelease("2.0.0", new Date("07/26/2016"), packagesV7, true, false);
 //addRelease("2.0.0-preview", new Date("05/24/2016"), sources.concat(packagesV7), true, false);
-addRelease("1.6.3", new Date("11/07/2016"), packagesV6, true);
-addRelease("1.6.2", new Date("06/25/2016"), packagesV6, true);
-addRelease("1.6.1", new Date("03/09/2016"), packagesV6, true);
-addRelease("1.6.0", new Date("01/04/2016"), packagesV6, true);
-//addRelease("1.5.2", new Date("11/09/2015"), packagesV6, true);
-//addRelease("1.5.1", new Date("10/02/2015"), packagesV6, true);
-//addRelease("1.5.0", new Date("9/09/2015"), packagesV6, true);
-//addRelease("1.4.1", new Date("7/15/2015"), packagesV6, true);
-//addRelease("1.4.0", new Date("6/11/2015"), packagesV6, true);
+addRelease("1.6.3", new Date("11/07/2016"), packagesV6, true, true);
+addRelease("1.6.2", new Date("06/25/2016"), packagesV6, true, false);
+addRelease("1.6.1", new Date("03/09/2016"), packagesV6, true, false);
+addRelease("1.6.0", new Date("01/04/2016"), packagesV6, true, false);
 
 function append(el, contents) {
   el.innerHTML += contents;
@@ -128,10 +128,10 @@ function onVersionSelect() {
   append(verifyLink, link);
 
   // Populate releases
-  updateDownloadLink();
+  updateDownloadLink(releases[version].mirrored);
 }
 
-function updateDownloadLink() {
+function updateDownloadLink(isMirrored) {
   var versionSelect = document.getElementById("sparkVersionSelect");
   var packageSelect = document.getElementById("sparkPackageSelect");
   var downloadLink = document.getElementById("spanDownloadLink");
@@ -147,12 +147,10 @@ function updateDownloadLink() {
     .replace(/-bin-sources/, ""); // special case for source packages
 
   var link = "";
-  if (version < "1.6.3" ||
-      (version >= "2.0.0" && version <= "2.0.1") ||
-      (version >= "2.1.0" && version <= "2.1.1")) {
-    link = "https://archive.apache.org/dist/spark/spark-$ver/$artifact";
-  } else {
+  if (isMirrored) {
     link = "https://www.apache.org/dyn/closer.lua/spark/spark-$ver/$artifact";
+  } else {
+    link = "https://archive.apache.org/dist/spark/spark-$ver/$artifact";
   }
   link = link
     .replace(/\$ver/, version)

@@ -194,8 +194,15 @@ You should also delete the RC directories from the staging repository. For examp
 svn rm https://dist.apache.org/repos/dist/dev/spark/v2.3.1-rc1-bin/ \
   https://dist.apache.org/repos/dist/dev/spark/v2.3.1-rc1-docs/ \
   -m"Removing RC artifacts."
-
 ```
+
+When removing older releases, also update `js/download.js` to indicate the release is not mirrored
+anymore, so that the correct links are generated on the site.
+
+Also take a moment to check `HiveExternalCatalogVersionsSuite.scala` starting with branch-2.2
+and see if it needs to be adjusted, since that test relies on mirrored downloads of previous
+releases.
+
 
 <h4>Update the Spark Apache Repository</h4>
 
