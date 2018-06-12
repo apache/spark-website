@@ -42,7 +42,7 @@ standard Git branching mechanism and should be announced to the community once t
 created.
 
 It is also good to set up Jenkins jobs for the release branch once it is cut to
-ensure tests are passing. These are jobs like 
+ensure tests are passing. These are jobs like
 https://amplab.cs.berkeley.edu/jenkins/view/Spark%20QA%20Test/job/spark-branch-2.3-test-maven-hadoop-2.7/ .
 Consult Josh Rosen and Shane Knapp for help with this. Also remember to add the newly-added jobs
 to the test dashboard at https://amplab.cs.berkeley.edu/jenkins/view/Spark%20QA%20Test%20(Dashboard)/ .
@@ -54,7 +54,7 @@ last RC are marked as `Resolved` and has a `Target Versions` set to this release
 
 
 To track any issue with pending PR targeting this release, create a filter in JIRA with a query like this
-`project = SPARK AND "Target Version/s" = "12340470" AND status in (OPEN, "In Progress")`
+`project = SPARK AND "Target Version/s" = "12340470" AND status in (Open, Reopened, "In Progress")`
 
 
 For target version string value to use, find the numeric value corresponds to the release by looking into
@@ -95,7 +95,7 @@ Instead much of the same release logic can be accessed in `dev/create-release/re
 
 ```
 # Move dev/ to release/ when the voting is completed. See Finalize the Release below
-svn co "https://dist.apache.org/repos/dist/dev/spark" svn-spark
+svn co --depth=files "https://dist.apache.org/repos/dist/dev/spark" svn-spark
 # edit svn-spark/KEYS file
 svn ci --username $ASF_USERNAME --password "$ASF_PASSWORD" -m"Update KEYS"
 ```
@@ -134,13 +134,15 @@ move the artifacts into the release folder, they cannot be removed.**
 After the vote passes, to upload the binaries to Apache mirrors, you move the binaries from dev directory (this should be where they are voted) to release directory. This "moving" is the only way you can add stuff to the actual release directory.
 
 ```
-# Checkout the Spark directory in Apache distribution SVN "dev" repo
-$ svn co https://dist.apache.org/repos/dist/dev/spark/
-
 # Move the sub-directory in "dev" to the
 # corresponding directory in "release"
 $ export SVN_EDITOR=vim
 $ svn mv https://dist.apache.org/repos/dist/dev/spark/spark-1.1.1-rc2 https://dist.apache.org/repos/dist/release/spark/spark-1.1.1
+
+# If you've added your signing key to the KEYS file, also update the release copy.
+svn co --depth=files "https://dist.apache.org/repos/dist/release/spark" svn-spark
+curl "https://dist.apache.org/repos/dist/dev/spark/KEYS" > svn-spark/KEYS
+(cd svn-spark && svn ci --username $ASF_USERNAME --password "$ASF_PASSWORD" -m"Update KEYS")
 ```
 
 Verify that the resources are present in <a href="https://www.apache.org/dist/spark/">https://www.apache.org/dist/spark/</a>.
@@ -154,22 +156,28 @@ and the same under https://repository.apache.org/content/groups/maven-staging-gr
 
 <h4>Upload to PyPI</h4>
 
-Uploading to PyPI is done after the release has been uploaded to Apache. To get started, go to the <a href="https://pypi.python.org">PyPI website</a> and log in with the spark-upload account (see the PMC mailing list for account permissions).
+You'll need the credentials for the `spark-upload` account, which can be found in
+<a href="https://lists.apache.org/thread.html/2789e448cd8a95361a3164b48f3f8b73a6d9d82aeb228bae2bc4dc7f@%3Cprivate.spark.apache.org%3E">this message</a>
+(only visible to PMC members).
+
+The artifacts can be uploaded using <a href="https://pypi.python.org/pypi/twine">twine</a>. Just run:
+
+```
+twine upload --repository-url https://upload.pypi.org/legacy/ pyspark-{version}.tar.gz pyspark-{version}.tar.gz.asc
+```
+
+Adjusting the command for the files that match the new release. If for some reason the twine upload
+is incorrect (e.g. http failure or other issue), you can rename the artifact to
+`pyspark-version.post0.tar.gz`, delete the old artifact from PyPI and re-upload.
 
 
-Once you have logged in it is time to register the new release, on the <a href="https://pypi.python.org/pypi?%3Aaction=submit_form">submitting package information</a> page by uploading the PKG-INFO file from inside the pyspark packaged artifact.
+<h4>Publish to CRAN</h4>
+
+Publishing to CRAN is done using <a href="https://cran.r-project.org/submit.html">this form</a>.
+Since it requires further manual steps, please also contact the <a href="mailto:private@spark.apache.org">PMC</a>.
 
 
-Once the release has been registered you can upload the artifacts
-to the <b>legacy</b> pypi interface, using <a href="https://pypi.python.org/pypi/twine">twine</a>.
-If you don't have twine setup you will need to create a .pypirc file with the reository pointing to `https://upload.pypi.org/legacy/` and the same username and password for the spark-upload account.
-
-In the release directory run `twine upload -r legacy pyspark-version.tar.gz pyspark-version.tar.gz.asc`.
-If for some reason the twine upload is incorrect (e.g. http failure or other issue), you can rename the artifact to `pyspark-version.post0.tar.gz`, delete the old artifact from PyPI and re-upload.
-
-
-
-<h4>Remove Old Releases from Mirror Network</h4>
+<h4>Remove Old Releases from Development Repository and Mirror Network</h4>
 
 Spark always keeps two releases in the mirror network: the most recent release on the current and
 previous branches. To delete older versions simply use svn rm. The `downloads.js` file in the
@@ -180,43 +188,23 @@ releases should be 1.1.1 and 1.0.2, but not 1.1.1 and 1.1.0.
 $ svn rm https://dist.apache.org/repos/dist/release/spark/spark-1.1.0
 ```
 
+You should also delete the RC directories from the staging repository. For example:
+
+```
+svn rm https://dist.apache.org/repos/dist/dev/spark/v2.3.1-rc1-bin/ \
+  https://dist.apache.org/repos/dist/dev/spark/v2.3.1-rc1-docs/ \
+  -m"Removing RC artifacts."
+
+```
+
 <h4>Update the Spark Apache Repository</h4>
 
 Check out the tagged commit for the release candidate that passed and apply the correct version tag.
 
 ```
-$ git checkout v1.1.1-rc2 # the RC that passed
-$ git tag v1.1.1
+$ git tag v1.1.1 v1.1.1-rc2 # the RC that passed
 $ git push apache v1.1.1
-
-# Verify that the tag has been applied correctly
-# If so, remove the old tag
-$ git push apache :v1.1.1-rc2
-$ git tag -d v1.1.1-rc2
 ```
-
-Next, update remaining version numbers in the release branch. If you are doing a patch release,
-see the similar commit made after the previous release in that branch. For example, for branch 1.0,
-see <a href="https://github.com/apache/spark/commit/2a5514f7dcb9765b60cb772b97038cbbd1b58983">this example commit</a>.
-
-In general, the rules are as follows:
-
-- `grep` through the repository to find such occurrences
-- References to the version just released. Upgrade them to next release version. If it is not a
-documentation related version (e.g. inside `spark/docs/` or inside `spark/python/epydoc.conf`),
-add `-SNAPSHOT` to the end.
-- References to the next version. Ensure these already have `-SNAPSHOT`.
-
-<!--
-<h4>Update the EC2 Scripts</h4>
-
-Upload the binary packages to the S3 bucket s3n://spark-related-packages (ask pwendell to do this). Then, change the init scripts in mesos/spark-ec2 repository to pull new binaries (see this example commit).
-For Spark 1.1+, update branch v4+
-For Spark 1.1, update branch v3+
-For Spark 1.0, update branch v3+
-For Spark 0.9, update branch v2+
-You can audit the ec2 set-up by launching a cluster and running this audit script. Make sure you create cluster with default instance type (m1.xlarge).
--->
 
 <h4>Update the Spark Website</h4>
 
@@ -242,9 +230,12 @@ $ ln -s 1.1.1 latest
 ```
 
 Next, update the rest of the Spark website. See how the previous releases are documented
-(all the HTML file changes are generated by `jekyll`).
-In particular, update `documentation.md` to add link to `docs` for the previous release. Add
-the new release to `js/downloads.js`. Check `security.md` for anything to update.
+(all the HTML file changes are generated by `jekyll`). In particular:
+
+* update `_layouts/global.html` if the new release is the latest one
+* update `documentation.md` to add link to the docs for the new release
+* add the new release to `js/downloads.js`
+* check `security.md` for anything to update
 
 ```
 $ git add 1.1.1
@@ -258,6 +249,10 @@ pick the release version from the list, then click on "Release Notes". Copy this
 `spark-2.1.2`. Create a new release post under `releases/_posts` to include this short URL.
 
 Then run `jekyll build` to update the `site` directory.
+
+After merging the change into the `asf-site` branch, you may need to create a follow-up empty
+commit to force synchronization between ASF's git and the web site, and also the github mirror.
+For some reason synchronization seems to not be reliable for this repository.
 
 On a related note, make sure the version is marked as released on JIRA. Go find the release page as above, eg.,
 `https://issues.apache.org/jira/projects/SPARK/versions/12340295`, and click the "Release" button on the right and enter the release date.

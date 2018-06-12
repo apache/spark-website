@@ -17,6 +17,9 @@ In addition to generating the site as HTML from the markdown files, jekyll can s
 a web server. To build the site and run a web server use the command `jekyll serve` which runs 
 the web server on port 4000, then visit the site at http://localhost:4000.
 
+Please make sure you always run `jekyll build` after testing your changes with `jekyll server`,
+otherwise you end up with broken links in a few places.
+
 ## Docs sub-dir
 
 The docs are not generated as part of the website. They are built separately for each release 
@@ -41,5 +44,4 @@ compile phase, use the following syntax:
 
 ## Merge PR
 
-To merge pull request, use the merge_pr.py script which also squash the commits.
-
+To merge pull request, use the `merge_pr.py` script which also squashes the commits.
