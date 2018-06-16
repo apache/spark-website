@@ -40,17 +40,13 @@ initially launched Spark
   - Spark powers NOW APPS, a big data, real-time, predictive analytics platform. We use Spark SQL, 
   MLlib and GraphX components for both batch ETL and analytics applied to telecommunication data, 
   providing faster and more meaningful insights and actionable data to the operators.
-- <a href="http://adatao.com">Adatao, Inc.</a> - Data Intelligence for All
-  - Visual, Real-Time, Predictive Analytics on Spark+Hadoop, with built-in support for R, Python, 
-  SQL, and Natural Language.
-  - Team of ex-Googlers and Yahoos with large-scale infrastructure experience 
-  (including both flavors of MapReduce at Google and Yahoo) and PhD's in ML/Data Mining
-  - Determined that Spark, among the many alternatives, answered the right problem statements with 
-  the right design
 - <a href="http://www.agilelab.it">Agile Lab</a>
   - enhancing big data. 360 customer view, log analysis, BI
 - <a href="http://www.taobao.com/">Alibaba Taobao</a>
   - We built one of the world's first Spark on YARN production clusters.
+- <a href="http://alluxio.com/">Alluxio</a>
+  - Alluxio, formerly Tachyon, is the world's first system that unifies disparate storage systems
+  at memory speed. 
 - <a href="http://alpinenow.com/">Alpine Data Labs</a>
 - <a href="http://amazon.com">Amazon</a>
 - <a href="http://www.art.com/">Art.com</a>
@@ -92,13 +88,12 @@ and external data sources, driving holistic and actionable insights.
 - <a href="https://www.creditkarma.com/">Credit Karma</a>
   - We create personalized experiences using Spark.
 - <a href="https://databricks.com">Databricks</a>
-  - Formed by the creators of Apache Spark and Shark, Databricks is working to greatly expand these 
-  open source projects and transform big data analysis in the process. We're deeply committed to 
-  keeping all work on these systems open source.
-  - We provided a hosted service to run Spark, 
-  <a href="http://www.databricks.com/cloud">Databricks Cloud</a>, and partner to 
-  <a href="https://databricks.com/support/">support Apache Spark</a> with other Hadoop and big 
-  data companies.
+  - Formed by the original creators of Apache Spark, Databricks is working to expand the
+  open source project and simplify big data and machine learning. We're deeply
+  committed to keeping all our work on Spark open source.
+  - We provided a <a href="https://www.databricks.com/product">cloud-optimized platform</a>
+    to run Spark and ML applications on Amazon Web Services and Azure, as well as a comprehensive
+    <a href="https://databricks.com/training">training program</a>.
 - <a href="http://dianping.com">Dianping.com</a>
 - <a href="http://www.digby.com">Digby</a>
 - <a href="http://www.drawbrid.ge/">Drawbridge</a>
@@ -177,7 +172,8 @@ across all screens
   - Components we are using: Spark Core (Scala API), Spark SQL, and GraphX
 - <a href="http://www.peerialism.com">Peerialism</a>
 - <a href="http://www.planbmedia.com">PlanBMedia</a>
-- <a href="http://prediction.io/">PredicitionIo</a> - PredictionIO currently offers two engine 
+- <a href="http://prediction.io/">PredicitionIo</a>
+  - PredictionIO currently offers two engine 
 templates for Apache Spark MLlib for recommendation (MLlib ALS) and classification (MLlib Naive 
 Bayes). With these templates, you can create a custom predictive engine for production deployment 
 efficiently.
@@ -205,6 +201,9 @@ efficiently.
   - SK Telecom analyses mobile usage patterns of customer with Spark and Shark.
 - <a href="http://socialmetrix.com/">Socialmetrix</a>
 - <a href="http://www.sohu.com">Sohu</a>
+- <a href="https://dawn.cs.stanford.edu">Stanford DAWN</a>
+  - Research lab on infrastructure for usable machine learning, with multiple research projects that run over or
+  accelerate Apache Spark.
 - <a href="http://www.stratio.com/">Stratio</a>
   - Offers an open-source Big Data platform centered around Apache Spark.
 - <a href="https://www.taboola.com/">Taboola</a> – Powering 'Content You May Like' around the web
