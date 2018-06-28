@@ -211,6 +211,15 @@ this explicitly, by submitting any copyrighted material via pull request, email,
 you agree to license the material under the project's open source license and warrant that you 
 have the legal authority to do so.**
 
+<h3>Cloning the Apache Spark source code</h3>
+
+If you are interested in working with the newest under-development code or contributing to Apache Spark development, you can check out the master branch from Git:
+
+    # Master development branch
+    git clone git://github.com/apache/spark.git
+
+Once you've downloaded Spark, you can find instructions for installing and building it on the <a href="{{site.baseurl}}/documentation.html">documentation page</a>.
+
 <h3>JIRA</h3>
 
 Generally, Spark uses JIRA to track logical issues, including bugs and improvements, and uses 
