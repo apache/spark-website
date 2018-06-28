@@ -53,17 +53,6 @@ Spark artifacts are [hosted in Maven Central](https://search.maven.org/#search%7
 ### Installing with PyPi
 <a href="https://pypi.python.org/pypi/pyspark">PySpark</a> is now available in pypi. To install just run `pip install pyspark`.
 
-### Spark Source Code Management
-If you are interested in working with the newest under-development code or contributing to Apache Spark development, you can also check out the master branch from Git:
-
-    # Master development branch
-    git clone git://github.com/apache/spark.git
-
-    # Maintenance branch with stability fixes on top of Spark 2.3.1
-    git clone git://github.com/apache/spark.git -b branch-2.3
-
-Once you've downloaded Spark, you can find instructions for installing and building it on the <a href="{{site.baseurl}}/documentation.html">documentation page</a>.
-
 ### Release Notes for Stable Releases
 
 <ul id="sparkReleaseNotes"></ul>
@@ -72,6 +61,4 @@ Once you've downloaded Spark, you can find instructions for installing and build
 
 As new Spark releases come out for each development stream, previous ones will be archived, but they are still available at [Spark release archives](https://archive.apache.org/dist/spark/).
 
-### Nightly Packages and Artifacts
-For developers, Spark maintains nightly builds and SNAPSHOT artifacts. More information is available on the [the Developer Tools page](/developer-tools.html#nightly-builds).
 
