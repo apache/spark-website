@@ -86,6 +86,7 @@ Instead much of the same release logic can be accessed in `dev/create-release/re
 - R, for CRAN packaging tests, requires e1071 to be installed as part of the packaging tests.
 - In addition R uses LaTeX for some things, and requires some additional fonts. On Debian based systems you may wish to install `texlive-fonts-recommended` and `texlive-fonts-extra`.
 - Make sure you required Python packages for packaging (see `dev/requirements.txt`)
+- Ensure you have Python 3 having Sphinx installed, and `SPHINXPYTHON` environment variable is set to indicate your Python 3 executable (see SPARK-24530).
 - Tag the release candidate with `dev/create-release/release-tag.sh` (e.g. for creating 2.1.2 RC2 we did `ASF_USERNAME=holden ASF_PASSWORD=yoursecretgoeshere GIT_NAME="Holden Karau" GIT_BRANCH=branch-2.1 GIT_EMAIL="holden@us.ibm.com" RELEASE_VERSION=2.1.2 RELEASE_TAG=v2.1.2-rc2 NEXT_VERSION=2.1.3-SNAPSHOT ./dev/create-release/release-tag.sh`)
 - Package the release binaries & sources with `dev/create-release/release-build.sh package`
 - Create the release docs with `dev/create-release/release-build.sh docs`
