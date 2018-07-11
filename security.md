@@ -17,6 +17,59 @@ non-public list that will reach the Apache Security team, as well as the Spark P
 
 <h2>Known Security Issues</h2>
 
+<h3 id="CVE-2018-8024">CVE-2018-8024: Apache Spark XSS vulnerability in UI</h3>
+
+Versions Affected:
+
+- Spark versions through 2.1.2
+- Spark 2.2.0 through 2.2.1
+- Spark 2.3.0
+
+Description:
+In Apache Spark up to and including 2.1.2, 2.2.0 to 2.2.1, and 2.3.0, it's possible for a malicious 
+user to construct a URL pointing to a Spark cluster's UI's job and stage info pages, and if a user can 
+be tricked into accessing the URL, can be used to cause script to execute and expose information from 
+the user's view of the Spark UI. While some browsers like recent versions of Chrome and Safari are 
+able to block this type of attack, current versions of Firefox (and possibly others) do not.
+
+Mitigation:
+
+- 1.x, 2.0.x, and 2.1.x users should upgrade to 2.1.3 or newer
+- 2.2.x users should upgrade to 2.2.2 or newer
+- 2.3.x users should upgrade to 2.3.1 or newer
+
+Credit:
+
+- Spencer Gietzen, Rhino Security Labs
+
+<h3 id="CVE-2018-1334">CVE-2018-1334: Apache Spark local privilege escalation vulnerability</h3>
+
+Severity: High
+
+Vendor: The Apache Software Foundation
+
+Versions affected:
+
+- Spark versions through 2.1.2
+- Spark 2.2.0 to 2.2.1
+- Spark 2.3.0
+
+Description:
+In Apache Spark up to and including 2.1.2, 2.2.0 to 2.2.1, and 2.3.0, when using PySpark or SparkR, 
+it's possible for a different local user to connect to the Spark application and impersonate the 
+user running the Spark application.
+
+Mitigation:
+
+- 1.x, 2.0.x, and 2.1.x users should upgrade to 2.1.3 or newer
+- 2.2.x users should upgrade to 2.2.2 or newer
+- 2.3.x users should upgrade to 2.3.1 or newer
+- Otherwise, affected users should avoid using PySpark and SparkR in multi-user environments.
+
+Credit:
+
+- Nehmé Tohmé, Cloudera, Inc.
+
 <h3 id="CVE-2017-12612">CVE-2017-12612 Unsafe deserialization in Apache Spark launcher API</h3>
 
 JIRA: [SPARK-20922](https://issues.apache.org/jira/browse/SPARK-20922)
@@ -49,7 +102,7 @@ Credit:
 
 JIRA: [SPARK-20393](https://issues.apache.org/jira/browse/SPARK-20393)
 
-Severity: Low
+Severity: Medium
 
 Vendor: The Apache Software Foundation
 
