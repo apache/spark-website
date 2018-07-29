@@ -61,6 +61,6 @@ release. Major releases do not happen according to a fixed schedule.
 
 | Date  | | Event  |
 | ----- |-| ------ |
-| Mid Nov 2017 || Code freeze. Release branch cut.|
-| Late Nov 2017 || QA period. Focus on bug fixes, tests, stability and docs. Generally, no new features merged.|
-| Early Dec 2017 || Release candidates (RC), voting, etc. until final release passes|
+| Mid Aug 2018 || Code freeze. Release branch cut.|
+| Late Aug 2018 || QA period. Focus on bug fixes, tests, stability and docs. Generally, no new features merged.|
+| Early Sep 2018 || Release candidates (RC), voting, etc. until final release passes|
