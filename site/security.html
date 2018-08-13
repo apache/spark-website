@@ -203,14 +203,57 @@
     <h2>Reporting Security Issues</h2>
 
 <p>Apache Spark uses the standard process outlined by the <a href="https://www.apache.org/security/">Apache Security Team</a>
-for reporting vulnerabilities.</p>
+for reporting vulnerabilities. Note that vulnerabilities should not be publicly disclosed until the project has
+responded.</p>
 
 <p>To report a possible security vulnerability, please email <code>security@apache.org</code>. This is a
 non-public list that will reach the Apache Security team, as well as the Spark PMC.</p>
 
 <h2>Known Security Issues</h2>
 
+<h3 id="CVE-2018-11770">CVE-2018-11770: Apache Spark standalone master, Mesos REST APIs not controlled by authentication</h3>
+
+<p>Severity: Medium</p>
+
+<p>Vendor: The Apache Software Foundation</p>
+
+<p>Versions Affected:</p>
+
+<ul>
+  <li>Spark versions from 1.3.0, running standalone master with REST API enabled, or running Mesos master with cluster mode enabled</li>
+</ul>
+
+<p>Description:</p>
+
+<p>From version 1.3.0 onward, Spark&#8217;s standalone master exposes a REST API for job submission, in addition 
+to the submission mechanism used by <code>spark-submit</code>. In standalone, the config property 
+<code>spark.authenticate.secret</code> establishes a shared secret for authenticating requests to submit jobs via 
+<code>spark-submit</code>. However, the REST API does not use this or any other authentication mechanism, and this is 
+not adequately documented. In this case, a user would be able to run a driver program without authenticating, 
+but not launch executors, using the REST API. This REST API is also used by Mesos, when set up to run in 
+cluster mode (i.e., when also running <code>MesosClusterDispatcher</code>), for job submission. Future versions of Spark 
+will improve documentation on these points, and prohibit setting <code>spark.authenticate.secret</code> when running 
+the REST APIs, to make this clear. Future versions will also disable the REST API by default in the 
+standalone master by changing the default value of <code>spark.master.rest.enabled</code> to <code>false</code>.</p>
+
+<p>Mitigation:</p>
+
+<p>For standalone masters, disable the REST API by setting <code>spark.master.rest.enabled</code> to <code>false</code> if it is unused, 
+and/or ensure that all network access to the REST API (port 6066 by default) is restricted to hosts that are 
+trusted to submit jobs. Mesos users can stop the <code>MesosClusterDispatcher</code>, though that will prevent them 
+from running jobs in cluster mode. Alternatively, they can ensure access to the <code>MesosRestSubmissionServer</code> 
+(port 7077 by default) is restricted to trusted hosts.</p>
+
+<p>Credit:</p>
+
+<ul>
+  <li>Imran Rashid, Cloudera</li>
+  <li>Fengwei Zhang, Alibaba Cloud Security Team</li>
+</ul>
+
 <h3 id="CVE-2018-8024">CVE-2018-8024: Apache Spark XSS vulnerability in UI</h3>
+
+<p>Severity: Medium</p>
 
 <p>Versions Affected:</p>
 
@@ -220,8 +263,9 @@ non-public list that will reach the Apache Security team, as well as the Spark P
   <li>Spark 2.3.0</li>
 </ul>
 
-<p>Description:
-In Apache Spark up to and including 2.1.2, 2.2.0 to 2.2.1, and 2.3.0, it&#8217;s possible for a malicious 
+<p>Description:</p>
+
+<p>In Apache Spark up to and including 2.1.2, 2.2.0 to 2.2.1, and 2.3.0, it&#8217;s possible for a malicious 
 user to construct a URL pointing to a Spark cluster&#8217;s UI&#8217;s job and stage info pages, and if a user can 
 be tricked into accessing the URL, can be used to cause script to execute and expose information from 
 the user&#8217;s view of the Spark UI. While some browsers like recent versions of Chrome and Safari are 
@@ -255,8 +299,9 @@ able to block this type of attack, current versions of Firefox (and possibly oth
   <li>Spark 2.3.0</li>
 </ul>
 
-<p>Description:
-In Apache Spark up to and including 2.1.2, 2.2.0 to 2.2.1, and 2.3.0, when using PySpark or SparkR, 
+<p>Description:</p>
+
+<p>In Apache Spark up to and including 2.1.2, 2.2.0 to 2.2.1, and 2.3.0, when using PySpark or SparkR, 
 it&#8217;s possible for a different local user to connect to the Spark application and impersonate the 
 user running the Spark application.</p>
 
@@ -283,11 +328,15 @@ user running the Spark application.</p>
 
 <p>Vendor: The Apache Software Foundation</p>
 
-<p>Versions Affected:
-Versions of Apache Spark from 1.6.0 until 2.1.1</p>
+<p>Versions Affected:</p>
 
-<p>Description:
-In Apache Spark 1.6.0 until 2.1.1, the launcher API performs unsafe
+<ul>
+  <li>Versions of Apache Spark from 1.6.0 until 2.1.1</li>
+</ul>
+
+<p>Description:</p>
+
+<p>In Apache Spark 1.6.0 until 2.1.1, the launcher API performs unsafe
 deserialization of data received by  its socket. This makes applications
 launched programmatically using the launcher API potentially
 vulnerable to arbitrary code execution by an attacker with access to any user
@@ -296,8 +345,9 @@ spark-shell. The attacker would be able to execute code as the user that ran
 the Spark application. Users are encouraged to update to version 2.1.2, 2.2.0 or
 later.</p>
 
-<p>Mitigation:
-Update to Apache Spark 2.1.2, 2.2.0 or later.</p>
+<p>Mitigation:</p>
+
+<p>Update to Apache Spark 2.1.2, 2.2.0 or later.</p>
 
 <p>Credit:</p>
 
@@ -313,17 +363,28 @@ Update to Apache Spark 2.1.2, 2.2.0 or later.</p>
 
 <p>Vendor: The Apache Software Foundation</p>
 
-<p>Versions Affected:
-Versions of Apache Spark before 2.1.2, 2.2.0</p>
+<p>Versions Affected:</p>
 
-<p>Description:
-It is possible for an attacker to take advantage of a user&#8217;s trust in the server to trick them into visiting a link that points to a shared Spark cluster and submits data including MHTML to the Spark master, or history server. This data, which could contain a script, would then be reflected back to the user and could be evaluated and executed by MS Windows-based clients. It is not an attack on Spark itself, but on the user, who may then execute the script inadvertently when viewing elements of the Spark web UIs.</p>
+<ul>
+  <li>Versions of Apache Spark before 2.1.2, 2.2.0</li>
+</ul>
 
-<p>Mitigation:
-Update to Apache Spark 2.1.2, 2.2.0 or later.</p>
+<p>Description:</p>
 
-<p>Example:
-Request:</p>
+<p>It is possible for an attacker to take advantage of a user&#8217;s trust in the server to trick them into 
+visiting a link that points to a shared Spark cluster and submits data including MHTML to the Spark 
+master, or history server. This data, which could contain a script, would then be reflected back to 
+the user and could be evaluated and executed by MS Windows-based clients. It is not an attack on Spark 
+itself, but on the user, who may then execute the script inadvertently when viewing elements of the 
+Spark web UIs.</p>
+
+<p>Mitigation:</p>
+
+<p>Update to Apache Spark 2.1.2, 2.2.0 or later.</p>
+
+<p>Example:</p>
+
+<p>Request:</p>
 
 <pre><code>GET /app/?appId=Content-Type:%20multipart/related;%20boundary=_AppScan%0d%0a--
 _AppScan%0d%0aContent-Location:foo%0d%0aContent-Transfer-
