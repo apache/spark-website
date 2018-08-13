@@ -48,7 +48,7 @@ navigation:
 |Mridul Muralidharam|Hortonworks|
 |Andrew Or|Princeton University|
 |Kay Ousterhout|LightStep|
-|Sean Owen|unaffiliated|
+|Sean Owen|Databricks|
 |Tejas Patil|Facebook|
 |Nick Pentreath|IBM|
 |Anirudh Ramanathan|Google|
