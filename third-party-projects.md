@@ -17,7 +17,7 @@ Apache Spark. You can add a package as long as you have a GitHub repository.
 
 <h2>Infrastructure Projects</h2>
 
-- <a href="https://github.com/spark-jobserver/spark-jobserver">Spark Job Server</a> - 
+- <a href="https://github.com/spark-jobserver/spark-jobserver">REST job server for Apache Spark</a> - 
 REST interface for managing and submitting Spark jobs on the same cluster 
 (see <a href="http://engineering.ooyala.com/blog/open-sourcing-our-spark-job-server">blog post</a> 
 for details)
@@ -26,25 +26,17 @@ for details)
 running Spark
 - <a href="http://alluxio.org/">Alluxio</a> (née Tachyon) - Memory speed virtual distributed 
 storage system that supports running Spark    
-- <a href="https://github.com/datastax/spark-cassandra-connector">Spark Cassandra Connector</a> - 
-Easily load your Cassandra data into Spark and Spark SQL; from Datastax
 - <a href="https://github.com/filodb/FiloDB">FiloDB</a> - a Spark integrated analytical/columnar 
 database, with in-memory option capable of sub-second concurrent queries
 - <a href="http://www.elasticsearch.org/guide/en/elasticsearch/hadoop/master/spark.html#spark-sql">ElasticSearch - 
 Spark SQL</a> Integration
-- <a href="https://github.com/tresata/spark-scalding">Spark-Scalding</a> - Easily transition 
-Cascading/Scalding code to Spark
 - <a href="http://zeppelin-project.org/">Zeppelin</a> - an IPython-like notebook for Spark. There 
 is also <a href="https://github.com/tribbloid/ISpark">ISpark</a>, and the 
 <a href="https://github.com/andypetrella/spark-notebook/">Spark Notebook</a>.
-- <a href="http://www.ibm.com/developerworks/servicemanagement/tc/pcs/index.html">IBM Spectrum Conductor with Spark</a> - 
-cluster management software that integrates with Spark
 - <a href="https://github.com/EclairJS/eclairjs-node">EclairJS</a> - enables Node.js developers to code
 against Spark, and data scientists to use Javascript in Jupyter notebooks.
 - <a href="https://github.com/SnappyDataInc/snappydata">SnappyData</a> - an open source 
 OLTP + OLAP database integrated with Spark on the same JVMs.
-- <a href="https://github.com/DataSystemsLab/GeoSpark">GeoSpark</a> - Geospatial RDDs and joins
-- <a href="https://github.com/ispras/spark-openstack">Spark Cluster Deploy Tools for OpenStack</a>
 - <a href="https://github.com/Hydrospheredata/mist">Mist</a> - Serverless proxy for Spark cluster (spark middleware)
 
 <h2>Applications Using Spark</h2>
@@ -57,8 +49,6 @@ system for large-scale, distributed data analysis, built on top of Apache Hadoop
 on top of Shark and Spark
 - <a href="https://github.com/adobe-research/spindle">Spindle</a> - Spark/Parquet-based web 
 analytics query engine
-- <a href="http://simin.me/projects/spatialspark/">Spark Spatial</a> - Spatial joins and 
-processing for Spark
 - <a href="https://github.com/thunderain-project/thunderain">Thunderain</a> - a framework 
 for combining stream processing with historical data, think Lambda architecture
 - <a href="https://github.com/AyasdiOpenSource/df">DF</a> from Ayasdi - a Pandas-like data frame 
@@ -72,7 +62,7 @@ transforming, and analyzing genomic data using Apache Spark
 
 <h3>C# / .NET</h3>
 
-- <a href="https://github.com/Microsoft/SparkCLR">CLR for Spark</a>
+- <a href="https://github.com/Microsoft/Mobius">Mobius</a>: C# and F# language binding and extensions to Apache Spark
 
 <h3>Clojure</h3>
 
