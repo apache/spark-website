@@ -9,6 +9,12 @@ navigation:
 
 This page tracks external software projects that supplement Apache Spark and add to its ecosystem.
 
+To add a project, open a pull request against the [spark-website](https://github.com/apache/spark-website) 
+repository. Add an entry to this markdown file, then run `jekyll build` to generate the HTML too. Include
+both in your pull request. See the README in this repo for more information.
+
+Note that all project and product names should follow [trademark guidelines](/trademarks.html).
+
 <h2>spark-packages.org</h2>
 
 <a href="https://spark-packages.org/">spark-packages.org</a> is an external, 
