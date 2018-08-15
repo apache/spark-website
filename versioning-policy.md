@@ -53,9 +53,8 @@ available APIs.
 <h2>Release Cadence</h2>
 
 In general, feature ("minor") releases occur about every 6 months. Hence, Spark 2.3.0 would
-generally be released about 6 months after 2.2.0. Maintenance releases happen as needed.
-A feature release usually sees a maintenance release in the 6 months following its first
-release. Major releases do not happen according to a fixed schedule.
+generally be released about 6 months after 2.2.0. Maintenance releases happen as needed
+in between feature releases. Major releases do not happen according to a fixed schedule.
 
 <h3>Spark 2.4 Release Window</h3>
 
@@ -67,6 +66,6 @@ release. Major releases do not happen according to a fixed schedule.
 
 <h2>Maintenance Releases and EOL</h2>
 
-Feature release branches will, generally, be maintained with bug fixes releases for a period of 18 months. 
+Feature release branches will, generally, be maintained with bug fix releases for a period of 18 months. 
 For example, branch 2.1.x is no longer considered maintained as of July 2018, 18 months after the release 
 of 2.1.0 in December 2016. No more 2.1.x releases should be expected after that point, even for bug fixes.

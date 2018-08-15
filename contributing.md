@@ -259,8 +259,11 @@ Example: `Fix typos in Foo scaladoc`
         1. **Affects Version**. For Bugs, assign at least one version that is known to exhibit the 
         problem or need the change
         1. **Label**. Not widely used, except for the following:
-             - `correctness`: a data loss or correctness issue
-             - `release-notes`: the change's effects need mention in release notes
+             - `correctness`: a correctness issue
+             - `data-loss`: a data loss issue
+             - `release-notes`: the change's effects need mention in release notes. The JIRA or pull request
+             should include detail suitable for inclusion in release notes. This should include a short summary
+             of what behavior is impacted, and detail on what behavior changed.
              - `starter`: small, simple change suitable for new contributors
     1. Do not set the following fields:
         1. **Fix Version**. This is assigned by committers only when resolved.
