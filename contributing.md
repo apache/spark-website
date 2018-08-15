@@ -244,7 +244,8 @@ Example: `Fix typos in Foo scaladoc`
     1. Set required fields:
         1. **Issue Type**. Generally, Bug, Improvement and New Feature are the only types used in Spark.
         1. **Priority**. Set to Major or below; higher priorities are generally reserved for 
-        committers to set. JIRA tends to unfortunately conflate "size" and "importance" in its 
+        committers to set. The main exception is correctness or data-loss issues, which can be flagged as
+        Blockers. JIRA tends to unfortunately conflate "size" and "importance" in its 
         Priority field values. Their meaning is roughly:
              1. Blocker: pointless to release without this change as the release would be unusable 
              to a large minority of users. Correctness and data loss issues should be considered Blockers.
