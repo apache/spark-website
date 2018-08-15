@@ -10,7 +10,9 @@ navigation:
 This page tracks external software projects that supplement Apache Spark and add to its ecosystem.
 
 To add a project, open a pull request against the [spark-website](https://github.com/apache/spark-website) 
-repository. Add an entry to this markdown file, then run `jekyll build` to generate the HTML too. Include
+repository. Add an entry to 
+[this markdown file](https://github.com/apache/spark-website/blob/asf-site/third-party-projects.md), 
+then run `jekyll build` to generate the HTML too. Include
 both in your pull request. See the README in this repo for more information.
 
 Note that all project and product names should follow [trademark guidelines](/trademarks.html).
@@ -23,7 +25,7 @@ Apache Spark. You can add a package as long as you have a GitHub repository.
 
 <h2>Infrastructure Projects</h2>
 
-- <a href="https://github.com/spark-jobserver/spark-jobserver">REST job server for Apache Spark</a> - 
+- <a href="https://github.com/spark-jobserver/spark-jobserver">REST Job Server for Apache Spark</a> - 
 REST interface for managing and submitting Spark jobs on the same cluster 
 (see <a href="http://engineering.ooyala.com/blog/open-sourcing-our-spark-job-server">blog post</a> 
 for details)
@@ -36,9 +38,8 @@ storage system that supports running Spark
 database, with in-memory option capable of sub-second concurrent queries
 - <a href="http://www.elasticsearch.org/guide/en/elasticsearch/hadoop/master/spark.html#spark-sql">ElasticSearch - 
 Spark SQL</a> Integration
-- <a href="http://zeppelin-project.org/">Zeppelin</a> - an IPython-like notebook for Spark. There 
-is also <a href="https://github.com/tribbloid/ISpark">ISpark</a>, and the 
-<a href="https://github.com/andypetrella/spark-notebook/">Spark Notebook</a>.
+- <a href="http://zeppelin-project.org/">Zeppelin</a> - Multi-purpose notebook which supports 20+ language backends,
+including Apache Spark
 - <a href="https://github.com/EclairJS/eclairjs-node">EclairJS</a> - enables Node.js developers to code
 against Spark, and data scientists to use Javascript in Jupyter notebooks.
 - <a href="https://github.com/SnappyDataInc/snappydata">SnappyData</a> - an open source 
@@ -73,7 +74,6 @@ transforming, and analyzing genomic data using Apache Spark
 <h3>Clojure</h3>
 
 - <a href="https://github.com/TheClimateCorporation/clj-spark">clj-spark</a>
-- <a href="https://spark-packages.org/package/21">Sparkling</a>
 
 <h3>Groovy</h3>
 
