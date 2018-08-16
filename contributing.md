@@ -244,10 +244,11 @@ Example: `Fix typos in Foo scaladoc`
     1. Set required fields:
         1. **Issue Type**. Generally, Bug, Improvement and New Feature are the only types used in Spark.
         1. **Priority**. Set to Major or below; higher priorities are generally reserved for 
-        committers to set. JIRA tends to unfortunately conflate "size" and "importance" in its 
+        committers to set. The main exception is correctness or data-loss issues, which can be flagged as
+        Blockers. JIRA tends to unfortunately conflate "size" and "importance" in its 
         Priority field values. Their meaning is roughly:
              1. Blocker: pointless to release without this change as the release would be unusable 
-             to a large minority of users
+             to a large minority of users. Correctness and data loss issues should be considered Blockers.
              1. Critical: a large minority of users are missing important functionality without 
              this, and/or a workaround is difficult
              1. Major: a small minority of users are missing important functionality without this, 
@@ -258,6 +259,17 @@ Example: `Fix typos in Foo scaladoc`
         1. **Component**
         1. **Affects Version**. For Bugs, assign at least one version that is known to exhibit the 
         problem or need the change
+        1. **Label**. Not widely used, except for the following:
+             - `correctness`: a correctness issue
+             - `data-loss`: a data loss issue
+             - `release-notes`: the change's effects need mention in release notes. The JIRA or pull request
+             should include detail suitable for inclusion in release notes -- see "Docs Text" below.
+             - `starter`: small, simple change suitable for new contributors
+        1. **Docs Text**: For issues that require an entry in the release notes, this should contain the
+        information that the release manager should include in Release Notes. This should include a short summary
+        of what behavior is impacted, and detail on what behavior changed. It can be provisionally filled out
+        when the JIRA is opened, but will likely need to be updated with final details when the issue is
+        resolved.
     1. Do not set the following fields:
         1. **Fix Version**. This is assigned by committers only when resolved.
         1. **Target Version**. This is assigned by committers to indicate a PR has been accepted for 
