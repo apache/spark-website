@@ -263,9 +263,11 @@ Example: `Fix typos in Foo scaladoc`
              - `correctness`: a correctness issue
              - `data-loss`: a data loss issue
              - `release-notes`: the change's effects need mention in release notes. The JIRA or pull request
-             should include detail suitable for inclusion in release notes. This should include a short summary
-             of what behavior is impacted, and detail on what behavior changed.
+             should include detail suitable for inclusion in release notes -- see "Docs Text" below.
              - `starter`: small, simple change suitable for new contributors
+        1. **Docs Text**: For issues that require an entry in the release notes, this should contain the
+        information that the release manager should include in Release Notes. This should include a short summary
+        of what behavior is impacted, and detail on what behavior changed.
     1. Do not set the following fields:
         1. **Fix Version**. This is assigned by committers only when resolved.
         1. **Target Version**. This is assigned by committers to indicate a PR has been accepted for 
