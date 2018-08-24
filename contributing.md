@@ -157,6 +157,10 @@ creating a new one.
 to suggest a typo fix, but refactoring core scheduling logic requires much more understanding of 
 Spark. Some changes require building up experience first (see above).
 
+It's worth reemphasizing that changes to the core of Spark, or to highly complex and important modules
+like SQL and Catalyst, are more difficult to make correctly. They will be subjected to more scrutiny,
+and held to a higher standard of review than changes to less critical code.
+
 <h3>MLlib-specific Contribution Guidelines</h3>
 
 While a rich set of algorithms is an important goal for MLLib, scaling the project requires 
@@ -317,6 +321,9 @@ above, fix failures and push new commits which will request the re-test in AppVe
 Changes can be added by simply pushing more commits to the same branch.
 - Lively, polite, rapid technical debate is encouraged from everyone in the community. The outcome 
 may be a rejection of the entire change.
+- Keep in mind that changes to more critical parts of Spark, like its core and SQL components, will
+be subjected to more review, and may require more testing and proof of its correctness than
+other changes.
 - Reviewers can indicate that a change looks suitable for merging with a comment such as: "I think 
 this patch looks good". Spark uses the LGTM convention for indicating the strongest level of 
 technical sign-off on a patch: simply comment with the word "LGTM". It specifically means: "I've 
