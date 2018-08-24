@@ -90,7 +90,9 @@ this person.
 well-tested, and well-designed patches. In addition, they should show sufficient expertise to be 
 able to review patches, including making sure they fit within Spark's engineering practices 
 (testability, documentation, API stability, code style, etc). The committership is collectively 
-responsible for the software quality and maintainability of Spark.
+responsible for the software quality and maintainability of Spark. Note that contributions to
+critical parts of Spark, like its core and SQL modules, will be held to a higher standard when
+assessing quality. Contributors to these areas will face more review of their changes.
 3. Community involvement: Committers should have a constructive and friendly attitude in all 
 community interactions. They should also be active on the dev and user list and help mentor 
 newer contributors and users. In design discussions, committers should maintain a professional 
