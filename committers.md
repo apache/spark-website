@@ -33,6 +33,7 @@ navigation:
 |Herman van Hovell|Databricks|
 |Yin Huai|Databricks|
 |Shane Huang|Intel|
+|Dongjoon Hyun|Hortonworks|
 |Holden Karau|Google|
 |Cody Koeninger|Nexstar Digital|
 |Andy Konwinski|Databricks|
