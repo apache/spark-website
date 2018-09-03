@@ -41,6 +41,7 @@ navigation:
 |Ryan LeCompte|Quantifind|
 |Haoyuan Li|Alluxio|
 |Xiao Li|Databricks|
+|Yinan Li|Google|
 |Davies Liu|Juicedata|
 |Cheng Lian|Databricks|
 |Yanbo Liang|Hortonworks|
