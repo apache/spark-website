@@ -61,13 +61,13 @@ Severity: Medium
 
 Versions Affected:
 
-- Spark versions through 2.1.2
+- Spark 2.1.0 through 2.1.2
 - Spark 2.2.0 through 2.2.1
 - Spark 2.3.0
 
 Description:
 
-In Apache Spark up to and including 2.1.2, 2.2.0 to 2.2.1, and 2.3.0, it's possible for a malicious 
+In Apache Spark 2.1.0 to 2.1.2, 2.2.0 to 2.2.1, and 2.3.0, it's possible for a malicious 
 user to construct a URL pointing to a Spark cluster's UI's job and stage info pages, and if a user can 
 be tricked into accessing the URL, can be used to cause script to execute and expose information from 
 the user's view of the Spark UI. While some browsers like recent versions of Chrome and Safari are 
@@ -75,7 +75,7 @@ able to block this type of attack, current versions of Firefox (and possibly oth
 
 Mitigation:
 
-- 1.x, 2.0.x, and 2.1.x users should upgrade to 2.1.3 or newer
+- 2.1.x users should upgrade to 2.1.3 or newer
 - 2.2.x users should upgrade to 2.2.2 or newer
 - 2.3.x users should upgrade to 2.3.1 or newer
 
