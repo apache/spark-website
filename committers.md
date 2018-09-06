@@ -104,6 +104,12 @@ The type and level of contributions considered may vary by project area -- for e
 greatly encourage contributors who want to work on mainly the documentation, or mainly on 
 platform support for specific OSes, storage systems, etc.
 
+The PMC also adds new PMC members. PMC members are expected to carry out PMC 
+responsibilities as described in [Apache Guidance](https://www.apache.org/dev/pmc.html#policy), including
+helping vote on releases, enforce Apache project trademarks, take responsibility for legal and license issues,
+and ensure the project follows Apache project mechanics. The PMC periodically adds committers to the PMC 
+who have shown they understand and can help with these activities.
+
 <h3>Review Process</h3>
 
 All contributions should be reviewed before merging as described in 
