@@ -64,6 +64,7 @@ implementation for Spark
 Apache Kafka for real-time large scale machine learning
 - <a href="https://github.com/bigdatagenomics/adam">ADAM</a> - A framework and CLI for loading, 
 transforming, and analyzing genomic data using Apache Spark
+- <a href="https://github.com/salesforce/TransmogrifAI">TransmogrifAI</a> - AutoML library for building modular, reusable, strongly typed machine learning workflows on Spark with minimal hand tuning
 
 <h2>Additional Language Bindings</h2>
 
