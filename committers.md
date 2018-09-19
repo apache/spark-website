@@ -34,6 +34,7 @@ navigation:
 |Yin Huai|Databricks|
 |Shane Huang|Intel|
 |Dongjoon Hyun|Hortonworks|
+|Kazuaki Ishizaki|IBM|
 |Holden Karau|Google|
 |Shane Knapp|UC Berkeley|
 |Cody Koeninger|Nexstar Digital|
