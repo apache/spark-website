@@ -45,7 +45,7 @@ against Spark, and data scientists to use Javascript in Jupyter notebooks.
 - <a href="https://github.com/SnappyDataInc/snappydata">SnappyData</a> - an open source 
 OLTP + OLAP database integrated with Spark on the same JVMs.
 - <a href="https://github.com/Hydrospheredata/mist">Mist</a> - Serverless proxy for Spark cluster (spark middleware)
-- <a href="https://github.com/GoogleCloudPlatform/spark-on-k8s-operator">Spark Kubernetes Operator</a> - Kubernetes operator for specifying and managing the lifecycle of Apache Spark applications on Kubernetes.
+- <a href="https://github.com/GoogleCloudPlatform/spark-on-k8s-operator">K8S Operator for Apache Spark</a> - Kubernetes operator for specifying and managing the lifecycle of Apache Spark applications on Kubernetes.
 
 <h2>Applications Using Spark</h2>
 
