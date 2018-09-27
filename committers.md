@@ -61,7 +61,7 @@ navigation:
 |Josh Rosen|Databricks|
 |Sandy Ryza|Remix|
 |Kousuke Saruta|NTT Data|
-|Saisai Shao|Hortonworks|
+|Saisai Shao|Tencent|
 |Prashant Sharma|IBM|
 |Ram Sriharsha|Databricks|
 |DB Tsai|Apple|
