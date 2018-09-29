@@ -319,4 +319,18 @@ Once everything is working (website docs, website changes) create an announcemen
 and then send an e-mail to the mailing list. To create an announcement, create a post under
 `news/_posts` and then run `jekyll build`.
 
+<h4>Update a test suite depending on old releases</h4>
+
+Since Spark always keeps the latest maintance released of each branch in the mirror network,
+we need to update a test suite to check backward compatibility with downloading old versions.
+For now, there is one test suite, `HiveExternalCatalogVersionsSuite`.
+
+For a new maintenance release, `HiveExternalCatalogVersionsSuite` will not fail.
+However, it will cause many trials and fallbacks in all Jenkins builds over corresponding branches.
+This updates should be done as a separate PR after release announcement. (See SPARK-25570)
+
+For a new minor release, we need to add the new version to preserve the test coverage. (See SPARK-23570)
+
+For a new major release, this depends on the decision on the backward compatibility.
+
 Enjoy an adult beverage of your choice, and congratulations on making a Spark release.
