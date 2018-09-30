@@ -321,13 +321,12 @@ and then send an e-mail to the mailing list. To create an announcement, create a
 
 <h4>Update a test suite depending on old releases</h4>
 
-Since Spark always keeps the latest maintance released of each branch in the mirror network,
-we need to update a test suite to check backward compatibility with downloading old versions.
+Since Spark always keeps the latest maintenance release of each branch in the mirror network,
+we need to update a test suite to check backward compatibility by testing against old versions.
 For now, there is one test suite, `HiveExternalCatalogVersionsSuite`.
 
 For a new maintenance release, `HiveExternalCatalogVersionsSuite` will not fail.
 However, it will cause many trials and fallbacks in all Jenkins builds over corresponding branches.
-This updates should be done as a separate PR after release announcement. (See SPARK-25570)
 
 For a new minor release, we need to add the new version to preserve the test coverage. (See SPARK-23570)
 
