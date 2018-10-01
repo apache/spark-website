@@ -313,23 +313,19 @@ $ git shortlog v1.1.1 --grep "$EXPR" > contrib.txt
 $ git log v1.1.1 --grep "$expr" --shortstat --oneline | grep -B 1 -e "[3-9][0-9][0-9] insert" -e "[1-9][1-9][1-9][1-9] insert" | grep SPARK > large-patches.txt
 ```
 
+<h4>Update `HiveExternalCatalogVersionsSuite`</h4>
+
+When a new release occurs, `PROCESS_TABLES.testingVersions` in `HiveExternalCatalogVersionsSuite`
+must be updated shortly thereafter. This list should contain the latest release in all active
+maintenance branches, and no more.
+For example, as of this writing, it has value `val testingVersions = Seq("2.1.3", "2.2.2", "2.3.2")`.
+"2.4.0" will be added to the list when it's released. "2.1.3" will be removed (and removed from the Spark dist mirrors)
+when the branch is no longer maintained. "2.3.2" will become "2.3.3" when "2.3.3" is released.
+
 <h4>Create an Announcement</h4>
 
 Once everything is working (website docs, website changes) create an announcement on the website
 and then send an e-mail to the mailing list. To create an announcement, create a post under
 `news/_posts` and then run `jekyll build`.
-
-<h4>Update a test suite depending on old releases</h4>
-
-Since Spark always keeps the latest maintenance release of each branch in the mirror network,
-we need to update a test suite to check backward compatibility by testing against old versions.
-For now, there is one test suite, `HiveExternalCatalogVersionsSuite`.
-
-For a new maintenance release, `HiveExternalCatalogVersionsSuite` will not fail.
-However, it will cause many trials and fallbacks in all Jenkins builds over corresponding branches.
-
-For a new minor release, we need to add the new version to preserve the test coverage. (See SPARK-23570)
-
-For a new major release, this depends on the decision on the backward compatibility.
 
 Enjoy an adult beverage of your choice, and congratulations on making a Spark release.
