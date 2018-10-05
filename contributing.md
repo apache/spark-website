@@ -94,7 +94,8 @@ decide how far the bug fix should be backported, when the pull request is merged
 Performance regression is also one kind of bug. The pull request to fix a performance regression 
 must provide a benchmark to prove the problem is indeed fixed.
 
-Note that, data correctness/data loss bugs are very serious. If the bug report doesn't get 
+Note that, data correctness/data loss bugs are very serious. Make sure the corresponding bug 
+report JIRA ticket is labeled as `correctness` or `data-loss`. If the bug report doesn't get 
 enough attention, please send an email to `dev@spark.apache.org`, to draw more attentions.
 
 It is possible to propose new features as well. These are generally not helpful unless 
