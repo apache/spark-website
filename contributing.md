@@ -89,7 +89,8 @@ first. Unreproducible bugs, or simple error reports, may be closed.
 
 It's very helpful if the bug report has a description about how the bug was introduced, by 
 which commit, so that reviewers can easily understand the bug. It also helps committers to 
-decide how far the bug fix should be backported, when the pull request is merged.
+decide how far the bug fix should be backported, when the pull request is merged. The pull 
+request to fix the bug should narrow down the problem to the root cause.
 
 Performance regression is also one kind of bug. The pull request to fix a performance regression 
 must provide a benchmark to prove the problem is indeed fixed.
