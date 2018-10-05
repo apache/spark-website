@@ -87,6 +87,16 @@ and ideally reproduce the bug. Simply encountering an error does not mean a bug 
 reported; as below, search JIRA and search and inquire on the Spark user / dev mailing lists 
 first. Unreproducible bugs, or simple error reports, may be closed.
 
+It's very helpful if the bug report has a description about how the bug was introduced, by 
+which commit, so that reviewers can easily understand the bug. It also helps committers to 
+decide how far the bug fix should be backported, when the pull request is merged.
+
+Performance regression is also one kind of bug. The pull request to fix a performance regression 
+must provide a benchmark to prove the problem is indeed fixed.
+
+Note that, data correctness/data loss bugs are very serious. If the bug report doesn't get 
+enough attention, please send an email to `dev@spark.apache.org`, to draw more attentions.
+
 It is possible to propose new features as well. These are generally not helpful unless 
 accompanied by detail, such as a design document and/or code change. Large new contributions 
 should consider <a href="https://spark-packages.org/">spark-packages.org</a> first (see above), 
