@@ -63,7 +63,7 @@ subproject: MLlib
   <div class="col-md-7 col-sm-7">
     <h2>Runs Everywhere</h2>
     <p class="lead">
-      Spark runs, on Hadoop, Apache Mesos, Kubernetes, standalone, or in the cloud, against diverse data sources.
+      Spark runs on Hadoop, Apache Mesos, Kubernetes, standalone, or in the cloud, against diverse data sources.
     </p>
     <p>
       You can run Spark using its <a href="{{site.baseurl}}/docs/latest/spark-standalone.html">standalone cluster mode</a>, 
