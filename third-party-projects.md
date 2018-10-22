@@ -46,6 +46,7 @@ against Spark, and data scientists to use Javascript in Jupyter notebooks.
 OLTP + OLAP database integrated with Spark on the same JVMs.
 - <a href="https://github.com/Hydrospheredata/mist">Mist</a> - Serverless proxy for Spark cluster (spark middleware)
 - <a href="https://github.com/GoogleCloudPlatform/spark-on-k8s-operator">K8S Operator for Apache Spark</a> - Kubernetes operator for specifying and managing the lifecycle of Apache Spark applications on Kubernetes.
+- <a href="https://developer.ibm.com/storage/products/ibm-spectrum-conductor-spark/">IBM Spectrum Conductor</a> - Cluster management software that integrates with Spark and mordern application frameworks.
 
 <h2>Applications Using Spark</h2>
 
