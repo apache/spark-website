@@ -11,7 +11,7 @@ navigation:
 
 The purpose of an SPIP is to inform and involve the user community in major improvements to the Spark codebase throughout the development process, to increase the likelihood that user needs are met.
 
-SPIPs should be used for significant user-facing or cross-cutting changes, not small incremental  improvements. When in doubt, if a committer thinks a change needs an SPIP, it does.
+SPIPs should be used for significant user-facing or cross-cutting changes, not small incremental improvements. When in doubt, if a committer thinks a change needs an SPIP, it does.
 
 <h3>What is a SPIP?</h3>
 
@@ -48,30 +48,40 @@ Any <strong>community member</strong> can help by discussing whether an SPIP is 
 <h3>SPIP Process</h3>
 <h4>Proposing an SPIP</h4>
 
-Anyone may propose an SPIP, using the template below. Please only submit an SPIP if you are willing to help, at least with discussion.
+Anyone may propose an SPIP, using the document template below. Please only submit an SPIP if you are willing to help, at least with discussion.
 
 After a SPIP is created, the author should email <a href="mailto:dev@spark.apache.org">dev@spark.apache.org</a> to notify the community of the SPIP, and discussions should ensue on the JIRA ticket.
 
 If an SPIP is too small or incremental and should have been done through the normal JIRA process, a committer should remove the SPIP label.
 
 
-<h4>Template for an SPIP</h4>
+<h4>SPIP Document Template</h4>
 
-<dl>
-<dt>Background and Motivation:</dt> <dd>What problem is this solving?</dd>
+A SPIP document is a short document with a few questions, inspired by the Heilmeier Catechism:
 
-<dt>Target Personas:</dt> <dd>Examples include data scientists, data engineers, library developers, devops. A single SPIP can have multiple target personas.</dd>
+<b>Q1.</b> What are you trying to do? Articulate your objectives using absolutely no jargon.
 
-<dt>Goals:</dt> <dd>What must this allow users to do, that they can't currently?</dd>
+<b>Q2.</b> What problem is this proposal NOT designed to solve?
 
-<dt>Non-Goals:</dt> <dd>What problem is this proposal not designed to solve?</dd>
+<b>Q3.</b> How is it done today, and what are the limits of current practice?
 
-<dt>Proposed API Changes:</dt> <dd>Optional section defining APIs changes, if any. Backward and forward compatibility must be taken into account.</dd>
+<b>Q4.</b> What is new in your approach and why do you think it will be successful?
 
-<dt>Optional Design Sketch:</dt> <dd>How are the goals going to be accomplished? Give sufficient technical detail to allow a contributor to judge whether it's likely to be feasible. This is not a full design document.</dd>
+<b>Q5.</b> Who cares? If you are successful, what difference will it make?
 
-<dt>Optional Rejected Designs:</dt> <dd>What alternatives were considered? Why were they rejected? If no alternatives have been considered, the problem needs more thought.</dd>
-</dl>
+<b>Q6.</b> What are the risks?
+
+<b>Q7.</b> How long will it take?
+
+<b>Q8.</b> What are the mid-term and final “exams” to check for success?
+
+<b>Appendix A.</b> Proposed API Changes. Optional section defining APIs changes, if any. Backward and forward compatibility must be taken into account.
+
+<b>Appendix B.</b> Optional Design Sketch: How are the goals going to be accomplished? Give sufficient technical detail to allow a contributor to judge whether it's likely to be feasible. Note that this is not a full design document.
+
+<b>Appendix C.</b> Optional Rejected Designs: What alternatives were considered? Why were they rejected? If no alternatives have been considered, the problem needs more thought.
+
+
 
 <h4>Discussing an SPIP</h4>
 
