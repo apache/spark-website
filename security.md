@@ -18,6 +18,39 @@ non-public list that will reach the Apache Security team, as well as the Spark P
 
 <h2>Known Security Issues</h2>
 
+
+<h3 id="CVE-2018-11804">CVE-2018-11804: Apache Spark build/mvn runs zinc, and can expose information from build machines</h3>
+
+Severity: Low
+
+Vendor: The Apache Software Foundation
+
+Versions Affected
+
+- 1.3.x release branch and later
+
+Description:
+
+Spark's Apache Maven-based build includes a convenience script, 'build/mvn',
+that downloads and runs a zinc server to speed up compilation. This server
+will accept connections from external hosts by default. A specially-crafted
+request to the zinc server could cause it to reveal information in files
+readable to the developer account running the build. Note that this issue
+does not affect end users of Spark, only developers building Spark from
+source code.
+
+Mitigation:
+
+- Spark users are not affected, as zinc is only a part of the build process.
+- Spark developers may simply use a local Maven installation's 'mvn' command to build, and avoid running build/mvn and zinc.
+- Spark developers building actively-developed branches (2.2.x, 2.3.x, 2.4.x, master) may update their branches to receive mitigations already patched onto the build/mvn script
+- Spark developers running zinc separately may include "-server 127.0.0.1" in its command line, and consider additional flags like "-idle-timeout 30m" to achieve similar mitigation.
+
+Credit:
+
+- Andre Protas, Apple Information Security
+
+
 <h3 id="CVE-2018-11770">CVE-2018-11770: Apache Spark standalone master, Mesos REST APIs not controlled by authentication</h3>
 
 Severity: Medium
