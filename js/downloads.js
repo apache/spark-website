@@ -21,6 +21,7 @@ var hadoop2p3 = {pretty: "Pre-built for Apache Hadoop 2.3", tag: "hadoop2.3"};
 var hadoop2p4 = {pretty: "Pre-built for Apache Hadoop 2.4", tag: "hadoop2.4"};
 var hadoop2p6 = {pretty: "Pre-built for Apache Hadoop 2.6", tag: "hadoop2.6"};
 var hadoop2p7 = {pretty: "Pre-built for Apache Hadoop 2.7 and later", tag: "hadoop2.7"};
+var scala2p12_hadoopFree = {pretty: "[Experimental] Pre-build with Scala 2.12 and user-provided Apache Hadoop", tag: "without-hadoop-scala-2.12"};
 
 // 1.4.0+
 var packagesV6 = [hadoop2p6, hadoop2p4, hadoop2p3, hadoopFree, hadoop1, cdh4, sources];
@@ -28,7 +29,10 @@ var packagesV6 = [hadoop2p6, hadoop2p4, hadoop2p3, hadoopFree, hadoop1, cdh4, so
 var packagesV7 = [hadoop2p7, hadoop2p6, hadoop2p4, hadoop2p3, hadoopFree, sources];
 // 2.2.0+
 var packagesV8 = [hadoop2p7, hadoop2p6, hadoopFree, sources];
+// 2.4.0+
+var packagesV9 = [hadoop2p7, hadoop2p6, hadoopFree, scala2p12_hadoopFree, sources];
 
+addRelease("2.4.0", new Date("11/05/2018"), packagesV9, true, true);
 addRelease("2.3.2", new Date("09/24/2018"), packagesV8, true, true);
 addRelease("2.3.1", new Date("06/08/2018"), packagesV8, true, true);
 addRelease("2.3.0", new Date("02/28/2018"), packagesV8, true, false);
