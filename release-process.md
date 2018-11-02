@@ -35,6 +35,34 @@ If you are a new Release Manager, you can read up on the process from the follow
 - gpg for signing https://www.apache.org/dev/openpgp.html
 - svn https://www.apache.org/dev/version-control.html#https-svn
 
+<h3>Preparing gpg key</h3>
+
+You can skip this section if you have been a release manager before.
+
+After generating the gpg key, you need to upload your key to a public key server. Please refer to
+<a href="https://www.apache.org/dev/openpgp.html#generate-key">https://www.apache.org/dev/openpgp.html#generate-key</a>
+for details.
+
+If you want to do the release on another machine, you can transfer your gpg key to that machine
+via the `gpg --export` and `gpg --import` commands.
+
+The last step is to update the KEYS file with your code signing key
+<a href="https://www.apache.org/dev/openpgp.html#export-public-key">https://www.apache.org/dev/openpgp.html#export-public-key</a>
+
+```
+# Move dev/ to release/ when the voting is completed. See Finalize the Release below
+svn co --depth=files "https://dist.apache.org/repos/dist/dev/spark" svn-spark
+# edit svn-spark/KEYS file
+svn ci --username $ASF_USERNAME --password "$ASF_PASSWORD" -m"Update KEYS"
+```
+
+<h3>Installing docker</h3>
+
+The scripts to create release candidates are run through docker. You need to install docker before running
+these scripts. Please make sure that you can run docker as non-root users. See
+<a href="https://docs.docker.com/install/linux/linux-postinstall">https://docs.docker.com/install/linux/linux-postinstall</a>
+for more details.
+
 <h2>Preparing Spark for Release</h2>
 
 The main step towards preparing a release is to create a release branch. This is done via
@@ -71,45 +99,8 @@ Also check that all build and test passes are green from the RISELab Jenkins: ht
 Note that not all permutations are run on PR therefore it is important to check Jenkins runs.
 
 
-The process of cutting a release candidate has been partially automated via the RISELab Jenkins. There are
-Jenkins jobs that can tag a release candidate and create various packages based on that candidate.
-At present the Jenkins jobs *SHOULD NOT BE USED* as they use a legacy shared key for signing.
-
-
-Instead much of the same release logic can be accessed in `dev/create-release/release-tag.sh` and `dev/create-release/release-build.sh`. The general order of creating a release using the scripts is:
-
-- Verify Jenkins test pass on your desired commit
-- Set the shell environment variables used by the scripts (run with "help" for details)
-- Verify your JAVA_HOME is set to the correct Java version (2.2+ Java 8, pre-2.2 Java 7)
-- You may find Felix's docker env useful - https://github.com/felixcheung/spark-build/blob/master/Dockerfile .
-- Ensure you have the required dependencies to build the docs `docs/README.md`
-- R, for CRAN packaging tests, requires e1071 to be installed as part of the packaging tests.
-- In addition R uses LaTeX for some things, and requires some additional fonts. On Debian based systems you may wish to install `texlive-fonts-recommended` and `texlive-fonts-extra`.
-- Make sure you required Python packages for packaging (see `dev/requirements.txt`)
-- Ensure you have Python 3 having Sphinx installed, and `SPHINXPYTHON` environment variable is set to indicate your Python 3 executable (see SPARK-24530).
-- Tag the release candidate with `dev/create-release/release-tag.sh` (e.g. for creating 2.1.2 RC2 we did `ASF_USERNAME=holden ASF_PASSWORD=yoursecretgoeshere GIT_NAME="Holden Karau" GIT_BRANCH=branch-2.1 GIT_EMAIL="holden@us.ibm.com" RELEASE_VERSION=2.1.2 RELEASE_TAG=v2.1.2-rc2 NEXT_VERSION=2.1.3-SNAPSHOT ./dev/create-release/release-tag.sh`)
-- Package the release binaries & sources with `dev/create-release/release-build.sh package`
-- Create the release docs with `dev/create-release/release-build.sh docs`
-- For Spark versions prior to 2.1.2, change the SPARK_VERSION from X.Y.Z to X.Y.Z-rcA then run `dev/create-release/release-build.sh publish-release`.
-- Publish a snapshot to the Apache release repo `dev/create-release/release-build.sh publish-release`
-- If you are a new Release Manager, update the KEYS file with your code signing key https://www.apache.org/dev/openpgp.html#export-public-key
-
-```
-# Move dev/ to release/ when the voting is completed. See Finalize the Release below
-svn co --depth=files "https://dist.apache.org/repos/dist/dev/spark" svn-spark
-# edit svn-spark/KEYS file
-svn ci --username $ASF_USERNAME --password "$ASF_PASSWORD" -m"Update KEYS"
-```
-
-If the Jenkins jobs have been updated to support signing with your key you can look at the job required for a release are located in the [Spark Release Jobs](https://amplab.cs.berkeley.edu/jenkins/view/Spark%20Release/) collection.
-If you don't have access, talk to a previous release manager for guidance and to get access.
-The jobs can be launched with "Build with Parameters" and the general order is:
-
-- Create a tag for the current RC with [spark-release-tag](https://amplab.cs.berkeley.edu/jenkins/view/Spark%20Release/job/spark-release-tag/) job.
-- Kick off the rest of the jobs except spark-release-publish after the current RC has been configured.
-- Once the packaging and doc jobs have finished kick off the [spark-release-publish](https://amplab.cs.berkeley.edu/jenkins/view/Spark%20Release/job/spark-release-publish) job.
-
-The jobs are configured through build parameters. If the build parameters are unclear you can look at previous releases or if available, the recommended process is to ask the previous release manager to walk you through the Jenkins jobs as this document may not be 100% up to date.
+The process of cutting a release candidate has been automated via the `dev/create-release/do-release-docker.sh` script.
+Run this script, type information it requires, and wait until it finishes.
 
 <h3>Call a Vote on the Release Candidate</h3>
 
@@ -178,6 +169,106 @@ Publishing to CRAN is done using <a href="https://cran.r-project.org/submit.html
 Since it requires further manual steps, please also contact the <a href="mailto:private@spark.apache.org">PMC</a>.
 
 
+<h4>Update the Spark Apache Repository</h4>
+
+Check out the tagged commit for the release candidate that passed and apply the correct version tag.
+
+```
+$ git tag v1.1.1 v1.1.1-rc2 # the RC that passed
+$ git push apache v1.1.1
+```
+
+<h4>Update the Spark Website</h4>
+
+The website repository is located at
+<a href="https://github.com/apache/spark-website">https://github.com/apache/spark-website</a>.
+
+```
+# copy the docs of the voted RC to spark-website
+$ svn co "https://dist.apache.org/repos/dist/dev/spark/v2.4.0-rc5-docs" spark-docs
+$ git clone https://github.com/apache/spark-website
+$ cp -r spark-docs/_site spark-website/site/docs/2.4.0
+# Update the "latest" link
+$ cd spark/site/docs
+$ rm latest
+$ ln -s 2.4.0 latest
+```
+
+Next, update the rest of the Spark website. See how the previous releases are documented
+(all the HTML file changes are generated by `jekyll`). In particular:
+
+* update `_layouts/global.html` if the new release is the latest one
+* update `documentation.md` to add link to the docs for the new release
+* add the new release to `js/downloads.js`
+* check `security.md` for anything to update
+
+```
+$ git add .
+$ git commit -m "Add docs for Spark 2.4.0"
+```
+
+Then, create the release notes. Go to the
+<a href="https://issues.apache.org/jira/projects/SPARK?selectedItem=com.atlassian.jira.jira-projects-plugin:release-page">release page in JIRA</a>,
+pick the release version from the list, then click on "Release Notes". Copy this URL and then make a short URL on
+<a href="https://s.apache.org/">s.apache.org</a>, sign in to your Apache account, and pick the ID as something like
+`spark-2.1.2`. Create a new release post under `releases/_posts` to include this short URL.
+
+Then run `jekyll build` to update the `site` directory.
+
+After merging the change into the `asf-site` branch, you may need to create a follow-up empty
+commit to force synchronization between ASF's git and the web site, and also the github mirror.
+For some reason synchronization seems to not be reliable for this repository.
+
+On a related note, make sure the version is marked as released on JIRA. Go find the release page as above, eg.,
+`https://issues.apache.org/jira/projects/SPARK/versions/12340295`, and click the "Release" button on the right and enter the release date.
+
+(Generally, this is only for major and minor, but not patch releases) The contributors list can be automatically generated through
+<a href="https://github.com/apache/spark/blob/branch-1.1/dev/create-release/generate-contributors.py">this script</a>.
+It accepts the tag that corresponds to the current release and another tag that
+corresponds to the previous (not including maintenance release). For instance, if you are
+releasing Spark 1.2.0, set the current tag to v1.2.0-rc2 and the previous tag to v1.1.0.
+Once you have generated the initial contributors list, it is highly likely that there will be
+warnings about author names not being properly translated. To fix this, run
+<a href="https://github.com/apache/spark/blob/branch-1.1/dev/create-release/translate-contributors.py">this other script</a>,
+which fetches potential replacements from Github and JIRA. For instance:
+
+```
+$ cd release-spark/dev/create-release
+# Set RELEASE_TAG and PREVIOUS_RELEASE_TAG
+$ export RELEASE_TAG=v2.4.0
+$ export PREVIOUS_RELEASE_TAG=v2.3.0
+# Generate initial contributors list, likely with warnings
+$ ./generate-contributors.py
+# set JIRA_USERNAME, JIRA_PASSWORD, and GITHUB_API_TOKEN
+$ export JIRA_USERNAME=blabla
+$ export JIRA_PASSWORD=blabla
+$ export GITHUB_API_TOKEN=blabla
+# Translate names generated in the previous step, reading from known_translations if necessary
+$ ./translate-contributors.py
+```
+
+Additionally, if you wish to give more specific credit for developers of larger patches, you may
+use the the following commands to identify large patches. Extra care must be taken to make sure
+commits from previous releases are not counted since git cannot easily associate commits that
+were back ported into different branches.
+
+```
+# Determine PR numbers closed only in the new release
+$ git log v1.1.1 | grep "Closes #" | cut -d " " -f 5,6 | grep Closes | sort > closed_1.1.1
+$ git log v1.1.0 | grep "Closes #" | cut -d " " -f 5,6 | grep Closes | sort > closed_1.1.0
+$ diff --new-line-format="" --unchanged-line-format="" closed_1.1.1 closed_1.1.0 > diff.txt
+
+# Grep expression with all new patches
+$ EXPR=$(cat diff.txt | awk '{ print "\\("$1" "$2" \\)"; }' | tr "\n" "|" | sed -e "s/|/\\\|/g" | sed "s/\\\|$//")
+
+# Contributor list
+$ git shortlog v1.1.1 --grep "$EXPR" > contrib.txt
+
+# Large patch list (300+ lines)
+$ git log v1.1.1 --grep "$expr" --shortstat --oneline | grep -B 1 -e "[3-9][0-9][0-9] insert" -e "[1-9][1-9][1-9][1-9] insert" | grep SPARK > large-patches.txt
+```
+
+
 <h4> Remove RC artifacts from repositories</h4>
 
 After the vote passes and you moved the approved RC to the release repository, you should delete
@@ -209,109 +300,6 @@ Also take a moment to check `HiveExternalCatalogVersionsSuite.scala` starting wi
 and see if it needs to be adjusted, since that test relies on mirrored downloads of previous
 releases.
 
-
-<h4>Update the Spark Apache Repository</h4>
-
-Check out the tagged commit for the release candidate that passed and apply the correct version tag.
-
-```
-$ git tag v1.1.1 v1.1.1-rc2 # the RC that passed
-$ git push apache v1.1.1
-```
-
-<h4>Update the Spark Website</h4>
-
-The website repository is located at
-<a href="https://github.com/apache/spark-website">https://github.com/apache/spark-website</a>.
-Ensure the docs were generated with the PRODUCTION=1 environment variable.
-
-```
-# Build the latest docs
-$ git checkout v1.1.1
-$ cd docs
-$ PRODUCTION=1 jekyll build
-
-# Copy the new documentation to Apache
-$ git clone https://github.com/apache/spark-website
-...
-$ cp -R _site spark-website/site/docs/1.1.1
-
-# Update the "latest" link
-$ cd spark/site/docs
-$ rm latest
-$ ln -s 1.1.1 latest
-```
-
-Next, update the rest of the Spark website. See how the previous releases are documented
-(all the HTML file changes are generated by `jekyll`). In particular:
-
-* update `_layouts/global.html` if the new release is the latest one
-* update `documentation.md` to add link to the docs for the new release
-* add the new release to `js/downloads.js`
-* check `security.md` for anything to update
-
-```
-$ git add 1.1.1
-$ git commit -m "Add docs for Spark 1.1.1"
-```
-
-Then, create the release notes. Go to the
-<a href="https://issues.apache.org/jira/projects/SPARK?selectedItem=com.atlassian.jira.jira-projects-plugin:release-page">release page in JIRA</a>,
-pick the release version from the list, then click on "Release Notes". Copy this URL and then make a short URL on
-<a href="https://s.apache.org/">s.apache.org</a>, sign in to your Apache account, and pick the ID as something like
-`spark-2.1.2`. Create a new release post under `releases/_posts` to include this short URL.
-
-Then run `jekyll build` to update the `site` directory.
-
-After merging the change into the `asf-site` branch, you may need to create a follow-up empty
-commit to force synchronization between ASF's git and the web site, and also the github mirror.
-For some reason synchronization seems to not be reliable for this repository.
-
-On a related note, make sure the version is marked as released on JIRA. Go find the release page as above, eg.,
-`https://issues.apache.org/jira/projects/SPARK/versions/12340295`, and click the "Release" button on the right and enter the release date.
-
-(Generally, this is only for major and minor, but not patch releases) The contributors list can be automatically generated through
-<a href="https://github.com/apache/spark/blob/branch-1.1/dev/create-release/generate-contributors.py">this script</a>.
-It accepts the tag that corresponds to the current release and another tag that
-corresponds to the previous (not including maintenance release). For instance, if you are
-releasing Spark 1.2.0, set the current tag to v1.2.0-rc2 and the previous tag to v1.1.0.
-Once you have generated the initial contributors list, it is highly likely that there will be
-warnings about author names not being properly translated. To fix this, run
-<a href="https://github.com/apache/spark/blob/branch-1.1/dev/create-release/translate-contributors.py">this other script</a>,
-which fetches potential replacements from Github and JIRA. For instance:
-
-```
-$ cd release-spark/dev/create-release
-# Set RELEASE_TAG and PREVIOUS_RELEASE_TAG
-$ vim generate-contributors.py
-# Generate initial contributors list, likely with warnings
-$ ./generate-contributors.py
-# Set JIRA_USERNAME, JIRA_PASSWORD, and GITHUB_API_TOKEN
-$ vim release-spark/dev/translate-contributors.py
-# Translate names generated in the previous step, reading from known_translations if necessary
-$ ./translate-contributors.py
-```
-
-Additionally, if you wish to give more specific credit for developers of larger patches, you may
-use the the following commands to identify large patches. Extra care must be taken to make sure
-commits from previous releases are not counted since git cannot easily associate commits that
-were back ported into different branches.
-
-```
-# Determine PR numbers closed only in the new release
-$ git log v1.1.1 | grep "Closes #" | cut -d " " -f 5,6 | grep Closes | sort > closed_1.1.1
-$ git log v1.1.0 | grep "Closes #" | cut -d " " -f 5,6 | grep Closes | sort > closed_1.1.0
-$ diff --new-line-format="" --unchanged-line-format="" closed_1.1.1 closed_1.1.0 > diff.txt
-
-# Grep expression with all new patches
-$ EXPR=$(cat diff.txt | awk '{ print "\\("$1" "$2" \\)"; }' | tr "\n" "|" | sed -e "s/|/\\\|/g" | sed "s/\\\|$//")
-
-# Contributor list
-$ git shortlog v1.1.1 --grep "$EXPR" > contrib.txt
-
-# Large patch list (300+ lines)
-$ git log v1.1.1 --grep "$expr" --shortstat --oneline | grep -B 1 -e "[3-9][0-9][0-9] insert" -e "[1-9][1-9][1-9][1-9] insert" | grep SPARK > large-patches.txt
-```
 
 <h4>Update `HiveExternalCatalogVersionsSuite`</h4>
 
