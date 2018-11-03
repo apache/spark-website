@@ -99,8 +99,15 @@ Also check that all build and test passes are green from the RISELab Jenkins: ht
 Note that not all permutations are run on PR therefore it is important to check Jenkins runs.
 
 
+To cut a release candidate, there are 4 steps:
+1. Create a git tag for the release candidate.
+1. Package the release binaries & sources, and upload them to a staging SVN repo.
+1. Create the release docs, and upload them to a staging SVN repo.
+1. Publish a snapshot to the Apache release repo.
+
 The process of cutting a release candidate has been automated via the `dev/create-release/do-release-docker.sh` script.
-Run this script, type information it requires, and wait until it finishes.
+Run this script, type information it requires, and wait until it finishes. You can also do a single step via the `-s` option.
+Please run `do-release-docker.sh -h` and see more details.
 
 <h3>Call a Vote on the Release Candidate</h3>
 
