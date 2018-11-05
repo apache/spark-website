@@ -193,7 +193,7 @@ Make sure to also remove the unpublished staging repositories from the
 
 <h4>Remove Old Releases from Mirror Network</h4>
 
-Spark always keeps the latest maintance released of each branch in the mirror network.
+Spark always keeps the latest maintenance released of each branch in the mirror network.
 To delete older versions simply use svn rm:
 
 ```
