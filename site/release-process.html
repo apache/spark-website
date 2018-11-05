@@ -374,6 +374,34 @@ is incorrect (e.g. http failure or other issue), you can rename the artifact to
 <p>Publishing to CRAN is done using <a href="https://cran.r-project.org/submit.html">this form</a>.
 Since it requires further manual steps, please also contact the <a href="mailto:private@spark.apache.org">PMC</a>.</p>
 
+<h4> Remove RC artifacts from repositories</h4>
+
+<p>After the vote passes and you moved the approved RC to the release repository, you should delete
+the RC directories from the staging repository. For example:</p>
+
+<pre><code>svn rm https://dist.apache.org/repos/dist/dev/spark/v2.3.1-rc1-bin/ \
+  https://dist.apache.org/repos/dist/dev/spark/v2.3.1-rc1-docs/ \
+  -m"Removing RC artifacts."
+</code></pre>
+
+<p>Make sure to also remove the unpublished staging repositories from the
+<a href="https://repository.apache.org/">Apache Nexus Repository Manager</a>.</p>
+
+<h4>Remove Old Releases from Mirror Network</h4>
+
+<p>Spark always keeps the latest maintance released of each branch in the mirror network.
+To delete older versions simply use svn rm:</p>
+
+<pre><code>$ svn rm https://dist.apache.org/repos/dist/release/spark/spark-1.1.0
+</code></pre>
+
+<p>You will also need to update <code>js/download.js</code> to indicate the release is not mirrored
+anymore, so that the correct links are generated on the site.</p>
+
+<p>Also take a moment to check <code>HiveExternalCatalogVersionsSuite.scala</code> starting with branch-2.2
+and see if it needs to be adjusted, since that test relies on mirrored downloads of previous
+releases.</p>
+
 <h4>Update the Spark Apache Repository</h4>
 
 <p>Check out the tagged commit for the release candidate that passed and apply the correct version tag.</p>
@@ -387,14 +415,23 @@ $ git push apache v1.1.1
 <p>The website repository is located at
 <a href="https://github.com/apache/spark-website">https://github.com/apache/spark-website</a>.</p>
 
-<pre><code># copy the docs of the voted RC to spark-website
-$ svn co "https://dist.apache.org/repos/dist/dev/spark/v2.4.0-rc5-docs" spark-docs
+<p>It&#8217;s recommended to not remove the generated docs of the latest RC, so that we can copy it to
+spark-website directly, otherwise you need to re-build the docs.</p>
+
+<pre><code># Build the latest docs
+$ git checkout v1.1.1
+$ cd docs
+$ PRODUCTION=1 jekyll build
+
+# Copy the new documentation to Apache
 $ git clone https://github.com/apache/spark-website
-$ cp -r spark-docs/_site spark-website/site/docs/2.4.0
+...
+$ cp -R _site spark-website/site/docs/1.1.1
+
 # Update the "latest" link
 $ cd spark/site/docs
 $ rm latest
-$ ln -s 2.4.0 latest
+$ ln -s 1.1.1 latest
 </code></pre>
 
 <p>Next, update the rest of the Spark website. See how the previous releases are documented
@@ -407,8 +444,8 @@ $ ln -s 2.4.0 latest
   <li>check <code>security.md</code> for anything to update</li>
 </ul>
 
-<pre><code>$ git add .
-$ git commit -m "Add docs for Spark 2.4.0"
+<pre><code>$ git add 1.1.1
+$ git commit -m "Add docs for Spark 1.1.1"
 </code></pre>
 
 <p>Then, create the release notes. Go to the
@@ -438,8 +475,8 @@ which fetches potential replacements from Github and JIRA. For instance:</p>
 
 <pre><code>$ cd release-spark/dev/create-release
 # Set RELEASE_TAG and PREVIOUS_RELEASE_TAG
-$ export RELEASE_TAG=v2.4.0
-$ export PREVIOUS_RELEASE_TAG=v2.3.0
+$ export RELEASE_TAG=v1.1.1
+$ export PREVIOUS_RELEASE_TAG=v1.1.0
 # Generate initial contributors list, likely with warnings
 $ ./generate-contributors.py
 # set JIRA_USERNAME, JIRA_PASSWORD, and GITHUB_API_TOKEN
@@ -469,34 +506,6 @@ $ git shortlog v1.1.1 --grep "$EXPR" &gt; contrib.txt
 # Large patch list (300+ lines)
 $ git log v1.1.1 --grep "$expr" --shortstat --oneline | grep -B 1 -e "[3-9][0-9][0-9] insert" -e "[1-9][1-9][1-9][1-9] insert" | grep SPARK &gt; large-patches.txt
 </code></pre>
-
-<h4> Remove RC artifacts from repositories</h4>
-
-<p>After the vote passes and you moved the approved RC to the release repository, you should delete
-the RC directories from the staging repository. For example:</p>
-
-<pre><code>svn rm https://dist.apache.org/repos/dist/dev/spark/v2.3.1-rc1-bin/ \
-  https://dist.apache.org/repos/dist/dev/spark/v2.3.1-rc1-docs/ \
-  -m"Removing RC artifacts."
-</code></pre>
-
-<p>Make sure to also remove the unpublished staging repositories from the
-<a href="https://repository.apache.org/">Apache Nexus Repository Manager</a>.</p>
-
-<h4>Remove Old Releases from Mirror Network</h4>
-
-<p>Spark always keeps the latest maintance released of each branch in the mirror network.
-To delete older versions simply use svn rm:</p>
-
-<pre><code>$ svn rm https://dist.apache.org/repos/dist/release/spark/spark-1.1.0
-</code></pre>
-
-<p>You will also need to update <code>js/download.js</code> to indicate the release is not mirrored
-anymore, so that the correct links are generated on the site.</p>
-
-<p>Also take a moment to check <code>HiveExternalCatalogVersionsSuite.scala</code> starting with branch-2.2
-and see if it needs to be adjusted, since that test relies on mirrored downloads of previous
-releases.</p>
 
 <h4>Update `HiveExternalCatalogVersionsSuite`</h4>
 
