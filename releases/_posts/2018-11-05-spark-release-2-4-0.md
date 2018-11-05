@@ -25,7 +25,7 @@ To download Apache Spark 2.4.0, visit the <a href="{{site.baseurl}}/downloads.ht
  - **Major features**
    - **Barrier Execution Mode**: [[SPARK-24374](https://issues.apache.org/jira/browse/SPARK-24374)] Support Barrier Execution Mode in the scheduler, to better integrate with deep learning frameworks.
    - **Scala 2.12 Support**: [[SPARK-14220](https://issues.apache.org/jira/browse/SPARK-14220)] Add experimental Scala 2.12 support. Now you can build Spark with Scala 2.12 and write Spark applications in Scala 2.12.
-   - **Higher-order functions**: [[SPARK-23899](https://issues.apache.org/jira/browse/SPARK-23899)] Add a lof of new built-in functions, including high-order functions, to deal with complex data types easier.
+   - **Higher-order functions**: [[SPARK-23899](https://issues.apache.org/jira/browse/SPARK-23899)] Add a lot of new built-in functions, including higher-order functions, to deal with complex data types easier.
    - **Built-in Avro data source**: [[SPARK-24768](https://issues.apache.org/jira/browse/SPARK-24768)] Inline Spark-Avro package with logical type support, better performance and usability.
 
  - **API**
@@ -66,8 +66,8 @@ To download Apache Spark 2.4.0, visit the <a href="{{site.baseurl}}/downloads.ht
 
  - **PySpark**
    - [[SPARK-24215](https://issues.apache.org/jira/browse/SPARK-24215)] Implement eager evaluation for DataFrame APIs
-   - [[SPARK-22274](https://issues.apache.org/jira/browse/SPARK-22274)] User-defined aggregation functions with pandas UDF
-   - [[SPARK-22239](https://issues.apache.org/jira/browse/SPARK-22239)] User-defined window functions with pandas UDF
+   - [[SPARK-22274](https://issues.apache.org/jira/browse/SPARK-22274)] User-defined aggregation functions with Pandas UDF
+   - [[SPARK-22239](https://issues.apache.org/jira/browse/SPARK-22239)] User-defined window functions with Pandas UDF
    - [[SPARK-24396](https://issues.apache.org/jira/browse/SPARK-24396)] Add Structured Streaming ForeachWriter for Python
    - [[SPARK-23874](https://issues.apache.org/jira/browse/SPARK-23874)] Upgrade Apache Arrow to 0.10.0
    - [[SPARK-25004](https://issues.apache.org/jira/browse/SPARK-25004)] Add spark.executor.pyspark.memory limit
