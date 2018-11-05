@@ -37,7 +37,7 @@ If you are a new Release Manager, you can read up on the process from the follow
 
 <h3>Preparing gpg key</h3>
 
-You can skip this section if you have been a release manager before.
+You can skip this section if you have already uploaded your key.
 
 After generating the gpg key, you need to upload your key to a public key server. Please refer to
 <a href="https://www.apache.org/dev/openpgp.html#generate-key">https://www.apache.org/dev/openpgp.html#generate-key</a>
@@ -101,9 +101,9 @@ Note that not all permutations are run on PR therefore it is important to check 
 
 To cut a release candidate, there are 4 steps:
 1. Create a git tag for the release candidate.
-1. Package the release binaries & sources, and upload them to a staging SVN repo.
-1. Create the release docs, and upload them to a staging SVN repo.
-1. Publish a snapshot to the Apache release repo.
+1. Package the release binaries & sources, and upload them to the Apache staging SVN repo.
+1. Create the release docs, and upload them to the Apache staging SVN repo.
+1. Publish a snapshot to the Apache staging Maven repo.
 
 The process of cutting a release candidate has been automated via the `dev/create-release/do-release-docker.sh` script.
 Run this script, type information it requires, and wait until it finishes. You can also do a single step via the `-s` option.
