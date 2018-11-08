@@ -35,6 +35,34 @@ If you are a new Release Manager, you can read up on the process from the follow
 - gpg for signing https://www.apache.org/dev/openpgp.html
 - svn https://www.apache.org/dev/version-control.html#https-svn
 
+<h3>Preparing gpg key</h3>
+
+You can skip this section if you have already uploaded your key.
+
+After generating the gpg key, you need to upload your key to a public key server. Please refer to
+<a href="https://www.apache.org/dev/openpgp.html#generate-key">https://www.apache.org/dev/openpgp.html#generate-key</a>
+for details.
+
+If you want to do the release on another machine, you can transfer your gpg key to that machine
+via the `gpg --export` and `gpg --import` commands.
+
+The last step is to update the KEYS file with your code signing key
+<a href="https://www.apache.org/dev/openpgp.html#export-public-key">https://www.apache.org/dev/openpgp.html#export-public-key</a>
+
+```
+# Move dev/ to release/ when the voting is completed. See Finalize the Release below
+svn co --depth=files "https://dist.apache.org/repos/dist/dev/spark" svn-spark
+# edit svn-spark/KEYS file
+svn ci --username $ASF_USERNAME --password "$ASF_PASSWORD" -m"Update KEYS"
+```
+
+<h3>Installing docker</h3>
+
+The scripts to create release candidates are run through docker. You need to install docker before running
+these scripts. Please make sure that you can run docker as non-root users. See
+<a href="https://docs.docker.com/install/linux/linux-postinstall">https://docs.docker.com/install/linux/linux-postinstall</a>
+for more details.
+
 <h2>Preparing Spark for Release</h2>
 
 The main step towards preparing a release is to create a release branch. This is done via
@@ -71,45 +99,15 @@ Also check that all build and test passes are green from the RISELab Jenkins: ht
 Note that not all permutations are run on PR therefore it is important to check Jenkins runs.
 
 
-The process of cutting a release candidate has been partially automated via the RISELab Jenkins. There are
-Jenkins jobs that can tag a release candidate and create various packages based on that candidate.
-At present the Jenkins jobs *SHOULD NOT BE USED* as they use a legacy shared key for signing.
+To cut a release candidate, there are 4 steps:
+1. Create a git tag for the release candidate.
+1. Package the release binaries & sources, and upload them to the Apache staging SVN repo.
+1. Create the release docs, and upload them to the Apache staging SVN repo.
+1. Publish a snapshot to the Apache staging Maven repo.
 
-
-Instead much of the same release logic can be accessed in `dev/create-release/release-tag.sh` and `dev/create-release/release-build.sh`. The general order of creating a release using the scripts is:
-
-- Verify Jenkins test pass on your desired commit
-- Set the shell environment variables used by the scripts (run with "help" for details)
-- Verify your JAVA_HOME is set to the correct Java version (2.2+ Java 8, pre-2.2 Java 7)
-- You may find Felix's docker env useful - https://github.com/felixcheung/spark-build/blob/master/Dockerfile .
-- Ensure you have the required dependencies to build the docs `docs/README.md`
-- R, for CRAN packaging tests, requires e1071 to be installed as part of the packaging tests.
-- In addition R uses LaTeX for some things, and requires some additional fonts. On Debian based systems you may wish to install `texlive-fonts-recommended` and `texlive-fonts-extra`.
-- Make sure you required Python packages for packaging (see `dev/requirements.txt`)
-- Ensure you have Python 3 having Sphinx installed, and `SPHINXPYTHON` environment variable is set to indicate your Python 3 executable (see SPARK-24530).
-- Tag the release candidate with `dev/create-release/release-tag.sh` (e.g. for creating 2.1.2 RC2 we did `ASF_USERNAME=holden ASF_PASSWORD=yoursecretgoeshere GIT_NAME="Holden Karau" GIT_BRANCH=branch-2.1 GIT_EMAIL="holden@us.ibm.com" RELEASE_VERSION=2.1.2 RELEASE_TAG=v2.1.2-rc2 NEXT_VERSION=2.1.3-SNAPSHOT ./dev/create-release/release-tag.sh`)
-- Package the release binaries & sources with `dev/create-release/release-build.sh package`
-- Create the release docs with `dev/create-release/release-build.sh docs`
-- For Spark versions prior to 2.1.2, change the SPARK_VERSION from X.Y.Z to X.Y.Z-rcA then run `dev/create-release/release-build.sh publish-release`.
-- Publish a snapshot to the Apache release repo `dev/create-release/release-build.sh publish-release`
-- If you are a new Release Manager, update the KEYS file with your code signing key https://www.apache.org/dev/openpgp.html#export-public-key
-
-```
-# Move dev/ to release/ when the voting is completed. See Finalize the Release below
-svn co --depth=files "https://dist.apache.org/repos/dist/dev/spark" svn-spark
-# edit svn-spark/KEYS file
-svn ci --username $ASF_USERNAME --password "$ASF_PASSWORD" -m"Update KEYS"
-```
-
-If the Jenkins jobs have been updated to support signing with your key you can look at the job required for a release are located in the [Spark Release Jobs](https://amplab.cs.berkeley.edu/jenkins/view/Spark%20Release/) collection.
-If you don't have access, talk to a previous release manager for guidance and to get access.
-The jobs can be launched with "Build with Parameters" and the general order is:
-
-- Create a tag for the current RC with [spark-release-tag](https://amplab.cs.berkeley.edu/jenkins/view/Spark%20Release/job/spark-release-tag/) job.
-- Kick off the rest of the jobs except spark-release-publish after the current RC has been configured.
-- Once the packaging and doc jobs have finished kick off the [spark-release-publish](https://amplab.cs.berkeley.edu/jenkins/view/Spark%20Release/job/spark-release-publish) job.
-
-The jobs are configured through build parameters. If the build parameters are unclear you can look at previous releases or if available, the recommended process is to ask the previous release manager to walk you through the Jenkins jobs as this document may not be 100% up to date.
+The process of cutting a release candidate has been automated via the `dev/create-release/do-release-docker.sh` script.
+Run this script, type information it requires, and wait until it finishes. You can also do a single step via the `-s` option.
+Please run `do-release-docker.sh -h` and see more details.
 
 <h3>Call a Vote on the Release Candidate</h3>
 
@@ -195,7 +193,7 @@ Make sure to also remove the unpublished staging repositories from the
 
 <h4>Remove Old Releases from Mirror Network</h4>
 
-Spark always keeps the latest maintance released of each branch in the mirror network.
+Spark always keeps the latest maintenance released of each branch in the mirror network.
 To delete older versions simply use svn rm:
 
 ```
@@ -223,7 +221,9 @@ $ git push apache v1.1.1
 
 The website repository is located at
 <a href="https://github.com/apache/spark-website">https://github.com/apache/spark-website</a>.
-Ensure the docs were generated with the PRODUCTION=1 environment variable.
+
+It's recommended to not remove the generated docs of the latest RC, so that we can copy it to
+spark-website directly, otherwise you need to re-build the docs.
 
 ```
 # Build the latest docs
@@ -283,11 +283,14 @@ which fetches potential replacements from Github and JIRA. For instance:
 ```
 $ cd release-spark/dev/create-release
 # Set RELEASE_TAG and PREVIOUS_RELEASE_TAG
-$ vim generate-contributors.py
+$ export RELEASE_TAG=v1.1.1
+$ export PREVIOUS_RELEASE_TAG=v1.1.0
 # Generate initial contributors list, likely with warnings
 $ ./generate-contributors.py
-# Set JIRA_USERNAME, JIRA_PASSWORD, and GITHUB_API_TOKEN
-$ vim release-spark/dev/translate-contributors.py
+# set JIRA_USERNAME, JIRA_PASSWORD, and GITHUB_API_TOKEN
+$ export JIRA_USERNAME=blabla
+$ export JIRA_PASSWORD=blabla
+$ export GITHUB_API_TOKEN=blabla
 # Translate names generated in the previous step, reading from known_translations if necessary
 $ ./translate-contributors.py
 ```
