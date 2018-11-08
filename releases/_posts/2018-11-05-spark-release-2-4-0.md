@@ -171,6 +171,10 @@ To download Apache Spark 2.4.0, visit the <a href="{{site.baseurl}}/downloads.ht
    - [[SPARK-23173](https://issues.apache.org/jira/browse/SPARK-23173)] from_json can produce nulls for fields which are marked as non-nullable
    - [[SPARK-24966](https://issues.apache.org/jira/browse/SPARK-24966)] Implement precedence rules for set operations
    - [[SPARK-25708](https://issues.apache.org/jira/browse/SPARK-25708)] HAVING without GROUP BY should be global aggregate
+   - [[SPARK-24341](https://issues.apache.org/jira/browse/SPARK-24341)] Correctly handle multi-value IN subquery
+   - [[SPARK-19724](https://issues.apache.org/jira/browse/SPARK-19724)] Create a managed table with an existed default location should throw an exception
+
+*Please read the <a href="{{site.baseurl}}/docs/2.4.0/sql-migration-guide-upgrade.html#upgrading-from-spark-sql-23-to-24">Migration Guide</a> for all the behavior changes*
 
 
 ### Known Issues
