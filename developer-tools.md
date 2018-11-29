@@ -263,6 +263,16 @@ You can use a <a href="https://plugins.jetbrains.com/plugin/7350">IntelliJ Impor
 from Aaron Davidson to help you organize the imports in 
 your code.  It can be configured to match the import ordering from the style guide.
 
+<h3>Formatting Code</h3>
+
+To format Scala code, run the following command prior to submitting a PR:
+
+```
+$ ./dev/scalafmt
+```
+
+By default, this script will format files that differ from git master. For more information, see <a href="https://scalameta.org/scalafmt/">scalafmt documentation</a>, but use the existing script not a locally installed version of scalafmt.
+
 <h3>IDE Setup</h3>
 
 <h4>IntelliJ</h4>
