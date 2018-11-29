@@ -402,7 +402,7 @@ lower case latter and S4 objects/methods are allowed.
 Many Scala guidelines below also apply to Java.
 - For Scala code, Apache Spark follows the official 
 <a href="http://docs.scala-lang.org/style/">Scala style guide</a> and
-<a href="https://github.com/databricks/scala-style-guide">Databricks Scala guide</a>. The latter is preferred.
+<a href="https://github.com/databricks/scala-style-guide">Databricks Scala guide</a>. The latter is preferred. To format Scala code, run ./dev/scalafmt prior to submitting a PR.
 
 <h3>If in Doubt</h3>
 
