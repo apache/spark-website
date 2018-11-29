@@ -301,6 +301,8 @@ Example: `Fix typos in Foo scaladoc`
 1. Clone your fork, create a new branch, push commits to the branch.
 1. Consider whether documentation or tests need to be added or updated as part of the change, 
 and add them as needed.
+1. Run `./dev/scalafmt` to apply suggested formatting to the files you changed. You can override its
+choices if they seem awkward, but it should enforce most standard Scala style practices.
 1. Run all tests with `./dev/run-tests` to verify that the code still compiles, passes tests, and 
 passes style checks. If style checks fail, review the Code Style Guide below.
 1. <a href="https://help.github.com/articles/using-pull-requests/">Open a pull request</a> against 
