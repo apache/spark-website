@@ -128,6 +128,52 @@ To run individual Java tests, you can use the `-Dtest` flag:
 build/mvn test -DwildcardSuites=none -Dtest=org.apache.spark.streaming.JavaAPISuite test
 ```
 
+<h4>Testing PySpark</h4>
+
+To run individual PySpark tests, you can use `run-tests` script under `python` directory. Test cases are located at `tests` package under each PySpark packages.
+
+To run test cases in a specific module:
+
+```
+$ python/run-tests --testnames pyspark.sql.tests.test_arrow
+```
+
+To run test cases in a specific class:
+
+```
+$ python/run-tests --testnames 'pyspark.sql.tests.test_arrow ArrowTests'
+```
+
+To run single test case in a specific class:
+
+```
+$ python/run-tests --testnames 'pyspark.sql.tests.test_arrow ArrowTests.test_null_conversion'
+```
+
+You can also run doctests in a specific module:
+
+```
+$ python/run-tests --testnames pyspark.sql.dataframe
+```
+
+Lastly, there is another script called `run-tests-with-coverage` in the same location, which generates coverage report for PySpark tests. It accepts same arguments with `run-tests`.
+
+```
+$ python/run-tests-with-coverage --testnames pyspark.sql.tests.test_arrow --python-executables=python
+...
+Name                              Stmts   Miss Branch BrPart  Cover
+-------------------------------------------------------------------
+pyspark/__init__.py                  42      4      8      2    84%
+pyspark/_globals.py                  16      3      4      2    75%
+...
+Generating HTML files for PySpark coverage under /.../spark/python/test_coverage/htmlcov
+```
+
+You can check the coverage report visually by HTMLs under `/.../spark/python/test_coverage/htmlcov`.
+
+Please check other available options via `python/run-tests[-with-coverage] --help`.
+
+
 <h3>ScalaTest Issues</h3>
 
 If the following error occurs when running ScalaTest
