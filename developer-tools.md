@@ -131,6 +131,8 @@ build/mvn test -DwildcardSuites=none -Dtest=org.apache.spark.streaming.JavaAPISu
 <h4>Testing PySpark</h4>
 
 To run individual PySpark tests, you can use `run-tests` script under `python` directory. Test cases are located at `tests` package under each PySpark packages.
+Note that, if you add some changes into Scala or Python side in Apache Spark, you need to manually build Apache Spark again before running PySpark tests in order to apply the changes.
+Running PySpark testing script does not automatically build it.
 
 To run test cases in a specific module:
 
