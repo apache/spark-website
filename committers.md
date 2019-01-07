@@ -130,9 +130,9 @@ it. So please don't add any test commits or anything like that, only real patche
 All merges should be done using the 
 [dev/merge_spark_pr.py](https://github.com/apache/spark/blob/master/dev/merge_spark_pr.py) 
 script, which squashes the pull request's changes into one commit. To use this script, you 
-will need to add a git remote called "apache" at https://git-wip-us.apache.org/repos/asf/spark.git, 
+will need to add a git remote called `apache` at `https://github.com/apache/spark`, 
 as well as one called "apache-github" at `git://github.com/apache/spark`. For the `apache` repo, 
-you can authenticate using your ASF username and password. Ask Patrick if you have trouble with 
+you can authenticate using your ASF username and password. Ask `dev@spark.apache.org` if you have trouble with 
 this or want help doing your first merge.
 
 The script is fairly self explanatory and walks you through steps and options interactively.
