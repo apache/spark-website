@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Spark+AI Summit (April 23-25th, 2018, San Francisco) agenda posted
+title: Spark+AI Summit (April 23-25th, 2019, San Francisco) agenda posted
 categories:
 - News
 tags: []
