@@ -139,14 +139,14 @@ You will likely also have a remote `origin` pointing to your fork of Spark, and
 If correct, your `git remote -v` should look like:
 
 ```
-apache	https://github.com/apache/spark-website.git (fetch)
-apache	https://github.com/apache/spark-website.git (push)
-apache-github	git://github.com/apache/spark-website (fetch)
-apache-github	git://github.com/apache/spark-website (push)
-origin	https://github.com/[your username]/spark-website.git (fetch)
-origin	https://github.com/[your username]/spark-website.git (push)
-upstream	https://github.com/apache/spark-website.git (fetch)
-upstream	https://github.com/apache/spark-website.git (push)
+apache	https://github.com/apache/spark.git (fetch)
+apache	https://github.com/apache/spark.git (push)
+apache-github	git://github.com/apache/spark (fetch)
+apache-github	git://github.com/apache/spark (push)
+origin	https://github.com/[your username]/spark.git (fetch)
+origin	https://github.com/[your username]/spark.git (push)
+upstream	https://github.com/apache/spark.git (fetch)
+upstream	https://github.com/apache/spark.git (push)
 ```
 
 For the `apache` repo, you will need to set up command-line authentication to GitHub. This may
