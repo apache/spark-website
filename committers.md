@@ -127,13 +127,41 @@ Git history for that code to see who reviewed patches before. You can do this us
 Changes pushed to the master branch on Apache cannot be removed; that is, we can't force-push to 
 it. So please don't add any test commits or anything like that, only real patches.
 
-All merges should be done using the 
-[dev/merge_spark_pr.py](https://github.com/apache/spark/blob/master/dev/merge_spark_pr.py) 
-script, which squashes the pull request's changes into one commit. To use this script, you 
+<h4>Setting up Remotes</h4>
+
+To use the `merge_spark_pr.py` script described below, you 
 will need to add a git remote called `apache` at `https://github.com/apache/spark`, 
-as well as one called "apache-github" at `git://github.com/apache/spark`. For the `apache` repo, 
-you can authenticate using your ASF username and password. Ask `dev@spark.apache.org` if you have trouble with 
-this or want help doing your first merge.
+as well as one called `apache-github` at `git://github.com/apache/spark`.
+
+You will likely also have a remote `origin` pointing to your fork of Spark, and
+`upstream` pointing to the `apache/spark` GitHub repo. 
+
+If correct, your `git remote -v` should look like:
+
+```
+apache	https://github.com/apache/spark-website.git (fetch)
+apache	https://github.com/apache/spark-website.git (push)
+apache-github	git://github.com/apache/spark-website (fetch)
+apache-github	git://github.com/apache/spark-website (push)
+origin	https://github.com/[your username]/spark-website.git (fetch)
+origin	https://github.com/[your username]/spark-website.git (push)
+upstream	https://github.com/apache/spark-website.git (fetch)
+upstream	https://github.com/apache/spark-website.git (push)
+```
+
+For the `apache` repo, you will need to set up command-line authentication to GitHub. This may
+include setting up an SSH key and/or personal access token. See:
+
+- https://help.github.com/articles/connecting-to-github-with-ssh/
+- https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/
+
+Ask `dev@spark.apache.org` if you have trouble with these steps, or want help doing your first merge.
+
+<h4>Merge Script</h4>
+
+All merges should be done using the 
+[dev/merge_spark_pr.py](https://github.com/apache/spark/blob/master/dev/merge_spark_pr.py),
+which squashes the pull request's changes into one commit.
 
 The script is fairly self explanatory and walks you through steps and options interactively.
 
@@ -144,29 +172,12 @@ Then, in a separate window, modify the code and push a commit. Run `git rebase -
 You can verify the result is one change with `git log`. Then resume the script in the other window.
 
 Also, please remember to set Assignee on JIRAs where applicable when they are resolved. The script 
-can't do this automatically.
+can do this automatically in most cases. However where the contributor is not yet a part of the
+Contributors group for the Spark project in ASF JIRA, it won't work until they are added. Ask
+an admin to add the person to Contributors at 
+https://issues.apache.org/jira/plugins/servlet/project-config/SPARK/roles .
+
 Once a PR is merged please leave a comment on the PR stating which branch(es) it has been merged with.
-
-<!--
-<h3>Minimize use of MINOR, BUILD, and HOTFIX with no JIRA</h3>
-
-From pwendell at https://www.mail-archive.com/dev@spark.apache.org/msg09565.html:
-It would be great if people could create JIRA's for any and all merged pull requests. The reason is 
-that when patches get reverted due to build breaks or other issues, it is very difficult to keep 
-track of what is going on if there is no JIRA. 
-Here is a list of 5 patches we had to revert recently that didn't include a JIRA:
-    Revert "[MINOR] [BUILD] Use custom temp directory during build."
-    Revert "[SQL] [TEST] [MINOR] Uses a temporary log4j.properties in HiveThriftServer2Test to ensure expected logging behavior"
-    Revert "[BUILD] Always run SQL tests in master build."
-    Revert "[MINOR] [CORE] Warn users who try to cache RDDs with dynamic allocation on."
-    Revert "[HOT FIX] [YARN] Check whether `/lib` exists before listing its files"
-
-The cost overhead of creating a JIRA relative to other aspects of development is very small. 
-If it's really a documentation change or something small, that's okay.
-
-But anything affecting the build, packaging, etc. These all need to have a JIRA to ensure that 
-follow-up can be well communicated to all Spark developers.
--->
 
 <h3>Policy on Backporting Bug Fixes</h3>
 
