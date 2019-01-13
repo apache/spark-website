@@ -130,7 +130,7 @@ that looks something like `[RESULT] [VOTE]...`.
 **THIS STEP IS IRREVERSIBLE so make sure you selected the correct staging repository. Once you
 move the artifacts into the release folder, they cannot be removed.**
 
-After the vote passes, to upload the binaries to Apache mirrors, you move the binaries from dev directory (this should be where they are voted) to release directory. This "moving" is the only way you can add stuff to the actual release directory.
+After the vote passes, to upload the binaries to Apache mirrors, you move the binaries from dev directory (this should be where they are voted) to release directory. This "moving" is the only way you can add stuff to the actual release directory. (Note: only PMC can move to release directory)
 
 ```
 # Move the sub-directory in "dev" to the
@@ -146,7 +146,7 @@ curl "https://dist.apache.org/repos/dist/dev/spark/KEYS" > svn-spark/KEYS
 
 Verify that the resources are present in <a href="https://www.apache.org/dist/spark/">https://www.apache.org/dist/spark/</a>.
 It may take a while for them to be visible. This will be mirrored throughout the Apache network.
-There are a few remaining steps.
+Check the release checker result of the release at <a href="https://checker.apache.org/projs/spark.html">https://checker.apache.org/projs/spark.html</a>.
 
 
 For Maven Central Repository, you can Release from the <a href="https://repository.apache.org/">Apache Nexus Repository Manager</a>. This is already populated by the `release-build.sh publish-release` step. Log in, open Staging Repositories, find the one voted on (eg. orgapachespark-1257 for https://repository.apache.org/content/repositories/orgapachespark-1257/), select and click Release and confirm. If successful, it should show up under https://repository.apache.org/content/repositories/releases/org/apache/spark/spark-core_2.11/2.2.1/
