@@ -16,6 +16,7 @@ navigation:
   <li><a href="{{site.baseurl}}/docs/2.3.2/">Spark 2.3.2</a></li>
   <li><a href="{{site.baseurl}}/docs/2.3.1/">Spark 2.3.1</a></li>
   <li><a href="{{site.baseurl}}/docs/2.3.0/">Spark 2.3.0</a></li>
+  <li><a href="{{site.baseurl}}/docs/2.2.3/">Spark 2.2.3</a></li>
   <li><a href="{{site.baseurl}}/docs/2.2.2/">Spark 2.2.2</a></li>
   <li><a href="{{site.baseurl}}/docs/2.2.1/">Spark 2.2.1</a></li>
   <li><a href="{{site.baseurl}}/docs/2.2.0/">Spark 2.2.0</a></li>
