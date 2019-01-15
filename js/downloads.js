@@ -36,7 +36,7 @@ addRelease("2.4.0", new Date("11/02/2018"), packagesV9, true, true);
 addRelease("2.3.2", new Date("09/24/2018"), packagesV8, true, true);
 addRelease("2.3.1", new Date("06/08/2018"), packagesV8, true, true);
 addRelease("2.3.0", new Date("02/28/2018"), packagesV8, true, false);
-addRelease("2.2.3", new Date("01/11/2018"), packagesV8, true, true);
+addRelease("2.2.3", new Date("01/11/2019"), packagesV8, true, true);
 addRelease("2.2.2", new Date("07/02/2018"), packagesV8, true, false);
 addRelease("2.2.1", new Date("12/01/2017"), packagesV8, true, false);
 addRelease("2.2.0", new Date("07/11/2017"), packagesV8, true, false);
