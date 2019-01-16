@@ -3,50 +3,28 @@
 
 releases = {};
 
-function addRelease(version, releaseDate, packages, stable, mirrored) {
+function addRelease(version, releaseDate, packages, mirrored) {
   releases[version] = {
     released: releaseDate,
     packages: packages,
-    stable: stable,
     mirrored: mirrored
   };
 }
 
 var sources = {pretty: "Source Code", tag: "sources"};
 var hadoopFree = {pretty: "Pre-build with user-provided Apache Hadoop", tag: "without-hadoop"};
-var hadoop1 = {pretty: "Pre-built for Apache Hadoop 1.X", tag: "hadoop1"};
-var cdh4 = {pretty: "Pre-built for CDH 4", tag: "cdh4"};
-//var hadoop2 = {pretty: "Pre-built for Apache Hadoop 2.2", tag: "hadoop2"};
-var hadoop2p3 = {pretty: "Pre-built for Apache Hadoop 2.3", tag: "hadoop2.3"};
-var hadoop2p4 = {pretty: "Pre-built for Apache Hadoop 2.4", tag: "hadoop2.4"};
 var hadoop2p6 = {pretty: "Pre-built for Apache Hadoop 2.6", tag: "hadoop2.6"};
 var hadoop2p7 = {pretty: "Pre-built for Apache Hadoop 2.7 and later", tag: "hadoop2.7"};
 var scala2p12_hadoopFree = {pretty: "[Experimental] Pre-build with Scala 2.12 and user-provided Apache Hadoop", tag: "without-hadoop-scala-2.12"};
 
-// 1.4.0+
-var packagesV6 = [hadoop2p6, hadoop2p4, hadoop2p3, hadoopFree, hadoop1, cdh4, sources];
-// 2.0.0+
-var packagesV7 = [hadoop2p7, hadoop2p6, hadoop2p4, hadoop2p3, hadoopFree, sources];
 // 2.2.0+
 var packagesV8 = [hadoop2p7, hadoop2p6, hadoopFree, sources];
 // 2.4.0+
 var packagesV9 = [hadoop2p7, hadoop2p6, hadoopFree, scala2p12_hadoopFree, sources];
 
-addRelease("2.4.0", new Date("11/02/2018"), packagesV9, true, true);
-addRelease("2.3.2", new Date("09/24/2018"), packagesV8, true, true);
-addRelease("2.3.1", new Date("06/08/2018"), packagesV8, true, false);
-addRelease("2.3.0", new Date("02/28/2018"), packagesV8, true, false);
-addRelease("2.2.3", new Date("01/11/2019"), packagesV8, true, true);
-addRelease("2.2.2", new Date("07/02/2018"), packagesV8, true, false);
-addRelease("2.2.1", new Date("12/01/2017"), packagesV8, true, false);
-addRelease("2.2.0", new Date("07/11/2017"), packagesV8, true, false);
-addRelease("2.1.3", new Date("06/29/2018"), packagesV7, true, true);
-addRelease("2.1.2", new Date("10/09/2017"), packagesV7, true, false);
-addRelease("2.1.1", new Date("05/02/2017"), packagesV7, true, false);
-addRelease("2.1.0", new Date("12/28/2016"), packagesV7, true, false);
-addRelease("2.0.2", new Date("11/14/2016"), packagesV7, true, false);
-//addRelease("2.0.0-preview", new Date("05/24/2016"), sources.concat(packagesV7), true, false);
-addRelease("1.6.3", new Date("11/07/2016"), packagesV6, true, false);
+addRelease("2.4.0", new Date("11/02/2018"), packagesV9, true);
+addRelease("2.3.2", new Date("09/24/2018"), packagesV8, true);
+addRelease("2.2.3", new Date("01/11/2019"), packagesV8, true);
 
 function append(el, contents) {
   el.innerHTML += contents;
@@ -65,36 +43,20 @@ function versionShort(version) { return version.replace(/-incubating/, ""); }
 function initDownloads() {
   var versionSelect = document.getElementById("sparkVersionSelect");
 
-  // Populate stable versions
   append(versionSelect, "<optgroup label=\"Stable\">");
   for (var version in releases) {
-    if (releases[version].stable) {
-      var releaseDate = releases[version].released;
-      var title = versionShort(version) + " (" + releaseDate.toDateString().slice(4) + ")";
-      append(versionSelect, "<option value=\"" + version + "\">" + title + "</option>");
-    }
+    var releaseDate = releases[version].released;
+    var title = versionShort(version) + " (" + releaseDate.toDateString().slice(4) + ")";
+    append(versionSelect, "<option value=\"" + version + "\">" + title + "</option>");
   }
   append(versionSelect, "</optgroup>");
 
-  // Populate other versions
-  // append(versionSelect, "<optgroup label=\"Preview\">");
-  //for (var version in releases) {
-  //  if (!releases[version].stable) {
-  //    var releaseDate = releases[version].released;
-  //    var title = versionShort(version) + " (" + releaseDate.toDateString().slice(4) + ")";
-  //    append(versionSelect, "<option value=\"" + version + "\">" + title + "</option>");
-  //  }
-  //}
-  //append(versionSelect, "</optgroup>");
-
-  // Populate packages and (transitively) releases
   onVersionSelect();
 }
 
 function initReleaseNotes() {
   var releaseNotes = document.getElementById("sparkReleaseNotes");
   for (var version in releases) {
-    if (!releases[version].stable) { continue; }
     var releaseDate = releases[version].released;
     var verShort = versionShort(version);
     var contents = "<li><a href='releases/spark-release-$verUrl.html'>Spark $ver</a> ($date)</li>"

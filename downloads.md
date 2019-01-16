@@ -26,23 +26,6 @@ $(document).ready(function() {
 
 4. Verify this release using the <span id="sparkDownloadVerify"></span> and [project release KEYS](https://www.apache.org/dist/spark/KEYS).
 
-_Note: Starting version 2.0, Spark is built with Scala 2.11 by default.
-Scala 2.10 users should download the Spark source package and build
-[with Scala 2.10 support](https://spark.apache.org/docs/latest/building-spark.html#building-for-scala-210)._
-
-<!--
-### Latest Preview Release
-
-Preview releases, as the name suggests, are releases for previewing upcoming features.
-Unlike nightly packages, preview releases have been audited by the project's management committee
-to satisfy the legal requirements of Apache Software Foundation's release policy.
-Preview releases are not meant to be functional, i.e. they can and highly likely will contain
-critical bugs or documentation errors.
-
-The latest preview release is Spark 2.0.0-preview, published on May 24, 2016.
-You can select and download it above.
--->
-
 ### Link with Spark
 Spark artifacts are [hosted in Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.apache.spark%22). You can add a Maven dependency with the following coordinates:
 
