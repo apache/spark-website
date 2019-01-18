@@ -26,13 +26,12 @@
 
 import json
 import os
-import re
 import subprocess
 import sys
 import urllib2
 
 
-# Remote name which points to the Gihub site
+# Remote name which points to the Github site
 PR_REMOTE_NAME = os.environ.get("PR_REMOTE_NAME", "apache-github")
 # Remote name which points to Apache git
 PUSH_REMOTE_NAME = os.environ.get("PUSH_REMOTE_NAME", "apache")
@@ -57,22 +56,22 @@ def get_json(url):
         return json.load(urllib2.urlopen(request))
     except urllib2.HTTPError as e:
         if "X-RateLimit-Remaining" in e.headers and e.headers["X-RateLimit-Remaining"] == '0':
-            print "Exceeded the GitHub API rate limit; see the instructions in " + \
+            print("Exceeded the GitHub API rate limit; see the instructions in " + \
                   "dev/merge_pr.py to configure an OAuth token for making authenticated " + \
-                  "GitHub requests."
+                  "GitHub requests.")
         else:
-            print "Unable to fetch URL, exiting: %s" % url
+            print("Unable to fetch URL, exiting: %s" % url)
         sys.exit(-1)
 
 
 def fail(msg):
-    print msg
+    print(msg)
     clean_up()
     sys.exit(-1)
 
 
 def run_cmd(cmd):
-    print cmd
+    print(cmd)
     if isinstance(cmd, list):
         return subprocess.check_output(cmd)
     else:
@@ -86,13 +85,13 @@ def continue_maybe(prompt):
 
 def clean_up():
     if 'original_head' in globals():
-        print "Restoring head pointer to %s" % original_head
+        print("Restoring head pointer to %s" % original_head)
         run_cmd("git checkout %s" % original_head)
 
         branches = run_cmd("git branch").replace(" ", "").split("\n")
 
         for branch in filter(lambda x: x.startswith(BRANCH_PREFIX), branches):
-            print "Deleting local branch %s" % branch
+            print("Deleting local branch %s" % branch)
             run_cmd("git branch -D %s" % branch)
 
 # merge the requested PR and return the merge hash
@@ -123,8 +122,8 @@ def merge_pr(pr_num, target_ref, title, body, pr_repo_desc):
     if primary_author == "":
         primary_author = distinct_authors[0]
 
-    commits = run_cmd(['git', 'log', 'HEAD..%s' % pr_branch_name,
-                      '--pretty=format:%h [%an] %s']).split("\n\n")
+    run_cmd(['git', 'log', 'HEAD..%s' % pr_branch_name,
+            '--pretty=format:%h [%an] %s']).split("\n\n")
 
     merge_message_flags = []
 
@@ -249,13 +248,13 @@ def main():
         merge_hash = merge_commits[0]["commit_id"]
         message = get_json("%s/commits/%s" % (GITHUB_API_BASE, merge_hash))["commit"]["message"]
 
-        print "Pull request %s has already been merged, assuming you want to backport" % pr_num
+        print("Pull request %s has already been merged, assuming you want to backport" % pr_num)
         commit_is_downloaded = run_cmd(['git', 'rev-parse', '--quiet', '--verify',
                                     "%s^{commit}" % merge_hash]).strip() != ""
         if not commit_is_downloaded:
             fail("Couldn't find any merge commit for #%s, you may need to update HEAD." % pr_num)
 
-        print "Found commit %s:\n%s" % (merge_hash, message)
+        print("Found commit %s:\n%s" % (merge_hash, message))
         sys.exit(0)
 
     if not bool(pr["mergeable"]):
@@ -268,10 +267,7 @@ def main():
         title, pr_repo_desc, target_ref, url))
     continue_maybe("Proceed with merging pull request #%s?" % pr_num)
 
-    merged_refs = [target_ref]
-
-    merge_hash = merge_pr(pr_num, target_ref, title, body, pr_repo_desc)
-
+    merge_pr(pr_num, target_ref, title, body, pr_repo_desc)
 
 
 if __name__ == "__main__":
