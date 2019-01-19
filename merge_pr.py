@@ -56,8 +56,8 @@ def get_json(url):
         return json.load(urllib2.urlopen(request))
     except urllib2.HTTPError as e:
         if "X-RateLimit-Remaining" in e.headers and e.headers["X-RateLimit-Remaining"] == '0':
-            print("Exceeded the GitHub API rate limit; see the instructions in " + \
-                  "dev/merge_pr.py to configure an OAuth token for making authenticated " + \
+            print("Exceeded the GitHub API rate limit; see the instructions in " +
+                  "dev/merge_pr.py to configure an OAuth token for making authenticated " +
                   "GitHub requests.")
         else:
             print("Unable to fetch URL, exiting: %s" % url)
@@ -79,9 +79,10 @@ def run_cmd(cmd):
 
 
 def continue_maybe(prompt):
-    result = raw_input("\n%s (y/n): " % prompt)
+    result = input("\n%s (y/n): " % prompt)
     if result.lower() != "y":
         fail("Okay, exiting")
+
 
 def clean_up():
     if 'original_head' in globals():
@@ -93,6 +94,7 @@ def clean_up():
         for branch in filter(lambda x: x.startswith(BRANCH_PREFIX), branches):
             print("Deleting local branch %s" % branch)
             run_cmd("git branch -D %s" % branch)
+
 
 # merge the requested PR and return the merge hash
 def merge_pr(pr_num, target_ref, title, body, pr_repo_desc):
@@ -116,7 +118,7 @@ def merge_pr(pr_num, target_ref, title, body, pr_repo_desc):
                              '--pretty=format:%an <%ae>']).split("\n")
     distinct_authors = sorted(set(commit_authors),
                               key=lambda x: commit_authors.count(x), reverse=True)
-    primary_author = raw_input(
+    primary_author = input(
         "Enter primary author in the format of \"name <email>\" [%s]: " %
         distinct_authors[0])
     if primary_author == "":
@@ -166,7 +168,7 @@ def merge_pr(pr_num, target_ref, title, body, pr_repo_desc):
 
 
 def cherry_pick(pr_num, merge_hash, default_branch):
-    pick_ref = raw_input("Enter a branch name [%s]: " % default_branch)
+    pick_ref = input("Enter a branch name [%s]: " % default_branch)
     if pick_ref == "":
         pick_ref = default_branch
 
@@ -209,7 +211,6 @@ def fix_version_from_branch(branch, versions):
         return filter(lambda x: x.name.startswith(branch_ver), versions)[-1]
 
 
-
 def get_current_ref():
     ref = run_cmd("git rev-parse --abbrev-ref HEAD").strip()
     if ref == 'HEAD':
@@ -224,8 +225,7 @@ def main():
 
     original_head = get_current_ref()
 
-
-    pr_num = raw_input("Which pull request would you like to merge? (e.g. 34): ")
+    pr_num = input("Which pull request would you like to merge? (e.g. 34): ")
     pr = get_json("%s/pulls/%s" % (GITHUB_API_BASE, pr_num))
     pr_events = get_json("%s/issues/%s/events" % (GITHUB_API_BASE, pr_num))
 
@@ -250,7 +250,7 @@ def main():
 
         print("Pull request %s has already been merged, assuming you want to backport" % pr_num)
         commit_is_downloaded = run_cmd(['git', 'rev-parse', '--quiet', '--verify',
-                                    "%s^{commit}" % merge_hash]).strip() != ""
+                                       "%s^{commit}" % merge_hash]).strip() != ""
         if not commit_is_downloaded:
             fail("Couldn't find any merge commit for #%s, you may need to update HEAD." % pr_num)
 
@@ -262,8 +262,8 @@ def main():
             "Continue? (experts only!)"
         continue_maybe(msg)
 
-    print ("\n=== Pull Request #%s ===" % pr_num)
-    print ("title\t%s\nsource\t%s\ntarget\t%s\nurl\t%s" % (
+    print("\n=== Pull Request #%s ===" % pr_num)
+    print("title\t%s\nsource\t%s\ntarget\t%s\nurl\t%s" % (
         title, pr_repo_desc, target_ref, url))
     continue_maybe("Proceed with merging pull request #%s?" % pr_num)
 
