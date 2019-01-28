@@ -32,7 +32,7 @@ Versions affected:
 
 Description:
 
-When using PySpark , it's possible for a different local user
+When using PySpark, it's possible for a different local user
 to connect to the Spark application and impersonate the user running
 the Spark application.  This affects versions 1.x, 2.0.x, 2.1.x, 2.2.0 to 2.2.2, and 2.3.0 to 2.3.1.
 
