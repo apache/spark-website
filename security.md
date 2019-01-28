@@ -18,6 +18,36 @@ non-public list that will reach the Apache Security team, as well as the Spark P
 
 <h2>Known Security Issues</h2>
 
+<h3 id="CVE-2018-11760">CVE-2018-11760: Apache Spark local privilege escalation vulnerability</h3>
+
+Severity: Important
+
+Vendor: The Apache Software Foundation
+
+Versions affected:
+
+- All Spark 1.x, Spark 2.0.x, and Spark 2.1.x versions
+- Spark 2.2.0 to 2.2.2
+- Spark 2.3.0 to 2.3.1
+
+Description:
+
+When using PySpark , it's possible for a different local user
+to connect to the Spark application and impersonate the user running
+the Spark application.  This affects versions 1.x, 2.0.x, 2.1.x, 2.2.0 to 2.2.2, and 2.3.0 to 2.3.1.
+
+Mitigation:
+
+- 1.x, 2.0.x, 2.1.x, and 2.2.x users should upgrade to 2.2.3 or newer
+- 2.3.x users should upgrade to 2.3.2 or newer
+- Otherwise, affected users should avoid using PySpark in
+multi-user environments.
+
+Credit:
+
+- Luca Canali and Jose Carlos Luna Duran, CERN
+
+
 
 <h3 id="CVE-2018-17190">CVE-2018-17190: Unsecured Apache Spark standalone executes user code</h3>
 
