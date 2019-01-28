@@ -65,6 +65,7 @@ navigation:
 |Saisai Shao|Tencent|
 |Prashant Sharma|IBM|
 |Ram Sriharsha|Databricks|
+|Jose Torres|Databricks|
 |DB Tsai|Apple|
 |Takuya Ueshin|Databricks|
 |Marcelo Vanzin|Cloudera|
