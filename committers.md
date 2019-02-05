@@ -33,7 +33,7 @@ navigation:
 |Herman van Hovell|Databricks|
 |Yin Huai|Databricks|
 |Shane Huang|Intel|
-|Dongjoon Hyun|Hortonworks|
+|Dongjoon Hyun|Apple|
 |Kazuaki Ishizaki|IBM|
 |Xingbo Jiang|Databricks|
 |Holden Karau|Google|
