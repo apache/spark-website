@@ -26,7 +26,7 @@ navigation:
 |Robert Evans|Oath|
 |Wenchen Fan|Databricks|
 |Joseph Gonzalez|UC Berkeley|
-|Thomas Graves|Oath|
+|Thomas Graves|Nvidia|
 |Stephen Haberman|LinkedIn|
 |Mark Hamstra|ClearStory Data|
 |Seth Hendrickson|Cloudera|
