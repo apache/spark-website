@@ -30,6 +30,9 @@ import subprocess
 import sys
 import urllib2
 
+if sys.version < '3':
+    input = raw_input  # noqa
+
 
 # Remote name which points to the Github site
 PR_REMOTE_NAME = os.environ.get("PR_REMOTE_NAME", "apache-github")
