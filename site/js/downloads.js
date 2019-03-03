@@ -74,10 +74,8 @@ function onPackageSelect() {
 function onVersionSelect() {
   var versionSelect = document.getElementById("sparkVersionSelect");
   var packageSelect = document.getElementById("sparkPackageSelect");
-  var verifyLink = document.getElementById("sparkDownloadVerify");
 
   empty(packageSelect);
-  empty(verifyLink);
 
   var version = getSelectedValue(versionSelect);
   var packages = releases[version]["packages"];
@@ -88,10 +86,6 @@ function onVersionSelect() {
     append(packageSelect, option);
   }
 
-  var href = "https://archive.apache.org/dist/spark/spark-" + version + "/";
-  var link = "<a href=\"" + href + "\">" + versionShort(version) + " signatures and checksums</a>";
-  append(verifyLink, link);
-
   // Populate releases
   updateDownloadLink(releases[version].mirrored);
 }
@@ -100,32 +94,32 @@ function updateDownloadLink(isMirrored) {
   var versionSelect = document.getElementById("sparkVersionSelect");
   var packageSelect = document.getElementById("sparkPackageSelect");
   var downloadLink = document.getElementById("spanDownloadLink");
+  var verifyLink = document.getElementById("sparkDownloadVerify");
 
   empty(downloadLink);
+  empty(verifyLink);
 
   var version = getSelectedValue(versionSelect);
   var pkg = getSelectedValue(packageSelect);
 
-  var artifactName = "spark-$ver-bin-$pkg.tgz"
-    .replace(/\$ver/g, version)
-    .replace(/\$pkg/g, pkg)
+  var artifactName = "spark-" + version + "-bin-" + pkg + ".tgz"
     .replace(/-bin-sources/, ""); // special case for source packages
 
-  var link = "";
+  var downloadHref = "";
   if (isMirrored) {
-    link = "https://www.apache.org/dyn/closer.lua/spark/spark-$ver/$artifact";
+    downloadHref = "https://www.apache.org/dyn/closer.lua/spark/spark-" + version + "/" + artifactName;
   } else {
-    link = "https://archive.apache.org/dist/spark/spark-$ver/$artifact";
+    downloadHref = "https://archive.apache.org/dist/spark/spark-" + version + "/" + artifactName;
   }
-  link = link
-    .replace(/\$ver/, version)
-    .replace(/\$artifact/, artifactName);
-  var text = link.split("/").reverse()[0];
-
+  var text = downloadHref.split("/").reverse()[0];
   var onClick =
-    "trackOutboundLink(this, 'Release Download Links', 'apache_$artifact'); return false;"
-    .replace(/\$artifact/, artifactName);
-
-  var contents = "<a href=\"" + link + "\" onClick=\"" + onClick + "\">" + text + "</a>";
+    "trackOutboundLink(this, 'Release Download Links', 'apache_" + artifactName + "'); return false;";
+  var contents = "<a href=\"" + downloadHref + "\" onClick=\"" + onClick + "\">" + text + "</a>";
   append(downloadLink, contents);
+
+  var sigHref = "https://www.apache.org/dist/spark/spark-" + version + "/" + artifactName + ".asc";
+  var checksumHref = "https://www.apache.org/dist/spark/spark-" + version + "/" + artifactName + ".sha512";
+  var verifyLinks = versionShort(version) + " <a href=\"" + sigHref + "\">signatures</a>, <a href=\"" +
+    checksumHref + "\">checksums</a>";
+  append(verifyLink, verifyLinks);
 }
