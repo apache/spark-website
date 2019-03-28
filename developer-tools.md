@@ -179,7 +179,6 @@ Please check other available options via `python/run-tests[-with-coverage] --hel
 
 If you have made changes to the K8S bindings in Apache Spark, it would behoove you to test locally before submitting a PR.  This is relatively simple to do, but it will require a local (to you) installation of [minikube](https://kubernetes.io/docs/setup/minikube/).  Due to how minikube interacts with the host system, please be sure to set things up as follows:
 
-- 
 - minikube version v0.34.1 (or greater, but backwards-compatibility between versions is spotty)
 - You must use a VM driver!  Running minikube with the `--vm-driver=none` option requires that the user launching minikube/k8s have root access.  Our Jenkins workers use the [kvm2](https://github.com/kubernetes/minikube/blob/master/docs/drivers.md#kvm2-driver) drivers.  More details [here](https://github.com/kubernetes/minikube/blob/master/docs/drivers.md).
 - kubernetes version v1.13.3 (can be set by executing `minikube config set kubernetes-version v1.13.3`)
