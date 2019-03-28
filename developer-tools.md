@@ -175,6 +175,54 @@ You can check the coverage report visually by HTMLs under `/.../spark/python/tes
 
 Please check other available options via `python/run-tests[-with-coverage] --help`.
 
+<h4>Testing K8S</h4>
+
+If you have made changes to the K8S bindings in Apache Spark, it would behoove you to test locally before submitting a PR.  This is relatively simple to do, but it will require a local (to you) installation of [minikube](https://kubernetes.io/docs/setup/minikube/).  Due to how minikube interacts with the host system, please be sure to set things up as follows:
+
+- minikube version v0.34.1 (or greater, but backwards-compatibility between versions is spotty)
+- You must use a VM driver!  Running minikube with the `--vm-driver=none` option requires that the user launching minikube/k8s have root access.  Our Jenkins workers use the [kvm2](https://github.com/kubernetes/minikube/blob/master/docs/drivers.md#kvm2-driver) drivers.  More details [here](https://github.com/kubernetes/minikube/blob/master/docs/drivers.md).
+- kubernetes version v1.13.3 (can be set by executing `minikube config set kubernetes-version v1.13.3`)
+
+Once you have minikube properly set up, and have successfully completed the [quick start](https://kubernetes.io/docs/setup/minikube/#quickstart), you can test your changes locally.  All subsequent commands should be run from your root spark/ repo directory:
+
+1) Build a tarball to test against:
+
+```
+export DATE=`date "+%Y%m%d"`
+export REVISION=`git rev-parse --short HEAD`
+export ZINC_PORT=$(python -S -c "import random; print random.randrange(3030,4030)")
+
+./dev/make-distribution.sh --name ${DATE}-${REVISION} --pip --tgz -DzincPort=${ZINC_PORT} \
+     -Phadoop-2.7 -Pkubernetes -Pkinesis-asl -Phive -Phive-thriftserver
+```
+
+2) Use that tarball and run the K8S integration tests:
+
+```
+PVC_TMP_DIR=$(mktemp -d)
+export PVC_TESTS_HOST_PATH=$PVC_TMP_DIR
+export PVC_TESTS_VM_PATH=$PVC_TMP_DIR
+
+minikube --vm-driver=<YOUR VM DRIVER HERE> start --memory 6000 --cpus 8
+
+minikube mount ${PVC_TESTS_HOST_PATH}:${PVC_TESTS_VM_PATH} --9p-version=9p2000.L --gid=0 --uid=185 &
+
+MOUNT_PID=$(jobs -rp)
+
+kubectl create clusterrolebinding serviceaccounts-cluster-admin --clusterrole=cluster-admin --group=system:serviceaccounts || true
+
+./resource-managers/kubernetes/integration-tests/dev/dev-run-integration-tests.sh \
+    --spark-tgz ${WORKSPACE}/spark-*.tgz
+
+kill -9 $MOUNT_PID
+minikube stop
+```
+
+After the run is completed, the integration test logs are saved here:  `./resource-managers/kubernetes/integration-tests/target/integration-tests.log`
+
+Getting logs from the pods and containers directly is an exercise left to the reader.
+
+Kubernetes, and more importantly, minikube have rapid release cycles, and point releases have been found to be buggy and/or break older and existing functionality.  If you are having trouble getting tests to pass on Jenkins, but locally things work, don't hesitate to file a Jira issue.
 
 <h3>ScalaTest Issues</h3>
 
