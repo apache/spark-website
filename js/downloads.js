@@ -22,7 +22,7 @@ var packagesV8 = [hadoop2p7, hadoop2p6, hadoopFree, sources];
 // 2.4.0+
 var packagesV9 = [hadoop2p7, hadoop2p6, hadoopFree, scala2p12_hadoopFree, sources];
 
-addRelease("2.4.0", new Date("11/02/2018"), packagesV9, true);
+addRelease("2.4.1", new Date("03/31/2019"), packagesV9, true);
 addRelease("2.3.3", new Date("02/15/2019"), packagesV8, true);
 addRelease("2.2.3", new Date("01/11/2019"), packagesV8, true);
 
