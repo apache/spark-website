@@ -1,0 +1,480 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Spark Streaming + Kafka Integration Guide (Kafka broker version 0.10.0 or higher) - Spark 2.4.1 Documentation</title>
+        
+
+        
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 60px;
+                padding-bottom: 40px;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+
+        <link rel="stylesheet" href="css/pygments-default.css">
+
+        
+        <!-- Google analytics script -->
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-32518208-2']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+        </script>
+        
+
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="https://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
+
+        <div class="navbar navbar-fixed-top" id="topbar">
+            <div class="navbar-inner">
+                <div class="container">
+                    <div class="brand"><a href="index.html">
+                      <img src="img/spark-logo-hd.png" style="height:50px;"/></a><span class="version">2.4.1</span>
+                    </div>
+                    <ul class="nav">
+                        <!--TODO(andyk): Add class="active" attribute to li some how.-->
+                        <li><a href="index.html">Overview</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Programming Guides<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="quick-start.html">Quick Start</a></li>
+                                <li><a href="rdd-programming-guide.html">RDDs, Accumulators, Broadcasts Vars</a></li>
+                                <li><a href="sql-programming-guide.html">SQL, DataFrames, and Datasets</a></li>
+                                <li><a href="structured-streaming-programming-guide.html">Structured Streaming</a></li>
+                                <li><a href="streaming-programming-guide.html">Spark Streaming (DStreams)</a></li>
+                                <li><a href="ml-guide.html">MLlib (Machine Learning)</a></li>
+                                <li><a href="graphx-programming-guide.html">GraphX (Graph Processing)</a></li>
+                                <li><a href="sparkr.html">SparkR (R on Spark)</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">API Docs<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="api/scala/index.html#org.apache.spark.package">Scala</a></li>
+                                <li><a href="api/java/index.html">Java</a></li>
+                                <li><a href="api/python/index.html">Python</a></li>
+                                <li><a href="api/R/index.html">R</a></li>
+                                <li><a href="api/sql/index.html">SQL, Built-in Functions</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Deploying<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="cluster-overview.html">Overview</a></li>
+                                <li><a href="submitting-applications.html">Submitting Applications</a></li>
+                                <li class="divider"></li>
+                                <li><a href="spark-standalone.html">Spark Standalone</a></li>
+                                <li><a href="running-on-mesos.html">Mesos</a></li>
+                                <li><a href="running-on-yarn.html">YARN</a></li>
+                                <li><a href="running-on-kubernetes.html">Kubernetes</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="api.html" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="configuration.html">Configuration</a></li>
+                                <li><a href="monitoring.html">Monitoring</a></li>
+                                <li><a href="tuning.html">Tuning Guide</a></li>
+                                <li><a href="job-scheduling.html">Job Scheduling</a></li>
+                                <li><a href="security.html">Security</a></li>
+                                <li><a href="hardware-provisioning.html">Hardware Provisioning</a></li>
+                                <li class="divider"></li>
+                                <li><a href="building-spark.html">Building Spark</a></li>
+                                <li><a href="https://spark.apache.org/contributing.html">Contributing to Spark</a></li>
+                                <li><a href="https://spark.apache.org/third-party-projects.html">Third Party Projects</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <!--<p class="navbar-text pull-right"><span class="version-text">v2.4.1</span></p>-->
+                </div>
+            </div>
+        </div>
+
+        <div class="container-wrapper">
+
+            
+                <div class="content" id="content">
+                    
+                        <h1 class="title">Spark Streaming + Kafka Integration Guide (Kafka broker version 0.10.0 or higher)</h1>
+                    
+
+                    <p>The Spark Streaming integration for Kafka 0.10 is similar in design to the 0.8 <a href="streaming-kafka-0-8-integration.html#approach-2-direct-approach-no-receivers">Direct Stream approach</a>.  It provides simple parallelism,  1:1 correspondence between Kafka partitions and Spark partitions, and access to offsets and metadata. However, because the newer integration uses the <a href="http://kafka.apache.org/documentation.html#newconsumerapi">new Kafka consumer API</a> instead of the simple API, there are notable differences in usage. This version of the integration is marked as experimental, so the API is potentially subject to change.</p>
+
+<h3 id="linking">Linking</h3>
+<p>For Scala/Java applications using SBT/Maven project definitions, link your streaming application with the following artifact (see <a href="streaming-programming-guide.html#linking">Linking section</a> in the main programming guide for further information).</p>
+
+<pre><code>groupId = org.apache.spark
+artifactId = spark-streaming-kafka-0-10_2.12
+version = 2.4.1
+</code></pre>
+
+<p><strong>Do not</strong> manually add dependencies on <code>org.apache.kafka</code> artifacts (e.g. <code>kafka-clients</code>).  The <code>spark-streaming-kafka-0-10</code> artifact has the appropriate transitive dependencies already, and different versions may be incompatible in hard to diagnose ways.</p>
+
+<h3 id="creating-a-direct-stream">Creating a Direct Stream</h3>
+<p>Note that the namespace for the import includes the version, org.apache.spark.streaming.kafka010</p>
+
+<div class="codetabs">
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span></span><span class="k">import</span> <span class="nn">org.apache.kafka.clients.consumer.ConsumerRecord</span>
+<span class="k">import</span> <span class="nn">org.apache.kafka.common.serialization.StringDeserializer</span>
+<span class="k">import</span> <span class="nn">org.apache.spark.streaming.kafka010._</span>
+<span class="k">import</span> <span class="nn">org.apache.spark.streaming.kafka010.LocationStrategies.PreferConsistent</span>
+<span class="k">import</span> <span class="nn">org.apache.spark.streaming.kafka010.ConsumerStrategies.Subscribe</span>
+
+<span class="k">val</span> <span class="n">kafkaParams</span> <span class="k">=</span> <span class="nc">Map</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">Object</span><span class="o">](</span>
+  <span class="s">&quot;bootstrap.servers&quot;</span> <span class="o">-&gt;</span> <span class="s">&quot;localhost:9092,anotherhost:9092&quot;</span><span class="o">,</span>
+  <span class="s">&quot;key.deserializer&quot;</span> <span class="o">-&gt;</span> <span class="n">classOf</span><span class="o">[</span><span class="kt">StringDeserializer</span><span class="o">],</span>
+  <span class="s">&quot;value.deserializer&quot;</span> <span class="o">-&gt;</span> <span class="n">classOf</span><span class="o">[</span><span class="kt">StringDeserializer</span><span class="o">],</span>
+  <span class="s">&quot;group.id&quot;</span> <span class="o">-&gt;</span> <span class="s">&quot;use_a_separate_group_id_for_each_stream&quot;</span><span class="o">,</span>
+  <span class="s">&quot;auto.offset.reset&quot;</span> <span class="o">-&gt;</span> <span class="s">&quot;latest&quot;</span><span class="o">,</span>
+  <span class="s">&quot;enable.auto.commit&quot;</span> <span class="o">-&gt;</span> <span class="o">(</span><span class="kc">false</span><span class="k">:</span> <span class="kt">java.lang.Boolean</span><span class="o">)</span>
+<span class="o">)</span>
+
+<span class="k">val</span> <span class="n">topics</span> <span class="k">=</span> <span class="nc">Array</span><span class="o">(</span><span class="s">&quot;topicA&quot;</span><span class="o">,</span> <span class="s">&quot;topicB&quot;</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">stream</span> <span class="k">=</span> <span class="nc">KafkaUtils</span><span class="o">.</span><span class="n">createDirectStream</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">String</span><span class="o">](</span>
+  <span class="n">streamingContext</span><span class="o">,</span>
+  <span class="nc">PreferConsistent</span><span class="o">,</span>
+  <span class="nc">Subscribe</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">String</span><span class="o">](</span><span class="n">topics</span><span class="o">,</span> <span class="n">kafkaParams</span><span class="o">)</span>
+<span class="o">)</span>
+
+<span class="n">stream</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">record</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">record</span><span class="o">.</span><span class="n">key</span><span class="o">,</span> <span class="n">record</span><span class="o">.</span><span class="n">value</span><span class="o">))</span></code></pre></figure>
+
+    <p>Each item in the stream is a <a href="http://kafka.apache.org/0100/javadoc/org/apache/kafka/clients/consumer/ConsumerRecord.html">ConsumerRecord</a></p>
+  </div>
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span></span><span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.spark.SparkConf</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.spark.TaskContext</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.spark.api.java.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.spark.api.java.function.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.spark.streaming.api.java.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.spark.streaming.kafka010.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.kafka.clients.consumer.ConsumerRecord</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.kafka.common.TopicPartition</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.kafka.common.serialization.StringDeserializer</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">scala.Tuple2</span><span class="o">;</span>
+
+<span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">kafkaParams</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
+<span class="n">kafkaParams</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;bootstrap.servers&quot;</span><span class="o">,</span> <span class="s">&quot;localhost:9092,anotherhost:9092&quot;</span><span class="o">);</span>
+<span class="n">kafkaParams</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;key.deserializer&quot;</span><span class="o">,</span> <span class="n">StringDeserializer</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="n">kafkaParams</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;value.deserializer&quot;</span><span class="o">,</span> <span class="n">StringDeserializer</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="n">kafkaParams</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;group.id&quot;</span><span class="o">,</span> <span class="s">&quot;use_a_separate_group_id_for_each_stream&quot;</span><span class="o">);</span>
+<span class="n">kafkaParams</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;auto.offset.reset&quot;</span><span class="o">,</span> <span class="s">&quot;latest&quot;</span><span class="o">);</span>
+<span class="n">kafkaParams</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;enable.auto.commit&quot;</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+
+<span class="n">Collection</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">topics</span> <span class="o">=</span> <span class="n">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="s">&quot;topicA&quot;</span><span class="o">,</span> <span class="s">&quot;topicB&quot;</span><span class="o">);</span>
+
+<span class="n">JavaInputDStream</span><span class="o">&lt;</span><span class="n">ConsumerRecord</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">stream</span> <span class="o">=</span>
+  <span class="n">KafkaUtils</span><span class="o">.</span><span class="na">createDirectStream</span><span class="o">(</span>
+    <span class="n">streamingContext</span><span class="o">,</span>
+    <span class="n">LocationStrategies</span><span class="o">.</span><span class="na">PreferConsistent</span><span class="o">(),</span>
+    <span class="n">ConsumerStrategies</span><span class="o">.&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span><span class="n">Subscribe</span><span class="o">(</span><span class="n">topics</span><span class="o">,</span> <span class="n">kafkaParams</span><span class="o">)</span>
+  <span class="o">);</span>
+
+<span class="n">stream</span><span class="o">.</span><span class="na">mapToPair</span><span class="o">(</span><span class="n">record</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">Tuple2</span><span class="o">&lt;&gt;(</span><span class="n">record</span><span class="o">.</span><span class="na">key</span><span class="o">(),</span> <span class="n">record</span><span class="o">.</span><span class="na">value</span><span class="o">()));</span></code></pre></figure>
+
+  </div>
+</div>
+
+<p>For possible kafkaParams, see <a href="http://kafka.apache.org/documentation.html#newconsumerconfigs">Kafka consumer config docs</a>.
+If your Spark batch duration is larger than the default Kafka heartbeat session timeout (30 seconds), increase heartbeat.interval.ms and session.timeout.ms appropriately.  For batches larger than 5 minutes, this will require changing group.max.session.timeout.ms on the broker.
+Note that the example sets enable.auto.commit to false, for discussion see <a href="streaming-kafka-0-10-integration.html#storing-offsets">Storing Offsets</a> below.</p>
+
+<h3 id="locationstrategies">LocationStrategies</h3>
+<p>The new Kafka consumer API will pre-fetch messages into buffers.  Therefore it is important for performance reasons that the Spark integration keep cached consumers on executors (rather than recreating them for each batch), and prefer to schedule partitions on the host locations that have the appropriate consumers.</p>
+
+<p>In most cases, you should use <code>LocationStrategies.PreferConsistent</code> as shown above.  This will distribute partitions evenly across available executors.  If your executors are on the same hosts as your Kafka brokers, use <code>PreferBrokers</code>, which will prefer to schedule partitions on the Kafka leader for that partition.  Finally, if you have a significant skew in load among partitions, use <code>PreferFixed</code>. This allows you to specify an explicit mapping of partitions to hosts (any unspecified partitions will use a consistent location).</p>
+
+<p>The cache for consumers has a default maximum size of 64.  If you expect to be handling more than (64 * number of executors) Kafka partitions, you can change this setting via <code>spark.streaming.kafka.consumer.cache.maxCapacity</code>.</p>
+
+<p>If you would like to disable the caching for Kafka consumers, you can set <code>spark.streaming.kafka.consumer.cache.enabled</code> to <code>false</code>.</p>
+
+<p>The cache is keyed by topicpartition and group.id, so use a <strong>separate</strong> <code>group.id</code> for each call to <code>createDirectStream</code>.</p>
+
+<h3 id="consumerstrategies">ConsumerStrategies</h3>
+<p>The new Kafka consumer API has a number of different ways to specify topics, some of which require considerable post-object-instantiation setup.  <code>ConsumerStrategies</code> provides an abstraction that allows Spark to obtain properly configured consumers even after restart from checkpoint.</p>
+
+<p><code>ConsumerStrategies.Subscribe</code>, as shown above, allows you to subscribe to a fixed collection of topics. <code>SubscribePattern</code> allows you to use a regex to specify topics of interest. Note that unlike the 0.8 integration, using <code>Subscribe</code> or <code>SubscribePattern</code> should respond to adding partitions during a running stream. Finally, <code>Assign</code> allows you to specify a fixed collection of partitions.  All three strategies have overloaded constructors that allow you to specify the starting offset for a particular partition.</p>
+
+<p>If you have specific consumer setup needs that are not met by the options above, <code>ConsumerStrategy</code> is a public class that you can extend.</p>
+
+<h3 id="creating-an-rdd">Creating an RDD</h3>
+<p>If you have a use case that is better suited to batch processing, you can create an RDD for a defined range of offsets.</p>
+
+<div class="codetabs">
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span></span><span class="c1">// Import dependencies and create kafka params as in Create Direct Stream above</span>
+
+<span class="k">val</span> <span class="n">offsetRanges</span> <span class="k">=</span> <span class="nc">Array</span><span class="o">(</span>
+  <span class="c1">// topic, partition, inclusive starting offset, exclusive ending offset</span>
+  <span class="nc">OffsetRange</span><span class="o">(</span><span class="s">&quot;test&quot;</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">100</span><span class="o">),</span>
+  <span class="nc">OffsetRange</span><span class="o">(</span><span class="s">&quot;test&quot;</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">100</span><span class="o">)</span>
+<span class="o">)</span>
+
+<span class="k">val</span> <span class="n">rdd</span> <span class="k">=</span> <span class="nc">KafkaUtils</span><span class="o">.</span><span class="n">createRDD</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">String</span><span class="o">](</span><span class="n">sparkContext</span><span class="o">,</span> <span class="n">kafkaParams</span><span class="o">,</span> <span class="n">offsetRanges</span><span class="o">,</span> <span class="nc">PreferConsistent</span><span class="o">)</span></code></pre></figure>
+
+  </div>
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span></span><span class="c1">// Import dependencies and create kafka params as in Create Direct Stream above</span>
+
+<span class="n">OffsetRange</span><span class="o">[]</span> <span class="n">offsetRanges</span> <span class="o">=</span> <span class="o">{</span>
+  <span class="c1">// topic, partition, inclusive starting offset, exclusive ending offset</span>
+  <span class="n">OffsetRange</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="s">&quot;test&quot;</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">100</span><span class="o">),</span>
+  <span class="n">OffsetRange</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="s">&quot;test&quot;</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">100</span><span class="o">)</span>
+<span class="o">};</span>
+
+<span class="n">JavaRDD</span><span class="o">&lt;</span><span class="n">ConsumerRecord</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">rdd</span> <span class="o">=</span> <span class="n">KafkaUtils</span><span class="o">.</span><span class="na">createRDD</span><span class="o">(</span>
+  <span class="n">sparkContext</span><span class="o">,</span>
+  <span class="n">kafkaParams</span><span class="o">,</span>
+  <span class="n">offsetRanges</span><span class="o">,</span>
+  <span class="n">LocationStrategies</span><span class="o">.</span><span class="na">PreferConsistent</span><span class="o">()</span>
+<span class="o">);</span></code></pre></figure>
+
+  </div>
+</div>
+
+<p>Note that you cannot use <code>PreferBrokers</code>, because without the stream there is not a driver-side consumer to automatically look up broker metadata for you.  Use <code>PreferFixed</code> with your own metadata lookups if necessary.</p>
+
+<h3 id="obtaining-offsets">Obtaining Offsets</h3>
+
+<div class="codetabs">
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span></span><span class="n">stream</span><span class="o">.</span><span class="n">foreachRDD</span> <span class="o">{</span> <span class="n">rdd</span> <span class="k">=&gt;</span>
+  <span class="k">val</span> <span class="n">offsetRanges</span> <span class="k">=</span> <span class="n">rdd</span><span class="o">.</span><span class="n">asInstanceOf</span><span class="o">[</span><span class="kt">HasOffsetRanges</span><span class="o">].</span><span class="n">offsetRanges</span>
+  <span class="n">rdd</span><span class="o">.</span><span class="n">foreachPartition</span> <span class="o">{</span> <span class="n">iter</span> <span class="k">=&gt;</span>
+    <span class="k">val</span> <span class="n">o</span><span class="k">:</span> <span class="kt">OffsetRange</span> <span class="o">=</span> <span class="n">offsetRanges</span><span class="o">(</span><span class="nc">TaskContext</span><span class="o">.</span><span class="n">get</span><span class="o">.</span><span class="n">partitionId</span><span class="o">)</span>
+    <span class="n">println</span><span class="o">(</span><span class="s">s&quot;</span><span class="si">${</span><span class="n">o</span><span class="o">.</span><span class="n">topic</span><span class="si">}</span><span class="s"> </span><span class="si">${</span><span class="n">o</span><span class="o">.</span><span class="n">partition</span><span class="si">}</span><span class="s"> </span><span class="si">${</span><span class="n">o</span><span class="o">.</span><span class="n">fromOffset</span><span class="si">}</span><span class="s"> </span><span class="si">${</span><span class="n">o</span><span class="o">.</span><span class="n">untilOffset</span><span class="si">}</span><span class="s">&quot;</span><span class="o">)</span>
+  <span class="o">}</span>
+<span class="o">}</span></code></pre></figure>
+
+  </div>
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span></span><span class="n">stream</span><span class="o">.</span><span class="na">foreachRDD</span><span class="o">(</span><span class="n">rdd</span> <span class="o">-&gt;</span> <span class="o">{</span>
+  <span class="n">OffsetRange</span><span class="o">[]</span> <span class="n">offsetRanges</span> <span class="o">=</span> <span class="o">((</span><span class="n">HasOffsetRanges</span><span class="o">)</span> <span class="n">rdd</span><span class="o">.</span><span class="na">rdd</span><span class="o">()).</span><span class="na">offsetRanges</span><span class="o">();</span>
+  <span class="n">rdd</span><span class="o">.</span><span class="na">foreachPartition</span><span class="o">(</span><span class="n">consumerRecords</span> <span class="o">-&gt;</span> <span class="o">{</span>
+    <span class="n">OffsetRange</span> <span class="n">o</span> <span class="o">=</span> <span class="n">offsetRanges</span><span class="o">[</span><span class="n">TaskContext</span><span class="o">.</span><span class="na">get</span><span class="o">().</span><span class="na">partitionId</span><span class="o">()];</span>
+    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span>
+      <span class="n">o</span><span class="o">.</span><span class="na">topic</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="n">o</span><span class="o">.</span><span class="na">partition</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="n">o</span><span class="o">.</span><span class="na">fromOffset</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="n">o</span><span class="o">.</span><span class="na">untilOffset</span><span class="o">());</span>
+  <span class="o">});</span>
+<span class="o">});</span></code></pre></figure>
+
+  </div>
+</div>
+
+<p>Note that the typecast to <code>HasOffsetRanges</code> will only succeed if it is done in the first method called on the result of <code>createDirectStream</code>, not later down a chain of methods. Be aware that the one-to-one mapping between RDD partition and Kafka partition does not remain after any methods that shuffle or repartition, e.g. reduceByKey() or window().</p>
+
+<h3 id="storing-offsets">Storing Offsets</h3>
+<p>Kafka delivery semantics in the case of failure depend on how and when offsets are stored.  Spark output operations are <a href="streaming-programming-guide.html#semantics-of-output-operations">at-least-once</a>.  So if you want the equivalent of exactly-once semantics, you must either store offsets after an idempotent output, or store offsets in an atomic transaction alongside output. With this integration, you have 3 options, in order of increasing reliability (and code complexity), for how to store offsets.</p>
+
+<h4 id="checkpoints">Checkpoints</h4>
+<p>If you enable Spark <a href="streaming-programming-guide.html#checkpointing">checkpointing</a>, offsets will be stored in the checkpoint.  This is easy to enable, but there are drawbacks. Your output operation must be idempotent, since you will get repeated outputs; transactions are not an option.  Furthermore, you cannot recover from a checkpoint if your application code has changed.  For planned upgrades, you can mitigate this by running the new code at the same time as the old code (since outputs need to be idempotent anyway, they should not clash).  But for unplanned failures that require code changes, you will lose data unless you have another way to identify known good starting offsets.</p>
+
+<h4 id="kafka-itself">Kafka itself</h4>
+<p>Kafka has an offset commit API that stores offsets in a special Kafka topic.  By default, the new consumer will periodically auto-commit offsets. This is almost certainly not what you want, because messages successfully polled by the consumer may not yet have resulted in a Spark output operation, resulting in undefined semantics. This is why the stream example above sets &#8220;enable.auto.commit&#8221; to false.  However, you can commit offsets to Kafka after you know your output has been stored, using the <code>commitAsync</code> API. The benefit as compared to checkpoints is that Kafka is a durable store regardless of changes to your application code.  However, Kafka is not transactional, so your outputs must still be idempotent.</p>
+
+<div class="codetabs">
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span></span><span class="n">stream</span><span class="o">.</span><span class="n">foreachRDD</span> <span class="o">{</span> <span class="n">rdd</span> <span class="k">=&gt;</span>
+  <span class="k">val</span> <span class="n">offsetRanges</span> <span class="k">=</span> <span class="n">rdd</span><span class="o">.</span><span class="n">asInstanceOf</span><span class="o">[</span><span class="kt">HasOffsetRanges</span><span class="o">].</span><span class="n">offsetRanges</span>
+
+  <span class="c1">// some time later, after outputs have completed</span>
+  <span class="n">stream</span><span class="o">.</span><span class="n">asInstanceOf</span><span class="o">[</span><span class="kt">CanCommitOffsets</span><span class="o">].</span><span class="n">commitAsync</span><span class="o">(</span><span class="n">offsetRanges</span><span class="o">)</span>
+<span class="o">}</span></code></pre></figure>
+
+    <p>As with HasOffsetRanges, the cast to CanCommitOffsets will only succeed if called on the result of createDirectStream, not after transformations.  The commitAsync call is threadsafe, but must occur after outputs if you want meaningful semantics.</p>
+  </div>
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span></span><span class="n">stream</span><span class="o">.</span><span class="na">foreachRDD</span><span class="o">(</span><span class="n">rdd</span> <span class="o">-&gt;</span> <span class="o">{</span>
+  <span class="n">OffsetRange</span><span class="o">[]</span> <span class="n">offsetRanges</span> <span class="o">=</span> <span class="o">((</span><span class="n">HasOffsetRanges</span><span class="o">)</span> <span class="n">rdd</span><span class="o">.</span><span class="na">rdd</span><span class="o">()).</span><span class="na">offsetRanges</span><span class="o">();</span>
+
+  <span class="c1">// some time later, after outputs have completed</span>
+  <span class="o">((</span><span class="n">CanCommitOffsets</span><span class="o">)</span> <span class="n">stream</span><span class="o">.</span><span class="na">inputDStream</span><span class="o">()).</span><span class="na">commitAsync</span><span class="o">(</span><span class="n">offsetRanges</span><span class="o">);</span>
+<span class="o">});</span></code></pre></figure>
+
+  </div>
+</div>
+
+<h4 id="your-own-data-store">Your own data store</h4>
+<p>For data stores that support transactions, saving offsets in the same transaction as the results can keep the two in sync, even in failure situations.  If you&#8217;re careful about detecting repeated or skipped offset ranges, rolling back the transaction prevents duplicated or lost messages from affecting results.  This gives the equivalent of exactly-once semantics.  It is also possible to use this tactic even for outputs that result from aggregations, which are typically hard to make idempotent.</p>
+
+<div class="codetabs">
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span></span><span class="c1">// The details depend on your data store, but the general idea looks like this</span>
+
+<span class="c1">// begin from the the offsets committed to the database</span>
+<span class="k">val</span> <span class="n">fromOffsets</span> <span class="k">=</span> <span class="n">selectOffsetsFromYourDatabase</span><span class="o">.</span><span class="n">map</span> <span class="o">{</span> <span class="n">resultSet</span> <span class="k">=&gt;</span>
+  <span class="k">new</span> <span class="nc">TopicPartition</span><span class="o">(</span><span class="n">resultSet</span><span class="o">.</span><span class="n">string</span><span class="o">(</span><span class="s">&quot;topic&quot;</span><span class="o">),</span> <span class="n">resultSet</span><span class="o">.</span><span class="n">int</span><span class="o">(</span><span class="s">&quot;partition&quot;</span><span class="o">))</span> <span class="o">-&gt;</span> <span class="n">resultSet</span><span class="o">.</span><span class="n">long</span><span class="o">(</span><span class="s">&quot;offset&quot;</span><span class="o">)</span>
+<span class="o">}.</span><span class="n">toMap</span>
+
+<span class="k">val</span> <span class="n">stream</span> <span class="k">=</span> <span class="nc">KafkaUtils</span><span class="o">.</span><span class="n">createDirectStream</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">String</span><span class="o">](</span>
+  <span class="n">streamingContext</span><span class="o">,</span>
+  <span class="nc">PreferConsistent</span><span class="o">,</span>
+  <span class="nc">Assign</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">String</span><span class="o">](</span><span class="n">fromOffsets</span><span class="o">.</span><span class="n">keys</span><span class="o">.</span><span class="n">toList</span><span class="o">,</span> <span class="n">kafkaParams</span><span class="o">,</span> <span class="n">fromOffsets</span><span class="o">)</span>
+<span class="o">)</span>
+
+<span class="n">stream</span><span class="o">.</span><span class="n">foreachRDD</span> <span class="o">{</span> <span class="n">rdd</span> <span class="k">=&gt;</span>
+  <span class="k">val</span> <span class="n">offsetRanges</span> <span class="k">=</span> <span class="n">rdd</span><span class="o">.</span><span class="n">asInstanceOf</span><span class="o">[</span><span class="kt">HasOffsetRanges</span><span class="o">].</span><span class="n">offsetRanges</span>
+
+  <span class="k">val</span> <span class="n">results</span> <span class="k">=</span> <span class="n">yourCalculation</span><span class="o">(</span><span class="n">rdd</span><span class="o">)</span>
+
+  <span class="c1">// begin your transaction</span>
+
+  <span class="c1">// update results</span>
+  <span class="c1">// update offsets where the end of existing offsets matches the beginning of this batch of offsets</span>
+  <span class="c1">// assert that offsets were updated correctly</span>
+
+  <span class="c1">// end your transaction</span>
+<span class="o">}</span></code></pre></figure>
+
+  </div>
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span></span><span class="c1">// The details depend on your data store, but the general idea looks like this</span>
+
+<span class="c1">// begin from the the offsets committed to the database</span>
+<span class="n">Map</span><span class="o">&lt;</span><span class="n">TopicPartition</span><span class="o">,</span> <span class="n">Long</span><span class="o">&gt;</span> <span class="n">fromOffsets</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;&gt;();</span>
+<span class="k">for</span> <span class="o">(</span><span class="n">resultSet</span> <span class="o">:</span> <span class="n">selectOffsetsFromYourDatabase</span><span class="o">)</span>
+  <span class="n">fromOffsets</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="k">new</span> <span class="n">TopicPartition</span><span class="o">(</span><span class="n">resultSet</span><span class="o">.</span><span class="na">string</span><span class="o">(</span><span class="s">&quot;topic&quot;</span><span class="o">),</span> <span class="n">resultSet</span><span class="o">.</span><span class="na">int</span><span class="o">(</span><span class="s">&quot;partition&quot;</span><span class="o">)),</span> <span class="n">resultSet</span><span class="o">.</span><span class="na">long</span><span class="o">(</span><span class="s">&quot;offset&quot;</span><span class="o">));</span>
+<span class="o">}</span>
+
+<span class="n">JavaInputDStream</span><span class="o">&lt;</span><span class="n">ConsumerRecord</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">stream</span> <span class="o">=</span> <span class="n">KafkaUtils</span><span class="o">.</span><span class="na">createDirectStream</span><span class="o">(</span>
+  <span class="n">streamingContext</span><span class="o">,</span>
+  <span class="n">LocationStrategies</span><span class="o">.</span><span class="na">PreferConsistent</span><span class="o">(),</span>
+  <span class="n">ConsumerStrategies</span><span class="o">.&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span><span class="n">Assign</span><span class="o">(</span><span class="n">fromOffsets</span><span class="o">.</span><span class="na">keySet</span><span class="o">(),</span> <span class="n">kafkaParams</span><span class="o">,</span> <span class="n">fromOffsets</span><span class="o">)</span>
+<span class="o">);</span>
+
+<span class="n">stream</span><span class="o">.</span><span class="na">foreachRDD</span><span class="o">(</span><span class="n">rdd</span> <span class="o">-&gt;</span> <span class="o">{</span>
+  <span class="n">OffsetRange</span><span class="o">[]</span> <span class="n">offsetRanges</span> <span class="o">=</span> <span class="o">((</span><span class="n">HasOffsetRanges</span><span class="o">)</span> <span class="n">rdd</span><span class="o">.</span><span class="na">rdd</span><span class="o">()).</span><span class="na">offsetRanges</span><span class="o">();</span>
+  
+  <span class="n">Object</span> <span class="n">results</span> <span class="o">=</span> <span class="n">yourCalculation</span><span class="o">(</span><span class="n">rdd</span><span class="o">);</span>
+
+  <span class="c1">// begin your transaction</span>
+
+  <span class="c1">// update results</span>
+  <span class="c1">// update offsets where the end of existing offsets matches the beginning of this batch of offsets</span>
+  <span class="c1">// assert that offsets were updated correctly</span>
+
+  <span class="c1">// end your transaction</span>
+<span class="o">});</span></code></pre></figure>
+
+  </div>
+</div>
+
+<h3 id="ssl--tls">SSL / TLS</h3>
+<p>The new Kafka consumer <a href="http://kafka.apache.org/documentation.html#security_ssl">supports SSL</a>.  To enable it, set kafkaParams appropriately before passing to <code>createDirectStream</code> / <code>createRDD</code>.  Note that this only applies to communication between Spark and Kafka brokers; you are still responsible for separately <a href="security.html">securing</a> Spark inter-node communication.</p>
+
+<div class="codetabs">
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span></span><span class="k">val</span> <span class="n">kafkaParams</span> <span class="k">=</span> <span class="nc">Map</span><span class="o">[</span><span class="kt">String</span>, <span class="kt">Object</span><span class="o">](</span>
+  <span class="c1">// the usual params, make sure to change the port in bootstrap.servers if 9092 is not TLS</span>
+  <span class="s">&quot;security.protocol&quot;</span> <span class="o">-&gt;</span> <span class="s">&quot;SSL&quot;</span><span class="o">,</span>
+  <span class="s">&quot;ssl.truststore.location&quot;</span> <span class="o">-&gt;</span> <span class="s">&quot;/some-directory/kafka.client.truststore.jks&quot;</span><span class="o">,</span>
+  <span class="s">&quot;ssl.truststore.password&quot;</span> <span class="o">-&gt;</span> <span class="s">&quot;test1234&quot;</span><span class="o">,</span>
+  <span class="s">&quot;ssl.keystore.location&quot;</span> <span class="o">-&gt;</span> <span class="s">&quot;/some-directory/kafka.client.keystore.jks&quot;</span><span class="o">,</span>
+  <span class="s">&quot;ssl.keystore.password&quot;</span> <span class="o">-&gt;</span> <span class="s">&quot;test1234&quot;</span><span class="o">,</span>
+  <span class="s">&quot;ssl.key.password&quot;</span> <span class="o">-&gt;</span> <span class="s">&quot;test1234&quot;</span>
+<span class="o">)</span></code></pre></figure>
+
+  </div>
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span></span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">kafkaParams</span> <span class="o">=</span> <span class="k">new</span> <span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;();</span>
+<span class="c1">// the usual params, make sure to change the port in bootstrap.servers if 9092 is not TLS</span>
+<span class="n">kafkaParams</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;security.protocol&quot;</span><span class="o">,</span> <span class="s">&quot;SSL&quot;</span><span class="o">);</span>
+<span class="n">kafkaParams</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;ssl.truststore.location&quot;</span><span class="o">,</span> <span class="s">&quot;/some-directory/kafka.client.truststore.jks&quot;</span><span class="o">);</span>
+<span class="n">kafkaParams</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;ssl.truststore.password&quot;</span><span class="o">,</span> <span class="s">&quot;test1234&quot;</span><span class="o">);</span>
+<span class="n">kafkaParams</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;ssl.keystore.location&quot;</span><span class="o">,</span> <span class="s">&quot;/some-directory/kafka.client.keystore.jks&quot;</span><span class="o">);</span>
+<span class="n">kafkaParams</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;ssl.keystore.password&quot;</span><span class="o">,</span> <span class="s">&quot;test1234&quot;</span><span class="o">);</span>
+<span class="n">kafkaParams</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;ssl.key.password&quot;</span><span class="o">,</span> <span class="s">&quot;test1234&quot;</span><span class="o">);</span></code></pre></figure>
+
+  </div>
+</div>
+
+<h3 id="deploying">Deploying</h3>
+
+<p>As with any Spark applications, <code>spark-submit</code> is used to launch your application.</p>
+
+<p>For Scala and Java applications, if you are using SBT or Maven for project management, then package <code>spark-streaming-kafka-0-10_2.12</code> and its dependencies into the application JAR. Make sure <code>spark-core_2.12</code> and <code>spark-streaming_2.12</code> are marked as <code>provided</code> dependencies as those are already present in a Spark installation. Then use <code>spark-submit</code> to launch your application (see <a href="streaming-programming-guide.html#deploying-applications">Deploying section</a> in the main programming guide).</p>
+
+
+
+                </div>
+            
+             <!-- /container -->
+        </div>
+
+        <script src="js/vendor/jquery-1.8.0.min.js"></script>
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/vendor/anchor.min.js"></script>
+        <script src="js/main.js"></script>
+
+        <!-- MathJax Section -->
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({
+                TeX: { equationNumbers: { autoNumber: "AMS" } }
+            });
+        </script>
+        <script>
+            // Note that we load MathJax this way to work with local file (file://), HTTP and HTTPS.
+            // We could use "//cdn.mathjax...", but that won't support "file://".
+            (function(d, script) {
+                script = d.createElement('script');
+                script.type = 'text/javascript';
+                script.async = true;
+                script.onload = function(){
+                    MathJax.Hub.Config({
+                        tex2jax: {
+                            inlineMath: [ ["$", "$"], ["\\\\(","\\\\)"] ],
+                            displayMath: [ ["$$","$$"], ["\\[", "\\]"] ],
+                            processEscapes: true,
+                            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+                        }
+                    });
+                };
+                script.src = ('https:' == document.location.protocol ? 'https://' : 'http://') +
+                    'cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js' +
+                    '?config=TeX-AMS-MML_HTMLorMML';
+                d.getElementsByTagName('head')[0].appendChild(script);
+            }(document));
+        </script>
+    </body>
+</html>

@@ -1,0 +1,587 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>PySpark Usage Guide for Pandas with Apache Arrow - Spark 2.4.1 Documentation</title>
+        
+
+        
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 60px;
+                padding-bottom: 40px;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+
+        <link rel="stylesheet" href="css/pygments-default.css">
+
+        
+        <!-- Google analytics script -->
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-32518208-2']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+        </script>
+        
+
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="https://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
+
+        <div class="navbar navbar-fixed-top" id="topbar">
+            <div class="navbar-inner">
+                <div class="container">
+                    <div class="brand"><a href="index.html">
+                      <img src="img/spark-logo-hd.png" style="height:50px;"/></a><span class="version">2.4.1</span>
+                    </div>
+                    <ul class="nav">
+                        <!--TODO(andyk): Add class="active" attribute to li some how.-->
+                        <li><a href="index.html">Overview</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Programming Guides<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="quick-start.html">Quick Start</a></li>
+                                <li><a href="rdd-programming-guide.html">RDDs, Accumulators, Broadcasts Vars</a></li>
+                                <li><a href="sql-programming-guide.html">SQL, DataFrames, and Datasets</a></li>
+                                <li><a href="structured-streaming-programming-guide.html">Structured Streaming</a></li>
+                                <li><a href="streaming-programming-guide.html">Spark Streaming (DStreams)</a></li>
+                                <li><a href="ml-guide.html">MLlib (Machine Learning)</a></li>
+                                <li><a href="graphx-programming-guide.html">GraphX (Graph Processing)</a></li>
+                                <li><a href="sparkr.html">SparkR (R on Spark)</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">API Docs<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="api/scala/index.html#org.apache.spark.package">Scala</a></li>
+                                <li><a href="api/java/index.html">Java</a></li>
+                                <li><a href="api/python/index.html">Python</a></li>
+                                <li><a href="api/R/index.html">R</a></li>
+                                <li><a href="api/sql/index.html">SQL, Built-in Functions</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Deploying<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="cluster-overview.html">Overview</a></li>
+                                <li><a href="submitting-applications.html">Submitting Applications</a></li>
+                                <li class="divider"></li>
+                                <li><a href="spark-standalone.html">Spark Standalone</a></li>
+                                <li><a href="running-on-mesos.html">Mesos</a></li>
+                                <li><a href="running-on-yarn.html">YARN</a></li>
+                                <li><a href="running-on-kubernetes.html">Kubernetes</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="api.html" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="configuration.html">Configuration</a></li>
+                                <li><a href="monitoring.html">Monitoring</a></li>
+                                <li><a href="tuning.html">Tuning Guide</a></li>
+                                <li><a href="job-scheduling.html">Job Scheduling</a></li>
+                                <li><a href="security.html">Security</a></li>
+                                <li><a href="hardware-provisioning.html">Hardware Provisioning</a></li>
+                                <li class="divider"></li>
+                                <li><a href="building-spark.html">Building Spark</a></li>
+                                <li><a href="https://spark.apache.org/contributing.html">Contributing to Spark</a></li>
+                                <li><a href="https://spark.apache.org/third-party-projects.html">Third Party Projects</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <!--<p class="navbar-text pull-right"><span class="version-text">v2.4.1</span></p>-->
+                </div>
+            </div>
+        </div>
+
+        <div class="container-wrapper">
+
+            
+                
+                    <div class="left-menu-wrapper">
+    <div class="left-menu">
+        <h3><a href="sql-programming-guide.html">Spark SQL Guide</a></h3>
+        
+<ul>
+
+    <li>
+        <a href="sql-getting-started.html">
+            
+                Getting Started
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-data-sources.html">
+            
+                Data Sources
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-performance-tuning.html">
+            
+                Performance Tuning
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-distributed-sql-engine.html">
+            
+                Distributed SQL Engine
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-pyspark-pandas-with-arrow.html">
+            
+                <b>PySpark Usage Guide for Pandas with Apache Arrow</b>
+            
+        </a>
+    </li>
+    
+    
+        
+<ul>
+
+    <li>
+        <a href="sql-pyspark-pandas-with-arrow.html#apache-arrow-in-spark">
+            
+                Apache Arrow in Spark
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-pyspark-pandas-with-arrow.html#enabling-for-conversion-tofrom-pandas">
+            
+                Enabling for Conversion to/from Pandas
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-pyspark-pandas-with-arrow.html#pandas-udfs-aka-vectorized-udfs">
+            
+                Pandas UDFs (a.k.a. Vectorized UDFs)
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-pyspark-pandas-with-arrow.html#usage-notes">
+            
+                Usage Notes
+            
+        </a>
+    </li>
+    
+    
+
+</ul>
+
+    
+
+    <li>
+        <a href="sql-migration-guide.html">
+            
+                Migration Guide
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-reference.html">
+            
+                Reference
+            
+        </a>
+    </li>
+    
+    
+
+</ul>
+
+    </div>
+</div>
+                
+                <input id="nav-trigger" class="nav-trigger" checked type="checkbox">
+                <label for="nav-trigger"></label>
+                <div class="content-with-sidebar" id="content">
+                    
+                        <h1 class="title">PySpark Usage Guide for Pandas with Apache Arrow</h1>
+                    
+
+                    <ul id="markdown-toc">
+  <li><a href="#apache-arrow-in-spark" id="markdown-toc-apache-arrow-in-spark">Apache Arrow in Spark</a>    <ul>
+      <li><a href="#ensure-pyarrow-installed" id="markdown-toc-ensure-pyarrow-installed">Ensure PyArrow Installed</a></li>
+    </ul>
+  </li>
+  <li><a href="#enabling-for-conversion-tofrom-pandas" id="markdown-toc-enabling-for-conversion-tofrom-pandas">Enabling for Conversion to/from Pandas</a></li>
+  <li><a href="#pandas-udfs-aka-vectorized-udfs" id="markdown-toc-pandas-udfs-aka-vectorized-udfs">Pandas UDFs (a.k.a. Vectorized UDFs)</a>    <ul>
+      <li><a href="#scalar" id="markdown-toc-scalar">Scalar</a></li>
+      <li><a href="#grouped-map" id="markdown-toc-grouped-map">Grouped Map</a></li>
+      <li><a href="#grouped-aggregate" id="markdown-toc-grouped-aggregate">Grouped Aggregate</a></li>
+    </ul>
+  </li>
+  <li><a href="#usage-notes" id="markdown-toc-usage-notes">Usage Notes</a>    <ul>
+      <li><a href="#supported-sql-types" id="markdown-toc-supported-sql-types">Supported SQL Types</a></li>
+      <li><a href="#setting-arrow-batch-size" id="markdown-toc-setting-arrow-batch-size">Setting Arrow Batch Size</a></li>
+      <li><a href="#timestamp-with-time-zone-semantics" id="markdown-toc-timestamp-with-time-zone-semantics">Timestamp with Time Zone Semantics</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="apache-arrow-in-spark">Apache Arrow in Spark</h2>
+
+<p>Apache Arrow is an in-memory columnar data format that is used in Spark to efficiently transfer
+data between JVM and Python processes. This currently is most beneficial to Python users that
+work with Pandas/NumPy data. Its usage is not automatic and might require some minor
+changes to configuration or code to take full advantage and ensure compatibility. This guide will
+give a high-level description of how to use Arrow in Spark and highlight any differences when
+working with Arrow-enabled data.</p>
+
+<h3 id="ensure-pyarrow-installed">Ensure PyArrow Installed</h3>
+
+<p>If you install PySpark using pip, then PyArrow can be brought in as an extra dependency of the
+SQL module with the command <code>pip install pyspark[sql]</code>. Otherwise, you must ensure that PyArrow
+is installed and available on all cluster nodes. The current supported version is 0.8.0.
+You can install using pip or conda from the conda-forge channel. See PyArrow
+<a href="https://arrow.apache.org/docs/python/install.html">installation</a> for details.</p>
+
+<h2 id="enabling-for-conversion-tofrom-pandas">Enabling for Conversion to/from Pandas</h2>
+
+<p>Arrow is available as an optimization when converting a Spark DataFrame to a Pandas DataFrame
+using the call <code>toPandas()</code> and when creating a Spark DataFrame from a Pandas DataFrame with
+<code>createDataFrame(pandas_df)</code>. To use Arrow when executing these calls, users need to first set
+the Spark configuration &#8216;spark.sql.execution.arrow.enabled&#8217; to &#8216;true&#8217;. This is disabled by default.</p>
+
+<p>In addition, optimizations enabled by &#8216;spark.sql.execution.arrow.enabled&#8217; could fallback automatically
+to non-Arrow optimization implementation if an error occurs before the actual computation within Spark.
+This can be controlled by &#8216;spark.sql.execution.arrow.fallback.enabled&#8217;.</p>
+
+<div class="codetabs">
+<div data-lang="python">
+    <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+
+<span class="c1"># Enable Arrow-based columnar data transfers</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;spark.sql.execution.arrow.enabled&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">)</span>
+
+<span class="c1"># Generate a Pandas DataFrame</span>
+<span class="n">pdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+<span class="c1"># Create a Spark DataFrame from a Pandas DataFrame using Arrow</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span>
+
+<span class="c1"># Convert the Spark DataFrame back to a Pandas DataFrame using Arrow</span>
+<span class="n">result_pdf</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">toPandas</span><span class="p">()</span>
+</pre></div>
+    <div><small>Find full example code at "examples/src/main/python/sql/arrow.py" in the Spark repo.</small></div>
+  </div>
+</div>
+
+<p>Using the above optimizations with Arrow will produce the same results as when Arrow is not
+enabled. Note that even with Arrow, <code>toPandas()</code> results in the collection of all records in the
+DataFrame to the driver program and should be done on a small subset of the data. Not all Spark
+data types are currently supported and an error can be raised if a column has an unsupported type,
+see <a href="#supported-sql-types">Supported SQL Types</a>. If an error occurs during <code>createDataFrame()</code>,
+Spark will fall back to create the DataFrame without Arrow.</p>
+
+<h2 id="pandas-udfs-aka-vectorized-udfs">Pandas UDFs (a.k.a. Vectorized UDFs)</h2>
+
+<p>Pandas UDFs are user defined functions that are executed by Spark using Arrow to transfer data and
+Pandas to work with the data. A Pandas UDF is defined using the keyword <code>pandas_udf</code> as a decorator
+or to wrap the function, no additional configuration is required. Currently, there are two types of
+Pandas UDF: Scalar and Grouped Map.</p>
+
+<h3 id="scalar">Scalar</h3>
+
+<p>Scalar Pandas UDFs are used for vectorizing scalar operations. They can be used with functions such
+as <code>select</code> and <code>withColumn</code>. The Python function should take <code>pandas.Series</code> as inputs and return
+a <code>pandas.Series</code> of the same length. Internally, Spark will execute a Pandas UDF by splitting
+columns into batches and calling the function for each batch as a subset of the data, then
+concatenating the results together.</p>
+
+<p>The following example shows how to create a scalar Pandas UDF that computes the product of 2 columns.</p>
+
+<div class="codetabs">
+<div data-lang="python">
+    <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="kn">import</span> <span class="n">col</span><span class="p">,</span> <span class="n">pandas_udf</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="n">LongType</span>
+
+<span class="c1"># Declare the function and create the UDF</span>
+<span class="k">def</span> <span class="nf">multiply_func</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">*</span> <span class="n">b</span>
+
+<span class="n">multiply</span> <span class="o">=</span> <span class="n">pandas_udf</span><span class="p">(</span><span class="n">multiply_func</span><span class="p">,</span> <span class="n">returnType</span><span class="o">=</span><span class="n">LongType</span><span class="p">())</span>
+
+<span class="c1"># The function for a pandas_udf should be able to execute with local Pandas data</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="n">multiply_func</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+<span class="c1"># 0    1</span>
+<span class="c1"># 1    4</span>
+<span class="c1"># 2    9</span>
+<span class="c1"># dtype: int64</span>
+
+<span class="c1"># Create a Spark DataFrame, &#39;spark&#39; is an existing SparkSession</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]))</span>
+
+<span class="c1"># Execute function as a Spark vectorized UDF</span>
+<span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">multiply</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">),</span> <span class="n">col</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +-------------------+</span>
+<span class="c1"># |multiply_func(x, x)|</span>
+<span class="c1"># +-------------------+</span>
+<span class="c1"># |                  1|</span>
+<span class="c1"># |                  4|</span>
+<span class="c1"># |                  9|</span>
+<span class="c1"># +-------------------+</span>
+</pre></div>
+    <div><small>Find full example code at "examples/src/main/python/sql/arrow.py" in the Spark repo.</small></div>
+  </div>
+</div>
+
+<h3 id="grouped-map">Grouped Map</h3>
+<p>Grouped map Pandas UDFs are used with <code>groupBy().apply()</code> which implements the &#8220;split-apply-combine&#8221; pattern.
+Split-apply-combine consists of three steps:</p>
+<ul>
+  <li>Split the data into groups by using <code>DataFrame.groupBy</code>.</li>
+  <li>Apply a function on each group. The input and output of the function are both <code>pandas.DataFrame</code>. The
+input data contains all the rows and columns for each group.</li>
+  <li>Combine the results into a new <code>DataFrame</code>.</li>
+</ul>
+
+<p>To use <code>groupBy().apply()</code>, the user needs to define the following:</p>
+<ul>
+  <li>A Python function that defines the computation for each group.</li>
+  <li>A <code>StructType</code> object or a string that defines the schema of the output <code>DataFrame</code>.</li>
+</ul>
+
+<p>The column labels of the returned <code>pandas.DataFrame</code> must either match the field names in the
+defined output schema if specified as strings, or match the field data types by position if not
+strings, e.g. integer indices. See <a href="https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html#pandas.DataFrame">pandas.DataFrame</a>
+on how to label columns when constructing a <code>pandas.DataFrame</code>.</p>
+
+<p>Note that all data for a group will be loaded into memory before the function is applied. This can
+lead to out of memory exceptions, especially if the group sizes are skewed. The configuration for
+<a href="#setting-arrow-batch-size">maxRecordsPerBatch</a> is not applied on groups and it is up to the user
+to ensure that the grouped data will fit into the available memory.</p>
+
+<p>The following example shows how to use <code>groupby().apply()</code> to subtract the mean from each value in the group.</p>
+
+<div class="codetabs">
+<div data-lang="python">
+    <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="kn">import</span> <span class="n">pandas_udf</span><span class="p">,</span> <span class="n">PandasUDFType</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span>
+    <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)],</span>
+    <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">))</span>
+
+<span class="nd">@pandas_udf</span><span class="p">(</span><span class="s2">&quot;id long, v double&quot;</span><span class="p">,</span> <span class="n">PandasUDFType</span><span class="o">.</span><span class="n">GROUPED_MAP</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">subtract_mean</span><span class="p">(</span><span class="n">pdf</span><span class="p">):</span>
+    <span class="c1"># pdf is a pandas.DataFrame</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">v</span>
+    <span class="k">return</span> <span class="n">pdf</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">v</span><span class="o">=</span><span class="n">v</span> <span class="o">-</span> <span class="n">v</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+
+<span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">subtract_mean</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +---+----+</span>
+<span class="c1"># | id|   v|</span>
+<span class="c1"># +---+----+</span>
+<span class="c1"># |  1|-0.5|</span>
+<span class="c1"># |  1| 0.5|</span>
+<span class="c1"># |  2|-3.0|</span>
+<span class="c1"># |  2|-1.0|</span>
+<span class="c1"># |  2| 4.0|</span>
+<span class="c1"># +---+----+</span>
+</pre></div>
+    <div><small>Find full example code at "examples/src/main/python/sql/arrow.py" in the Spark repo.</small></div>
+  </div>
+</div>
+
+<p>For detailed usage, please see <a href="api/python/pyspark.sql.html#pyspark.sql.functions.pandas_udf"><code>pyspark.sql.functions.pandas_udf</code></a> and
+<a href="api/python/pyspark.sql.html#pyspark.sql.GroupedData.apply"><code>pyspark.sql.GroupedData.apply</code></a>.</p>
+
+<h3 id="grouped-aggregate">Grouped Aggregate</h3>
+
+<p>Grouped aggregate Pandas UDFs are similar to Spark aggregate functions. Grouped aggregate Pandas UDFs are used with <code>groupBy().agg()</code> and
+<a href="api/python/pyspark.sql.html#pyspark.sql.Window"><code>pyspark.sql.Window</code></a>. It defines an aggregation from one or more <code>pandas.Series</code>
+to a scalar value, where each <code>pandas.Series</code> represents a column within the group or window.</p>
+
+<p>Note that this type of UDF does not support partial aggregation and all data for a group or window will be loaded into memory. Also,
+only unbounded window is supported with Grouped aggregate Pandas UDFs currently.</p>
+
+<p>The following example shows how to use this type of UDF to compute mean with groupBy and window operations:</p>
+
+<div class="codetabs">
+<div data-lang="python">
+    <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="kn">import</span> <span class="n">pandas_udf</span><span class="p">,</span> <span class="n">PandasUDFType</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">Window</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span>
+    <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)],</span>
+    <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">))</span>
+
+<span class="nd">@pandas_udf</span><span class="p">(</span><span class="s2">&quot;double&quot;</span><span class="p">,</span> <span class="n">PandasUDFType</span><span class="o">.</span><span class="n">GROUPED_AGG</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">mean_udf</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">v</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">mean_udf</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">]))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +---+-----------+</span>
+<span class="c1"># | id|mean_udf(v)|</span>
+<span class="c1"># +---+-----------+</span>
+<span class="c1"># |  1|        1.5|</span>
+<span class="c1"># |  2|        6.0|</span>
+<span class="c1"># +---+-----------+</span>
+
+<span class="n">w</span> <span class="o">=</span> <span class="n">Window</span> \
+    <span class="o">.</span><span class="n">partitionBy</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">rowsBetween</span><span class="p">(</span><span class="n">Window</span><span class="o">.</span><span class="n">unboundedPreceding</span><span class="p">,</span> <span class="n">Window</span><span class="o">.</span><span class="n">unboundedFollowing</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="s1">&#39;mean_v&#39;</span><span class="p">,</span> <span class="n">mean_udf</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">w</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +---+----+------+</span>
+<span class="c1"># | id|   v|mean_v|</span>
+<span class="c1"># +---+----+------+</span>
+<span class="c1"># |  1| 1.0|   1.5|</span>
+<span class="c1"># |  1| 2.0|   1.5|</span>
+<span class="c1"># |  2| 3.0|   6.0|</span>
+<span class="c1"># |  2| 5.0|   6.0|</span>
+<span class="c1"># |  2|10.0|   6.0|</span>
+<span class="c1"># +---+----+------+</span>
+</pre></div>
+    <div><small>Find full example code at "examples/src/main/python/sql/arrow.py" in the Spark repo.</small></div>
+  </div>
+</div>
+
+<p>For detailed usage, please see <a href="api/python/pyspark.sql.html#pyspark.sql.functions.pandas_udf"><code>pyspark.sql.functions.pandas_udf</code></a></p>
+
+<h2 id="usage-notes">Usage Notes</h2>
+
+<h3 id="supported-sql-types">Supported SQL Types</h3>
+
+<p>Currently, all Spark SQL data types are supported by Arrow-based conversion except <code>MapType</code>,
+<code>ArrayType</code> of <code>TimestampType</code>, and nested <code>StructType</code>. <code>BinaryType</code> is supported only when
+installed PyArrow is equal to or higher then 0.10.0.</p>
+
+<h3 id="setting-arrow-batch-size">Setting Arrow Batch Size</h3>
+
+<p>Data partitions in Spark are converted into Arrow record batches, which can temporarily lead to
+high memory usage in the JVM. To avoid possible out of memory exceptions, the size of the Arrow
+record batches can be adjusted by setting the conf &#8220;spark.sql.execution.arrow.maxRecordsPerBatch&#8221;
+to an integer that will determine the maximum number of rows for each batch. The default value is
+10,000 records per batch. If the number of columns is large, the value should be adjusted
+accordingly. Using this limit, each data partition will be made into 1 or more record batches for
+processing.</p>
+
+<h3 id="timestamp-with-time-zone-semantics">Timestamp with Time Zone Semantics</h3>
+
+<p>Spark internally stores timestamps as UTC values, and timestamp data that is brought in without
+a specified time zone is converted as local time to UTC with microsecond resolution. When timestamp
+data is exported or displayed in Spark, the session time zone is used to localize the timestamp
+values. The session time zone is set with the configuration &#8216;spark.sql.session.timeZone&#8217; and will
+default to the JVM system local time zone if not set. Pandas uses a <code>datetime64</code> type with nanosecond
+resolution, <code>datetime64[ns]</code>, with optional time zone on a per-column basis.</p>
+
+<p>When timestamp data is transferred from Spark to Pandas it will be converted to nanoseconds
+and each column will be converted to the Spark session time zone then localized to that time
+zone, which removes the time zone and displays values as local time. This will occur
+when calling <code>toPandas()</code> or <code>pandas_udf</code> with timestamp columns.</p>
+
+<p>When timestamp data is transferred from Pandas to Spark, it will be converted to UTC microseconds. This
+occurs when calling <code>createDataFrame</code> with a Pandas DataFrame or when returning a timestamp from a
+<code>pandas_udf</code>. These conversions are done automatically to ensure Spark will have data in the
+expected format, so it is not necessary to do any of these conversions yourself. Any nanosecond
+values will be truncated.</p>
+
+<p>Note that a standard UDF (non-Pandas) will load timestamp data as Python datetime objects, which is
+different than a Pandas timestamp. It is recommended to use Pandas time series functionality when
+working with timestamps in <code>pandas_udf</code>s to get the best performance, see
+<a href="https://pandas.pydata.org/pandas-docs/stable/timeseries.html">here</a> for details.</p>
+
+
+                </div>
+            
+             <!-- /container -->
+        </div>
+
+        <script src="js/vendor/jquery-1.8.0.min.js"></script>
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/vendor/anchor.min.js"></script>
+        <script src="js/main.js"></script>
+
+        <!-- MathJax Section -->
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({
+                TeX: { equationNumbers: { autoNumber: "AMS" } }
+            });
+        </script>
+        <script>
+            // Note that we load MathJax this way to work with local file (file://), HTTP and HTTPS.
+            // We could use "//cdn.mathjax...", but that won't support "file://".
+            (function(d, script) {
+                script = d.createElement('script');
+                script.type = 'text/javascript';
+                script.async = true;
+                script.onload = function(){
+                    MathJax.Hub.Config({
+                        tex2jax: {
+                            inlineMath: [ ["$", "$"], ["\\\\(","\\\\)"] ],
+                            displayMath: [ ["$$","$$"], ["\\[", "\\]"] ],
+                            processEscapes: true,
+                            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+                        }
+                    });
+                };
+                script.src = ('https:' == document.location.protocol ? 'https://' : 'http://') +
+                    'cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js' +
+                    '?config=TeX-AMS-MML_HTMLorMML';
+                d.getElementsByTagName('head')[0].appendChild(script);
+            }(document));
+        </script>
+    </body>
+</html>

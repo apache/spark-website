@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Multivariate Gaussian Mixture Model (GMM)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/languages/r.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</head><body>
+
+<table width="100%" summary="page for spark.gaussianMixture {SparkR}"><tr><td>spark.gaussianMixture {SparkR}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Multivariate Gaussian Mixture Model (GMM)</h2>
+
+<h3>Description</h3>
+
+<p>Fits multivariate gaussian mixture model against a SparkDataFrame, similarly to R's
+mvnormalmixEM(). Users can call <code>summary</code> to print a summary of the fitted model,
+<code>predict</code> to make predictions on new data, and <code>write.ml</code>/<code>read.ml</code>
+to save/load fitted models.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+spark.gaussianMixture(data, formula, ...)
+
+## S4 method for signature 'SparkDataFrame,formula'
+spark.gaussianMixture(data, formula,
+  k = 2, maxIter = 100, tol = 0.01)
+
+## S4 method for signature 'GaussianMixtureModel'
+summary(object)
+
+## S4 method for signature 'GaussianMixtureModel'
+predict(object, newData)
+
+## S4 method for signature 'GaussianMixtureModel,character'
+write.ml(object, path,
+  overwrite = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>a SparkDataFrame for training.</p>
+</td></tr>
+<tr valign="top"><td><code>formula</code></td>
+<td>
+<p>a symbolic description of the model to be fitted. Currently only a few formula
+operators are supported, including '~', '.', ':', '+', and '-'.
+Note that the response variable of formula is empty in spark.gaussianMixture.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional arguments passed to the method.</p>
+</td></tr>
+<tr valign="top"><td><code>k</code></td>
+<td>
+<p>number of independent Gaussians in the mixture model.</p>
+</td></tr>
+<tr valign="top"><td><code>maxIter</code></td>
+<td>
+<p>maximum iteration number.</p>
+</td></tr>
+<tr valign="top"><td><code>tol</code></td>
+<td>
+<p>the convergence tolerance.</p>
+</td></tr>
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>a fitted gaussian mixture model.</p>
+</td></tr>
+<tr valign="top"><td><code>newData</code></td>
+<td>
+<p>a SparkDataFrame for testing.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>the directory where the model is saved.</p>
+</td></tr>
+<tr valign="top"><td><code>overwrite</code></td>
+<td>
+<p>overwrites or not if the output path already exists. Default is FALSE
+which means throw exception if the output path exists.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>spark.gaussianMixture</code> returns a fitted multivariate gaussian mixture model.
+</p>
+<p><code>summary</code> returns summary of the fitted model, which is a list.
+The list includes the model's <code>lambda</code> (lambda), <code>mu</code> (mu),
+<code>sigma</code> (sigma), <code>loglik</code> (loglik), and <code>posterior</code> (posterior).
+</p>
+<p><code>predict</code> returns a SparkDataFrame containing predicted labels in a column named
+&quot;prediction&quot;.
+</p>
+
+
+<h3>Note</h3>
+
+<p>spark.gaussianMixture since 2.1.0
+</p>
+<p>summary(GaussianMixtureModel) since 2.1.0
+</p>
+<p>predict(GaussianMixtureModel) since 2.1.0
+</p>
+<p>write.ml(GaussianMixtureModel, character) since 2.1.0
+</p>
+
+
+<h3>See Also</h3>
+
+<p>mixtools: <a href="https://cran.r-project.org/package=mixtools">https://cran.r-project.org/package=mixtools</a>
+</p>
+<p><a href="predict.html">predict</a>, <a href="read.ml.html">read.ml</a>, <a href="write.ml.html">write.ml</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre><code class="r">## Not run: 
+##D sparkR.session()
+##D library(mvtnorm)
+##D set.seed(100)
+##D a &lt;- rmvnorm(4, c(0, 0))
+##D b &lt;- rmvnorm(6, c(3, 4))
+##D data &lt;- rbind(a, b)
+##D df &lt;- createDataFrame(as.data.frame(data))
+##D model &lt;- spark.gaussianMixture(df, ~ V1 + V2, k = 2)
+##D summary(model)
+##D 
+##D # fitted values on training data
+##D fitted &lt;- predict(model, df)
+##D head(select(fitted, &quot;V1&quot;, &quot;prediction&quot;))
+##D 
+##D # save fitted model to input path
+##D path &lt;- &quot;path/to/model&quot;
+##D write.ml(model, path)
+##D 
+##D # can also read back the saved model and print
+##D savedModel &lt;- read.ml(path)
+##D summary(savedModel)
+## End(Not run)
+</code></pre>
+
+
+<hr /><div style="text-align: center;">[Package <em>SparkR</em> version 2.4.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

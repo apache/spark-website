@@ -1,0 +1,303 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.taskcontext &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.taskcontext</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="kn">from</span> <span class="nn">pyspark.java_gateway</span> <span class="k">import</span> <span class="n">local_connect_and_auth</span>
+<span class="kn">from</span> <span class="nn">pyspark.serializers</span> <span class="k">import</span> <span class="n">write_int</span><span class="p">,</span> <span class="n">UTF8Deserializer</span>
+
+
+<div class="viewcode-block" id="TaskContext"><a class="viewcode-back" href="../../pyspark.html#pyspark.TaskContext">[docs]</a><span class="k">class</span> <span class="nc">TaskContext</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    Contextual information about a task which can be read or mutated during</span>
+<span class="sd">    execution. To access the TaskContext for a running task, use:</span>
+<span class="sd">    L{TaskContext.get()}.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_taskContext</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">_attemptNumber</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_partitionId</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_stageId</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_taskAttemptId</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_localProperties</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Even if users construct TaskContext instead of using get, give them the singleton.&quot;&quot;&quot;</span>
+        <span class="n">taskContext</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_taskContext</span>
+        <span class="k">if</span> <span class="n">taskContext</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">taskContext</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_taskContext</span> <span class="o">=</span> <span class="n">taskContext</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">taskContext</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct a TaskContext, use get instead&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_getOrCreate</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Internal function to get or create global TaskContext.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_taskContext</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_taskContext</span> <span class="o">=</span> <span class="n">TaskContext</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_taskContext</span>
+
+<div class="viewcode-block" id="TaskContext.get"><a class="viewcode-back" href="../../pyspark.html#pyspark.TaskContext.get">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the currently active TaskContext. This can be called inside of</span>
+<span class="sd">        user functions to access contextual information about running tasks.</span>
+
+<span class="sd">        .. note:: Must be called on the worker, not the driver. Returns None if not initialized.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_taskContext</span></div>
+
+<div class="viewcode-block" id="TaskContext.stageId"><a class="viewcode-back" href="../../pyspark.html#pyspark.TaskContext.stageId">[docs]</a>    <span class="k">def</span> <span class="nf">stageId</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The ID of the stage that this task belong to.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stageId</span></div>
+
+<div class="viewcode-block" id="TaskContext.partitionId"><a class="viewcode-back" href="../../pyspark.html#pyspark.TaskContext.partitionId">[docs]</a>    <span class="k">def</span> <span class="nf">partitionId</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The ID of the RDD partition that is computed by this task.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_partitionId</span></div>
+
+<div class="viewcode-block" id="TaskContext.attemptNumber"><a class="viewcode-back" href="../../pyspark.html#pyspark.TaskContext.attemptNumber">[docs]</a>    <span class="k">def</span> <span class="nf">attemptNumber</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;&quot;</span>
+<span class="sd">        How many times this task has been attempted.  The first task attempt will be assigned</span>
+<span class="sd">        attemptNumber = 0, and subsequent attempts will have increasing attempt numbers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attemptNumber</span></div>
+
+<div class="viewcode-block" id="TaskContext.taskAttemptId"><a class="viewcode-back" href="../../pyspark.html#pyspark.TaskContext.taskAttemptId">[docs]</a>    <span class="k">def</span> <span class="nf">taskAttemptId</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        An ID that is unique to this task attempt (within the same SparkContext, no two task</span>
+<span class="sd">        attempts will share the same attempt ID).  This is roughly equivalent to Hadoop&#39;s</span>
+<span class="sd">        TaskAttemptID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_taskAttemptId</span></div>
+
+<div class="viewcode-block" id="TaskContext.getLocalProperty"><a class="viewcode-back" href="../../pyspark.html#pyspark.TaskContext.getLocalProperty">[docs]</a>    <span class="k">def</span> <span class="nf">getLocalProperty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a local property set upstream in the driver, or None if it is missing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_localProperties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span></div></div>
+
+
+<span class="n">BARRIER_FUNCTION</span> <span class="o">=</span> <span class="mi">1</span>
+
+
+<span class="k">def</span> <span class="nf">_load_from_socket</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">auth_secret</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load data from a given socket, this is a blocking method thus only return when the socket</span>
+<span class="sd">    connection has been closed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="p">(</span><span class="n">sockfile</span><span class="p">,</span> <span class="n">sock</span><span class="p">)</span> <span class="o">=</span> <span class="n">local_connect_and_auth</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">auth_secret</span><span class="p">)</span>
+    <span class="c1"># The barrier() call may block forever, so no timeout</span>
+    <span class="n">sock</span><span class="o">.</span><span class="n">settimeout</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="c1"># Make a barrier() function call.</span>
+    <span class="n">write_int</span><span class="p">(</span><span class="n">BARRIER_FUNCTION</span><span class="p">,</span> <span class="n">sockfile</span><span class="p">)</span>
+    <span class="n">sockfile</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+    <span class="c1"># Collect result.</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">UTF8Deserializer</span><span class="p">()</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">sockfile</span><span class="p">)</span>
+
+    <span class="c1"># Release resources.</span>
+    <span class="n">sockfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">sock</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">res</span>
+
+
+<div class="viewcode-block" id="BarrierTaskContext"><a class="viewcode-back" href="../../pyspark.html#pyspark.BarrierTaskContext">[docs]</a><span class="k">class</span> <span class="nc">BarrierTaskContext</span><span class="p">(</span><span class="n">TaskContext</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    A :class:`TaskContext` with extra contextual info and tooling for tasks in a barrier stage.</span>
+<span class="sd">    Use :func:`BarrierTaskContext.get` to obtain the barrier context for a running barrier task.</span>
+
+<span class="sd">    .. versionadded:: 2.4.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_port</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">_secret</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct a BarrierTaskContext, use get instead&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_getOrCreate</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Internal function to get or create global BarrierTaskContext.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_taskContext</span><span class="p">,</span> <span class="n">BarrierTaskContext</span><span class="p">):</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">_taskContext</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_taskContext</span>
+
+<div class="viewcode-block" id="BarrierTaskContext.get"><a class="viewcode-back" href="../../pyspark.html#pyspark.BarrierTaskContext.get">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        .. note:: Experimental</span>
+
+<span class="sd">        Return the currently active :class:`BarrierTaskContext`.</span>
+<span class="sd">        This can be called inside of user functions to access contextual information about</span>
+<span class="sd">        running tasks.</span>
+
+<span class="sd">        .. note:: Must be called on the worker, not the driver. Returns None if not initialized.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_taskContext</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_initialize</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">secret</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize BarrierTaskContext, other methods within BarrierTaskContext can only be called</span>
+<span class="sd">        after BarrierTaskContext is initialized.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="n">port</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_secret</span> <span class="o">=</span> <span class="n">secret</span>
+
+<div class="viewcode-block" id="BarrierTaskContext.barrier"><a class="viewcode-back" href="../../pyspark.html#pyspark.BarrierTaskContext.barrier">[docs]</a>    <span class="k">def</span> <span class="nf">barrier</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        .. note:: Experimental</span>
+
+<span class="sd">        Sets a global barrier and waits until all tasks in this stage hit this barrier.</span>
+<span class="sd">        Similar to `MPI_Barrier` function in MPI, this function blocks until all tasks</span>
+<span class="sd">        in the same stage have reached this routine.</span>
+
+<span class="sd">        .. warning:: In a barrier stage, each task much have the same number of `barrier()`</span>
+<span class="sd">            calls, in all possible code branches.</span>
+<span class="sd">            Otherwise, you may get the job hanging or a SparkException after timeout.</span>
+
+<span class="sd">        .. versionadded:: 2.4.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_secret</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not supported to call barrier() before initialize &quot;</span> <span class="o">+</span>
+                            <span class="s2">&quot;BarrierTaskContext.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_load_from_socket</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_port</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_secret</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BarrierTaskContext.getTaskInfos"><a class="viewcode-back" href="../../pyspark.html#pyspark.BarrierTaskContext.getTaskInfos">[docs]</a>    <span class="k">def</span> <span class="nf">getTaskInfos</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        .. note:: Experimental</span>
+
+<span class="sd">        Returns :class:`BarrierTaskInfo` for all tasks in this barrier stage,</span>
+<span class="sd">        ordered by partition ID.</span>
+
+<span class="sd">        .. versionadded:: 2.4.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_secret</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Not supported to call getTaskInfos() before initialize &quot;</span> <span class="o">+</span>
+                            <span class="s2">&quot;BarrierTaskContext.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">addresses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_localProperties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;addresses&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">BarrierTaskInfo</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">addresses</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span></div></div>
+
+
+<div class="viewcode-block" id="BarrierTaskInfo"><a class="viewcode-back" href="../../pyspark.html#pyspark.BarrierTaskInfo">[docs]</a><span class="k">class</span> <span class="nc">BarrierTaskInfo</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    Carries all task infos of a barrier task.</span>
+
+<span class="sd">    :var address: The IPv4 address (host:port) of the executor that the barrier task is running on</span>
+
+<span class="sd">    .. versionadded:: 2.4.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">address</span> <span class="o">=</span> <span class="n">address</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

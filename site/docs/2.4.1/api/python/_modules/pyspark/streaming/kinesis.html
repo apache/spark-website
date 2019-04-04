@@ -1,0 +1,198 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.streaming.kinesis &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.streaming.kinesis</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">from</span> <span class="nn">py4j.protocol</span> <span class="k">import</span> <span class="n">Py4JJavaError</span>
+
+<span class="kn">from</span> <span class="nn">pyspark.serializers</span> <span class="k">import</span> <span class="n">PairDeserializer</span><span class="p">,</span> <span class="n">NoOpSerializer</span>
+<span class="kn">from</span> <span class="nn">pyspark.storagelevel</span> <span class="k">import</span> <span class="n">StorageLevel</span>
+<span class="kn">from</span> <span class="nn">pyspark.streaming</span> <span class="k">import</span> <span class="n">DStream</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;KinesisUtils&#39;</span><span class="p">,</span> <span class="s1">&#39;InitialPositionInStream&#39;</span><span class="p">,</span> <span class="s1">&#39;utf8_decoder&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="utf8_decoder"><a class="viewcode-back" href="../../../pyspark.streaming.html#pyspark.streaming.kinesis.utf8_decoder">[docs]</a><span class="k">def</span> <span class="nf">utf8_decoder</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Decode the unicode as UTF-8 &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="KinesisUtils"><a class="viewcode-back" href="../../../pyspark.streaming.html#pyspark.streaming.kinesis.KinesisUtils">[docs]</a><span class="k">class</span> <span class="nc">KinesisUtils</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<div class="viewcode-block" id="KinesisUtils.createStream"><a class="viewcode-back" href="../../../pyspark.streaming.html#pyspark.streaming.kinesis.KinesisUtils.createStream">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">createStream</span><span class="p">(</span><span class="n">ssc</span><span class="p">,</span> <span class="n">kinesisAppName</span><span class="p">,</span> <span class="n">streamName</span><span class="p">,</span> <span class="n">endpointUrl</span><span class="p">,</span> <span class="n">regionName</span><span class="p">,</span>
+                     <span class="n">initialPositionInStream</span><span class="p">,</span> <span class="n">checkpointInterval</span><span class="p">,</span>
+                     <span class="n">storageLevel</span><span class="o">=</span><span class="n">StorageLevel</span><span class="o">.</span><span class="n">MEMORY_AND_DISK_2</span><span class="p">,</span>
+                     <span class="n">awsAccessKeyId</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">awsSecretKey</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">decoder</span><span class="o">=</span><span class="n">utf8_decoder</span><span class="p">,</span>
+                     <span class="n">stsAssumeRoleArn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stsSessionName</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stsExternalId</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an input stream that pulls messages from a Kinesis stream. This uses the</span>
+<span class="sd">        Kinesis Client Library (KCL) to pull messages from Kinesis.</span>
+
+<span class="sd">        .. note:: The given AWS credentials will get saved in DStream checkpoints if checkpointing</span>
+<span class="sd">            is enabled. Make sure that your checkpoint directory is secure.</span>
+
+<span class="sd">        :param ssc:  StreamingContext object</span>
+<span class="sd">        :param kinesisAppName:  Kinesis application name used by the Kinesis Client Library (KCL) to</span>
+<span class="sd">                                update DynamoDB</span>
+<span class="sd">        :param streamName:  Kinesis stream name</span>
+<span class="sd">        :param endpointUrl:  Url of Kinesis service (e.g., https://kinesis.us-east-1.amazonaws.com)</span>
+<span class="sd">        :param regionName:  Name of region used by the Kinesis Client Library (KCL) to update</span>
+<span class="sd">                            DynamoDB (lease coordination and checkpointing) and CloudWatch (metrics)</span>
+<span class="sd">        :param initialPositionInStream:  In the absence of Kinesis checkpoint info, this is the</span>
+<span class="sd">                                         worker&#39;s initial starting position in the stream. The</span>
+<span class="sd">                                         values are either the beginning of the stream per Kinesis&#39;</span>
+<span class="sd">                                         limit of 24 hours (InitialPositionInStream.TRIM_HORIZON) or</span>
+<span class="sd">                                         the tip of the stream (InitialPositionInStream.LATEST).</span>
+<span class="sd">        :param checkpointInterval:  Checkpoint interval for Kinesis checkpointing. See the Kinesis</span>
+<span class="sd">                                    Spark Streaming documentation for more details on the different</span>
+<span class="sd">                                    types of checkpoints.</span>
+<span class="sd">        :param storageLevel:  Storage level to use for storing the received objects (default is</span>
+<span class="sd">                              StorageLevel.MEMORY_AND_DISK_2)</span>
+<span class="sd">        :param awsAccessKeyId:  AWS AccessKeyId (default is None. If None, will use</span>
+<span class="sd">                                DefaultAWSCredentialsProviderChain)</span>
+<span class="sd">        :param awsSecretKey:  AWS SecretKey (default is None. If None, will use</span>
+<span class="sd">                              DefaultAWSCredentialsProviderChain)</span>
+<span class="sd">        :param decoder:  A function used to decode value (default is utf8_decoder)</span>
+<span class="sd">        :param stsAssumeRoleArn: ARN of IAM role to assume when using STS sessions to read from</span>
+<span class="sd">                                 the Kinesis stream (default is None).</span>
+<span class="sd">        :param stsSessionName: Name to uniquely identify STS sessions used to read from Kinesis</span>
+<span class="sd">                               stream, if STS is being used (default is None).</span>
+<span class="sd">        :param stsExternalId: External ID that can be used to validate against the assumed IAM</span>
+<span class="sd">                              role&#39;s trust policy, if STS is being used (default is None).</span>
+<span class="sd">        :return: A DStream object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">jlevel</span> <span class="o">=</span> <span class="n">ssc</span><span class="o">.</span><span class="n">_sc</span><span class="o">.</span><span class="n">_getJavaStorageLevel</span><span class="p">(</span><span class="n">storageLevel</span><span class="p">)</span>
+        <span class="n">jduration</span> <span class="o">=</span> <span class="n">ssc</span><span class="o">.</span><span class="n">_jduration</span><span class="p">(</span><span class="n">checkpointInterval</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Use KinesisUtilsPythonHelper to access Scala&#39;s KinesisUtils</span>
+            <span class="n">helper</span> <span class="o">=</span> <span class="n">ssc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">streaming</span><span class="o">.</span><span class="n">kinesis</span><span class="o">.</span><span class="n">KinesisUtilsPythonHelper</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;&#39;JavaPackage&#39; object is not callable&quot;</span><span class="p">:</span>
+                <span class="n">KinesisUtils</span><span class="o">.</span><span class="n">_printErrorMsg</span><span class="p">(</span><span class="n">ssc</span><span class="o">.</span><span class="n">sparkContext</span><span class="p">)</span>
+            <span class="k">raise</span>
+        <span class="n">jstream</span> <span class="o">=</span> <span class="n">helper</span><span class="o">.</span><span class="n">createStream</span><span class="p">(</span><span class="n">ssc</span><span class="o">.</span><span class="n">_jssc</span><span class="p">,</span> <span class="n">kinesisAppName</span><span class="p">,</span> <span class="n">streamName</span><span class="p">,</span> <span class="n">endpointUrl</span><span class="p">,</span>
+                                      <span class="n">regionName</span><span class="p">,</span> <span class="n">initialPositionInStream</span><span class="p">,</span> <span class="n">jduration</span><span class="p">,</span> <span class="n">jlevel</span><span class="p">,</span>
+                                      <span class="n">awsAccessKeyId</span><span class="p">,</span> <span class="n">awsSecretKey</span><span class="p">,</span> <span class="n">stsAssumeRoleArn</span><span class="p">,</span>
+                                      <span class="n">stsSessionName</span><span class="p">,</span> <span class="n">stsExternalId</span><span class="p">)</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="n">DStream</span><span class="p">(</span><span class="n">jstream</span><span class="p">,</span> <span class="n">ssc</span><span class="p">,</span> <span class="n">NoOpSerializer</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">stream</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">decoder</span><span class="p">(</span><span class="n">v</span><span class="p">))</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_printErrorMsg</span><span class="p">(</span><span class="n">sc</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">________________________________________________________________________________________________</span>
+
+<span class="s2">  Spark Streaming&#39;s Kinesis libraries not found in class path. Try one of the following.</span>
+
+<span class="s2">  1. Include the Kinesis library and its dependencies with in the</span>
+<span class="s2">     spark-submit command as</span>
+
+<span class="s2">     $ bin/spark-submit --packages org.apache.spark:spark-streaming-kinesis-asl:</span><span class="si">%s</span><span class="s2"> ...</span>
+
+<span class="s2">  2. Download the JAR of the artifact from Maven Central http://search.maven.org/,</span>
+<span class="s2">     Group Id = org.apache.spark, Artifact Id = spark-streaming-kinesis-asl-assembly, Version = </span><span class="si">%s</span><span class="s2">.</span>
+<span class="s2">     Then, include the jar in the spark-submit command as</span>
+
+<span class="s2">     $ bin/spark-submit --jars &lt;spark-streaming-kinesis-asl-assembly.jar&gt; ...</span>
+
+<span class="s2">________________________________________________________________________________________________</span>
+
+<span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">sc</span><span class="o">.</span><span class="n">version</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="InitialPositionInStream"><a class="viewcode-back" href="../../../pyspark.streaming.html#pyspark.streaming.kinesis.InitialPositionInStream">[docs]</a><span class="k">class</span> <span class="nc">InitialPositionInStream</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">LATEST</span><span class="p">,</span> <span class="n">TRIM_HORIZON</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

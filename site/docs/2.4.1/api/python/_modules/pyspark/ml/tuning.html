@@ -1,0 +1,863 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.ml.tuning &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.ml.tuning</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">multiprocessing.pool</span> <span class="k">import</span> <span class="n">ThreadPool</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="k">import</span> <span class="n">since</span><span class="p">,</span> <span class="n">keyword_only</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml</span> <span class="k">import</span> <span class="n">Estimator</span><span class="p">,</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.common</span> <span class="k">import</span> <span class="n">_py2java</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.param</span> <span class="k">import</span> <span class="n">Params</span><span class="p">,</span> <span class="n">Param</span><span class="p">,</span> <span class="n">TypeConverters</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.param.shared</span> <span class="k">import</span> <span class="n">HasCollectSubModels</span><span class="p">,</span> <span class="n">HasParallelism</span><span class="p">,</span> <span class="n">HasSeed</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.util</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.wrapper</span> <span class="k">import</span> <span class="n">JavaParams</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="k">import</span> <span class="n">rand</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ParamGridBuilder&#39;</span><span class="p">,</span> <span class="s1">&#39;CrossValidator&#39;</span><span class="p">,</span> <span class="s1">&#39;CrossValidatorModel&#39;</span><span class="p">,</span> <span class="s1">&#39;TrainValidationSplit&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;TrainValidationSplitModel&#39;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_parallelFitTasks</span><span class="p">(</span><span class="n">est</span><span class="p">,</span> <span class="n">train</span><span class="p">,</span> <span class="n">eva</span><span class="p">,</span> <span class="n">validation</span><span class="p">,</span> <span class="n">epm</span><span class="p">,</span> <span class="n">collectSubModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a list of callables which can be called from different threads to fit and evaluate</span>
+<span class="sd">    an estimator in parallel. Each callable returns an `(index, metric)` pair.</span>
+
+<span class="sd">    :param est: Estimator, the estimator to be fit.</span>
+<span class="sd">    :param train: DataFrame, training data set, used for fitting.</span>
+<span class="sd">    :param eva: Evaluator, used to compute `metric`</span>
+<span class="sd">    :param validation: DataFrame, validation data set, used for evaluation.</span>
+<span class="sd">    :param epm: Sequence of ParamMap, params maps to be used during fitting &amp; evaluation.</span>
+<span class="sd">    :param collectSubModel: Whether to collect sub model.</span>
+<span class="sd">    :return: (int, float, subModel), an index into `epm` and the associated metric value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">modelIter</span> <span class="o">=</span> <span class="n">est</span><span class="o">.</span><span class="n">fitMultiple</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">epm</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">singleTask</span><span class="p">():</span>
+        <span class="n">index</span><span class="p">,</span> <span class="n">model</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">modelIter</span><span class="p">)</span>
+        <span class="n">metric</span> <span class="o">=</span> <span class="n">eva</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">validation</span><span class="p">,</span> <span class="n">epm</span><span class="p">[</span><span class="n">index</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">index</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">model</span> <span class="k">if</span> <span class="n">collectSubModel</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">singleTask</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">epm</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ParamGridBuilder"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.ParamGridBuilder">[docs]</a><span class="k">class</span> <span class="nc">ParamGridBuilder</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Builder for a param grid used in grid search-based model selection.</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyspark.ml.classification import LogisticRegression</span>
+<span class="sd">    &gt;&gt;&gt; lr = LogisticRegression()</span>
+<span class="sd">    &gt;&gt;&gt; output = ParamGridBuilder() \</span>
+<span class="sd">    ...     .baseOn({lr.labelCol: &#39;l&#39;}) \</span>
+<span class="sd">    ...     .baseOn([lr.predictionCol, &#39;p&#39;]) \</span>
+<span class="sd">    ...     .addGrid(lr.regParam, [1.0, 2.0]) \</span>
+<span class="sd">    ...     .addGrid(lr.maxIter, [1, 5]) \</span>
+<span class="sd">    ...     .build()</span>
+<span class="sd">    &gt;&gt;&gt; expected = [</span>
+<span class="sd">    ...     {lr.regParam: 1.0, lr.maxIter: 1, lr.labelCol: &#39;l&#39;, lr.predictionCol: &#39;p&#39;},</span>
+<span class="sd">    ...     {lr.regParam: 2.0, lr.maxIter: 1, lr.labelCol: &#39;l&#39;, lr.predictionCol: &#39;p&#39;},</span>
+<span class="sd">    ...     {lr.regParam: 1.0, lr.maxIter: 5, lr.labelCol: &#39;l&#39;, lr.predictionCol: &#39;p&#39;},</span>
+<span class="sd">    ...     {lr.regParam: 2.0, lr.maxIter: 5, lr.labelCol: &#39;l&#39;, lr.predictionCol: &#39;p&#39;}]</span>
+<span class="sd">    &gt;&gt;&gt; len(output) == len(expected)</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; all([m in expected for m in output])</span>
+<span class="sd">    True</span>
+
+<span class="sd">    .. versionadded:: 1.4.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_param_grid</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="ParamGridBuilder.addGrid"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.ParamGridBuilder.addGrid">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">addGrid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the given parameters in this grid to fixed values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_param_grid</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="ParamGridBuilder.baseOn"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.ParamGridBuilder.baseOn">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">baseOn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the given parameters in this grid to fixed values.</span>
+<span class="sd">        Accepts either a parameter dictionary or a list of (parameter, value) pairs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">baseOn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">addGrid</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="p">[</span><span class="n">value</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="ParamGridBuilder.build"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.ParamGridBuilder.build">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Builds and returns all combinations of parameters specified</span>
+<span class="sd">        by the param grid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_param_grid</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="n">grid_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_param_grid</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">to_key_value_pairs</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[(</span><span class="n">key</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">typeConverter</span><span class="p">(</span><span class="n">value</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">values</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">to_key_value_pairs</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">prod</span><span class="p">))</span> <span class="k">for</span> <span class="n">prod</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">grid_values</span><span class="p">)]</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">ValidatorParams</span><span class="p">(</span><span class="n">HasSeed</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Common params for TrainValidationSplit and CrossValidator.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">estimator</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;estimator&quot;</span><span class="p">,</span> <span class="s2">&quot;estimator to be cross-validated&quot;</span><span class="p">)</span>
+    <span class="n">estimatorParamMaps</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;estimatorParamMaps&quot;</span><span class="p">,</span> <span class="s2">&quot;estimator param maps&quot;</span><span class="p">)</span>
+    <span class="n">evaluator</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span>
+        <span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;evaluator&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;evaluator used to select hyper-parameters that maximize the validator metric&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">setEstimator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`estimator`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">getEstimator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of estimator or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">setEstimatorParamMaps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`estimatorParamMaps`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">estimatorParamMaps</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">getEstimatorParamMaps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of estimatorParamMaps or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimatorParamMaps</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">setEvaluator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`evaluator`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">evaluator</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">getEvaluator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of evaluator or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">evaluator</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_from_java_impl</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">java_stage</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return Python estimator, estimatorParamMaps, and evaluator from a Java ValidatorParams.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Load information from java_stage to the instance.</span>
+        <span class="n">estimator</span> <span class="o">=</span> <span class="n">JavaParams</span><span class="o">.</span><span class="n">_from_java</span><span class="p">(</span><span class="n">java_stage</span><span class="o">.</span><span class="n">getEstimator</span><span class="p">())</span>
+        <span class="n">evaluator</span> <span class="o">=</span> <span class="n">JavaParams</span><span class="o">.</span><span class="n">_from_java</span><span class="p">(</span><span class="n">java_stage</span><span class="o">.</span><span class="n">getEvaluator</span><span class="p">())</span>
+        <span class="n">epms</span> <span class="o">=</span> <span class="p">[</span><span class="n">estimator</span><span class="o">.</span><span class="n">_transfer_param_map_from_java</span><span class="p">(</span><span class="n">epm</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">epm</span> <span class="ow">in</span> <span class="n">java_stage</span><span class="o">.</span><span class="n">getEstimatorParamMaps</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">epms</span><span class="p">,</span> <span class="n">evaluator</span>
+
+    <span class="k">def</span> <span class="nf">_to_java_impl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return Java estimator, estimatorParamMaps, and evaluator from this Python instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">gateway</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_gateway</span>
+        <span class="bp">cls</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">ml</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">ParamMap</span>
+
+        <span class="n">java_epms</span> <span class="o">=</span> <span class="n">gateway</span><span class="o">.</span><span class="n">new_array</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getEstimatorParamMaps</span><span class="p">()))</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">epm</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getEstimatorParamMaps</span><span class="p">()):</span>
+            <span class="n">java_epms</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getEstimator</span><span class="p">()</span><span class="o">.</span><span class="n">_transfer_param_map_to_java</span><span class="p">(</span><span class="n">epm</span><span class="p">)</span>
+
+        <span class="n">java_estimator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getEstimator</span><span class="p">()</span><span class="o">.</span><span class="n">_to_java</span><span class="p">()</span>
+        <span class="n">java_evaluator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getEvaluator</span><span class="p">()</span><span class="o">.</span><span class="n">_to_java</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">java_estimator</span><span class="p">,</span> <span class="n">java_epms</span><span class="p">,</span> <span class="n">java_evaluator</span>
+
+
+<div class="viewcode-block" id="CrossValidator"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.CrossValidator">[docs]</a><span class="k">class</span> <span class="nc">CrossValidator</span><span class="p">(</span><span class="n">Estimator</span><span class="p">,</span> <span class="n">ValidatorParams</span><span class="p">,</span> <span class="n">HasParallelism</span><span class="p">,</span> <span class="n">HasCollectSubModels</span><span class="p">,</span>
+                     <span class="n">MLReadable</span><span class="p">,</span> <span class="n">MLWritable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    K-fold cross validation performs model selection by splitting the dataset into a set of</span>
+<span class="sd">    non-overlapping randomly partitioned folds which are used as separate training and test datasets</span>
+<span class="sd">    e.g., with k=3 folds, K-fold cross validation will generate 3 (training, test) dataset pairs,</span>
+<span class="sd">    each of which uses 2/3 of the data for training and 1/3 for testing. Each fold is used as the</span>
+<span class="sd">    test set exactly once.</span>
+
+
+<span class="sd">    &gt;&gt;&gt; from pyspark.ml.classification import LogisticRegression</span>
+<span class="sd">    &gt;&gt;&gt; from pyspark.ml.evaluation import BinaryClassificationEvaluator</span>
+<span class="sd">    &gt;&gt;&gt; from pyspark.ml.linalg import Vectors</span>
+<span class="sd">    &gt;&gt;&gt; dataset = spark.createDataFrame(</span>
+<span class="sd">    ...     [(Vectors.dense([0.0]), 0.0),</span>
+<span class="sd">    ...      (Vectors.dense([0.4]), 1.0),</span>
+<span class="sd">    ...      (Vectors.dense([0.5]), 0.0),</span>
+<span class="sd">    ...      (Vectors.dense([0.6]), 1.0),</span>
+<span class="sd">    ...      (Vectors.dense([1.0]), 1.0)] * 10,</span>
+<span class="sd">    ...     [&quot;features&quot;, &quot;label&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; lr = LogisticRegression()</span>
+<span class="sd">    &gt;&gt;&gt; grid = ParamGridBuilder().addGrid(lr.maxIter, [0, 1]).build()</span>
+<span class="sd">    &gt;&gt;&gt; evaluator = BinaryClassificationEvaluator()</span>
+<span class="sd">    &gt;&gt;&gt; cv = CrossValidator(estimator=lr, estimatorParamMaps=grid, evaluator=evaluator,</span>
+<span class="sd">    ...     parallelism=2)</span>
+<span class="sd">    &gt;&gt;&gt; cvModel = cv.fit(dataset)</span>
+<span class="sd">    &gt;&gt;&gt; cvModel.avgMetrics[0]</span>
+<span class="sd">    0.5</span>
+<span class="sd">    &gt;&gt;&gt; evaluator.evaluate(cvModel.transform(dataset))</span>
+<span class="sd">    0.8333...</span>
+
+<span class="sd">    .. versionadded:: 1.4.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">numFolds</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;numFolds&quot;</span><span class="p">,</span> <span class="s2">&quot;number of folds for cross validation&quot;</span><span class="p">,</span>
+                     <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toInt</span><span class="p">)</span>
+
+    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">estimatorParamMaps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">evaluator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">numFolds</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                 <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parallelism</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">collectSubModels</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        __init__(self, estimator=None, estimatorParamMaps=None, evaluator=None, numFolds=3,\</span>
+<span class="sd">                 seed=None, parallelism=1, collectSubModels=False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CrossValidator</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setDefault</span><span class="p">(</span><span class="n">numFolds</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">parallelism</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CrossValidator.setParams"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.CrossValidator.setParams">[docs]</a>    <span class="nd">@keyword_only</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setParams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">estimatorParamMaps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">evaluator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">numFolds</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                  <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parallelism</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">collectSubModels</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        setParams(self, estimator=None, estimatorParamMaps=None, evaluator=None, numFolds=3,\</span>
+<span class="sd">                  seed=None, parallelism=1, collectSubModels=False):</span>
+<span class="sd">        Sets params for cross validator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CrossValidator.setNumFolds"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.CrossValidator.setNumFolds">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setNumFolds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`numFolds`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">numFolds</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CrossValidator.getNumFolds"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.CrossValidator.getNumFolds">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getNumFolds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of numFolds or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numFolds</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="n">est</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="p">)</span>
+        <span class="n">epm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimatorParamMaps</span><span class="p">)</span>
+        <span class="n">numModels</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">epm</span><span class="p">)</span>
+        <span class="n">eva</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">evaluator</span><span class="p">)</span>
+        <span class="n">nFolds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numFolds</span><span class="p">)</span>
+        <span class="n">seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">nFolds</span>
+        <span class="n">randCol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uid</span> <span class="o">+</span> <span class="s2">&quot;_rand&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="n">rand</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">randCol</span><span class="p">))</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="n">numModels</span>
+
+        <span class="n">pool</span> <span class="o">=</span> <span class="n">ThreadPool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getParallelism</span><span class="p">(),</span> <span class="n">numModels</span><span class="p">))</span>
+        <span class="n">subModels</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">collectSubModelsParam</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getCollectSubModels</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">collectSubModelsParam</span><span class="p">:</span>
+            <span class="n">subModels</span> <span class="o">=</span> <span class="p">[[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numModels</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nFolds</span><span class="p">)]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nFolds</span><span class="p">):</span>
+            <span class="n">validateLB</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="n">h</span>
+            <span class="n">validateUB</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">h</span>
+            <span class="n">condition</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">randCol</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">validateLB</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">randCol</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">validateUB</span><span class="p">)</span>
+            <span class="n">validation</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">condition</span><span class="p">)</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+            <span class="n">train</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="o">~</span><span class="n">condition</span><span class="p">)</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+
+            <span class="n">tasks</span> <span class="o">=</span> <span class="n">_parallelFitTasks</span><span class="p">(</span><span class="n">est</span><span class="p">,</span> <span class="n">train</span><span class="p">,</span> <span class="n">eva</span><span class="p">,</span> <span class="n">validation</span><span class="p">,</span> <span class="n">epm</span><span class="p">,</span> <span class="n">collectSubModelsParam</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">subModel</span> <span class="ow">in</span> <span class="n">pool</span><span class="o">.</span><span class="n">imap_unordered</span><span class="p">(</span><span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="n">f</span><span class="p">(),</span> <span class="n">tasks</span><span class="p">):</span>
+                <span class="n">metrics</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span><span class="n">metric</span> <span class="o">/</span> <span class="n">nFolds</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">collectSubModelsParam</span><span class="p">:</span>
+                    <span class="n">subModels</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">subModel</span>
+
+            <span class="n">validation</span><span class="o">.</span><span class="n">unpersist</span><span class="p">()</span>
+            <span class="n">train</span><span class="o">.</span><span class="n">unpersist</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">eva</span><span class="o">.</span><span class="n">isLargerBetter</span><span class="p">():</span>
+            <span class="n">bestIndex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bestIndex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
+        <span class="n">bestModel</span> <span class="o">=</span> <span class="n">est</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">epm</span><span class="p">[</span><span class="n">bestIndex</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_copyValues</span><span class="p">(</span><span class="n">CrossValidatorModel</span><span class="p">(</span><span class="n">bestModel</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">subModels</span><span class="p">))</span>
+
+<div class="viewcode-block" id="CrossValidator.copy"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.CrossValidator.copy">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a copy of this instance with a randomly generated uid</span>
+<span class="sd">        and some extra params. This copies creates a deep copy of</span>
+<span class="sd">        the embedded paramMap, and copies the embedded and extra parameters over.</span>
+
+<span class="sd">        :param extra: Extra parameters to copy to the new instance</span>
+<span class="sd">        :return: Copy of this instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">extra</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">extra</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">newCV</span> <span class="o">=</span> <span class="n">Params</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extra</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isSet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="p">):</span>
+            <span class="n">newCV</span><span class="o">.</span><span class="n">setEstimator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getEstimator</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">extra</span><span class="p">))</span>
+        <span class="c1"># estimatorParamMaps remain the same</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isSet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">evaluator</span><span class="p">):</span>
+            <span class="n">newCV</span><span class="o">.</span><span class="n">setEvaluator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getEvaluator</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">extra</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">newCV</span></div>
+
+<div class="viewcode-block" id="CrossValidator.write"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.CrossValidator.write">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.3.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns an MLWriter instance for this ML instance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">JavaMLWriter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CrossValidator.read"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.CrossValidator.read">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.3.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns an MLReader instance for this class.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">JavaMLReader</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_from_java</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">java_stage</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a Java CrossValidator, create and return a Python wrapper of it.</span>
+<span class="sd">        Used for ML persistence.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">estimator</span><span class="p">,</span> <span class="n">epms</span><span class="p">,</span> <span class="n">evaluator</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">CrossValidator</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">_from_java_impl</span><span class="p">(</span><span class="n">java_stage</span><span class="p">)</span>
+        <span class="n">numFolds</span> <span class="o">=</span> <span class="n">java_stage</span><span class="o">.</span><span class="n">getNumFolds</span><span class="p">()</span>
+        <span class="n">seed</span> <span class="o">=</span> <span class="n">java_stage</span><span class="o">.</span><span class="n">getSeed</span><span class="p">()</span>
+        <span class="n">parallelism</span> <span class="o">=</span> <span class="n">java_stage</span><span class="o">.</span><span class="n">getParallelism</span><span class="p">()</span>
+        <span class="n">collectSubModels</span> <span class="o">=</span> <span class="n">java_stage</span><span class="o">.</span><span class="n">getCollectSubModels</span><span class="p">()</span>
+        <span class="c1"># Create a new instance of this stage.</span>
+        <span class="n">py_stage</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="n">estimator</span><span class="p">,</span> <span class="n">estimatorParamMaps</span><span class="o">=</span><span class="n">epms</span><span class="p">,</span> <span class="n">evaluator</span><span class="o">=</span><span class="n">evaluator</span><span class="p">,</span>
+                       <span class="n">numFolds</span><span class="o">=</span><span class="n">numFolds</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">parallelism</span><span class="o">=</span><span class="n">parallelism</span><span class="p">,</span>
+                       <span class="n">collectSubModels</span><span class="o">=</span><span class="n">collectSubModels</span><span class="p">)</span>
+        <span class="n">py_stage</span><span class="o">.</span><span class="n">_resetUid</span><span class="p">(</span><span class="n">java_stage</span><span class="o">.</span><span class="n">uid</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">py_stage</span>
+
+    <span class="k">def</span> <span class="nf">_to_java</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transfer this instance to a Java CrossValidator. Used for ML persistence.</span>
+
+<span class="sd">        :return: Java object equivalent to this instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">estimator</span><span class="p">,</span> <span class="n">epms</span><span class="p">,</span> <span class="n">evaluator</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">CrossValidator</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_to_java_impl</span><span class="p">()</span>
+
+        <span class="n">_java_obj</span> <span class="o">=</span> <span class="n">JavaParams</span><span class="o">.</span><span class="n">_new_java_obj</span><span class="p">(</span><span class="s2">&quot;org.apache.spark.ml.tuning.CrossValidator&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+        <span class="n">_java_obj</span><span class="o">.</span><span class="n">setEstimatorParamMaps</span><span class="p">(</span><span class="n">epms</span><span class="p">)</span>
+        <span class="n">_java_obj</span><span class="o">.</span><span class="n">setEvaluator</span><span class="p">(</span><span class="n">evaluator</span><span class="p">)</span>
+        <span class="n">_java_obj</span><span class="o">.</span><span class="n">setEstimator</span><span class="p">(</span><span class="n">estimator</span><span class="p">)</span>
+        <span class="n">_java_obj</span><span class="o">.</span><span class="n">setSeed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getSeed</span><span class="p">())</span>
+        <span class="n">_java_obj</span><span class="o">.</span><span class="n">setNumFolds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getNumFolds</span><span class="p">())</span>
+        <span class="n">_java_obj</span><span class="o">.</span><span class="n">setParallelism</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getParallelism</span><span class="p">())</span>
+        <span class="n">_java_obj</span><span class="o">.</span><span class="n">setCollectSubModels</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getCollectSubModels</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="n">_java_obj</span></div>
+
+
+<div class="viewcode-block" id="CrossValidatorModel"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.CrossValidatorModel">[docs]</a><span class="k">class</span> <span class="nc">CrossValidatorModel</span><span class="p">(</span><span class="n">Model</span><span class="p">,</span> <span class="n">ValidatorParams</span><span class="p">,</span> <span class="n">MLReadable</span><span class="p">,</span> <span class="n">MLWritable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    CrossValidatorModel contains the model with the highest average cross-validation</span>
+<span class="sd">    metric across folds and uses this model to transform input data. CrossValidatorModel</span>
+<span class="sd">    also tracks the metrics for each param map evaluated.</span>
+
+<span class="sd">    .. versionadded:: 1.4.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bestModel</span><span class="p">,</span> <span class="n">avgMetrics</span><span class="o">=</span><span class="p">[],</span> <span class="n">subModels</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CrossValidatorModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="c1">#: best model from cross validation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bestModel</span> <span class="o">=</span> <span class="n">bestModel</span>
+        <span class="c1">#: Average cross-validation metrics for each paramMap in</span>
+        <span class="c1">#: CrossValidator.estimatorParamMaps, in the corresponding order.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avgMetrics</span> <span class="o">=</span> <span class="n">avgMetrics</span>
+        <span class="c1">#: sub model list from cross validation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subModels</span> <span class="o">=</span> <span class="n">subModels</span>
+
+    <span class="k">def</span> <span class="nf">_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bestModel</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CrossValidatorModel.copy"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.CrossValidatorModel.copy">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a copy of this instance with a randomly generated uid</span>
+<span class="sd">        and some extra params. This copies the underlying bestModel,</span>
+<span class="sd">        creates a deep copy of the embedded paramMap, and</span>
+<span class="sd">        copies the embedded and extra parameters over.</span>
+<span class="sd">        It does not copy the extra Params into the subModels.</span>
+
+<span class="sd">        :param extra: Extra parameters to copy to the new instance</span>
+<span class="sd">        :return: Copy of this instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">extra</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">extra</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">bestModel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bestModel</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span>
+        <span class="n">avgMetrics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">avgMetrics</span>
+        <span class="n">subModels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subModels</span>
+        <span class="k">return</span> <span class="n">CrossValidatorModel</span><span class="p">(</span><span class="n">bestModel</span><span class="p">,</span> <span class="n">avgMetrics</span><span class="p">,</span> <span class="n">subModels</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CrossValidatorModel.write"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.CrossValidatorModel.write">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.3.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns an MLWriter instance for this ML instance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">JavaMLWriter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CrossValidatorModel.read"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.CrossValidatorModel.read">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.3.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns an MLReader instance for this class.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">JavaMLReader</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_from_java</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">java_stage</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a Java CrossValidatorModel, create and return a Python wrapper of it.</span>
+<span class="sd">        Used for ML persistence.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bestModel</span> <span class="o">=</span> <span class="n">JavaParams</span><span class="o">.</span><span class="n">_from_java</span><span class="p">(</span><span class="n">java_stage</span><span class="o">.</span><span class="n">bestModel</span><span class="p">())</span>
+        <span class="n">estimator</span><span class="p">,</span> <span class="n">epms</span><span class="p">,</span> <span class="n">evaluator</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">CrossValidatorModel</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">_from_java_impl</span><span class="p">(</span><span class="n">java_stage</span><span class="p">)</span>
+
+        <span class="n">py_stage</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">bestModel</span><span class="o">=</span><span class="n">bestModel</span><span class="p">)</span><span class="o">.</span><span class="n">setEstimator</span><span class="p">(</span><span class="n">estimator</span><span class="p">)</span>
+        <span class="n">py_stage</span> <span class="o">=</span> <span class="n">py_stage</span><span class="o">.</span><span class="n">setEstimatorParamMaps</span><span class="p">(</span><span class="n">epms</span><span class="p">)</span><span class="o">.</span><span class="n">setEvaluator</span><span class="p">(</span><span class="n">evaluator</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">java_stage</span><span class="o">.</span><span class="n">hasSubModels</span><span class="p">():</span>
+            <span class="n">py_stage</span><span class="o">.</span><span class="n">subModels</span> <span class="o">=</span> <span class="p">[[</span><span class="n">JavaParams</span><span class="o">.</span><span class="n">_from_java</span><span class="p">(</span><span class="n">sub_model</span><span class="p">)</span>
+                                   <span class="k">for</span> <span class="n">sub_model</span> <span class="ow">in</span> <span class="n">fold_sub_models</span><span class="p">]</span>
+                                  <span class="k">for</span> <span class="n">fold_sub_models</span> <span class="ow">in</span> <span class="n">java_stage</span><span class="o">.</span><span class="n">subModels</span><span class="p">()]</span>
+
+        <span class="n">py_stage</span><span class="o">.</span><span class="n">_resetUid</span><span class="p">(</span><span class="n">java_stage</span><span class="o">.</span><span class="n">uid</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">py_stage</span>
+
+    <span class="k">def</span> <span class="nf">_to_java</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transfer this instance to a Java CrossValidatorModel. Used for ML persistence.</span>
+
+<span class="sd">        :return: Java object equivalent to this instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+        <span class="c1"># TODO: persist average metrics as well</span>
+        <span class="n">_java_obj</span> <span class="o">=</span> <span class="n">JavaParams</span><span class="o">.</span><span class="n">_new_java_obj</span><span class="p">(</span><span class="s2">&quot;org.apache.spark.ml.tuning.CrossValidatorModel&quot;</span><span class="p">,</span>
+                                             <span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">,</span>
+                                             <span class="bp">self</span><span class="o">.</span><span class="n">bestModel</span><span class="o">.</span><span class="n">_to_java</span><span class="p">(),</span>
+                                             <span class="n">_py2java</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="p">[]))</span>
+        <span class="n">estimator</span><span class="p">,</span> <span class="n">epms</span><span class="p">,</span> <span class="n">evaluator</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">CrossValidatorModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_to_java_impl</span><span class="p">()</span>
+
+        <span class="n">_java_obj</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;evaluator&quot;</span><span class="p">,</span> <span class="n">evaluator</span><span class="p">)</span>
+        <span class="n">_java_obj</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;estimator&quot;</span><span class="p">,</span> <span class="n">estimator</span><span class="p">)</span>
+        <span class="n">_java_obj</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;estimatorParamMaps&quot;</span><span class="p">,</span> <span class="n">epms</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">subModels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">java_sub_models</span> <span class="o">=</span> <span class="p">[[</span><span class="n">sub_model</span><span class="o">.</span><span class="n">_to_java</span><span class="p">()</span> <span class="k">for</span> <span class="n">sub_model</span> <span class="ow">in</span> <span class="n">fold_sub_models</span><span class="p">]</span>
+                               <span class="k">for</span> <span class="n">fold_sub_models</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subModels</span><span class="p">]</span>
+            <span class="n">_java_obj</span><span class="o">.</span><span class="n">setSubModels</span><span class="p">(</span><span class="n">java_sub_models</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_java_obj</span></div>
+
+
+<div class="viewcode-block" id="TrainValidationSplit"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.TrainValidationSplit">[docs]</a><span class="k">class</span> <span class="nc">TrainValidationSplit</span><span class="p">(</span><span class="n">Estimator</span><span class="p">,</span> <span class="n">ValidatorParams</span><span class="p">,</span> <span class="n">HasParallelism</span><span class="p">,</span> <span class="n">HasCollectSubModels</span><span class="p">,</span>
+                           <span class="n">MLReadable</span><span class="p">,</span> <span class="n">MLWritable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    Validation for hyper-parameter tuning. Randomly splits the input dataset into train and</span>
+<span class="sd">    validation sets, and uses evaluation metric on the validation set to select the best model.</span>
+<span class="sd">    Similar to :class:`CrossValidator`, but only splits the set once.</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyspark.ml.classification import LogisticRegression</span>
+<span class="sd">    &gt;&gt;&gt; from pyspark.ml.evaluation import BinaryClassificationEvaluator</span>
+<span class="sd">    &gt;&gt;&gt; from pyspark.ml.linalg import Vectors</span>
+<span class="sd">    &gt;&gt;&gt; dataset = spark.createDataFrame(</span>
+<span class="sd">    ...     [(Vectors.dense([0.0]), 0.0),</span>
+<span class="sd">    ...      (Vectors.dense([0.4]), 1.0),</span>
+<span class="sd">    ...      (Vectors.dense([0.5]), 0.0),</span>
+<span class="sd">    ...      (Vectors.dense([0.6]), 1.0),</span>
+<span class="sd">    ...      (Vectors.dense([1.0]), 1.0)] * 10,</span>
+<span class="sd">    ...     [&quot;features&quot;, &quot;label&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; lr = LogisticRegression()</span>
+<span class="sd">    &gt;&gt;&gt; grid = ParamGridBuilder().addGrid(lr.maxIter, [0, 1]).build()</span>
+<span class="sd">    &gt;&gt;&gt; evaluator = BinaryClassificationEvaluator()</span>
+<span class="sd">    &gt;&gt;&gt; tvs = TrainValidationSplit(estimator=lr, estimatorParamMaps=grid, evaluator=evaluator,</span>
+<span class="sd">    ...     parallelism=2)</span>
+<span class="sd">    &gt;&gt;&gt; tvsModel = tvs.fit(dataset)</span>
+<span class="sd">    &gt;&gt;&gt; evaluator.evaluate(tvsModel.transform(dataset))</span>
+<span class="sd">    0.8333...</span>
+
+<span class="sd">    .. versionadded:: 2.0.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">trainRatio</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;trainRatio&quot;</span><span class="p">,</span> <span class="s2">&quot;Param for ratio between train and</span><span class="se">\</span>
+<span class="s2">     validation data. Must be between 0 and 1.&quot;</span><span class="p">,</span> <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toFloat</span><span class="p">)</span>
+
+    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">estimatorParamMaps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">evaluator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">trainRatio</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span>
+                 <span class="n">parallelism</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">collectSubModels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        __init__(self, estimator=None, estimatorParamMaps=None, evaluator=None, trainRatio=0.75,\</span>
+<span class="sd">                 parallelism=1, collectSubModels=False, seed=None)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TrainValidationSplit</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setDefault</span><span class="p">(</span><span class="n">trainRatio</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">parallelism</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TrainValidationSplit.setParams"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.TrainValidationSplit.setParams">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">setParams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">estimatorParamMaps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">evaluator</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">trainRatio</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span>
+                  <span class="n">parallelism</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">collectSubModels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        setParams(self, estimator=None, estimatorParamMaps=None, evaluator=None, trainRatio=0.75,\</span>
+<span class="sd">                  parallelism=1, collectSubModels=False, seed=None):</span>
+<span class="sd">        Sets params for the train validation split.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TrainValidationSplit.setTrainRatio"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.TrainValidationSplit.setTrainRatio">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setTrainRatio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`trainRatio`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">trainRatio</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TrainValidationSplit.getTrainRatio"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.TrainValidationSplit.getTrainRatio">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getTrainRatio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of trainRatio or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trainRatio</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="n">est</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="p">)</span>
+        <span class="n">epm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimatorParamMaps</span><span class="p">)</span>
+        <span class="n">numModels</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">epm</span><span class="p">)</span>
+        <span class="n">eva</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">evaluator</span><span class="p">)</span>
+        <span class="n">tRatio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trainRatio</span><span class="p">)</span>
+        <span class="n">seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+        <span class="n">randCol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uid</span> <span class="o">+</span> <span class="s2">&quot;_rand&quot;</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="n">rand</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="n">randCol</span><span class="p">))</span>
+        <span class="n">condition</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">randCol</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">tRatio</span><span class="p">)</span>
+        <span class="n">validation</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">condition</span><span class="p">)</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+        <span class="n">train</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="o">~</span><span class="n">condition</span><span class="p">)</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+
+        <span class="n">subModels</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">collectSubModelsParam</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getCollectSubModels</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">collectSubModelsParam</span><span class="p">:</span>
+            <span class="n">subModels</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numModels</span><span class="p">)]</span>
+
+        <span class="n">tasks</span> <span class="o">=</span> <span class="n">_parallelFitTasks</span><span class="p">(</span><span class="n">est</span><span class="p">,</span> <span class="n">train</span><span class="p">,</span> <span class="n">eva</span><span class="p">,</span> <span class="n">validation</span><span class="p">,</span> <span class="n">epm</span><span class="p">,</span> <span class="n">collectSubModelsParam</span><span class="p">)</span>
+        <span class="n">pool</span> <span class="o">=</span> <span class="n">ThreadPool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getParallelism</span><span class="p">(),</span> <span class="n">numModels</span><span class="p">))</span>
+        <span class="n">metrics</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">numModels</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">subModel</span> <span class="ow">in</span> <span class="n">pool</span><span class="o">.</span><span class="n">imap_unordered</span><span class="p">(</span><span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="n">f</span><span class="p">(),</span> <span class="n">tasks</span><span class="p">):</span>
+            <span class="n">metrics</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric</span>
+            <span class="k">if</span> <span class="n">collectSubModelsParam</span><span class="p">:</span>
+                <span class="n">subModels</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">subModel</span>
+
+        <span class="n">train</span><span class="o">.</span><span class="n">unpersist</span><span class="p">()</span>
+        <span class="n">validation</span><span class="o">.</span><span class="n">unpersist</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">eva</span><span class="o">.</span><span class="n">isLargerBetter</span><span class="p">():</span>
+            <span class="n">bestIndex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">bestIndex</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">metrics</span><span class="p">)</span>
+        <span class="n">bestModel</span> <span class="o">=</span> <span class="n">est</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">epm</span><span class="p">[</span><span class="n">bestIndex</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_copyValues</span><span class="p">(</span><span class="n">TrainValidationSplitModel</span><span class="p">(</span><span class="n">bestModel</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">subModels</span><span class="p">))</span>
+
+<div class="viewcode-block" id="TrainValidationSplit.copy"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.TrainValidationSplit.copy">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a copy of this instance with a randomly generated uid</span>
+<span class="sd">        and some extra params. This copies creates a deep copy of</span>
+<span class="sd">        the embedded paramMap, and copies the embedded and extra parameters over.</span>
+
+<span class="sd">        :param extra: Extra parameters to copy to the new instance</span>
+<span class="sd">        :return: Copy of this instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">extra</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">extra</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">newTVS</span> <span class="o">=</span> <span class="n">Params</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extra</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isSet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="p">):</span>
+            <span class="n">newTVS</span><span class="o">.</span><span class="n">setEstimator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getEstimator</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">extra</span><span class="p">))</span>
+        <span class="c1"># estimatorParamMaps remain the same</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isSet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">evaluator</span><span class="p">):</span>
+            <span class="n">newTVS</span><span class="o">.</span><span class="n">setEvaluator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getEvaluator</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">extra</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">newTVS</span></div>
+
+<div class="viewcode-block" id="TrainValidationSplit.write"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.TrainValidationSplit.write">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.3.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns an MLWriter instance for this ML instance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">JavaMLWriter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TrainValidationSplit.read"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.TrainValidationSplit.read">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.3.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns an MLReader instance for this class.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">JavaMLReader</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_from_java</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">java_stage</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a Java TrainValidationSplit, create and return a Python wrapper of it.</span>
+<span class="sd">        Used for ML persistence.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">estimator</span><span class="p">,</span> <span class="n">epms</span><span class="p">,</span> <span class="n">evaluator</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">TrainValidationSplit</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">_from_java_impl</span><span class="p">(</span><span class="n">java_stage</span><span class="p">)</span>
+        <span class="n">trainRatio</span> <span class="o">=</span> <span class="n">java_stage</span><span class="o">.</span><span class="n">getTrainRatio</span><span class="p">()</span>
+        <span class="n">seed</span> <span class="o">=</span> <span class="n">java_stage</span><span class="o">.</span><span class="n">getSeed</span><span class="p">()</span>
+        <span class="n">parallelism</span> <span class="o">=</span> <span class="n">java_stage</span><span class="o">.</span><span class="n">getParallelism</span><span class="p">()</span>
+        <span class="n">collectSubModels</span> <span class="o">=</span> <span class="n">java_stage</span><span class="o">.</span><span class="n">getCollectSubModels</span><span class="p">()</span>
+        <span class="c1"># Create a new instance of this stage.</span>
+        <span class="n">py_stage</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="n">estimator</span><span class="p">,</span> <span class="n">estimatorParamMaps</span><span class="o">=</span><span class="n">epms</span><span class="p">,</span> <span class="n">evaluator</span><span class="o">=</span><span class="n">evaluator</span><span class="p">,</span>
+                       <span class="n">trainRatio</span><span class="o">=</span><span class="n">trainRatio</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">parallelism</span><span class="o">=</span><span class="n">parallelism</span><span class="p">,</span>
+                       <span class="n">collectSubModels</span><span class="o">=</span><span class="n">collectSubModels</span><span class="p">)</span>
+        <span class="n">py_stage</span><span class="o">.</span><span class="n">_resetUid</span><span class="p">(</span><span class="n">java_stage</span><span class="o">.</span><span class="n">uid</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">py_stage</span>
+
+    <span class="k">def</span> <span class="nf">_to_java</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transfer this instance to a Java TrainValidationSplit. Used for ML persistence.</span>
+<span class="sd">        :return: Java object equivalent to this instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">estimator</span><span class="p">,</span> <span class="n">epms</span><span class="p">,</span> <span class="n">evaluator</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">TrainValidationSplit</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_to_java_impl</span><span class="p">()</span>
+
+        <span class="n">_java_obj</span> <span class="o">=</span> <span class="n">JavaParams</span><span class="o">.</span><span class="n">_new_java_obj</span><span class="p">(</span><span class="s2">&quot;org.apache.spark.ml.tuning.TrainValidationSplit&quot;</span><span class="p">,</span>
+                                             <span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+        <span class="n">_java_obj</span><span class="o">.</span><span class="n">setEstimatorParamMaps</span><span class="p">(</span><span class="n">epms</span><span class="p">)</span>
+        <span class="n">_java_obj</span><span class="o">.</span><span class="n">setEvaluator</span><span class="p">(</span><span class="n">evaluator</span><span class="p">)</span>
+        <span class="n">_java_obj</span><span class="o">.</span><span class="n">setEstimator</span><span class="p">(</span><span class="n">estimator</span><span class="p">)</span>
+        <span class="n">_java_obj</span><span class="o">.</span><span class="n">setTrainRatio</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getTrainRatio</span><span class="p">())</span>
+        <span class="n">_java_obj</span><span class="o">.</span><span class="n">setSeed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getSeed</span><span class="p">())</span>
+        <span class="n">_java_obj</span><span class="o">.</span><span class="n">setParallelism</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getParallelism</span><span class="p">())</span>
+        <span class="n">_java_obj</span><span class="o">.</span><span class="n">setCollectSubModels</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">getCollectSubModels</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">_java_obj</span></div>
+
+
+<div class="viewcode-block" id="TrainValidationSplitModel"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.TrainValidationSplitModel">[docs]</a><span class="k">class</span> <span class="nc">TrainValidationSplitModel</span><span class="p">(</span><span class="n">Model</span><span class="p">,</span> <span class="n">ValidatorParams</span><span class="p">,</span> <span class="n">MLReadable</span><span class="p">,</span> <span class="n">MLWritable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    Model from train validation split.</span>
+
+<span class="sd">    .. versionadded:: 2.0.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bestModel</span><span class="p">,</span> <span class="n">validationMetrics</span><span class="o">=</span><span class="p">[],</span> <span class="n">subModels</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TrainValidationSplitModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="c1">#: best model from train validation split</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bestModel</span> <span class="o">=</span> <span class="n">bestModel</span>
+        <span class="c1">#: evaluated validation metrics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validationMetrics</span> <span class="o">=</span> <span class="n">validationMetrics</span>
+        <span class="c1">#: sub models from train validation split</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subModels</span> <span class="o">=</span> <span class="n">subModels</span>
+
+    <span class="k">def</span> <span class="nf">_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bestModel</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TrainValidationSplitModel.copy"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.TrainValidationSplitModel.copy">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a copy of this instance with a randomly generated uid</span>
+<span class="sd">        and some extra params. This copies the underlying bestModel,</span>
+<span class="sd">        creates a deep copy of the embedded paramMap, and</span>
+<span class="sd">        copies the embedded and extra parameters over.</span>
+<span class="sd">        And, this creates a shallow copy of the validationMetrics.</span>
+<span class="sd">        It does not copy the extra Params into the subModels.</span>
+
+<span class="sd">        :param extra: Extra parameters to copy to the new instance</span>
+<span class="sd">        :return: Copy of this instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">extra</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">extra</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">bestModel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bestModel</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span>
+        <span class="n">validationMetrics</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">validationMetrics</span><span class="p">)</span>
+        <span class="n">subModels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subModels</span>
+        <span class="k">return</span> <span class="n">TrainValidationSplitModel</span><span class="p">(</span><span class="n">bestModel</span><span class="p">,</span> <span class="n">validationMetrics</span><span class="p">,</span> <span class="n">subModels</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TrainValidationSplitModel.write"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.TrainValidationSplitModel.write">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.3.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns an MLWriter instance for this ML instance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">JavaMLWriter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="TrainValidationSplitModel.read"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.tuning.TrainValidationSplitModel.read">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.3.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns an MLReader instance for this class.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">JavaMLReader</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_from_java</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">java_stage</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a Java TrainValidationSplitModel, create and return a Python wrapper of it.</span>
+<span class="sd">        Used for ML persistence.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Load information from java_stage to the instance.</span>
+        <span class="n">bestModel</span> <span class="o">=</span> <span class="n">JavaParams</span><span class="o">.</span><span class="n">_from_java</span><span class="p">(</span><span class="n">java_stage</span><span class="o">.</span><span class="n">bestModel</span><span class="p">())</span>
+        <span class="n">estimator</span><span class="p">,</span> <span class="n">epms</span><span class="p">,</span> <span class="n">evaluator</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">TrainValidationSplitModel</span><span class="p">,</span>
+                                           <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">_from_java_impl</span><span class="p">(</span><span class="n">java_stage</span><span class="p">)</span>
+        <span class="c1"># Create a new instance of this stage.</span>
+        <span class="n">py_stage</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">bestModel</span><span class="o">=</span><span class="n">bestModel</span><span class="p">)</span><span class="o">.</span><span class="n">setEstimator</span><span class="p">(</span><span class="n">estimator</span><span class="p">)</span>
+        <span class="n">py_stage</span> <span class="o">=</span> <span class="n">py_stage</span><span class="o">.</span><span class="n">setEstimatorParamMaps</span><span class="p">(</span><span class="n">epms</span><span class="p">)</span><span class="o">.</span><span class="n">setEvaluator</span><span class="p">(</span><span class="n">evaluator</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">java_stage</span><span class="o">.</span><span class="n">hasSubModels</span><span class="p">():</span>
+            <span class="n">py_stage</span><span class="o">.</span><span class="n">subModels</span> <span class="o">=</span> <span class="p">[</span><span class="n">JavaParams</span><span class="o">.</span><span class="n">_from_java</span><span class="p">(</span><span class="n">sub_model</span><span class="p">)</span>
+                                  <span class="k">for</span> <span class="n">sub_model</span> <span class="ow">in</span> <span class="n">java_stage</span><span class="o">.</span><span class="n">subModels</span><span class="p">()]</span>
+
+        <span class="n">py_stage</span><span class="o">.</span><span class="n">_resetUid</span><span class="p">(</span><span class="n">java_stage</span><span class="o">.</span><span class="n">uid</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">py_stage</span>
+
+    <span class="k">def</span> <span class="nf">_to_java</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transfer this instance to a Java TrainValidationSplitModel. Used for ML persistence.</span>
+<span class="sd">        :return: Java object equivalent to this instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+        <span class="c1"># TODO: persst validation metrics as well</span>
+        <span class="n">_java_obj</span> <span class="o">=</span> <span class="n">JavaParams</span><span class="o">.</span><span class="n">_new_java_obj</span><span class="p">(</span>
+            <span class="s2">&quot;org.apache.spark.ml.tuning.TrainValidationSplitModel&quot;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bestModel</span><span class="o">.</span><span class="n">_to_java</span><span class="p">(),</span>
+            <span class="n">_py2java</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="p">[]))</span>
+        <span class="n">estimator</span><span class="p">,</span> <span class="n">epms</span><span class="p">,</span> <span class="n">evaluator</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">TrainValidationSplitModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_to_java_impl</span><span class="p">()</span>
+
+        <span class="n">_java_obj</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;evaluator&quot;</span><span class="p">,</span> <span class="n">evaluator</span><span class="p">)</span>
+        <span class="n">_java_obj</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;estimator&quot;</span><span class="p">,</span> <span class="n">estimator</span><span class="p">)</span>
+        <span class="n">_java_obj</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;estimatorParamMaps&quot;</span><span class="p">,</span> <span class="n">epms</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">subModels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">java_sub_models</span> <span class="o">=</span> <span class="p">[</span><span class="n">sub_model</span><span class="o">.</span><span class="n">_to_java</span><span class="p">()</span> <span class="k">for</span> <span class="n">sub_model</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subModels</span><span class="p">]</span>
+            <span class="n">_java_obj</span><span class="o">.</span><span class="n">setSubModels</span><span class="p">(</span><span class="n">java_sub_models</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">_java_obj</span></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+
+    <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">SparkSession</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># The small batch size here ensures that we see multiple batches,</span>
+    <span class="c1"># even in these small test examples:</span>
+    <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span>\
+        <span class="o">.</span><span class="n">master</span><span class="p">(</span><span class="s2">&quot;local[2]&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;ml.tuning tests&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">sparkContext</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;sc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sc</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;spark&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spark</span>
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span> <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span><span class="p">)</span>
+    <span class="n">spark</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

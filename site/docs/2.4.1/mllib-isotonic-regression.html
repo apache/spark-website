@@ -1,0 +1,592 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Isotonic regression - RDD-based API - Spark 2.4.1 Documentation</title>
+        
+
+        
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 60px;
+                padding-bottom: 40px;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+
+        <link rel="stylesheet" href="css/pygments-default.css">
+
+        
+        <!-- Google analytics script -->
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-32518208-2']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+        </script>
+        
+
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="https://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
+
+        <div class="navbar navbar-fixed-top" id="topbar">
+            <div class="navbar-inner">
+                <div class="container">
+                    <div class="brand"><a href="index.html">
+                      <img src="img/spark-logo-hd.png" style="height:50px;"/></a><span class="version">2.4.1</span>
+                    </div>
+                    <ul class="nav">
+                        <!--TODO(andyk): Add class="active" attribute to li some how.-->
+                        <li><a href="index.html">Overview</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Programming Guides<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="quick-start.html">Quick Start</a></li>
+                                <li><a href="rdd-programming-guide.html">RDDs, Accumulators, Broadcasts Vars</a></li>
+                                <li><a href="sql-programming-guide.html">SQL, DataFrames, and Datasets</a></li>
+                                <li><a href="structured-streaming-programming-guide.html">Structured Streaming</a></li>
+                                <li><a href="streaming-programming-guide.html">Spark Streaming (DStreams)</a></li>
+                                <li><a href="ml-guide.html">MLlib (Machine Learning)</a></li>
+                                <li><a href="graphx-programming-guide.html">GraphX (Graph Processing)</a></li>
+                                <li><a href="sparkr.html">SparkR (R on Spark)</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">API Docs<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="api/scala/index.html#org.apache.spark.package">Scala</a></li>
+                                <li><a href="api/java/index.html">Java</a></li>
+                                <li><a href="api/python/index.html">Python</a></li>
+                                <li><a href="api/R/index.html">R</a></li>
+                                <li><a href="api/sql/index.html">SQL, Built-in Functions</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Deploying<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="cluster-overview.html">Overview</a></li>
+                                <li><a href="submitting-applications.html">Submitting Applications</a></li>
+                                <li class="divider"></li>
+                                <li><a href="spark-standalone.html">Spark Standalone</a></li>
+                                <li><a href="running-on-mesos.html">Mesos</a></li>
+                                <li><a href="running-on-yarn.html">YARN</a></li>
+                                <li><a href="running-on-kubernetes.html">Kubernetes</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="api.html" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="configuration.html">Configuration</a></li>
+                                <li><a href="monitoring.html">Monitoring</a></li>
+                                <li><a href="tuning.html">Tuning Guide</a></li>
+                                <li><a href="job-scheduling.html">Job Scheduling</a></li>
+                                <li><a href="security.html">Security</a></li>
+                                <li><a href="hardware-provisioning.html">Hardware Provisioning</a></li>
+                                <li class="divider"></li>
+                                <li><a href="building-spark.html">Building Spark</a></li>
+                                <li><a href="https://spark.apache.org/contributing.html">Contributing to Spark</a></li>
+                                <li><a href="https://spark.apache.org/third-party-projects.html">Third Party Projects</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <!--<p class="navbar-text pull-right"><span class="version-text">v2.4.1</span></p>-->
+                </div>
+            </div>
+        </div>
+
+        <div class="container-wrapper">
+
+            
+                
+                    <div class="left-menu-wrapper">
+    <div class="left-menu">
+        <h3><a href="ml-guide.html">MLlib: Main Guide</a></h3>
+        
+<ul>
+
+    <li>
+        <a href="ml-statistics.html">
+            
+                Basic statistics
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-datasource">
+            
+                Data sources
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-pipeline.html">
+            
+                Pipelines
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-features.html">
+            
+                Extracting, transforming and selecting features
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-classification-regression.html">
+            
+                Classification and Regression
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-clustering.html">
+            
+                Clustering
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-collaborative-filtering.html">
+            
+                Collaborative filtering
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-frequent-pattern-mining.html">
+            
+                Frequent Pattern Mining
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-tuning.html">
+            
+                Model selection and tuning
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-advanced.html">
+            
+                Advanced topics
+            
+        </a>
+    </li>
+    
+    
+
+</ul>
+
+        <h3><a href="mllib-guide.html">MLlib: RDD-based API Guide</a></h3>
+        
+<ul>
+
+    <li>
+        <a href="mllib-data-types.html">
+            
+                Data types
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-statistics.html">
+            
+                Basic statistics
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-classification-regression.html">
+            
+                Classification and regression
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-collaborative-filtering.html">
+            
+                Collaborative filtering
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-clustering.html">
+            
+                Clustering
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-dimensionality-reduction.html">
+            
+                Dimensionality reduction
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-feature-extraction.html">
+            
+                Feature extraction and transformation
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-frequent-pattern-mining.html">
+            
+                Frequent pattern mining
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-evaluation-metrics.html">
+            
+                Evaluation metrics
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-pmml-model-export.html">
+            
+                PMML model export
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-optimization.html">
+            
+                Optimization (developer)
+            
+        </a>
+    </li>
+    
+    
+
+</ul>
+
+    </div>
+</div>
+                
+                <input id="nav-trigger" class="nav-trigger" checked type="checkbox">
+                <label for="nav-trigger"></label>
+                <div class="content-with-sidebar" id="content">
+                    
+                        <h1 class="title">Regression - RDD-based API</h1>
+                    
+
+                    <h2 id="isotonic-regression">Isotonic regression</h2>
+<p><a href="http://en.wikipedia.org/wiki/Isotonic_regression">Isotonic regression</a>
+belongs to the family of regression algorithms. Formally isotonic regression is a problem where
+given a finite set of real numbers <code>$Y = {y_1, y_2, ..., y_n}$</code> representing observed responses
+and <code>$X = {x_1, x_2, ..., x_n}$</code> the unknown response values to be fitted
+finding a function that minimizes</p>
+
+<p><code>\begin{equation}
+  f(x) = \sum_{i=1}^n w_i (y_i - x_i)^2
+\end{equation}</code></p>
+
+<p>with respect to complete order subject to
+<code>$x_1\le x_2\le ...\le x_n$</code> where <code>$w_i$</code> are positive weights.
+The resulting function is called isotonic regression and it is unique.
+It can be viewed as least squares problem under order restriction.
+Essentially isotonic regression is a
+<a href="http://en.wikipedia.org/wiki/Monotonic_function">monotonic function</a>
+best fitting the original data points.</p>
+
+<p><code>spark.mllib</code> supports a
+<a href="http://doi.org/10.1198/TECH.2010.10111">pool adjacent violators algorithm</a>
+which uses an approach to
+<a href="http://doi.org/10.1007/978-3-642-99789-1_10">parallelizing isotonic regression</a>.
+The training input is an RDD of tuples of three double values that represent
+label, feature and weight in this order. Additionally, IsotonicRegression algorithm has one
+optional parameter called $isotonic$ defaulting to true.
+This argument specifies if the isotonic regression is
+isotonic (monotonically increasing) or antitonic (monotonically decreasing).</p>
+
+<p>Training returns an IsotonicRegressionModel that can be used to predict
+labels for both known and unknown features. The result of isotonic regression
+is treated as piecewise linear function. The rules for prediction therefore are:</p>
+
+<ul>
+  <li>If the prediction input exactly matches a training feature
+then associated prediction is returned. In case there are multiple predictions with the same
+feature then one of them is returned. Which one is undefined
+(same as java.util.Arrays.binarySearch).</li>
+  <li>If the prediction input is lower or higher than all training features
+then prediction with lowest or highest feature is returned respectively.
+In case there are multiple predictions with the same feature
+then the lowest or highest is returned respectively.</li>
+  <li>If the prediction input falls between two training features then prediction is treated
+as piecewise linear function and interpolated value is calculated from the
+predictions of the two closest features. In case there are multiple values
+with the same feature then the same rules as in previous point are used.</li>
+</ul>
+
+<h3 id="examples">Examples</h3>
+
+<div class="codetabs">
+<div data-lang="scala">
+    <p>Data are read from a file where each line has a format label,feature
+i.e. 4710.28,500.00. The data are split to training and testing set.
+Model is created using the training set and a mean squared error is calculated from the predicted
+labels and real labels in the test set.</p>
+
+    <p>Refer to the <a href="api/scala/index.html#org.apache.spark.mllib.regression.IsotonicRegression"><code>IsotonicRegression</code> Scala docs</a> and <a href="api/scala/index.html#org.apache.spark.mllib.regression.IsotonicRegressionModel"><code>IsotonicRegressionModel</code> Scala docs</a> for details on the API.</p>
+
+    <div class="highlight"><pre><span></span><span class="k">import</span> <span class="nn">org.apache.spark.mllib.regression.</span><span class="o">{</span><span class="nc">IsotonicRegression</span><span class="o">,</span> <span class="nc">IsotonicRegressionModel</span><span class="o">}</span>
+<span class="k">import</span> <span class="nn">org.apache.spark.mllib.util.MLUtils</span>
+
+<span class="k">val</span> <span class="n">data</span> <span class="k">=</span> <span class="nc">MLUtils</span><span class="o">.</span><span class="n">loadLibSVMFile</span><span class="o">(</span><span class="n">sc</span><span class="o">,</span>
+  <span class="s">&quot;data/mllib/sample_isotonic_regression_libsvm_data.txt&quot;</span><span class="o">).</span><span class="n">cache</span><span class="o">()</span>
+
+<span class="c1">// Create label, feature, weight tuples from input data with weight set to default value 1.0.</span>
+<span class="k">val</span> <span class="n">parsedData</span> <span class="k">=</span> <span class="n">data</span><span class="o">.</span><span class="n">map</span> <span class="o">{</span> <span class="n">labeledPoint</span> <span class="k">=&gt;</span>
+  <span class="o">(</span><span class="n">labeledPoint</span><span class="o">.</span><span class="n">label</span><span class="o">,</span> <span class="n">labeledPoint</span><span class="o">.</span><span class="n">features</span><span class="o">(</span><span class="mi">0</span><span class="o">),</span> <span class="mf">1.0</span><span class="o">)</span>
+<span class="o">}</span>
+
+<span class="c1">// Split data into training (60%) and test (40%) sets.</span>
+<span class="k">val</span> <span class="n">splits</span> <span class="k">=</span> <span class="n">parsedData</span><span class="o">.</span><span class="n">randomSplit</span><span class="o">(</span><span class="nc">Array</span><span class="o">(</span><span class="mf">0.6</span><span class="o">,</span> <span class="mf">0.4</span><span class="o">),</span> <span class="n">seed</span> <span class="k">=</span> <span class="mi">11L</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">training</span> <span class="k">=</span> <span class="n">splits</span><span class="o">(</span><span class="mi">0</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">test</span> <span class="k">=</span> <span class="n">splits</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span>
+
+<span class="c1">// Create isotonic regression model from training data.</span>
+<span class="c1">// Isotonic parameter defaults to true so it is only shown for demonstration</span>
+<span class="k">val</span> <span class="n">model</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">IsotonicRegression</span><span class="o">().</span><span class="n">setIsotonic</span><span class="o">(</span><span class="kc">true</span><span class="o">).</span><span class="n">run</span><span class="o">(</span><span class="n">training</span><span class="o">)</span>
+
+<span class="c1">// Create tuples of predicted and real labels.</span>
+<span class="k">val</span> <span class="n">predictionAndLabel</span> <span class="k">=</span> <span class="n">test</span><span class="o">.</span><span class="n">map</span> <span class="o">{</span> <span class="n">point</span> <span class="k">=&gt;</span>
+  <span class="k">val</span> <span class="n">predictedLabel</span> <span class="k">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="o">(</span><span class="n">point</span><span class="o">.</span><span class="n">_2</span><span class="o">)</span>
+  <span class="o">(</span><span class="n">predictedLabel</span><span class="o">,</span> <span class="n">point</span><span class="o">.</span><span class="n">_1</span><span class="o">)</span>
+<span class="o">}</span>
+
+<span class="c1">// Calculate mean squared error between predicted and real labels.</span>
+<span class="k">val</span> <span class="n">meanSquaredError</span> <span class="k">=</span> <span class="n">predictionAndLabel</span><span class="o">.</span><span class="n">map</span> <span class="o">{</span> <span class="k">case</span> <span class="o">(</span><span class="n">p</span><span class="o">,</span> <span class="n">l</span><span class="o">)</span> <span class="k">=&gt;</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="o">((</span><span class="n">p</span> <span class="o">-</span> <span class="n">l</span><span class="o">),</span> <span class="mi">2</span><span class="o">)</span> <span class="o">}.</span><span class="n">mean</span><span class="o">()</span>
+<span class="n">println</span><span class="o">(</span><span class="s">s&quot;Mean Squared Error = </span><span class="si">$meanSquaredError</span><span class="s">&quot;</span><span class="o">)</span>
+
+<span class="c1">// Save and load model</span>
+<span class="n">model</span><span class="o">.</span><span class="n">save</span><span class="o">(</span><span class="n">sc</span><span class="o">,</span> <span class="s">&quot;target/tmp/myIsotonicRegressionModel&quot;</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">sameModel</span> <span class="k">=</span> <span class="nc">IsotonicRegressionModel</span><span class="o">.</span><span class="n">load</span><span class="o">(</span><span class="n">sc</span><span class="o">,</span> <span class="s">&quot;target/tmp/myIsotonicRegressionModel&quot;</span><span class="o">)</span>
+</pre></div>
+    <div><small>Find full example code at "examples/src/main/scala/org/apache/spark/examples/mllib/IsotonicRegressionExample.scala" in the Spark repo.</small></div>
+  </div>
+<div data-lang="java">
+    <p>Data are read from a file where each line has a format label,feature
+i.e. 4710.28,500.00. The data are split to training and testing set.
+Model is created using the training set and a mean squared error is calculated from the predicted
+labels and real labels in the test set.</p>
+
+    <p>Refer to the <a href="api/java/org/apache/spark/mllib/regression/IsotonicRegression.html"><code>IsotonicRegression</code> Java docs</a> and <a href="api/java/org/apache/spark/mllib/regression/IsotonicRegressionModel.html"><code>IsotonicRegressionModel</code> Java docs</a> for details on the API.</p>
+
+    <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">scala.Tuple2</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">scala.Tuple3</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.spark.api.java.JavaPairRDD</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.spark.api.java.JavaSparkContext</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.spark.api.java.JavaRDD</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.spark.mllib.regression.IsotonicRegression</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.spark.mllib.regression.IsotonicRegressionModel</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.spark.mllib.regression.LabeledPoint</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.spark.mllib.util.MLUtils</span><span class="o">;</span>
+
+<span class="n">JavaRDD</span><span class="o">&lt;</span><span class="n">LabeledPoint</span><span class="o">&gt;</span> <span class="n">data</span> <span class="o">=</span> <span class="n">MLUtils</span><span class="o">.</span><span class="na">loadLibSVMFile</span><span class="o">(</span>
+  <span class="n">jsc</span><span class="o">.</span><span class="na">sc</span><span class="o">(),</span> <span class="s">&quot;data/mllib/sample_isotonic_regression_libsvm_data.txt&quot;</span><span class="o">).</span><span class="na">toJavaRDD</span><span class="o">();</span>
+
+<span class="c1">// Create label, feature, weight tuples from input data with weight set to default value 1.0.</span>
+<span class="n">JavaRDD</span><span class="o">&lt;</span><span class="n">Tuple3</span><span class="o">&lt;</span><span class="n">Double</span><span class="o">,</span> <span class="n">Double</span><span class="o">,</span> <span class="n">Double</span><span class="o">&gt;&gt;</span> <span class="n">parsedData</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">point</span> <span class="o">-&gt;</span>
+  <span class="k">new</span> <span class="n">Tuple3</span><span class="o">&lt;&gt;(</span><span class="n">point</span><span class="o">.</span><span class="na">label</span><span class="o">(),</span> <span class="n">point</span><span class="o">.</span><span class="na">features</span><span class="o">().</span><span class="na">apply</span><span class="o">(</span><span class="mi">0</span><span class="o">),</span> <span class="mf">1.0</span><span class="o">));</span>
+
+<span class="c1">// Split data into training (60%) and test (40%) sets.</span>
+<span class="n">JavaRDD</span><span class="o">&lt;</span><span class="n">Tuple3</span><span class="o">&lt;</span><span class="n">Double</span><span class="o">,</span> <span class="n">Double</span><span class="o">,</span> <span class="n">Double</span><span class="o">&gt;&gt;[]</span> <span class="n">splits</span> <span class="o">=</span>
+  <span class="n">parsedData</span><span class="o">.</span><span class="na">randomSplit</span><span class="o">(</span><span class="k">new</span> <span class="kt">double</span><span class="o">[]{</span><span class="mf">0.6</span><span class="o">,</span> <span class="mf">0.4</span><span class="o">},</span> <span class="mi">11L</span><span class="o">);</span>
+<span class="n">JavaRDD</span><span class="o">&lt;</span><span class="n">Tuple3</span><span class="o">&lt;</span><span class="n">Double</span><span class="o">,</span> <span class="n">Double</span><span class="o">,</span> <span class="n">Double</span><span class="o">&gt;&gt;</span> <span class="n">training</span> <span class="o">=</span> <span class="n">splits</span><span class="o">[</span><span class="mi">0</span><span class="o">];</span>
+<span class="n">JavaRDD</span><span class="o">&lt;</span><span class="n">Tuple3</span><span class="o">&lt;</span><span class="n">Double</span><span class="o">,</span> <span class="n">Double</span><span class="o">,</span> <span class="n">Double</span><span class="o">&gt;&gt;</span> <span class="n">test</span> <span class="o">=</span> <span class="n">splits</span><span class="o">[</span><span class="mi">1</span><span class="o">];</span>
+
+<span class="c1">// Create isotonic regression model from training data.</span>
+<span class="c1">// Isotonic parameter defaults to true so it is only shown for demonstration</span>
+<span class="n">IsotonicRegressionModel</span> <span class="n">model</span> <span class="o">=</span> <span class="k">new</span> <span class="n">IsotonicRegression</span><span class="o">().</span><span class="na">setIsotonic</span><span class="o">(</span><span class="kc">true</span><span class="o">).</span><span class="na">run</span><span class="o">(</span><span class="n">training</span><span class="o">);</span>
+
+<span class="c1">// Create tuples of predicted and real labels.</span>
+<span class="n">JavaPairRDD</span><span class="o">&lt;</span><span class="n">Double</span><span class="o">,</span> <span class="n">Double</span><span class="o">&gt;</span> <span class="n">predictionAndLabel</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="na">mapToPair</span><span class="o">(</span><span class="n">point</span> <span class="o">-&gt;</span>
+  <span class="k">new</span> <span class="n">Tuple2</span><span class="o">&lt;&gt;(</span><span class="n">model</span><span class="o">.</span><span class="na">predict</span><span class="o">(</span><span class="n">point</span><span class="o">.</span><span class="na">_2</span><span class="o">()),</span> <span class="n">point</span><span class="o">.</span><span class="na">_1</span><span class="o">()));</span>
+
+<span class="c1">// Calculate mean squared error between predicted and real labels.</span>
+<span class="kt">double</span> <span class="n">meanSquaredError</span> <span class="o">=</span> <span class="n">predictionAndLabel</span><span class="o">.</span><span class="na">mapToDouble</span><span class="o">(</span><span class="n">pl</span> <span class="o">-&gt;</span> <span class="o">{</span>
+  <span class="kt">double</span> <span class="n">diff</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="na">_1</span><span class="o">()</span> <span class="o">-</span> <span class="n">pl</span><span class="o">.</span><span class="na">_2</span><span class="o">();</span>
+  <span class="k">return</span> <span class="n">diff</span> <span class="o">*</span> <span class="n">diff</span><span class="o">;</span>
+<span class="o">}).</span><span class="na">mean</span><span class="o">();</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Mean Squared Error = &quot;</span> <span class="o">+</span> <span class="n">meanSquaredError</span><span class="o">);</span>
+
+<span class="c1">// Save and load model</span>
+<span class="n">model</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">jsc</span><span class="o">.</span><span class="na">sc</span><span class="o">(),</span> <span class="s">&quot;target/tmp/myIsotonicRegressionModel&quot;</span><span class="o">);</span>
+<span class="n">IsotonicRegressionModel</span> <span class="n">sameModel</span> <span class="o">=</span>
+  <span class="n">IsotonicRegressionModel</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">jsc</span><span class="o">.</span><span class="na">sc</span><span class="o">(),</span> <span class="s">&quot;target/tmp/myIsotonicRegressionModel&quot;</span><span class="o">);</span>
+</pre></div>
+    <div><small>Find full example code at "examples/src/main/java/org/apache/spark/examples/mllib/JavaIsotonicRegressionExample.java" in the Spark repo.</small></div>
+  </div>
+<div data-lang="python">
+    <p>Data are read from a file where each line has a format label,feature
+i.e. 4710.28,500.00. The data are split to training and testing set.
+Model is created using the training set and a mean squared error is calculated from the predicted
+labels and real labels in the test set.</p>
+
+    <p>Refer to the <a href="api/python/pyspark.mllib.html#pyspark.mllib.regression.IsotonicRegression"><code>IsotonicRegression</code> Python docs</a> and <a href="api/python/pyspark.mllib.html#pyspark.mllib.regression.IsotonicRegressionModel"><code>IsotonicRegressionModel</code> Python docs</a> for more details on the API.</p>
+
+    <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.regression</span> <span class="kn">import</span> <span class="n">LabeledPoint</span><span class="p">,</span> <span class="n">IsotonicRegression</span><span class="p">,</span> <span class="n">IsotonicRegressionModel</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.util</span> <span class="kn">import</span> <span class="n">MLUtils</span>
+
+<span class="c1"># Load and parse the data</span>
+<span class="k">def</span> <span class="nf">parsePoint</span><span class="p">(</span><span class="n">labeledData</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">labeledData</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">labeledData</span><span class="o">.</span><span class="n">features</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mf">1.0</span><span class="p">)</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">MLUtils</span><span class="o">.</span><span class="n">loadLibSVMFile</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="s2">&quot;data/mllib/sample_isotonic_regression_libsvm_data.txt&quot;</span><span class="p">)</span>
+
+<span class="c1"># Create label, feature, weight tuples from input data with weight set to default value 1.0.</span>
+<span class="n">parsedData</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">parsePoint</span><span class="p">)</span>
+
+<span class="c1"># Split data into training (60%) and test (40%) sets.</span>
+<span class="n">training</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">parsedData</span><span class="o">.</span><span class="n">randomSplit</span><span class="p">([</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">],</span> <span class="mi">11</span><span class="p">)</span>
+
+<span class="c1"># Create isotonic regression model from training data.</span>
+<span class="c1"># Isotonic parameter defaults to true so it is only shown for demonstration</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">IsotonicRegression</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">training</span><span class="p">)</span>
+
+<span class="c1"># Create tuples of predicted and real labels.</span>
+<span class="n">predictionAndLabel</span> <span class="o">=</span> <span class="n">test</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+<span class="c1"># Calculate mean squared error between predicted and real labels.</span>
+<span class="n">meanSquaredError</span> <span class="o">=</span> <span class="n">predictionAndLabel</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">pl</span><span class="p">:</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">((</span><span class="n">pl</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">pl</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">2</span><span class="p">))</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Mean Squared Error = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">meanSquaredError</span><span class="p">))</span>
+
+<span class="c1"># Save and load model</span>
+<span class="n">model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="s2">&quot;target/tmp/myIsotonicRegressionModel&quot;</span><span class="p">)</span>
+<span class="n">sameModel</span> <span class="o">=</span> <span class="n">IsotonicRegressionModel</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="s2">&quot;target/tmp/myIsotonicRegressionModel&quot;</span><span class="p">)</span>
+</pre></div>
+    <div><small>Find full example code at "examples/src/main/python/mllib/isotonic_regression_example.py" in the Spark repo.</small></div>
+  </div>
+</div>
+
+
+                </div>
+            
+             <!-- /container -->
+        </div>
+
+        <script src="js/vendor/jquery-1.8.0.min.js"></script>
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/vendor/anchor.min.js"></script>
+        <script src="js/main.js"></script>
+
+        <!-- MathJax Section -->
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({
+                TeX: { equationNumbers: { autoNumber: "AMS" } }
+            });
+        </script>
+        <script>
+            // Note that we load MathJax this way to work with local file (file://), HTTP and HTTPS.
+            // We could use "//cdn.mathjax...", but that won't support "file://".
+            (function(d, script) {
+                script = d.createElement('script');
+                script.type = 'text/javascript';
+                script.async = true;
+                script.onload = function(){
+                    MathJax.Hub.Config({
+                        tex2jax: {
+                            inlineMath: [ ["$", "$"], ["\\\\(","\\\\)"] ],
+                            displayMath: [ ["$$","$$"], ["\\[", "\\]"] ],
+                            processEscapes: true,
+                            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+                        }
+                    });
+                };
+                script.src = ('https:' == document.location.protocol ? 'https://' : 'http://') +
+                    'cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js' +
+                    '?config=TeX-AMS-MML_HTMLorMML';
+                d.getElementsByTagName('head')[0].appendChild(script);
+            }(document));
+        </script>
+    </body>
+</html>

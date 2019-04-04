@@ -1,0 +1,390 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.sql.catalog &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.sql.catalog</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="k">import</span> <span class="n">since</span>
+<span class="kn">from</span> <span class="nn">pyspark.rdd</span> <span class="k">import</span> <span class="n">ignore_unicode_prefix</span><span class="p">,</span> <span class="n">PythonEvalType</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.dataframe</span> <span class="k">import</span> <span class="n">DataFrame</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.udf</span> <span class="k">import</span> <span class="n">UserDefinedFunction</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="k">import</span> <span class="n">IntegerType</span><span class="p">,</span> <span class="n">StringType</span><span class="p">,</span> <span class="n">StructType</span>
+
+
+<span class="n">Database</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Database&quot;</span><span class="p">,</span> <span class="s2">&quot;name description locationUri&quot;</span><span class="p">)</span>
+<span class="n">Table</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Table&quot;</span><span class="p">,</span> <span class="s2">&quot;name database description tableType isTemporary&quot;</span><span class="p">)</span>
+<span class="n">Column</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Column&quot;</span><span class="p">,</span> <span class="s2">&quot;name description dataType nullable isPartition isBucket&quot;</span><span class="p">)</span>
+<span class="n">Function</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Function&quot;</span><span class="p">,</span> <span class="s2">&quot;name description className isTemporary&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Catalog"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Catalog">[docs]</a><span class="k">class</span> <span class="nc">Catalog</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;User-facing catalog API, accessible through `SparkSession.catalog`.</span>
+
+<span class="sd">    This is a thin wrapper around its Scala implementation org.apache.spark.sql.catalog.Catalog.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparkSession</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Catalog that wraps the underlying JVM object.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sparkSession</span> <span class="o">=</span> <span class="n">sparkSession</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jsparkSession</span> <span class="o">=</span> <span class="n">sparkSession</span><span class="o">.</span><span class="n">_jsparkSession</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jcatalog</span> <span class="o">=</span> <span class="n">sparkSession</span><span class="o">.</span><span class="n">_jsparkSession</span><span class="o">.</span><span class="n">catalog</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Catalog.currentDatabase"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Catalog.currentDatabase">[docs]</a>    <span class="nd">@ignore_unicode_prefix</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">currentDatabase</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the current default database in this session.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jcatalog</span><span class="o">.</span><span class="n">currentDatabase</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Catalog.setCurrentDatabase"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Catalog.setCurrentDatabase">[docs]</a>    <span class="nd">@ignore_unicode_prefix</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setCurrentDatabase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dbName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the current default database in this session.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jcatalog</span><span class="o">.</span><span class="n">setCurrentDatabase</span><span class="p">(</span><span class="n">dbName</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Catalog.listDatabases"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Catalog.listDatabases">[docs]</a>    <span class="nd">@ignore_unicode_prefix</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">listDatabases</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a list of databases available across all sessions.&quot;&quot;&quot;</span>
+        <span class="nb">iter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jcatalog</span><span class="o">.</span><span class="n">listDatabases</span><span class="p">()</span><span class="o">.</span><span class="n">toLocalIterator</span><span class="p">()</span>
+        <span class="n">databases</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="nb">iter</span><span class="o">.</span><span class="n">hasNext</span><span class="p">():</span>
+            <span class="n">jdb</span> <span class="o">=</span> <span class="nb">iter</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+            <span class="n">databases</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Database</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">jdb</span><span class="o">.</span><span class="n">name</span><span class="p">(),</span>
+                <span class="n">description</span><span class="o">=</span><span class="n">jdb</span><span class="o">.</span><span class="n">description</span><span class="p">(),</span>
+                <span class="n">locationUri</span><span class="o">=</span><span class="n">jdb</span><span class="o">.</span><span class="n">locationUri</span><span class="p">()))</span>
+        <span class="k">return</span> <span class="n">databases</span></div>
+
+<div class="viewcode-block" id="Catalog.listTables"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Catalog.listTables">[docs]</a>    <span class="nd">@ignore_unicode_prefix</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">listTables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dbName</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a list of tables/views in the specified database.</span>
+
+<span class="sd">        If no database is specified, the current database is used.</span>
+<span class="sd">        This includes all temporary views.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">dbName</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dbName</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">currentDatabase</span><span class="p">()</span>
+        <span class="nb">iter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jcatalog</span><span class="o">.</span><span class="n">listTables</span><span class="p">(</span><span class="n">dbName</span><span class="p">)</span><span class="o">.</span><span class="n">toLocalIterator</span><span class="p">()</span>
+        <span class="n">tables</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="nb">iter</span><span class="o">.</span><span class="n">hasNext</span><span class="p">():</span>
+            <span class="n">jtable</span> <span class="o">=</span> <span class="nb">iter</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+            <span class="n">tables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Table</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">jtable</span><span class="o">.</span><span class="n">name</span><span class="p">(),</span>
+                <span class="n">database</span><span class="o">=</span><span class="n">jtable</span><span class="o">.</span><span class="n">database</span><span class="p">(),</span>
+                <span class="n">description</span><span class="o">=</span><span class="n">jtable</span><span class="o">.</span><span class="n">description</span><span class="p">(),</span>
+                <span class="n">tableType</span><span class="o">=</span><span class="n">jtable</span><span class="o">.</span><span class="n">tableType</span><span class="p">(),</span>
+                <span class="n">isTemporary</span><span class="o">=</span><span class="n">jtable</span><span class="o">.</span><span class="n">isTemporary</span><span class="p">()))</span>
+        <span class="k">return</span> <span class="n">tables</span></div>
+
+<div class="viewcode-block" id="Catalog.listFunctions"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Catalog.listFunctions">[docs]</a>    <span class="nd">@ignore_unicode_prefix</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">listFunctions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dbName</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a list of functions registered in the specified database.</span>
+
+<span class="sd">        If no database is specified, the current database is used.</span>
+<span class="sd">        This includes all temporary functions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">dbName</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dbName</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">currentDatabase</span><span class="p">()</span>
+        <span class="nb">iter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jcatalog</span><span class="o">.</span><span class="n">listFunctions</span><span class="p">(</span><span class="n">dbName</span><span class="p">)</span><span class="o">.</span><span class="n">toLocalIterator</span><span class="p">()</span>
+        <span class="n">functions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="nb">iter</span><span class="o">.</span><span class="n">hasNext</span><span class="p">():</span>
+            <span class="n">jfunction</span> <span class="o">=</span> <span class="nb">iter</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+            <span class="n">functions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Function</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">jfunction</span><span class="o">.</span><span class="n">name</span><span class="p">(),</span>
+                <span class="n">description</span><span class="o">=</span><span class="n">jfunction</span><span class="o">.</span><span class="n">description</span><span class="p">(),</span>
+                <span class="n">className</span><span class="o">=</span><span class="n">jfunction</span><span class="o">.</span><span class="n">className</span><span class="p">(),</span>
+                <span class="n">isTemporary</span><span class="o">=</span><span class="n">jfunction</span><span class="o">.</span><span class="n">isTemporary</span><span class="p">()))</span>
+        <span class="k">return</span> <span class="n">functions</span></div>
+
+<div class="viewcode-block" id="Catalog.listColumns"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Catalog.listColumns">[docs]</a>    <span class="nd">@ignore_unicode_prefix</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">listColumns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tableName</span><span class="p">,</span> <span class="n">dbName</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a list of columns for the given table/view in the specified database.</span>
+
+<span class="sd">        If no database is specified, the current database is used.</span>
+
+<span class="sd">        Note: the order of arguments here is different from that of its JVM counterpart</span>
+<span class="sd">        because Python does not support method overloading.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">dbName</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dbName</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">currentDatabase</span><span class="p">()</span>
+        <span class="nb">iter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jcatalog</span><span class="o">.</span><span class="n">listColumns</span><span class="p">(</span><span class="n">dbName</span><span class="p">,</span> <span class="n">tableName</span><span class="p">)</span><span class="o">.</span><span class="n">toLocalIterator</span><span class="p">()</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="nb">iter</span><span class="o">.</span><span class="n">hasNext</span><span class="p">():</span>
+            <span class="n">jcolumn</span> <span class="o">=</span> <span class="nb">iter</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
+            <span class="n">columns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Column</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">jcolumn</span><span class="o">.</span><span class="n">name</span><span class="p">(),</span>
+                <span class="n">description</span><span class="o">=</span><span class="n">jcolumn</span><span class="o">.</span><span class="n">description</span><span class="p">(),</span>
+                <span class="n">dataType</span><span class="o">=</span><span class="n">jcolumn</span><span class="o">.</span><span class="n">dataType</span><span class="p">(),</span>
+                <span class="n">nullable</span><span class="o">=</span><span class="n">jcolumn</span><span class="o">.</span><span class="n">nullable</span><span class="p">(),</span>
+                <span class="n">isPartition</span><span class="o">=</span><span class="n">jcolumn</span><span class="o">.</span><span class="n">isPartition</span><span class="p">(),</span>
+                <span class="n">isBucket</span><span class="o">=</span><span class="n">jcolumn</span><span class="o">.</span><span class="n">isBucket</span><span class="p">()))</span>
+        <span class="k">return</span> <span class="n">columns</span></div>
+
+<div class="viewcode-block" id="Catalog.createExternalTable"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Catalog.createExternalTable">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">createExternalTable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tableName</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates a table based on the dataset in a data source.</span>
+
+<span class="sd">        It returns the DataFrame associated with the external table.</span>
+
+<span class="sd">        The data source is specified by the ``source`` and a set of ``options``.</span>
+<span class="sd">        If ``source`` is not specified, the default data source configured by</span>
+<span class="sd">        ``spark.sql.sources.default`` will be used.</span>
+
+<span class="sd">        Optionally, a schema can be provided as the schema of the returned :class:`DataFrame` and</span>
+<span class="sd">        created external table.</span>
+
+<span class="sd">        :return: :class:`DataFrame`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;createExternalTable is deprecated since Spark 2.2, please use createTable instead.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">createTable</span><span class="p">(</span><span class="n">tableName</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Catalog.createTable"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Catalog.createTable">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.2</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">createTable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tableName</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates a table based on the dataset in a data source.</span>
+
+<span class="sd">        It returns the DataFrame associated with the table.</span>
+
+<span class="sd">        The data source is specified by the ``source`` and a set of ``options``.</span>
+<span class="sd">        If ``source`` is not specified, the default data source configured by</span>
+<span class="sd">        ``spark.sql.sources.default`` will be used. When ``path`` is specified, an external table is</span>
+<span class="sd">        created from the data at the given path. Otherwise a managed table is created.</span>
+
+<span class="sd">        Optionally, a schema can be provided as the schema of the returned :class:`DataFrame` and</span>
+<span class="sd">        created table.</span>
+
+<span class="sd">        :return: :class:`DataFrame`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">options</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="k">if</span> <span class="n">source</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparkSession</span><span class="o">.</span><span class="n">_wrapped</span><span class="o">.</span><span class="n">_conf</span><span class="o">.</span><span class="n">defaultDataSourceName</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jcatalog</span><span class="o">.</span><span class="n">createTable</span><span class="p">(</span><span class="n">tableName</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">StructType</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;schema should be StructType&quot;</span><span class="p">)</span>
+            <span class="n">scala_datatype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jsparkSession</span><span class="o">.</span><span class="n">parseDataType</span><span class="p">(</span><span class="n">schema</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jcatalog</span><span class="o">.</span><span class="n">createTable</span><span class="p">(</span><span class="n">tableName</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">scala_datatype</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparkSession</span><span class="o">.</span><span class="n">_wrapped</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Catalog.dropTempView"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Catalog.dropTempView">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">dropTempView</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">viewName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Drops the local temporary view with the given view name in the catalog.</span>
+<span class="sd">        If the view has been cached before, then it will also be uncached.</span>
+<span class="sd">        Returns true if this view is dropped successfully, false otherwise.</span>
+
+<span class="sd">        Note that, the return type of this method was None in Spark 2.0, but changed to Boolean</span>
+<span class="sd">        in Spark 2.1.</span>
+
+<span class="sd">        &gt;&gt;&gt; spark.createDataFrame([(1, 1)]).createTempView(&quot;my_table&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; spark.table(&quot;my_table&quot;).collect()</span>
+<span class="sd">        [Row(_1=1, _2=1)]</span>
+<span class="sd">        &gt;&gt;&gt; spark.catalog.dropTempView(&quot;my_table&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; spark.table(&quot;my_table&quot;) # doctest: +IGNORE_EXCEPTION_DETAIL</span>
+<span class="sd">        Traceback (most recent call last):</span>
+<span class="sd">            ...</span>
+<span class="sd">        AnalysisException: ...</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jcatalog</span><span class="o">.</span><span class="n">dropTempView</span><span class="p">(</span><span class="n">viewName</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Catalog.dropGlobalTempView"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Catalog.dropGlobalTempView">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.1</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">dropGlobalTempView</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">viewName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Drops the global temporary view with the given view name in the catalog.</span>
+<span class="sd">        If the view has been cached before, then it will also be uncached.</span>
+<span class="sd">        Returns true if this view is dropped successfully, false otherwise.</span>
+
+<span class="sd">        &gt;&gt;&gt; spark.createDataFrame([(1, 1)]).createGlobalTempView(&quot;my_table&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; spark.table(&quot;global_temp.my_table&quot;).collect()</span>
+<span class="sd">        [Row(_1=1, _2=1)]</span>
+<span class="sd">        &gt;&gt;&gt; spark.catalog.dropGlobalTempView(&quot;my_table&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; spark.table(&quot;global_temp.my_table&quot;) # doctest: +IGNORE_EXCEPTION_DETAIL</span>
+<span class="sd">        Traceback (most recent call last):</span>
+<span class="sd">            ...</span>
+<span class="sd">        AnalysisException: ...</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jcatalog</span><span class="o">.</span><span class="n">dropGlobalTempView</span><span class="p">(</span><span class="n">viewName</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Catalog.registerFunction"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Catalog.registerFunction">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">registerFunction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">returnType</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;An alias for :func:`spark.udf.register`.</span>
+<span class="sd">        See :meth:`pyspark.sql.UDFRegistration.register`.</span>
+
+<span class="sd">        .. note:: Deprecated in 2.3.0. Use :func:`spark.udf.register` instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Deprecated in 2.3.0. Use spark.udf.register instead.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sparkSession</span><span class="o">.</span><span class="n">udf</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">returnType</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Catalog.isCached"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Catalog.isCached">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">isCached</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tableName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns true if the table is currently cached in-memory.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jcatalog</span><span class="o">.</span><span class="n">isCached</span><span class="p">(</span><span class="n">tableName</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Catalog.cacheTable"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Catalog.cacheTable">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">cacheTable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tableName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Caches the specified table in-memory.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jcatalog</span><span class="o">.</span><span class="n">cacheTable</span><span class="p">(</span><span class="n">tableName</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Catalog.uncacheTable"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Catalog.uncacheTable">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">uncacheTable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tableName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Removes the specified table from the in-memory cache.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jcatalog</span><span class="o">.</span><span class="n">uncacheTable</span><span class="p">(</span><span class="n">tableName</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Catalog.clearCache"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Catalog.clearCache">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">clearCache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Removes all cached tables from the in-memory cache.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jcatalog</span><span class="o">.</span><span class="n">clearCache</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Catalog.refreshTable"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Catalog.refreshTable">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">refreshTable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tableName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Invalidates and refreshes all the cached data and metadata of the given table.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jcatalog</span><span class="o">.</span><span class="n">refreshTable</span><span class="p">(</span><span class="n">tableName</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Catalog.recoverPartitions"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Catalog.recoverPartitions">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.1.1&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">recoverPartitions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tableName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Recovers all the partitions of the given table and update the catalog.</span>
+
+<span class="sd">        Only works with a partitioned table, and not a view.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jcatalog</span><span class="o">.</span><span class="n">recoverPartitions</span><span class="p">(</span><span class="n">tableName</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Catalog.refreshByPath"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Catalog.refreshByPath">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">refreshByPath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Invalidates and refreshes all the cached data (and the associated metadata) for any</span>
+<span class="sd">        DataFrame that contains the given data source path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jcatalog</span><span class="o">.</span><span class="n">refreshByPath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;(Internal use only) Drop all existing databases (except &quot;default&quot;), tables,</span>
+<span class="sd">        partitions and functions, and set the current database to &quot;default&quot;.</span>
+
+<span class="sd">        This is mainly used for tests.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jsparkSession</span><span class="o">.</span><span class="n">sessionState</span><span class="p">()</span><span class="o">.</span><span class="n">catalog</span><span class="p">()</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span></div>
+
+
+<span class="k">def</span> <span class="nf">_test</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">SparkSession</span>
+    <span class="kn">import</span> <span class="nn">pyspark.sql.catalog</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;SPARK_HOME&quot;</span><span class="p">])</span>
+
+    <span class="n">globs</span> <span class="o">=</span> <span class="n">pyspark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span>\
+        <span class="o">.</span><span class="n">master</span><span class="p">(</span><span class="s2">&quot;local[4]&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;sql.catalog tests&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;sc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">sparkContext</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;spark&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spark</span>
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span>
+        <span class="n">pyspark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">catalog</span><span class="p">,</span>
+        <span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span>
+        <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span> <span class="o">|</span> <span class="n">doctest</span><span class="o">.</span><span class="n">NORMALIZE_WHITESPACE</span><span class="p">)</span>
+    <span class="n">spark</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">_test</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

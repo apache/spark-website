@@ -1,0 +1,1139 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.mllib.clustering &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.mllib.clustering</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">array</span> <span class="k">as</span> <span class="nn">pyarray</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span> <span class="o">&gt;</span> <span class="s1">&#39;3&#39;</span><span class="p">:</span>
+    <span class="n">xrange</span> <span class="o">=</span> <span class="nb">range</span>
+    <span class="n">basestring</span> <span class="o">=</span> <span class="nb">str</span>
+
+<span class="kn">from</span> <span class="nn">math</span> <span class="k">import</span> <span class="n">exp</span><span class="p">,</span> <span class="n">log</span>
+
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">array</span><span class="p">,</span> <span class="n">random</span><span class="p">,</span> <span class="n">tile</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="k">import</span> <span class="n">SparkContext</span><span class="p">,</span> <span class="n">since</span>
+<span class="kn">from</span> <span class="nn">pyspark.rdd</span> <span class="k">import</span> <span class="n">RDD</span><span class="p">,</span> <span class="n">ignore_unicode_prefix</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.common</span> <span class="k">import</span> <span class="n">JavaModelWrapper</span><span class="p">,</span> <span class="n">callMLlibFunc</span><span class="p">,</span> <span class="n">callJavaFunc</span><span class="p">,</span> <span class="n">_py2java</span><span class="p">,</span> <span class="n">_java2py</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.linalg</span> <span class="k">import</span> <span class="n">SparseVector</span><span class="p">,</span> <span class="n">_convert_to_vector</span><span class="p">,</span> <span class="n">DenseVector</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.regression</span> <span class="k">import</span> <span class="n">LabeledPoint</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.stat.distribution</span> <span class="k">import</span> <span class="n">MultivariateGaussian</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.util</span> <span class="k">import</span> <span class="n">Saveable</span><span class="p">,</span> <span class="n">Loader</span><span class="p">,</span> <span class="n">inherit_doc</span><span class="p">,</span> <span class="n">JavaLoader</span><span class="p">,</span> <span class="n">JavaSaveable</span>
+<span class="kn">from</span> <span class="nn">pyspark.streaming</span> <span class="k">import</span> <span class="n">DStream</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;BisectingKMeansModel&#39;</span><span class="p">,</span> <span class="s1">&#39;BisectingKMeans&#39;</span><span class="p">,</span> <span class="s1">&#39;KMeansModel&#39;</span><span class="p">,</span> <span class="s1">&#39;KMeans&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;GaussianMixtureModel&#39;</span><span class="p">,</span> <span class="s1">&#39;GaussianMixture&#39;</span><span class="p">,</span> <span class="s1">&#39;PowerIterationClusteringModel&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;PowerIterationClustering&#39;</span><span class="p">,</span> <span class="s1">&#39;StreamingKMeans&#39;</span><span class="p">,</span> <span class="s1">&#39;StreamingKMeansModel&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;LDA&#39;</span><span class="p">,</span> <span class="s1">&#39;LDAModel&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="BisectingKMeansModel"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.BisectingKMeansModel">[docs]</a><span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">BisectingKMeansModel</span><span class="p">(</span><span class="n">JavaModelWrapper</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A clustering model derived from the bisecting k-means method.</span>
+
+<span class="sd">    &gt;&gt;&gt; data = array([0.0,0.0, 1.0,1.0, 9.0,8.0, 8.0,9.0]).reshape(4, 2)</span>
+<span class="sd">    &gt;&gt;&gt; bskm = BisectingKMeans()</span>
+<span class="sd">    &gt;&gt;&gt; model = bskm.train(sc.parallelize(data, 2), k=4)</span>
+<span class="sd">    &gt;&gt;&gt; p = array([0.0, 0.0])</span>
+<span class="sd">    &gt;&gt;&gt; model.predict(p)</span>
+<span class="sd">    0</span>
+<span class="sd">    &gt;&gt;&gt; model.k</span>
+<span class="sd">    4</span>
+<span class="sd">    &gt;&gt;&gt; model.computeCost(p)</span>
+<span class="sd">    0.0</span>
+
+<span class="sd">    .. versionadded:: 2.0.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">java_model</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BisectingKMeansModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">java_model</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">centers</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">toArray</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;clusterCenters&quot;</span><span class="p">)]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.0.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">clusterCenters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the cluster centers, represented as a list of NumPy</span>
+<span class="sd">        arrays.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">centers</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.0.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">k</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the number of clusters&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;k&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BisectingKMeansModel.predict"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.BisectingKMeansModel.predict">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.0.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the cluster that each of the points belongs to in this</span>
+<span class="sd">        model.</span>
+
+<span class="sd">        :param x:</span>
+<span class="sd">          A data point (or RDD of points) to determine cluster index.</span>
+<span class="sd">        :return:</span>
+<span class="sd">          Predicted cluster index or an RDD of predicted cluster indices</span>
+<span class="sd">          if the input is an RDD.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">RDD</span><span class="p">):</span>
+            <span class="n">vecs</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_convert_to_vector</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;predict&quot;</span><span class="p">,</span> <span class="n">vecs</span><span class="p">)</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">_convert_to_vector</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;predict&quot;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BisectingKMeansModel.computeCost"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.BisectingKMeansModel.computeCost">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.0.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">computeCost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the Bisecting K-means cost (sum of squared distances of</span>
+<span class="sd">        points to their nearest center) for this model on the given</span>
+<span class="sd">        data. If provided with an RDD of points returns the sum.</span>
+
+<span class="sd">        :param point:</span>
+<span class="sd">          A data point (or RDD of points) to compute the cost(s).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">RDD</span><span class="p">):</span>
+            <span class="n">vecs</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_convert_to_vector</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;computeCost&quot;</span><span class="p">,</span> <span class="n">vecs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;computeCost&quot;</span><span class="p">,</span> <span class="n">_convert_to_vector</span><span class="p">(</span><span class="n">x</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="BisectingKMeans"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.BisectingKMeans">[docs]</a><span class="k">class</span> <span class="nc">BisectingKMeans</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A bisecting k-means algorithm based on the paper &quot;A comparison of</span>
+<span class="sd">    document clustering techniques&quot; by Steinbach, Karypis, and Kumar,</span>
+<span class="sd">    with modification to fit Spark.</span>
+<span class="sd">    The algorithm starts from a single cluster that contains all points.</span>
+<span class="sd">    Iteratively it finds divisible clusters on the bottom level and</span>
+<span class="sd">    bisects each of them using k-means, until there are `k` leaf</span>
+<span class="sd">    clusters in total or no leaf clusters are divisible.</span>
+<span class="sd">    The bisecting steps of clusters on the same level are grouped</span>
+<span class="sd">    together to increase parallelism. If bisecting all divisible</span>
+<span class="sd">    clusters on the bottom level would result more than `k` leaf</span>
+<span class="sd">    clusters, larger clusters get higher priority.</span>
+
+<span class="sd">    Based on</span>
+<span class="sd">    U{http://glaros.dtc.umn.edu/gkhome/fetch/papers/docclusterKDDTMW00.pdf}</span>
+<span class="sd">    Steinbach, Karypis, and Kumar, A comparison of document clustering</span>
+<span class="sd">    techniques, KDD Workshop on Text Mining, 2000.</span>
+
+<span class="sd">    .. versionadded:: 2.0.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BisectingKMeans.train"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.BisectingKMeans.train">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.0.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rdd</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">maxIterations</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">minDivisibleClusterSize</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">seed</span><span class="o">=-</span><span class="mi">1888008604</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Runs the bisecting k-means algorithm return the model.</span>
+
+<span class="sd">        :param rdd:</span>
+<span class="sd">          Training points as an `RDD` of `Vector` or convertible</span>
+<span class="sd">          sequence types.</span>
+<span class="sd">        :param k:</span>
+<span class="sd">          The desired number of leaf clusters. The actual number could</span>
+<span class="sd">          be smaller if there are no divisible leaf clusters.</span>
+<span class="sd">          (default: 4)</span>
+<span class="sd">        :param maxIterations:</span>
+<span class="sd">          Maximum number of iterations allowed to split clusters.</span>
+<span class="sd">          (default: 20)</span>
+<span class="sd">        :param minDivisibleClusterSize:</span>
+<span class="sd">          Minimum number of points (if &gt;= 1.0) or the minimum proportion</span>
+<span class="sd">          of points (if &lt; 1.0) of a divisible cluster.</span>
+<span class="sd">          (default: 1)</span>
+<span class="sd">        :param seed:</span>
+<span class="sd">          Random seed value for cluster initialization.</span>
+<span class="sd">          (default: -1888008604 from classOf[BisectingKMeans].getName.##)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">java_model</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span>
+            <span class="s2">&quot;trainBisectingKMeans&quot;</span><span class="p">,</span> <span class="n">rdd</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_convert_to_vector</span><span class="p">),</span>
+            <span class="n">k</span><span class="p">,</span> <span class="n">maxIterations</span><span class="p">,</span> <span class="n">minDivisibleClusterSize</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BisectingKMeansModel</span><span class="p">(</span><span class="n">java_model</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="KMeansModel"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.KMeansModel">[docs]</a><span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">KMeansModel</span><span class="p">(</span><span class="n">Saveable</span><span class="p">,</span> <span class="n">Loader</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;A clustering model derived from the k-means method.</span>
+
+<span class="sd">    &gt;&gt;&gt; data = array([0.0,0.0, 1.0,1.0, 9.0,8.0, 8.0,9.0]).reshape(4, 2)</span>
+<span class="sd">    &gt;&gt;&gt; model = KMeans.train(</span>
+<span class="sd">    ...     sc.parallelize(data), 2, maxIterations=10, initializationMode=&quot;random&quot;,</span>
+<span class="sd">    ...                    seed=50, initializationSteps=5, epsilon=1e-4)</span>
+<span class="sd">    &gt;&gt;&gt; model.predict(array([0.0, 0.0])) == model.predict(array([1.0, 1.0]))</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; model.predict(array([8.0, 9.0])) == model.predict(array([9.0, 8.0]))</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; model.k</span>
+<span class="sd">    2</span>
+<span class="sd">    &gt;&gt;&gt; model.computeCost(sc.parallelize(data))</span>
+<span class="sd">    2.0000000000000004</span>
+<span class="sd">    &gt;&gt;&gt; model = KMeans.train(sc.parallelize(data), 2)</span>
+<span class="sd">    &gt;&gt;&gt; sparse_data = [</span>
+<span class="sd">    ...     SparseVector(3, {1: 1.0}),</span>
+<span class="sd">    ...     SparseVector(3, {1: 1.1}),</span>
+<span class="sd">    ...     SparseVector(3, {2: 1.0}),</span>
+<span class="sd">    ...     SparseVector(3, {2: 1.1})</span>
+<span class="sd">    ... ]</span>
+<span class="sd">    &gt;&gt;&gt; model = KMeans.train(sc.parallelize(sparse_data), 2, initializationMode=&quot;k-means||&quot;,</span>
+<span class="sd">    ...                                     seed=50, initializationSteps=5, epsilon=1e-4)</span>
+<span class="sd">    &gt;&gt;&gt; model.predict(array([0., 1., 0.])) == model.predict(array([0, 1.1, 0.]))</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; model.predict(array([0., 0., 1.])) == model.predict(array([0, 0, 1.1]))</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; model.predict(sparse_data[0]) == model.predict(sparse_data[1])</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; model.predict(sparse_data[2]) == model.predict(sparse_data[3])</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; isinstance(model.clusterCenters, list)</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; import os, tempfile</span>
+<span class="sd">    &gt;&gt;&gt; path = tempfile.mkdtemp()</span>
+<span class="sd">    &gt;&gt;&gt; model.save(sc, path)</span>
+<span class="sd">    &gt;&gt;&gt; sameModel = KMeansModel.load(sc, path)</span>
+<span class="sd">    &gt;&gt;&gt; sameModel.predict(sparse_data[0]) == model.predict(sparse_data[0])</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; from shutil import rmtree</span>
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     rmtree(path)</span>
+<span class="sd">    ... except OSError:</span>
+<span class="sd">    ...     pass</span>
+
+<span class="sd">    &gt;&gt;&gt; data = array([-383.1,-382.9, 28.7,31.2, 366.2,367.3]).reshape(3, 2)</span>
+<span class="sd">    &gt;&gt;&gt; model = KMeans.train(sc.parallelize(data), 3, maxIterations=0,</span>
+<span class="sd">    ...     initialModel = KMeansModel([(-1000.0,-1000.0),(5.0,5.0),(1000.0,1000.0)]))</span>
+<span class="sd">    &gt;&gt;&gt; model.clusterCenters</span>
+<span class="sd">    [array([-1000., -1000.]), array([ 5.,  5.]), array([ 1000.,  1000.])]</span>
+
+<span class="sd">    .. versionadded:: 0.9.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">centers</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">centers</span> <span class="o">=</span> <span class="n">centers</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.0.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">clusterCenters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the cluster centers, represented as a list of NumPy arrays.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">centers</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.4.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">k</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Total number of clusters.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">centers</span><span class="p">)</span>
+
+<div class="viewcode-block" id="KMeansModel.predict"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.KMeansModel.predict">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;0.9.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the cluster that each of the points belongs to in this</span>
+<span class="sd">        model.</span>
+
+<span class="sd">        :param x:</span>
+<span class="sd">          A data point (or RDD of points) to determine cluster index.</span>
+<span class="sd">        :return:</span>
+<span class="sd">          Predicted cluster index or an RDD of predicted cluster indices</span>
+<span class="sd">          if the input is an RDD.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">best</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">best_distance</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">RDD</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">)</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">_convert_to_vector</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">centers</span><span class="p">)):</span>
+            <span class="n">distance</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">squared_distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">centers</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">distance</span> <span class="o">&lt;</span> <span class="n">best_distance</span><span class="p">:</span>
+                <span class="n">best</span> <span class="o">=</span> <span class="n">i</span>
+                <span class="n">best_distance</span> <span class="o">=</span> <span class="n">distance</span>
+        <span class="k">return</span> <span class="n">best</span></div>
+
+<div class="viewcode-block" id="KMeansModel.computeCost"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.KMeansModel.computeCost">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.4.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">computeCost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rdd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the K-means cost (sum of squared distances of points to</span>
+<span class="sd">        their nearest center) for this model on the given</span>
+<span class="sd">        data.</span>
+
+<span class="sd">        :param rdd:</span>
+<span class="sd">          The RDD of points to compute the cost on.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cost</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;computeCostKmeansModel&quot;</span><span class="p">,</span> <span class="n">rdd</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_convert_to_vector</span><span class="p">),</span>
+                             <span class="p">[</span><span class="n">_convert_to_vector</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">centers</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">cost</span></div>
+
+<div class="viewcode-block" id="KMeansModel.save"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.KMeansModel.save">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.4.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save this model to the given path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">java_centers</span> <span class="o">=</span> <span class="n">_py2java</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="p">[</span><span class="n">_convert_to_vector</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">centers</span><span class="p">])</span>
+        <span class="n">java_model</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">mllib</span><span class="o">.</span><span class="n">clustering</span><span class="o">.</span><span class="n">KMeansModel</span><span class="p">(</span><span class="n">java_centers</span><span class="p">)</span>
+        <span class="n">java_model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jsc</span><span class="o">.</span><span class="n">sc</span><span class="p">(),</span> <span class="n">path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="KMeansModel.load"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.KMeansModel.load">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.4.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load a model from the given path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">java_model</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">mllib</span><span class="o">.</span><span class="n">clustering</span><span class="o">.</span><span class="n">KMeansModel</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jsc</span><span class="o">.</span><span class="n">sc</span><span class="p">(),</span> <span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">KMeansModel</span><span class="p">(</span><span class="n">_java2py</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">java_model</span><span class="o">.</span><span class="n">clusterCenters</span><span class="p">()))</span></div></div>
+
+
+<div class="viewcode-block" id="KMeans"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.KMeans">[docs]</a><span class="k">class</span> <span class="nc">KMeans</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. versionadded:: 0.9.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="KMeans.train"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.KMeans.train">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;0.9.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">rdd</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">maxIterations</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">runs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">initializationMode</span><span class="o">=</span><span class="s2">&quot;k-means||&quot;</span><span class="p">,</span>
+              <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initializationSteps</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">initialModel</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Train a k-means clustering model.</span>
+
+<span class="sd">        :param rdd:</span>
+<span class="sd">          Training points as an `RDD` of `Vector` or convertible</span>
+<span class="sd">          sequence types.</span>
+<span class="sd">        :param k:</span>
+<span class="sd">          Number of clusters to create.</span>
+<span class="sd">        :param maxIterations:</span>
+<span class="sd">          Maximum number of iterations allowed.</span>
+<span class="sd">          (default: 100)</span>
+<span class="sd">        :param runs:</span>
+<span class="sd">          This param has no effect since Spark 2.0.0.</span>
+<span class="sd">        :param initializationMode:</span>
+<span class="sd">          The initialization algorithm. This can be either &quot;random&quot; or</span>
+<span class="sd">          &quot;k-means||&quot;.</span>
+<span class="sd">          (default: &quot;k-means||&quot;)</span>
+<span class="sd">        :param seed:</span>
+<span class="sd">          Random seed value for cluster initialization. Set as None to</span>
+<span class="sd">          generate seed based on system time.</span>
+<span class="sd">          (default: None)</span>
+<span class="sd">        :param initializationSteps:</span>
+<span class="sd">          Number of steps for the k-means|| initialization mode.</span>
+<span class="sd">          This is an advanced setting -- the default of 2 is almost</span>
+<span class="sd">          always enough.</span>
+<span class="sd">          (default: 2)</span>
+<span class="sd">        :param epsilon:</span>
+<span class="sd">          Distance threshold within which a center will be considered to</span>
+<span class="sd">          have converged. If all centers move less than this Euclidean</span>
+<span class="sd">          distance, iterations are stopped.</span>
+<span class="sd">          (default: 1e-4)</span>
+<span class="sd">        :param initialModel:</span>
+<span class="sd">          Initial cluster centers can be provided as a KMeansModel object</span>
+<span class="sd">          rather than using the random or k-means|| initializationModel.</span>
+<span class="sd">          (default: None)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">runs</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;The param `runs` has no effect since Spark 2.0.0.&quot;</span><span class="p">)</span>
+        <span class="n">clusterInitialModel</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">initialModel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">initialModel</span><span class="p">,</span> <span class="n">KMeansModel</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;initialModel is of &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">initialModel</span><span class="p">))</span><span class="o">+</span><span class="s2">&quot;. It needs &quot;</span>
+                                <span class="s2">&quot;to be of &lt;type &#39;KMeansModel&#39;&gt;&quot;</span><span class="p">)</span>
+            <span class="n">clusterInitialModel</span> <span class="o">=</span> <span class="p">[</span><span class="n">_convert_to_vector</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">initialModel</span><span class="o">.</span><span class="n">clusterCenters</span><span class="p">]</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;trainKMeansModel&quot;</span><span class="p">,</span> <span class="n">rdd</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_convert_to_vector</span><span class="p">),</span> <span class="n">k</span><span class="p">,</span> <span class="n">maxIterations</span><span class="p">,</span>
+                              <span class="n">runs</span><span class="p">,</span> <span class="n">initializationMode</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">initializationSteps</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">,</span>
+                              <span class="n">clusterInitialModel</span><span class="p">)</span>
+        <span class="n">centers</span> <span class="o">=</span> <span class="n">callJavaFunc</span><span class="p">(</span><span class="n">rdd</span><span class="o">.</span><span class="n">context</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">clusterCenters</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">KMeansModel</span><span class="p">([</span><span class="n">c</span><span class="o">.</span><span class="n">toArray</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">centers</span><span class="p">])</span></div></div>
+
+
+<div class="viewcode-block" id="GaussianMixtureModel"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.GaussianMixtureModel">[docs]</a><span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">GaussianMixtureModel</span><span class="p">(</span><span class="n">JavaModelWrapper</span><span class="p">,</span> <span class="n">JavaSaveable</span><span class="p">,</span> <span class="n">JavaLoader</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A clustering model derived from the Gaussian Mixture Model method.</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyspark.mllib.linalg import Vectors, DenseMatrix</span>
+<span class="sd">    &gt;&gt;&gt; from numpy.testing import assert_equal</span>
+<span class="sd">    &gt;&gt;&gt; from shutil import rmtree</span>
+<span class="sd">    &gt;&gt;&gt; import os, tempfile</span>
+
+<span class="sd">    &gt;&gt;&gt; clusterdata_1 =  sc.parallelize(array([-0.1,-0.05,-0.01,-0.1,</span>
+<span class="sd">    ...                                         0.9,0.8,0.75,0.935,</span>
+<span class="sd">    ...                                        -0.83,-0.68,-0.91,-0.76 ]).reshape(6, 2), 2)</span>
+<span class="sd">    &gt;&gt;&gt; model = GaussianMixture.train(clusterdata_1, 3, convergenceTol=0.0001,</span>
+<span class="sd">    ...                                 maxIterations=50, seed=10)</span>
+<span class="sd">    &gt;&gt;&gt; labels = model.predict(clusterdata_1).collect()</span>
+<span class="sd">    &gt;&gt;&gt; labels[0]==labels[1]</span>
+<span class="sd">    False</span>
+<span class="sd">    &gt;&gt;&gt; labels[1]==labels[2]</span>
+<span class="sd">    False</span>
+<span class="sd">    &gt;&gt;&gt; labels[4]==labels[5]</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; model.predict([-0.1,-0.05])</span>
+<span class="sd">    0</span>
+<span class="sd">    &gt;&gt;&gt; softPredicted = model.predictSoft([-0.1,-0.05])</span>
+<span class="sd">    &gt;&gt;&gt; abs(softPredicted[0] - 1.0) &lt; 0.001</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; abs(softPredicted[1] - 0.0) &lt; 0.001</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; abs(softPredicted[2] - 0.0) &lt; 0.001</span>
+<span class="sd">    True</span>
+
+<span class="sd">    &gt;&gt;&gt; path = tempfile.mkdtemp()</span>
+<span class="sd">    &gt;&gt;&gt; model.save(sc, path)</span>
+<span class="sd">    &gt;&gt;&gt; sameModel = GaussianMixtureModel.load(sc, path)</span>
+<span class="sd">    &gt;&gt;&gt; assert_equal(model.weights, sameModel.weights)</span>
+<span class="sd">    &gt;&gt;&gt; mus, sigmas = list(</span>
+<span class="sd">    ...     zip(*[(g.mu, g.sigma) for g in model.gaussians]))</span>
+<span class="sd">    &gt;&gt;&gt; sameMus, sameSigmas = list(</span>
+<span class="sd">    ...     zip(*[(g.mu, g.sigma) for g in sameModel.gaussians]))</span>
+<span class="sd">    &gt;&gt;&gt; mus == sameMus</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; sigmas == sameSigmas</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; from shutil import rmtree</span>
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     rmtree(path)</span>
+<span class="sd">    ... except OSError:</span>
+<span class="sd">    ...     pass</span>
+
+<span class="sd">    &gt;&gt;&gt; data =  array([-5.1971, -2.5359, -3.8220,</span>
+<span class="sd">    ...                -5.2211, -5.0602,  4.7118,</span>
+<span class="sd">    ...                 6.8989, 3.4592,  4.6322,</span>
+<span class="sd">    ...                 5.7048,  4.6567, 5.5026,</span>
+<span class="sd">    ...                 4.5605,  5.2043,  6.2734])</span>
+<span class="sd">    &gt;&gt;&gt; clusterdata_2 = sc.parallelize(data.reshape(5,3))</span>
+<span class="sd">    &gt;&gt;&gt; model = GaussianMixture.train(clusterdata_2, 2, convergenceTol=0.0001,</span>
+<span class="sd">    ...                               maxIterations=150, seed=4)</span>
+<span class="sd">    &gt;&gt;&gt; labels = model.predict(clusterdata_2).collect()</span>
+<span class="sd">    &gt;&gt;&gt; labels[0]==labels[1]</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; labels[2]==labels[3]==labels[4]</span>
+<span class="sd">    True</span>
+
+<span class="sd">    .. versionadded:: 1.3.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.4.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Weights for each Gaussian distribution in the mixture, where weights[i] is</span>
+<span class="sd">        the weight for Gaussian i, and weights.sum == 1.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;weights&quot;</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.4.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">gaussians</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Array of MultivariateGaussian where gaussians[i] represents</span>
+<span class="sd">        the Multivariate Gaussian (Normal) Distribution for Gaussian i.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="n">MultivariateGaussian</span><span class="p">(</span><span class="n">gaussian</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">gaussian</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">gaussian</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;gaussians&quot;</span><span class="p">)]</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.4.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">k</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Number of gaussians in mixture.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GaussianMixtureModel.predict"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.GaussianMixtureModel.predict">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.3.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the cluster to which the point &#39;x&#39; or each point in RDD &#39;x&#39;</span>
+<span class="sd">        has maximum membership in this model.</span>
+
+<span class="sd">        :param x:</span>
+<span class="sd">          A feature vector or an RDD of vectors representing data points.</span>
+<span class="sd">        :return:</span>
+<span class="sd">          Predicted cluster label or an RDD of predicted cluster labels</span>
+<span class="sd">          if the input is an RDD.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">RDD</span><span class="p">):</span>
+            <span class="n">cluster_labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predictSoft</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">z</span><span class="p">:</span> <span class="n">z</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">z</span><span class="p">)))</span>
+            <span class="k">return</span> <span class="n">cluster_labels</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predictSoft</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">z</span><span class="o">.</span><span class="n">argmax</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GaussianMixtureModel.predictSoft"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.GaussianMixtureModel.predictSoft">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.3.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">predictSoft</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the membership of point &#39;x&#39; or each point in RDD &#39;x&#39; to all mixture components.</span>
+
+<span class="sd">        :param x:</span>
+<span class="sd">          A feature vector or an RDD of vectors representing data points.</span>
+<span class="sd">        :return:</span>
+<span class="sd">          The membership value to all mixture components for vector &#39;x&#39;</span>
+<span class="sd">          or each vector in RDD &#39;x&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">RDD</span><span class="p">):</span>
+            <span class="n">means</span><span class="p">,</span> <span class="n">sigmas</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">[(</span><span class="n">g</span><span class="o">.</span><span class="n">mu</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">sigma</span><span class="p">)</span> <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">gaussians</span><span class="p">])</span>
+            <span class="n">membership_matrix</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;predictSoftGMM&quot;</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_convert_to_vector</span><span class="p">),</span>
+                                              <span class="n">_convert_to_vector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="p">),</span> <span class="n">means</span><span class="p">,</span> <span class="n">sigmas</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">membership_matrix</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pyarray</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;predictSoft&quot;</span><span class="p">,</span> <span class="n">_convert_to_vector</span><span class="p">(</span><span class="n">x</span><span class="p">))</span><span class="o">.</span><span class="n">toArray</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GaussianMixtureModel.load"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.GaussianMixtureModel.load">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.5.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load the GaussianMixtureModel from disk.</span>
+
+<span class="sd">        :param sc:</span>
+<span class="sd">          SparkContext.</span>
+<span class="sd">        :param path:</span>
+<span class="sd">          Path to where the model is stored.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_load_java</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="n">wrapper</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">mllib</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">GaussianMixtureModelWrapper</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">wrapper</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="GaussianMixture"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.GaussianMixture">[docs]</a><span class="k">class</span> <span class="nc">GaussianMixture</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Learning algorithm for Gaussian Mixtures using the expectation-maximization algorithm.</span>
+
+<span class="sd">    .. versionadded:: 1.3.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="GaussianMixture.train"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.GaussianMixture.train">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.3.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">rdd</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">convergenceTol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">maxIterations</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initialModel</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Train a Gaussian Mixture clustering model.</span>
+
+<span class="sd">        :param rdd:</span>
+<span class="sd">          Training points as an `RDD` of `Vector` or convertible</span>
+<span class="sd">          sequence types.</span>
+<span class="sd">        :param k:</span>
+<span class="sd">          Number of independent Gaussians in the mixture model.</span>
+<span class="sd">        :param convergenceTol:</span>
+<span class="sd">          Maximum change in log-likelihood at which convergence is</span>
+<span class="sd">          considered to have occurred.</span>
+<span class="sd">          (default: 1e-3)</span>
+<span class="sd">        :param maxIterations:</span>
+<span class="sd">          Maximum number of iterations allowed.</span>
+<span class="sd">          (default: 100)</span>
+<span class="sd">        :param seed:</span>
+<span class="sd">          Random seed for initial Gaussian distribution. Set as None to</span>
+<span class="sd">          generate seed based on system time.</span>
+<span class="sd">          (default: None)</span>
+<span class="sd">        :param initialModel:</span>
+<span class="sd">          Initial GMM starting point, bypassing the random</span>
+<span class="sd">          initialization.</span>
+<span class="sd">          (default: None)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">initialModelWeights</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">initialModelMu</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">initialModelSigma</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">initialModel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">initialModel</span><span class="o">.</span><span class="n">k</span> <span class="o">!=</span> <span class="n">k</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Mismatched cluster count, initialModel.k = </span><span class="si">%s</span><span class="s2">, however k = </span><span class="si">%s</span><span class="s2">&quot;</span>
+                                <span class="o">%</span> <span class="p">(</span><span class="n">initialModel</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+            <span class="n">initialModelWeights</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">initialModel</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+            <span class="n">initialModelMu</span> <span class="o">=</span> <span class="p">[</span><span class="n">initialModel</span><span class="o">.</span><span class="n">gaussians</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">mu</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">initialModel</span><span class="o">.</span><span class="n">k</span><span class="p">)]</span>
+            <span class="n">initialModelSigma</span> <span class="o">=</span> <span class="p">[</span><span class="n">initialModel</span><span class="o">.</span><span class="n">gaussians</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sigma</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">initialModel</span><span class="o">.</span><span class="n">k</span><span class="p">)]</span>
+        <span class="n">java_model</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;trainGaussianMixtureModel&quot;</span><span class="p">,</span> <span class="n">rdd</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_convert_to_vector</span><span class="p">),</span>
+                                   <span class="n">k</span><span class="p">,</span> <span class="n">convergenceTol</span><span class="p">,</span> <span class="n">maxIterations</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span>
+                                   <span class="n">initialModelWeights</span><span class="p">,</span> <span class="n">initialModelMu</span><span class="p">,</span> <span class="n">initialModelSigma</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">GaussianMixtureModel</span><span class="p">(</span><span class="n">java_model</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="PowerIterationClusteringModel"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.PowerIterationClusteringModel">[docs]</a><span class="k">class</span> <span class="nc">PowerIterationClusteringModel</span><span class="p">(</span><span class="n">JavaModelWrapper</span><span class="p">,</span> <span class="n">JavaSaveable</span><span class="p">,</span> <span class="n">JavaLoader</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Model produced by [[PowerIterationClustering]].</span>
+
+<span class="sd">    &gt;&gt;&gt; import math</span>
+<span class="sd">    &gt;&gt;&gt; def genCircle(r, n):</span>
+<span class="sd">    ...     points = []</span>
+<span class="sd">    ...     for i in range(0, n):</span>
+<span class="sd">    ...         theta = 2.0 * math.pi * i / n</span>
+<span class="sd">    ...         points.append((r * math.cos(theta), r * math.sin(theta)))</span>
+<span class="sd">    ...     return points</span>
+<span class="sd">    &gt;&gt;&gt; def sim(x, y):</span>
+<span class="sd">    ...     dist2 = (x[0] - y[0]) * (x[0] - y[0]) + (x[1] - y[1]) * (x[1] - y[1])</span>
+<span class="sd">    ...     return math.exp(-dist2 / 2.0)</span>
+<span class="sd">    &gt;&gt;&gt; r1 = 1.0</span>
+<span class="sd">    &gt;&gt;&gt; n1 = 10</span>
+<span class="sd">    &gt;&gt;&gt; r2 = 4.0</span>
+<span class="sd">    &gt;&gt;&gt; n2 = 40</span>
+<span class="sd">    &gt;&gt;&gt; n = n1 + n2</span>
+<span class="sd">    &gt;&gt;&gt; points = genCircle(r1, n1) + genCircle(r2, n2)</span>
+<span class="sd">    &gt;&gt;&gt; similarities = [(i, j, sim(points[i], points[j])) for i in range(1, n) for j in range(0, i)]</span>
+<span class="sd">    &gt;&gt;&gt; rdd = sc.parallelize(similarities, 2)</span>
+<span class="sd">    &gt;&gt;&gt; model = PowerIterationClustering.train(rdd, 2, 40)</span>
+<span class="sd">    &gt;&gt;&gt; model.k</span>
+<span class="sd">    2</span>
+<span class="sd">    &gt;&gt;&gt; result = sorted(model.assignments().collect(), key=lambda x: x.id)</span>
+<span class="sd">    &gt;&gt;&gt; result[0].cluster == result[1].cluster == result[2].cluster == result[3].cluster</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; result[4].cluster == result[5].cluster == result[6].cluster == result[7].cluster</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; import os, tempfile</span>
+<span class="sd">    &gt;&gt;&gt; path = tempfile.mkdtemp()</span>
+<span class="sd">    &gt;&gt;&gt; model.save(sc, path)</span>
+<span class="sd">    &gt;&gt;&gt; sameModel = PowerIterationClusteringModel.load(sc, path)</span>
+<span class="sd">    &gt;&gt;&gt; sameModel.k</span>
+<span class="sd">    2</span>
+<span class="sd">    &gt;&gt;&gt; result = sorted(model.assignments().collect(), key=lambda x: x.id)</span>
+<span class="sd">    &gt;&gt;&gt; result[0].cluster == result[1].cluster == result[2].cluster == result[3].cluster</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; result[4].cluster == result[5].cluster == result[6].cluster == result[7].cluster</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; from shutil import rmtree</span>
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     rmtree(path)</span>
+<span class="sd">    ... except OSError:</span>
+<span class="sd">    ...     pass</span>
+
+<span class="sd">    .. versionadded:: 1.5.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.5.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">k</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the number of clusters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;k&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PowerIterationClusteringModel.assignments"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.PowerIterationClusteringModel.assignments">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.5.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">assignments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the cluster assignments of this model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;getAssignments&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">PowerIterationClustering</span><span class="o">.</span><span class="n">Assignment</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="PowerIterationClusteringModel.load"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.PowerIterationClusteringModel.load">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.5.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load a model from the given path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_load_java</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="n">wrapper</span> <span class="o">=</span>\
+            <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">mllib</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">PowerIterationClusteringModelWrapper</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PowerIterationClusteringModel</span><span class="p">(</span><span class="n">wrapper</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="PowerIterationClustering"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.PowerIterationClustering">[docs]</a><span class="k">class</span> <span class="nc">PowerIterationClustering</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Power Iteration Clustering (PIC), a scalable graph clustering algorithm</span>
+<span class="sd">    developed by [[http://www.cs.cmu.edu/~frank/papers/icml2010-pic-final.pdf Lin and Cohen]].</span>
+<span class="sd">    From the abstract: PIC finds a very low-dimensional embedding of a</span>
+<span class="sd">    dataset using truncated power iteration on a normalized pair-wise</span>
+<span class="sd">    similarity matrix of the data.</span>
+
+<span class="sd">    .. versionadded:: 1.5.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PowerIterationClustering.train"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.PowerIterationClustering.train">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.5.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">rdd</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">maxIterations</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">initMode</span><span class="o">=</span><span class="s2">&quot;random&quot;</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param rdd:</span>
+<span class="sd">          An RDD of (i, j, s\ :sub:`ij`\) tuples representing the</span>
+<span class="sd">          affinity matrix, which is the matrix A in the PIC paper.  The</span>
+<span class="sd">          similarity s\ :sub:`ij`\ must be nonnegative.  This is a symmetric</span>
+<span class="sd">          matrix and hence s\ :sub:`ij`\ = s\ :sub:`ji`\  For any (i, j) with</span>
+<span class="sd">          nonzero similarity, there should be either (i, j, s\ :sub:`ij`\) or</span>
+<span class="sd">          (j, i, s\ :sub:`ji`\) in the input.  Tuples with i = j are ignored,</span>
+<span class="sd">          because it is assumed s\ :sub:`ij`\ = 0.0.</span>
+<span class="sd">        :param k:</span>
+<span class="sd">          Number of clusters.</span>
+<span class="sd">        :param maxIterations:</span>
+<span class="sd">          Maximum number of iterations of the PIC algorithm.</span>
+<span class="sd">          (default: 100)</span>
+<span class="sd">        :param initMode:</span>
+<span class="sd">          Initialization mode. This can be either &quot;random&quot; to use</span>
+<span class="sd">          a random vector as vertex properties, or &quot;degree&quot; to use</span>
+<span class="sd">          normalized sum similarities.</span>
+<span class="sd">          (default: &quot;random&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;trainPowerIterationClusteringModel&quot;</span><span class="p">,</span>
+                              <span class="n">rdd</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_convert_to_vector</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">maxIterations</span><span class="p">),</span> <span class="n">initMode</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PowerIterationClusteringModel</span><span class="p">(</span><span class="n">model</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PowerIterationClustering.Assignment"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.PowerIterationClustering.Assignment">[docs]</a>    <span class="k">class</span> <span class="nc">Assignment</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;Assignment&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;cluster&quot;</span><span class="p">])):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Represents an (id, cluster) tuple.</span>
+
+<span class="sd">        .. versionadded:: 1.5.0</span>
+<span class="sd">        &quot;&quot;&quot;</span></div></div>
+
+
+<div class="viewcode-block" id="StreamingKMeansModel"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.StreamingKMeansModel">[docs]</a><span class="k">class</span> <span class="nc">StreamingKMeansModel</span><span class="p">(</span><span class="n">KMeansModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Clustering model which can perform an online update of the centroids.</span>
+
+<span class="sd">    The update formula for each centroid is given by</span>
+
+<span class="sd">    * c_t+1 = ((c_t * n_t * a) + (x_t * m_t)) / (n_t + m_t)</span>
+<span class="sd">    * n_t+1 = n_t * a + m_t</span>
+
+<span class="sd">    where</span>
+
+<span class="sd">    * c_t: Centroid at the n_th iteration.</span>
+<span class="sd">    * n_t: Number of samples (or) weights associated with the centroid</span>
+<span class="sd">           at the n_th iteration.</span>
+<span class="sd">    * x_t: Centroid of the new data closest to c_t.</span>
+<span class="sd">    * m_t: Number of samples (or) weights of the new data closest to c_t</span>
+<span class="sd">    * c_t+1: New centroid.</span>
+<span class="sd">    * n_t+1: New number of weights.</span>
+<span class="sd">    * a: Decay Factor, which gives the forgetfulness.</span>
+
+<span class="sd">    .. note:: If a is set to 1, it is the weighted mean of the previous</span>
+<span class="sd">        and new data. If it set to zero, the old centroids are completely</span>
+<span class="sd">        forgotten.</span>
+
+<span class="sd">    :param clusterCenters:</span>
+<span class="sd">      Initial cluster centers.</span>
+<span class="sd">    :param clusterWeights:</span>
+<span class="sd">      List of weights assigned to each cluster.</span>
+
+<span class="sd">    &gt;&gt;&gt; initCenters = [[0.0, 0.0], [1.0, 1.0]]</span>
+<span class="sd">    &gt;&gt;&gt; initWeights = [1.0, 1.0]</span>
+<span class="sd">    &gt;&gt;&gt; stkm = StreamingKMeansModel(initCenters, initWeights)</span>
+<span class="sd">    &gt;&gt;&gt; data = sc.parallelize([[-0.1, -0.1], [0.1, 0.1],</span>
+<span class="sd">    ...                        [0.9, 0.9], [1.1, 1.1]])</span>
+<span class="sd">    &gt;&gt;&gt; stkm = stkm.update(data, 1.0, u&quot;batches&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; stkm.centers</span>
+<span class="sd">    array([[ 0.,  0.],</span>
+<span class="sd">           [ 1.,  1.]])</span>
+<span class="sd">    &gt;&gt;&gt; stkm.predict([-0.1, -0.1])</span>
+<span class="sd">    0</span>
+<span class="sd">    &gt;&gt;&gt; stkm.predict([0.9, 0.9])</span>
+<span class="sd">    1</span>
+<span class="sd">    &gt;&gt;&gt; stkm.clusterWeights</span>
+<span class="sd">    [3.0, 3.0]</span>
+<span class="sd">    &gt;&gt;&gt; decayFactor = 0.0</span>
+<span class="sd">    &gt;&gt;&gt; data = sc.parallelize([DenseVector([1.5, 1.5]), DenseVector([0.2, 0.2])])</span>
+<span class="sd">    &gt;&gt;&gt; stkm = stkm.update(data, 0.0, u&quot;batches&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; stkm.centers</span>
+<span class="sd">    array([[ 0.2,  0.2],</span>
+<span class="sd">           [ 1.5,  1.5]])</span>
+<span class="sd">    &gt;&gt;&gt; stkm.clusterWeights</span>
+<span class="sd">    [1.0, 1.0]</span>
+<span class="sd">    &gt;&gt;&gt; stkm.predict([0.2, 0.2])</span>
+<span class="sd">    0</span>
+<span class="sd">    &gt;&gt;&gt; stkm.predict([1.5, 1.5])</span>
+<span class="sd">    1</span>
+
+<span class="sd">    .. versionadded:: 1.5.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">clusterCenters</span><span class="p">,</span> <span class="n">clusterWeights</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">StreamingKMeansModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">centers</span><span class="o">=</span><span class="n">clusterCenters</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_clusterWeights</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">clusterWeights</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.5.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">clusterWeights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the cluster weights.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clusterWeights</span>
+
+<div class="viewcode-block" id="StreamingKMeansModel.update"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.StreamingKMeansModel.update">[docs]</a>    <span class="nd">@ignore_unicode_prefix</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.5.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">decayFactor</span><span class="p">,</span> <span class="n">timeUnit</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update the centroids, according to data</span>
+
+<span class="sd">        :param data:</span>
+<span class="sd">          RDD with new data for the model update.</span>
+<span class="sd">        :param decayFactor:</span>
+<span class="sd">          Forgetfulness of the previous centroids.</span>
+<span class="sd">        :param timeUnit:</span>
+<span class="sd">          Can be &quot;batches&quot; or &quot;points&quot;. If points, then the decay factor</span>
+<span class="sd">          is raised to the power of number of new points and if batches,</span>
+<span class="sd">          then decay factor will be used as is.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">RDD</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Data should be of an RDD, got </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_convert_to_vector</span><span class="p">)</span>
+        <span class="n">decayFactor</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">decayFactor</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">timeUnit</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;batches&quot;</span><span class="p">,</span> <span class="s2">&quot;points&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;timeUnit should be &#39;batches&#39; or &#39;points&#39;, got </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="n">timeUnit</span><span class="p">)</span>
+        <span class="n">vectorCenters</span> <span class="o">=</span> <span class="p">[</span><span class="n">_convert_to_vector</span><span class="p">(</span><span class="n">center</span><span class="p">)</span> <span class="k">for</span> <span class="n">center</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">centers</span><span class="p">]</span>
+        <span class="n">updatedModel</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span>
+            <span class="s2">&quot;updateStreamingKMeansModel&quot;</span><span class="p">,</span> <span class="n">vectorCenters</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clusterWeights</span><span class="p">,</span>
+            <span class="n">data</span><span class="p">,</span> <span class="n">decayFactor</span><span class="p">,</span> <span class="n">timeUnit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">centers</span> <span class="o">=</span> <span class="n">array</span><span class="p">(</span><span class="n">updatedModel</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_clusterWeights</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">updatedModel</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span></div></div>
+
+
+<div class="viewcode-block" id="StreamingKMeans"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.StreamingKMeans">[docs]</a><span class="k">class</span> <span class="nc">StreamingKMeans</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Provides methods to set k, decayFactor, timeUnit to configure the</span>
+<span class="sd">    KMeans algorithm for fitting and predicting on incoming dstreams.</span>
+<span class="sd">    More details on how the centroids are updated are provided under the</span>
+<span class="sd">    docs of StreamingKMeansModel.</span>
+
+<span class="sd">    :param k:</span>
+<span class="sd">      Number of clusters.</span>
+<span class="sd">      (default: 2)</span>
+<span class="sd">    :param decayFactor:</span>
+<span class="sd">      Forgetfulness of the previous centroids.</span>
+<span class="sd">      (default: 1.0)</span>
+<span class="sd">    :param timeUnit:</span>
+<span class="sd">      Can be &quot;batches&quot; or &quot;points&quot;. If points, then the decay factor is</span>
+<span class="sd">      raised to the power of number of new points and if batches, then</span>
+<span class="sd">      decay factor will be used as is.</span>
+<span class="sd">      (default: &quot;batches&quot;)</span>
+
+<span class="sd">    .. versionadded:: 1.5.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">decayFactor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">timeUnit</span><span class="o">=</span><span class="s2">&quot;batches&quot;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_k</span> <span class="o">=</span> <span class="n">k</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_decayFactor</span> <span class="o">=</span> <span class="n">decayFactor</span>
+        <span class="k">if</span> <span class="n">timeUnit</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;batches&quot;</span><span class="p">,</span> <span class="s2">&quot;points&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;timeUnit should be &#39;batches&#39; or &#39;points&#39;, got </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="n">timeUnit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_timeUnit</span> <span class="o">=</span> <span class="n">timeUnit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="StreamingKMeans.latestModel"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.StreamingKMeans.latestModel">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.5.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">latestModel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the latest model&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span></div>
+
+    <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dstream</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Initial centers should be set either by setInitialCenters &quot;</span>
+                <span class="s2">&quot;or setRandomCenters.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dstream</span><span class="p">,</span> <span class="n">DStream</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;Expected dstream to be of type DStream, &quot;</span>
+                <span class="s2">&quot;got type </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">dstream</span><span class="p">))</span>
+
+<div class="viewcode-block" id="StreamingKMeans.setK"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.StreamingKMeans.setK">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.5.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setK</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set number of clusters.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_k</span> <span class="o">=</span> <span class="n">k</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="StreamingKMeans.setDecayFactor"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.StreamingKMeans.setDecayFactor">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.5.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setDecayFactor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decayFactor</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set decay factor.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_decayFactor</span> <span class="o">=</span> <span class="n">decayFactor</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="StreamingKMeans.setHalfLife"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.StreamingKMeans.setHalfLife">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.5.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setHalfLife</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">halfLife</span><span class="p">,</span> <span class="n">timeUnit</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set number of batches after which the centroids of that</span>
+<span class="sd">        particular batch has half the weightage.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_timeUnit</span> <span class="o">=</span> <span class="n">timeUnit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_decayFactor</span> <span class="o">=</span> <span class="n">exp</span><span class="p">(</span><span class="n">log</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">/</span> <span class="n">halfLife</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="StreamingKMeans.setInitialCenters"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.StreamingKMeans.setInitialCenters">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.5.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setInitialCenters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">centers</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set initial centers. Should be set before calling trainOn.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">StreamingKMeansModel</span><span class="p">(</span><span class="n">centers</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="StreamingKMeans.setRandomCenters"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.StreamingKMeans.setRandomCenters">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.5.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setRandomCenters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dim</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">seed</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the initial centres to be random samples from</span>
+<span class="sd">        a gaussian population with constant weights.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rng</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+        <span class="n">clusterCenters</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_k</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span>
+        <span class="n">clusterWeights</span> <span class="o">=</span> <span class="n">tile</span><span class="p">(</span><span class="n">weight</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_k</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">StreamingKMeansModel</span><span class="p">(</span><span class="n">clusterCenters</span><span class="p">,</span> <span class="n">clusterWeights</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="StreamingKMeans.trainOn"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.StreamingKMeans.trainOn">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.5.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">trainOn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dstream</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Train the model on the incoming dstream.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">(</span><span class="n">dstream</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="n">rdd</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">rdd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decayFactor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timeUnit</span><span class="p">)</span>
+
+        <span class="n">dstream</span><span class="o">.</span><span class="n">foreachRDD</span><span class="p">(</span><span class="n">update</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StreamingKMeans.predictOn"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.StreamingKMeans.predictOn">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.5.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">predictOn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dstream</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make predictions on a dstream.</span>
+<span class="sd">        Returns a transformed dstream object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">(</span><span class="n">dstream</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dstream</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="StreamingKMeans.predictOnValues"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.StreamingKMeans.predictOnValues">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.5.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">predictOnValues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dstream</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make predictions on a keyed dstream.</span>
+<span class="sd">        Returns a transformed dstream object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">(</span><span class="n">dstream</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dstream</span><span class="o">.</span><span class="n">mapValues</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="LDAModel"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.LDAModel">[docs]</a><span class="k">class</span> <span class="nc">LDAModel</span><span class="p">(</span><span class="n">JavaModelWrapper</span><span class="p">,</span> <span class="n">JavaSaveable</span><span class="p">,</span> <span class="n">Loader</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot; A clustering model derived from the LDA method.</span>
+
+<span class="sd">    Latent Dirichlet Allocation (LDA), a topic model designed for text documents.</span>
+<span class="sd">    Terminology</span>
+<span class="sd">    - &quot;word&quot; = &quot;term&quot;: an element of the vocabulary</span>
+<span class="sd">    - &quot;token&quot;: instance of a term appearing in a document</span>
+<span class="sd">    - &quot;topic&quot;: multinomial distribution over words representing some concept</span>
+<span class="sd">    References:</span>
+<span class="sd">    - Original LDA paper (journal version):</span>
+<span class="sd">    Blei, Ng, and Jordan.  &quot;Latent Dirichlet Allocation.&quot;  JMLR, 2003.</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyspark.mllib.linalg import Vectors</span>
+<span class="sd">    &gt;&gt;&gt; from numpy.testing import assert_almost_equal, assert_equal</span>
+<span class="sd">    &gt;&gt;&gt; data = [</span>
+<span class="sd">    ...     [1, Vectors.dense([0.0, 1.0])],</span>
+<span class="sd">    ...     [2, SparseVector(2, {0: 1.0})],</span>
+<span class="sd">    ... ]</span>
+<span class="sd">    &gt;&gt;&gt; rdd =  sc.parallelize(data)</span>
+<span class="sd">    &gt;&gt;&gt; model = LDA.train(rdd, k=2, seed=1)</span>
+<span class="sd">    &gt;&gt;&gt; model.vocabSize()</span>
+<span class="sd">    2</span>
+<span class="sd">    &gt;&gt;&gt; model.describeTopics()</span>
+<span class="sd">    [([1, 0], [0.5..., 0.49...]), ([0, 1], [0.5..., 0.49...])]</span>
+<span class="sd">    &gt;&gt;&gt; model.describeTopics(1)</span>
+<span class="sd">    [([1], [0.5...]), ([0], [0.5...])]</span>
+
+<span class="sd">    &gt;&gt;&gt; topics = model.topicsMatrix()</span>
+<span class="sd">    &gt;&gt;&gt; topics_expect = array([[0.5,  0.5], [0.5, 0.5]])</span>
+<span class="sd">    &gt;&gt;&gt; assert_almost_equal(topics, topics_expect, 1)</span>
+
+<span class="sd">    &gt;&gt;&gt; import os, tempfile</span>
+<span class="sd">    &gt;&gt;&gt; from shutil import rmtree</span>
+<span class="sd">    &gt;&gt;&gt; path = tempfile.mkdtemp()</span>
+<span class="sd">    &gt;&gt;&gt; model.save(sc, path)</span>
+<span class="sd">    &gt;&gt;&gt; sameModel = LDAModel.load(sc, path)</span>
+<span class="sd">    &gt;&gt;&gt; assert_equal(sameModel.topicsMatrix(), model.topicsMatrix())</span>
+<span class="sd">    &gt;&gt;&gt; sameModel.vocabSize() == model.vocabSize()</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     rmtree(path)</span>
+<span class="sd">    ... except OSError:</span>
+<span class="sd">    ...     pass</span>
+
+<span class="sd">    .. versionadded:: 1.5.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LDAModel.topicsMatrix"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.LDAModel.topicsMatrix">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.5.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">topicsMatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Inferred topics, where each topic is represented by a distribution over terms.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;topicsMatrix&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">toArray</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="LDAModel.vocabSize"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.LDAModel.vocabSize">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.5.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">vocabSize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Vocabulary size (number of terms or terms in the vocabulary)&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;vocabSize&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDAModel.describeTopics"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.LDAModel.describeTopics">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.6.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">describeTopics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maxTermsPerTopic</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the topics described by weighted terms.</span>
+
+<span class="sd">        WARNING: If vocabSize and k are large, this can return a large object!</span>
+
+<span class="sd">        :param maxTermsPerTopic:</span>
+<span class="sd">          Maximum number of terms to collect for each topic.</span>
+<span class="sd">          (default: vocabulary size)</span>
+<span class="sd">        :return:</span>
+<span class="sd">          Array over topics. Each topic is represented as a pair of</span>
+<span class="sd">          matching arrays: (term indices, term weights in topic).</span>
+<span class="sd">          Each topic&#39;s terms are sorted in order of decreasing weight.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">maxTermsPerTopic</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">topics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;describeTopics&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">topics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;describeTopics&quot;</span><span class="p">,</span> <span class="n">maxTermsPerTopic</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">topics</span></div>
+
+<div class="viewcode-block" id="LDAModel.load"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.LDAModel.load">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.5.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load the LDAModel from disk.</span>
+
+<span class="sd">        :param sc:</span>
+<span class="sd">          SparkContext.</span>
+<span class="sd">        :param path:</span>
+<span class="sd">          Path to where the model is stored.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">SparkContext</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;sc should be a SparkContext, got type </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">sc</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;path should be a basestring, got type </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;loadLDAModel&quot;</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">LDAModel</span><span class="p">(</span><span class="n">model</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="LDA"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.LDA">[docs]</a><span class="k">class</span> <span class="nc">LDA</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. versionadded:: 1.5.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LDA.train"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.clustering.LDA.train">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.5.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">rdd</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">maxIterations</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">docConcentration</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span>
+              <span class="n">topicConcentration</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">checkpointInterval</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="s2">&quot;em&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Train a LDA model.</span>
+
+<span class="sd">        :param rdd:</span>
+<span class="sd">          RDD of documents, which are tuples of document IDs and term</span>
+<span class="sd">          (word) count vectors. The term count vectors are &quot;bags of</span>
+<span class="sd">          words&quot; with a fixed-size vocabulary (where the vocabulary size</span>
+<span class="sd">          is the length of the vector). Document IDs must be unique</span>
+<span class="sd">          and &gt;= 0.</span>
+<span class="sd">        :param k:</span>
+<span class="sd">          Number of topics to infer, i.e., the number of soft cluster</span>
+<span class="sd">          centers.</span>
+<span class="sd">          (default: 10)</span>
+<span class="sd">        :param maxIterations:</span>
+<span class="sd">          Maximum number of iterations allowed.</span>
+<span class="sd">          (default: 20)</span>
+<span class="sd">        :param docConcentration:</span>
+<span class="sd">          Concentration parameter (commonly named &quot;alpha&quot;) for the prior</span>
+<span class="sd">          placed on documents&#39; distributions over topics (&quot;theta&quot;).</span>
+<span class="sd">          (default: -1.0)</span>
+<span class="sd">        :param topicConcentration:</span>
+<span class="sd">          Concentration parameter (commonly named &quot;beta&quot; or &quot;eta&quot;) for</span>
+<span class="sd">          the prior placed on topics&#39; distributions over terms.</span>
+<span class="sd">          (default: -1.0)</span>
+<span class="sd">        :param seed:</span>
+<span class="sd">          Random seed for cluster initialization. Set as None to generate</span>
+<span class="sd">          seed based on system time.</span>
+<span class="sd">          (default: None)</span>
+<span class="sd">        :param checkpointInterval:</span>
+<span class="sd">          Period (in iterations) between checkpoints.</span>
+<span class="sd">          (default: 10)</span>
+<span class="sd">        :param optimizer:</span>
+<span class="sd">          LDAOptimizer used to perform the actual calculation. Currently</span>
+<span class="sd">          &quot;em&quot;, &quot;online&quot; are supported.</span>
+<span class="sd">          (default: &quot;em&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;trainLDAModel&quot;</span><span class="p">,</span> <span class="n">rdd</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">maxIterations</span><span class="p">,</span>
+                              <span class="n">docConcentration</span><span class="p">,</span> <span class="n">topicConcentration</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span>
+                              <span class="n">checkpointInterval</span><span class="p">,</span> <span class="n">optimizer</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">LDAModel</span><span class="p">(</span><span class="n">model</span><span class="p">)</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_test</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="kn">import</span> <span class="nn">numpy</span>
+    <span class="kn">import</span> <span class="nn">pyspark.mllib.clustering</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Numpy 1.14+ changed it&#39;s string format.</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">legacy</span><span class="o">=</span><span class="s1">&#39;1.13&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="n">pyspark</span><span class="o">.</span><span class="n">mllib</span><span class="o">.</span><span class="n">clustering</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;sc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="p">(</span><span class="s1">&#39;local[4]&#39;</span><span class="p">,</span> <span class="s1">&#39;PythonTest&#39;</span><span class="p">,</span> <span class="n">batchSize</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span> <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span><span class="p">)</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;sc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">_test</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

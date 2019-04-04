@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: K-Means Clustering Model</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/languages/r.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</head><body>
+
+<table width="100%" summary="page for spark.kmeans {SparkR}"><tr><td>spark.kmeans {SparkR}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>K-Means Clustering Model</h2>
+
+<h3>Description</h3>
+
+<p>Fits a k-means clustering model against a SparkDataFrame, similarly to R's kmeans().
+Users can call <code>summary</code> to print a summary of the fitted model, <code>predict</code> to make
+predictions on new data, and <code>write.ml</code>/<code>read.ml</code> to save/load fitted models.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+spark.kmeans(data, formula, ...)
+
+## S4 method for signature 'SparkDataFrame,formula'
+spark.kmeans(data, formula, k = 2,
+  maxIter = 20, initMode = c("k-means||", "random"), seed = NULL,
+  initSteps = 2, tol = 1e-04)
+
+## S4 method for signature 'KMeansModel'
+summary(object)
+
+## S4 method for signature 'KMeansModel'
+predict(object, newData)
+
+## S4 method for signature 'KMeansModel,character'
+write.ml(object, path,
+  overwrite = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>a SparkDataFrame for training.</p>
+</td></tr>
+<tr valign="top"><td><code>formula</code></td>
+<td>
+<p>a symbolic description of the model to be fitted. Currently only a few formula
+operators are supported, including '~', '.', ':', '+', and '-'.
+Note that the response variable of formula is empty in spark.kmeans.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional argument(s) passed to the method.</p>
+</td></tr>
+<tr valign="top"><td><code>k</code></td>
+<td>
+<p>number of centers.</p>
+</td></tr>
+<tr valign="top"><td><code>maxIter</code></td>
+<td>
+<p>maximum iteration number.</p>
+</td></tr>
+<tr valign="top"><td><code>initMode</code></td>
+<td>
+<p>the initialization algorithm chosen to fit the model.</p>
+</td></tr>
+<tr valign="top"><td><code>seed</code></td>
+<td>
+<p>the random seed for cluster initialization.</p>
+</td></tr>
+<tr valign="top"><td><code>initSteps</code></td>
+<td>
+<p>the number of steps for the k-means|| initialization mode.
+This is an advanced setting, the default of 2 is almost always enough.
+Must be &gt; 0.</p>
+</td></tr>
+<tr valign="top"><td><code>tol</code></td>
+<td>
+<p>convergence tolerance of iterations.</p>
+</td></tr>
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>a fitted k-means model.</p>
+</td></tr>
+<tr valign="top"><td><code>newData</code></td>
+<td>
+<p>a SparkDataFrame for testing.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>the directory where the model is saved.</p>
+</td></tr>
+<tr valign="top"><td><code>overwrite</code></td>
+<td>
+<p>overwrites or not if the output path already exists. Default is FALSE
+which means throw exception if the output path exists.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>spark.kmeans</code> returns a fitted k-means model.
+</p>
+<p><code>summary</code> returns summary information of the fitted model, which is a list.
+The list includes the model's <code>k</code> (the configured number of cluster centers),
+<code>coefficients</code> (model cluster centers),
+<code>size</code> (number of data points in each cluster), <code>cluster</code>
+(cluster centers of the transformed data), is.loaded (whether the model is loaded
+from a saved file), and <code>clusterSize</code>
+(the actual number of cluster centers. When using initMode = &quot;random&quot;,
+<code>clusterSize</code> may not equal to <code>k</code>).
+</p>
+<p><code>predict</code> returns the predicted values based on a k-means model.
+</p>
+
+
+<h3>Note</h3>
+
+<p>spark.kmeans since 2.0.0
+</p>
+<p>summary(KMeansModel) since 2.0.0
+</p>
+<p>predict(KMeansModel) since 2.0.0
+</p>
+<p>write.ml(KMeansModel, character) since 2.0.0
+</p>
+
+
+<h3>See Also</h3>
+
+<p><a href="predict.html">predict</a>, <a href="read.ml.html">read.ml</a>, <a href="write.ml.html">write.ml</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre><code class="r">## Not run: 
+##D sparkR.session()
+##D t &lt;- as.data.frame(Titanic)
+##D df &lt;- createDataFrame(t)
+##D model &lt;- spark.kmeans(df, Class ~ Survived, k = 4, initMode = &quot;random&quot;)
+##D summary(model)
+##D 
+##D # fitted values on training data
+##D fitted &lt;- predict(model, df)
+##D head(select(fitted, &quot;Class&quot;, &quot;prediction&quot;))
+##D 
+##D # save fitted model to input path
+##D path &lt;- &quot;path/to/model&quot;
+##D write.ml(model, path)
+##D 
+##D # can also read back the saved model and print
+##D savedModel &lt;- read.ml(path)
+##D summary(savedModel)
+## End(Not run)
+</code></pre>
+
+
+<hr /><div style="text-align: center;">[Package <em>SparkR</em> version 2.4.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

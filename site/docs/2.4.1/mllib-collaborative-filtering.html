@@ -1,0 +1,648 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Collaborative Filtering - RDD-based API - Spark 2.4.1 Documentation</title>
+        
+
+        
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 60px;
+                padding-bottom: 40px;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+
+        <link rel="stylesheet" href="css/pygments-default.css">
+
+        
+        <!-- Google analytics script -->
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-32518208-2']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+        </script>
+        
+
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="https://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
+
+        <div class="navbar navbar-fixed-top" id="topbar">
+            <div class="navbar-inner">
+                <div class="container">
+                    <div class="brand"><a href="index.html">
+                      <img src="img/spark-logo-hd.png" style="height:50px;"/></a><span class="version">2.4.1</span>
+                    </div>
+                    <ul class="nav">
+                        <!--TODO(andyk): Add class="active" attribute to li some how.-->
+                        <li><a href="index.html">Overview</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Programming Guides<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="quick-start.html">Quick Start</a></li>
+                                <li><a href="rdd-programming-guide.html">RDDs, Accumulators, Broadcasts Vars</a></li>
+                                <li><a href="sql-programming-guide.html">SQL, DataFrames, and Datasets</a></li>
+                                <li><a href="structured-streaming-programming-guide.html">Structured Streaming</a></li>
+                                <li><a href="streaming-programming-guide.html">Spark Streaming (DStreams)</a></li>
+                                <li><a href="ml-guide.html">MLlib (Machine Learning)</a></li>
+                                <li><a href="graphx-programming-guide.html">GraphX (Graph Processing)</a></li>
+                                <li><a href="sparkr.html">SparkR (R on Spark)</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">API Docs<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="api/scala/index.html#org.apache.spark.package">Scala</a></li>
+                                <li><a href="api/java/index.html">Java</a></li>
+                                <li><a href="api/python/index.html">Python</a></li>
+                                <li><a href="api/R/index.html">R</a></li>
+                                <li><a href="api/sql/index.html">SQL, Built-in Functions</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Deploying<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="cluster-overview.html">Overview</a></li>
+                                <li><a href="submitting-applications.html">Submitting Applications</a></li>
+                                <li class="divider"></li>
+                                <li><a href="spark-standalone.html">Spark Standalone</a></li>
+                                <li><a href="running-on-mesos.html">Mesos</a></li>
+                                <li><a href="running-on-yarn.html">YARN</a></li>
+                                <li><a href="running-on-kubernetes.html">Kubernetes</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="api.html" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="configuration.html">Configuration</a></li>
+                                <li><a href="monitoring.html">Monitoring</a></li>
+                                <li><a href="tuning.html">Tuning Guide</a></li>
+                                <li><a href="job-scheduling.html">Job Scheduling</a></li>
+                                <li><a href="security.html">Security</a></li>
+                                <li><a href="hardware-provisioning.html">Hardware Provisioning</a></li>
+                                <li class="divider"></li>
+                                <li><a href="building-spark.html">Building Spark</a></li>
+                                <li><a href="https://spark.apache.org/contributing.html">Contributing to Spark</a></li>
+                                <li><a href="https://spark.apache.org/third-party-projects.html">Third Party Projects</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <!--<p class="navbar-text pull-right"><span class="version-text">v2.4.1</span></p>-->
+                </div>
+            </div>
+        </div>
+
+        <div class="container-wrapper">
+
+            
+                
+                    <div class="left-menu-wrapper">
+    <div class="left-menu">
+        <h3><a href="ml-guide.html">MLlib: Main Guide</a></h3>
+        
+<ul>
+
+    <li>
+        <a href="ml-statistics.html">
+            
+                Basic statistics
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-datasource">
+            
+                Data sources
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-pipeline.html">
+            
+                Pipelines
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-features.html">
+            
+                Extracting, transforming and selecting features
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-classification-regression.html">
+            
+                Classification and Regression
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-clustering.html">
+            
+                Clustering
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-collaborative-filtering.html">
+            
+                Collaborative filtering
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-frequent-pattern-mining.html">
+            
+                Frequent Pattern Mining
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-tuning.html">
+            
+                Model selection and tuning
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-advanced.html">
+            
+                Advanced topics
+            
+        </a>
+    </li>
+    
+    
+
+</ul>
+
+        <h3><a href="mllib-guide.html">MLlib: RDD-based API Guide</a></h3>
+        
+<ul>
+
+    <li>
+        <a href="mllib-data-types.html">
+            
+                Data types
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-statistics.html">
+            
+                Basic statistics
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-classification-regression.html">
+            
+                Classification and regression
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-collaborative-filtering.html">
+            
+                <b>Collaborative filtering</b>
+            
+        </a>
+    </li>
+    
+    
+        
+<ul>
+
+    <li>
+        <a href="mllib-collaborative-filtering.html#collaborative-filtering">
+            
+                alternating least squares (ALS)
+            
+        </a>
+    </li>
+    
+    
+
+</ul>
+
+    
+
+    <li>
+        <a href="mllib-clustering.html">
+            
+                Clustering
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-dimensionality-reduction.html">
+            
+                Dimensionality reduction
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-feature-extraction.html">
+            
+                Feature extraction and transformation
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-frequent-pattern-mining.html">
+            
+                Frequent pattern mining
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-evaluation-metrics.html">
+            
+                Evaluation metrics
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-pmml-model-export.html">
+            
+                PMML model export
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-optimization.html">
+            
+                Optimization (developer)
+            
+        </a>
+    </li>
+    
+    
+
+</ul>
+
+    </div>
+</div>
+                
+                <input id="nav-trigger" class="nav-trigger" checked type="checkbox">
+                <label for="nav-trigger"></label>
+                <div class="content-with-sidebar" id="content">
+                    
+                        <h1 class="title">Collaborative Filtering - RDD-based API</h1>
+                    
+
+                    <ul id="markdown-toc">
+  <li><a href="#collaborative-filtering" id="markdown-toc-collaborative-filtering">Collaborative filtering</a>    <ul>
+      <li><a href="#explicit-vs-implicit-feedback" id="markdown-toc-explicit-vs-implicit-feedback">Explicit vs. implicit feedback</a></li>
+      <li><a href="#scaling-of-the-regularization-parameter" id="markdown-toc-scaling-of-the-regularization-parameter">Scaling of the regularization parameter</a></li>
+    </ul>
+  </li>
+  <li><a href="#examples" id="markdown-toc-examples">Examples</a></li>
+  <li><a href="#tutorial" id="markdown-toc-tutorial">Tutorial</a></li>
+</ul>
+
+<h2 id="collaborative-filtering">Collaborative filtering</h2>
+
+<p><a href="http://en.wikipedia.org/wiki/Recommender_system#Collaborative_filtering">Collaborative filtering</a>
+is commonly used for recommender systems.  These techniques aim to fill in the
+missing entries of a user-item association matrix.  <code>spark.mllib</code> currently supports
+model-based collaborative filtering, in which users and products are described
+by a small set of latent factors that can be used to predict missing entries.
+<code>spark.mllib</code> uses the <a href="http://dl.acm.org/citation.cfm?id=1608614">alternating least squares
+(ALS)</a>
+algorithm to learn these latent factors. The implementation in <code>spark.mllib</code> has the
+following parameters:</p>
+
+<ul>
+  <li><em>numBlocks</em> is the number of blocks used to parallelize computation (set to -1 to auto-configure).</li>
+  <li><em>rank</em> is the number of features to use (also referred to as the number of latent factors).</li>
+  <li><em>iterations</em> is the number of iterations of ALS to run. ALS typically converges to a reasonable
+solution in 20 iterations or less.</li>
+  <li><em>lambda</em> specifies the regularization parameter in ALS.</li>
+  <li><em>implicitPrefs</em> specifies whether to use the <em>explicit feedback</em> ALS variant or one adapted for
+<em>implicit feedback</em> data.</li>
+  <li><em>alpha</em> is a parameter applicable to the implicit feedback variant of ALS that governs the
+<em>baseline</em> confidence in preference observations.</li>
+</ul>
+
+<h3 id="explicit-vs-implicit-feedback">Explicit vs. implicit feedback</h3>
+
+<p>The standard approach to matrix factorization-based collaborative filtering treats
+the entries in the user-item matrix as <em>explicit</em> preferences given by the user to the item,
+for example, users giving ratings to movies.</p>
+
+<p>It is common in many real-world use cases to only have access to <em>implicit feedback</em> (e.g. views,
+clicks, purchases, likes, shares etc.). The approach used in <code>spark.mllib</code> to deal with such data is taken
+from <a href="http://dx.doi.org/10.1109/ICDM.2008.22">Collaborative Filtering for Implicit Feedback Datasets</a>.
+Essentially, instead of trying to model the matrix of ratings directly, this approach treats the data
+as numbers representing the <em>strength</em> in observations of user actions (such as the number of clicks,
+or the cumulative duration someone spent viewing a movie). Those numbers are then related to the level of
+confidence in observed user preferences, rather than explicit ratings given to items. The model
+then tries to find latent factors that can be used to predict the expected preference of a user for
+an item.</p>
+
+<h3 id="scaling-of-the-regularization-parameter">Scaling of the regularization parameter</h3>
+
+<p>Since v1.1, we scale the regularization parameter <code>lambda</code> in solving each least squares problem by
+the number of ratings the user generated in updating user factors,
+or the number of ratings the product received in updating product factors.
+This approach is named &#8220;ALS-WR&#8221; and discussed in the paper
+&#8220;<a href="http://dx.doi.org/10.1007/978-3-540-68880-8_32">Large-Scale Parallel Collaborative Filtering for the Netflix Prize</a>&#8221;.
+It makes <code>lambda</code> less dependent on the scale of the dataset, so we can apply the
+best parameter learned from a sampled subset to the full dataset and expect similar performance.</p>
+
+<h2 id="examples">Examples</h2>
+
+<div class="codetabs">
+
+<div data-lang="scala">
+    <p>In the following example, we load rating data. Each row consists of a user, a product and a rating.
+We use the default <a href="api/scala/index.html#org.apache.spark.mllib.recommendation.ALS$">ALS.train()</a> 
+method which assumes ratings are explicit. We evaluate the
+recommendation model by measuring the Mean Squared Error of rating prediction.</p>
+
+    <p>Refer to the <a href="api/scala/index.html#org.apache.spark.mllib.recommendation.ALS"><code>ALS</code> Scala docs</a> for more details on the API.</p>
+
+    <div class="highlight"><pre><span></span><span class="k">import</span> <span class="nn">org.apache.spark.mllib.recommendation.ALS</span>
+<span class="k">import</span> <span class="nn">org.apache.spark.mllib.recommendation.MatrixFactorizationModel</span>
+<span class="k">import</span> <span class="nn">org.apache.spark.mllib.recommendation.Rating</span>
+
+<span class="c1">// Load and parse the data</span>
+<span class="k">val</span> <span class="n">data</span> <span class="k">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="o">(</span><span class="s">&quot;data/mllib/als/test.data&quot;</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">ratings</span> <span class="k">=</span> <span class="n">data</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="sc">&#39;,&#39;</span><span class="o">)</span> <span class="k">match</span> <span class="o">{</span> <span class="k">case</span> <span class="nc">Array</span><span class="o">(</span><span class="n">user</span><span class="o">,</span> <span class="n">item</span><span class="o">,</span> <span class="n">rate</span><span class="o">)</span> <span class="k">=&gt;</span>
+  <span class="nc">Rating</span><span class="o">(</span><span class="n">user</span><span class="o">.</span><span class="n">toInt</span><span class="o">,</span> <span class="n">item</span><span class="o">.</span><span class="n">toInt</span><span class="o">,</span> <span class="n">rate</span><span class="o">.</span><span class="n">toDouble</span><span class="o">)</span>
+<span class="o">})</span>
+
+<span class="c1">// Build the recommendation model using ALS</span>
+<span class="k">val</span> <span class="n">rank</span> <span class="k">=</span> <span class="mi">10</span>
+<span class="k">val</span> <span class="n">numIterations</span> <span class="k">=</span> <span class="mi">10</span>
+<span class="k">val</span> <span class="n">model</span> <span class="k">=</span> <span class="nc">ALS</span><span class="o">.</span><span class="n">train</span><span class="o">(</span><span class="n">ratings</span><span class="o">,</span> <span class="n">rank</span><span class="o">,</span> <span class="n">numIterations</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">)</span>
+
+<span class="c1">// Evaluate the model on rating data</span>
+<span class="k">val</span> <span class="n">usersProducts</span> <span class="k">=</span> <span class="n">ratings</span><span class="o">.</span><span class="n">map</span> <span class="o">{</span> <span class="k">case</span> <span class="nc">Rating</span><span class="o">(</span><span class="n">user</span><span class="o">,</span> <span class="n">product</span><span class="o">,</span> <span class="n">rate</span><span class="o">)</span> <span class="k">=&gt;</span>
+  <span class="o">(</span><span class="n">user</span><span class="o">,</span> <span class="n">product</span><span class="o">)</span>
+<span class="o">}</span>
+<span class="k">val</span> <span class="n">predictions</span> <span class="k">=</span>
+  <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="o">(</span><span class="n">usersProducts</span><span class="o">).</span><span class="n">map</span> <span class="o">{</span> <span class="k">case</span> <span class="nc">Rating</span><span class="o">(</span><span class="n">user</span><span class="o">,</span> <span class="n">product</span><span class="o">,</span> <span class="n">rate</span><span class="o">)</span> <span class="k">=&gt;</span>
+    <span class="o">((</span><span class="n">user</span><span class="o">,</span> <span class="n">product</span><span class="o">),</span> <span class="n">rate</span><span class="o">)</span>
+  <span class="o">}</span>
+<span class="k">val</span> <span class="n">ratesAndPreds</span> <span class="k">=</span> <span class="n">ratings</span><span class="o">.</span><span class="n">map</span> <span class="o">{</span> <span class="k">case</span> <span class="nc">Rating</span><span class="o">(</span><span class="n">user</span><span class="o">,</span> <span class="n">product</span><span class="o">,</span> <span class="n">rate</span><span class="o">)</span> <span class="k">=&gt;</span>
+  <span class="o">((</span><span class="n">user</span><span class="o">,</span> <span class="n">product</span><span class="o">),</span> <span class="n">rate</span><span class="o">)</span>
+<span class="o">}.</span><span class="n">join</span><span class="o">(</span><span class="n">predictions</span><span class="o">)</span>
+<span class="k">val</span> <span class="nc">MSE</span> <span class="k">=</span> <span class="n">ratesAndPreds</span><span class="o">.</span><span class="n">map</span> <span class="o">{</span> <span class="k">case</span> <span class="o">((</span><span class="n">user</span><span class="o">,</span> <span class="n">product</span><span class="o">),</span> <span class="o">(</span><span class="n">r1</span><span class="o">,</span> <span class="n">r2</span><span class="o">))</span> <span class="k">=&gt;</span>
+  <span class="k">val</span> <span class="n">err</span> <span class="k">=</span> <span class="o">(</span><span class="n">r1</span> <span class="o">-</span> <span class="n">r2</span><span class="o">)</span>
+  <span class="n">err</span> <span class="o">*</span> <span class="n">err</span>
+<span class="o">}.</span><span class="n">mean</span><span class="o">()</span>
+<span class="n">println</span><span class="o">(</span><span class="s">s&quot;Mean Squared Error = </span><span class="si">$MSE</span><span class="s">&quot;</span><span class="o">)</span>
+
+<span class="c1">// Save and load model</span>
+<span class="n">model</span><span class="o">.</span><span class="n">save</span><span class="o">(</span><span class="n">sc</span><span class="o">,</span> <span class="s">&quot;target/tmp/myCollaborativeFilter&quot;</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">sameModel</span> <span class="k">=</span> <span class="nc">MatrixFactorizationModel</span><span class="o">.</span><span class="n">load</span><span class="o">(</span><span class="n">sc</span><span class="o">,</span> <span class="s">&quot;target/tmp/myCollaborativeFilter&quot;</span><span class="o">)</span>
+</pre></div>
+    <div><small>Find full example code at "examples/src/main/scala/org/apache/spark/examples/mllib/RecommendationExample.scala" in the Spark repo.</small></div>
+
+    <p>If the rating matrix is derived from another source of information (i.e. it is inferred from
+other signals), you can use the <code>trainImplicit</code> method to get better results.</p>
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span></span><span class="k">val</span> <span class="n">alpha</span> <span class="k">=</span> <span class="mf">0.01</span>
+<span class="k">val</span> <span class="n">lambda</span> <span class="k">=</span> <span class="mf">0.01</span>
+<span class="k">val</span> <span class="n">model</span> <span class="k">=</span> <span class="nc">ALS</span><span class="o">.</span><span class="n">trainImplicit</span><span class="o">(</span><span class="n">ratings</span><span class="o">,</span> <span class="n">rank</span><span class="o">,</span> <span class="n">numIterations</span><span class="o">,</span> <span class="n">lambda</span><span class="o">,</span> <span class="n">alpha</span><span class="o">)</span></code></pre></figure>
+
+  </div>
+
+<div data-lang="java">
+    <p>All of MLlib&#8217;s methods use Java-friendly types, so you can import and call them there the same
+way you do in Scala. The only caveat is that the methods take Scala RDD objects, while the
+Spark Java API uses a separate <code>JavaRDD</code> class. You can convert a Java RDD to a Scala one by
+calling <code>.rdd()</code> on your <code>JavaRDD</code> object. A self-contained application example
+that is equivalent to the provided example in Scala is given below:</p>
+
+    <p>Refer to the <a href="api/java/org/apache/spark/mllib/recommendation/ALS.html"><code>ALS</code> Java docs</a> for more details on the API.</p>
+
+    <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">scala.Tuple2</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">org.apache.spark.api.java.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.spark.mllib.recommendation.ALS</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.spark.mllib.recommendation.MatrixFactorizationModel</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.spark.mllib.recommendation.Rating</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.spark.SparkConf</span><span class="o">;</span>
+
+<span class="n">SparkConf</span> <span class="n">conf</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SparkConf</span><span class="o">().</span><span class="na">setAppName</span><span class="o">(</span><span class="s">&quot;Java Collaborative Filtering Example&quot;</span><span class="o">);</span>
+<span class="n">JavaSparkContext</span> <span class="n">jsc</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JavaSparkContext</span><span class="o">(</span><span class="n">conf</span><span class="o">);</span>
+
+<span class="c1">// Load and parse the data</span>
+<span class="n">String</span> <span class="n">path</span> <span class="o">=</span> <span class="s">&quot;data/mllib/als/test.data&quot;</span><span class="o">;</span>
+<span class="n">JavaRDD</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">data</span> <span class="o">=</span> <span class="n">jsc</span><span class="o">.</span><span class="na">textFile</span><span class="o">(</span><span class="n">path</span><span class="o">);</span>
+<span class="n">JavaRDD</span><span class="o">&lt;</span><span class="n">Rating</span><span class="o">&gt;</span> <span class="n">ratings</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">s</span> <span class="o">-&gt;</span> <span class="o">{</span>
+  <span class="n">String</span><span class="o">[]</span> <span class="n">sarray</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">&quot;,&quot;</span><span class="o">);</span>
+  <span class="k">return</span> <span class="k">new</span> <span class="n">Rating</span><span class="o">(</span><span class="n">Integer</span><span class="o">.</span><span class="na">parseInt</span><span class="o">(</span><span class="n">sarray</span><span class="o">[</span><span class="mi">0</span><span class="o">]),</span>
+    <span class="n">Integer</span><span class="o">.</span><span class="na">parseInt</span><span class="o">(</span><span class="n">sarray</span><span class="o">[</span><span class="mi">1</span><span class="o">]),</span>
+    <span class="n">Double</span><span class="o">.</span><span class="na">parseDouble</span><span class="o">(</span><span class="n">sarray</span><span class="o">[</span><span class="mi">2</span><span class="o">]));</span>
+<span class="o">});</span>
+
+<span class="c1">// Build the recommendation model using ALS</span>
+<span class="kt">int</span> <span class="n">rank</span> <span class="o">=</span> <span class="mi">10</span><span class="o">;</span>
+<span class="kt">int</span> <span class="n">numIterations</span> <span class="o">=</span> <span class="mi">10</span><span class="o">;</span>
+<span class="n">MatrixFactorizationModel</span> <span class="n">model</span> <span class="o">=</span> <span class="n">ALS</span><span class="o">.</span><span class="na">train</span><span class="o">(</span><span class="n">JavaRDD</span><span class="o">.</span><span class="na">toRDD</span><span class="o">(</span><span class="n">ratings</span><span class="o">),</span> <span class="n">rank</span><span class="o">,</span> <span class="n">numIterations</span><span class="o">,</span> <span class="mf">0.01</span><span class="o">);</span>
+
+<span class="c1">// Evaluate the model on rating data</span>
+<span class="n">JavaRDD</span><span class="o">&lt;</span><span class="n">Tuple2</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;&gt;</span> <span class="n">userProducts</span> <span class="o">=</span>
+  <span class="n">ratings</span><span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">r</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">Tuple2</span><span class="o">&lt;&gt;(</span><span class="n">r</span><span class="o">.</span><span class="na">user</span><span class="o">(),</span> <span class="n">r</span><span class="o">.</span><span class="na">product</span><span class="o">()));</span>
+<span class="n">JavaPairRDD</span><span class="o">&lt;</span><span class="n">Tuple2</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;,</span> <span class="n">Double</span><span class="o">&gt;</span> <span class="n">predictions</span> <span class="o">=</span> <span class="n">JavaPairRDD</span><span class="o">.</span><span class="na">fromJavaRDD</span><span class="o">(</span>
+  <span class="n">model</span><span class="o">.</span><span class="na">predict</span><span class="o">(</span><span class="n">JavaRDD</span><span class="o">.</span><span class="na">toRDD</span><span class="o">(</span><span class="n">userProducts</span><span class="o">)).</span><span class="na">toJavaRDD</span><span class="o">()</span>
+      <span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">r</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">Tuple2</span><span class="o">&lt;&gt;(</span><span class="k">new</span> <span class="n">Tuple2</span><span class="o">&lt;&gt;(</span><span class="n">r</span><span class="o">.</span><span class="na">user</span><span class="o">(),</span> <span class="n">r</span><span class="o">.</span><span class="na">product</span><span class="o">()),</span> <span class="n">r</span><span class="o">.</span><span class="na">rating</span><span class="o">()))</span>
+<span class="o">);</span>
+<span class="n">JavaRDD</span><span class="o">&lt;</span><span class="n">Tuple2</span><span class="o">&lt;</span><span class="n">Double</span><span class="o">,</span> <span class="n">Double</span><span class="o">&gt;&gt;</span> <span class="n">ratesAndPreds</span> <span class="o">=</span> <span class="n">JavaPairRDD</span><span class="o">.</span><span class="na">fromJavaRDD</span><span class="o">(</span>
+    <span class="n">ratings</span><span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="n">r</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="n">Tuple2</span><span class="o">&lt;&gt;(</span><span class="k">new</span> <span class="n">Tuple2</span><span class="o">&lt;&gt;(</span><span class="n">r</span><span class="o">.</span><span class="na">user</span><span class="o">(),</span> <span class="n">r</span><span class="o">.</span><span class="na">product</span><span class="o">()),</span> <span class="n">r</span><span class="o">.</span><span class="na">rating</span><span class="o">())))</span>
+  <span class="o">.</span><span class="na">join</span><span class="o">(</span><span class="n">predictions</span><span class="o">).</span><span class="na">values</span><span class="o">();</span>
+<span class="kt">double</span> <span class="n">MSE</span> <span class="o">=</span> <span class="n">ratesAndPreds</span><span class="o">.</span><span class="na">mapToDouble</span><span class="o">(</span><span class="n">pair</span> <span class="o">-&gt;</span> <span class="o">{</span>
+  <span class="kt">double</span> <span class="n">err</span> <span class="o">=</span> <span class="n">pair</span><span class="o">.</span><span class="na">_1</span><span class="o">()</span> <span class="o">-</span> <span class="n">pair</span><span class="o">.</span><span class="na">_2</span><span class="o">();</span>
+  <span class="k">return</span> <span class="n">err</span> <span class="o">*</span> <span class="n">err</span><span class="o">;</span>
+<span class="o">}).</span><span class="na">mean</span><span class="o">();</span>
+<span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Mean Squared Error = &quot;</span> <span class="o">+</span> <span class="n">MSE</span><span class="o">);</span>
+
+<span class="c1">// Save and load model</span>
+<span class="n">model</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">jsc</span><span class="o">.</span><span class="na">sc</span><span class="o">(),</span> <span class="s">&quot;target/tmp/myCollaborativeFilter&quot;</span><span class="o">);</span>
+<span class="n">MatrixFactorizationModel</span> <span class="n">sameModel</span> <span class="o">=</span> <span class="n">MatrixFactorizationModel</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">jsc</span><span class="o">.</span><span class="na">sc</span><span class="o">(),</span>
+  <span class="s">&quot;target/tmp/myCollaborativeFilter&quot;</span><span class="o">);</span>
+</pre></div>
+    <div><small>Find full example code at "examples/src/main/java/org/apache/spark/examples/mllib/JavaRecommendationExample.java" in the Spark repo.</small></div>
+  </div>
+
+<div data-lang="python">
+    <p>In the following example we load rating data. Each row consists of a user, a product and a rating.
+We use the default ALS.train() method which assumes ratings are explicit. We evaluate the
+recommendation by measuring the Mean Squared Error of rating prediction.</p>
+
+    <p>Refer to the <a href="api/python/pyspark.mllib.html#pyspark.mllib.recommendation.ALS"><code>ALS</code> Python docs</a> for more details on the API.</p>
+
+    <div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pyspark.mllib.recommendation</span> <span class="kn">import</span> <span class="n">ALS</span><span class="p">,</span> <span class="n">MatrixFactorizationModel</span><span class="p">,</span> <span class="n">Rating</span>
+
+<span class="c1"># Load and parse the data</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="p">(</span><span class="s2">&quot;data/mllib/als/test.data&quot;</span><span class="p">)</span>
+<span class="n">ratings</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">l</span><span class="p">:</span> <span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">))</span>\
+    <span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">l</span><span class="p">:</span> <span class="n">Rating</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="nb">float</span><span class="p">(</span><span class="n">l</span><span class="p">[</span><span class="mi">2</span><span class="p">])))</span>
+
+<span class="c1"># Build the recommendation model using Alternating Least Squares</span>
+<span class="n">rank</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">numIterations</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">ALS</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">ratings</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">numIterations</span><span class="p">)</span>
+
+<span class="c1"># Evaluate the model on training data</span>
+<span class="n">testdata</span> <span class="o">=</span> <span class="n">ratings</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+<span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predictAll</span><span class="p">(</span><span class="n">testdata</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="p">((</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+<span class="n">ratesAndPreds</span> <span class="o">=</span> <span class="n">ratings</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="p">((</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span>
+<span class="n">MSE</span> <span class="o">=</span> <span class="n">ratesAndPreds</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Mean Squared Error = &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">MSE</span><span class="p">))</span>
+
+<span class="c1"># Save and load model</span>
+<span class="n">model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="s2">&quot;target/tmp/myCollaborativeFilter&quot;</span><span class="p">)</span>
+<span class="n">sameModel</span> <span class="o">=</span> <span class="n">MatrixFactorizationModel</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="s2">&quot;target/tmp/myCollaborativeFilter&quot;</span><span class="p">)</span>
+</pre></div>
+    <div><small>Find full example code at "examples/src/main/python/mllib/recommendation_example.py" in the Spark repo.</small></div>
+
+    <p>If the rating matrix is derived from other source of information (i.e. it is inferred from other
+signals), you can use the trainImplicit method to get better results.</p>
+
+    <figure class="highlight"><pre><code class="language-python" data-lang="python"><span></span><span class="c1"># Build the recommendation model using Alternating Least Squares based on implicit ratings</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">ALS</span><span class="o">.</span><span class="n">trainImplicit</span><span class="p">(</span><span class="n">ratings</span><span class="p">,</span> <span class="n">rank</span><span class="p">,</span> <span class="n">numIterations</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span></code></pre></figure>
+
+  </div>
+
+</div>
+
+<p>In order to run the above application, follow the instructions
+provided in the <a href="quick-start.html#self-contained-applications">Self-Contained Applications</a>
+section of the Spark
+Quick Start guide. Be sure to also include <em>spark-mllib</em> to your build file as
+a dependency.</p>
+
+<h2 id="tutorial">Tutorial</h2>
+
+<p>The <a href="https://github.com/databricks/spark-training">training exercises</a> from the Spark Summit 2014 include a hands-on tutorial for
+<a href="https://github.com/databricks/spark-training/blob/master/website/movie-recommendation-with-mllib.md">personalized movie recommendation with <code>spark.mllib</code></a>.</p>
+
+
+                </div>
+            
+             <!-- /container -->
+        </div>
+
+        <script src="js/vendor/jquery-1.8.0.min.js"></script>
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/vendor/anchor.min.js"></script>
+        <script src="js/main.js"></script>
+
+        <!-- MathJax Section -->
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({
+                TeX: { equationNumbers: { autoNumber: "AMS" } }
+            });
+        </script>
+        <script>
+            // Note that we load MathJax this way to work with local file (file://), HTTP and HTTPS.
+            // We could use "//cdn.mathjax...", but that won't support "file://".
+            (function(d, script) {
+                script = d.createElement('script');
+                script.type = 'text/javascript';
+                script.async = true;
+                script.onload = function(){
+                    MathJax.Hub.Config({
+                        tex2jax: {
+                            inlineMath: [ ["$", "$"], ["\\\\(","\\\\)"] ],
+                            displayMath: [ ["$$","$$"], ["\\[", "\\]"] ],
+                            processEscapes: true,
+                            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+                        }
+                    });
+                };
+                script.src = ('https:' == document.location.protocol ? 'https://' : 'http://') +
+                    'cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js' +
+                    '?config=TeX-AMS-MML_HTMLorMML';
+                d.getElementsByTagName('head')[0].appendChild(script);
+            }(document));
+        </script>
+    </body>
+</html>

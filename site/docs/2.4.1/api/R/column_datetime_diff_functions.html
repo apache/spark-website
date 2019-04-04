@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Date time arithmetic functions for Column operations</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/languages/r.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</head><body>
+
+<table width="100%" summary="page for column_datetime_diff_functions {SparkR}"><tr><td>column_datetime_diff_functions {SparkR}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Date time arithmetic functions for Column operations</h2>
+
+<h3>Description</h3>
+
+<p>Date time arithmetic functions defined for <code>Column</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+add_months(y, x)
+
+datediff(y, x)
+
+date_add(y, x)
+
+date_format(y, x)
+
+date_sub(y, x)
+
+from_utc_timestamp(y, x)
+
+months_between(y, x)
+
+next_day(y, x)
+
+to_utc_timestamp(y, x)
+
+## S4 method for signature 'Column'
+datediff(y, x)
+
+## S4 method for signature 'Column'
+months_between(y, x)
+
+## S4 method for signature 'Column,character'
+date_format(y, x)
+
+## S4 method for signature 'Column,character'
+from_utc_timestamp(y, x)
+
+## S4 method for signature 'Column,character'
+next_day(y, x)
+
+## S4 method for signature 'Column,character'
+to_utc_timestamp(y, x)
+
+## S4 method for signature 'Column,numeric'
+add_months(y, x)
+
+## S4 method for signature 'Column,numeric'
+date_add(y, x)
+
+## S4 method for signature 'Column,numeric'
+date_sub(y, x)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>y</code></td>
+<td>
+<p>Column to compute on.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>For class <code>Column</code>, it is the column used to perform arithmetic operations
+with column <code>y</code>. For class <code>numeric</code>, it is the number of months or
+days to be added to or subtracted from <code>y</code>. For class <code>character</code>, it is
+</p>
+
+<ul>
+<li> <p><code>date_format</code>: date format specification.
+</p>
+</li>
+<li> <p><code>from_utc_timestamp</code>, <code>to_utc_timestamp</code>: time zone to use.
+</p>
+</li>
+<li> <p><code>next_day</code>: day of the week string.
+</p>
+</li></ul>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>datediff</code>: Returns the number of days from <code>y</code> to <code>x</code>.
+If <code>y</code> is later than <code>x</code> then the result is positive.
+</p>
+<p><code>months_between</code>: Returns number of months between dates <code>y</code> and <code>x</code>.
+If <code>y</code> is later than <code>x</code>, then the result is positive. If <code>y</code> and <code>x</code>
+are on the same day of month, or both are the last day of month, time of day will be ignored.
+Otherwise, the difference is calculated based on 31 days per month, and rounded to 8 digits.
+</p>
+<p><code>date_format</code>: Converts a date/timestamp/string to a value of string in the format
+specified by the date format given by the second argument. A pattern could be for instance
+<code>dd.MM.yyyy</code> and could return a string like '18.03.1993'. All
+pattern letters of <code>java.text.SimpleDateFormat</code> can be used.
+Note: Use when ever possible specialized functions like <code>year</code>. These benefit from a
+specialized implementation.
+</p>
+<p><code>from_utc_timestamp</code>: This is a common function for databases supporting TIMESTAMP WITHOUT
+TIMEZONE. This function takes a timestamp which is timezone-agnostic, and interprets it as a
+timestamp in UTC, and renders that timestamp as a timestamp in the given time zone.
+However, timestamp in Spark represents number of microseconds from the Unix epoch, which is not
+timezone-agnostic. So in Spark this function just shift the timestamp value from UTC timezone to
+the given timezone.
+This function may return confusing result if the input is a string with timezone, e.g.
+(<code>2018-03-13T06:18:23+00:00</code>). The reason is that, Spark firstly cast the string to
+timestamp according to the timezone in the string, and finally display the result by converting
+the timestamp to string according to the session local timezone.
+</p>
+<p><code>next_day</code>: Given a date column, returns the first date which is later than the value of
+the date column that is on the specified day of the week. For example,
+<code>next_day("2015-07-27", "Sunday")</code> returns 2015-08-02 because that is the first Sunday
+after 2015-07-27. Day of the week parameter is case insensitive, and accepts first three or
+two characters: &quot;Mon&quot;, &quot;Tue&quot;, &quot;Wed&quot;, &quot;Thu&quot;, &quot;Fri&quot;, &quot;Sat&quot;, &quot;Sun&quot;.
+</p>
+<p><code>to_utc_timestamp</code>: This is a common function for databases supporting TIMESTAMP WITHOUT
+TIMEZONE. This function takes a timestamp which is timezone-agnostic, and interprets it as a
+timestamp in the given timezone, and renders that timestamp as a timestamp in UTC.
+However, timestamp in Spark represents number of microseconds from the Unix epoch, which is not
+timezone-agnostic. So in Spark this function just shift the timestamp value from the given
+timezone to UTC timezone.
+This function may return confusing result if the input is a string with timezone, e.g.
+(<code>2018-03-13T06:18:23+00:00</code>). The reason is that, Spark firstly cast the string to
+timestamp according to the timezone in the string, and finally display the result by converting
+the timestamp to string according to the session local timezone.
+</p>
+<p><code>add_months</code>: Returns the date that is numMonths (<code>x</code>) after startDate (<code>y</code>).
+</p>
+<p><code>date_add</code>: Returns the date that is <code>x</code> days after.
+</p>
+<p><code>date_sub</code>: Returns the date that is <code>x</code> days before.
+</p>
+
+
+<h3>Note</h3>
+
+<p>datediff since 1.5.0
+</p>
+<p>months_between since 1.5.0
+</p>
+<p>date_format since 1.5.0
+</p>
+<p>from_utc_timestamp since 1.5.0
+</p>
+<p>next_day since 1.5.0
+</p>
+<p>to_utc_timestamp since 1.5.0
+</p>
+<p>add_months since 1.5.0
+</p>
+<p>date_add since 1.5.0
+</p>
+<p>date_sub since 1.5.0
+</p>
+
+
+<h3>See Also</h3>
+
+<p>Other data time functions: <code><a href="column_datetime_functions.html">column_datetime_functions</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre><code class="r">## Not run: 
+##D dts &lt;- c(&quot;2005-01-02 18:47:22&quot;,
+##D         &quot;2005-12-24 16:30:58&quot;,
+##D         &quot;2005-10-28 07:30:05&quot;,
+##D         &quot;2005-12-28 07:01:05&quot;,
+##D         &quot;2006-01-24 00:01:10&quot;)
+##D y &lt;- c(2.0, 2.2, 3.4, 2.5, 1.8)
+##D df &lt;- createDataFrame(data.frame(time = as.POSIXct(dts), y = y))
+## End(Not run)
+
+## Not run: 
+##D tmp &lt;- createDataFrame(data.frame(time_string1 = as.POSIXct(dts),
+##D              time_string2 = as.POSIXct(dts[order(runif(length(dts)))])))
+##D tmp2 &lt;- mutate(tmp, datediff = datediff(tmp$time_string1, tmp$time_string2),
+##D                monthdiff = months_between(tmp$time_string1, tmp$time_string2))
+##D head(tmp2)
+## End(Not run)
+
+## Not run: 
+##D tmp &lt;- mutate(df, from_utc = from_utc_timestamp(df$time, &quot;PST&quot;),
+##D                  to_utc = to_utc_timestamp(df$time, &quot;PST&quot;))
+##D head(tmp)
+## End(Not run)
+
+## Not run: 
+##D tmp &lt;- mutate(df, t1 = add_months(df$time, 1),
+##D                   t2 = date_add(df$time, 2),
+##D                   t3 = date_sub(df$time, 3),
+##D                   t4 = next_day(df$time, &quot;Sun&quot;))
+##D head(tmp)
+## End(Not run)
+</code></pre>
+
+
+<hr /><div style="text-align: center;">[Package <em>SparkR</em> version 2.4.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

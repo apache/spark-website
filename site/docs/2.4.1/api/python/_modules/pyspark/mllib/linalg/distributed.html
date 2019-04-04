@@ -1,0 +1,1469 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.mllib.linalg.distributed &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../linalg.html" accesskey="U">pyspark.mllib.linalg</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.mllib.linalg.distributed</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Package for distributed linear algebra.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span> <span class="o">&gt;=</span> <span class="s1">&#39;3&#39;</span><span class="p">:</span>
+    <span class="n">long</span> <span class="o">=</span> <span class="nb">int</span>
+
+<span class="kn">from</span> <span class="nn">py4j.java_gateway</span> <span class="k">import</span> <span class="n">JavaObject</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="k">import</span> <span class="n">RDD</span><span class="p">,</span> <span class="n">since</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.common</span> <span class="k">import</span> <span class="n">callMLlibFunc</span><span class="p">,</span> <span class="n">JavaModelWrapper</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.linalg</span> <span class="k">import</span> <span class="n">_convert_to_vector</span><span class="p">,</span> <span class="n">DenseMatrix</span><span class="p">,</span> <span class="n">Matrix</span><span class="p">,</span> <span class="n">QRDecomposition</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.stat</span> <span class="k">import</span> <span class="n">MultivariateStatisticalSummary</span>
+<span class="kn">from</span> <span class="nn">pyspark.storagelevel</span> <span class="k">import</span> <span class="n">StorageLevel</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;BlockMatrix&#39;</span><span class="p">,</span> <span class="s1">&#39;CoordinateMatrix&#39;</span><span class="p">,</span> <span class="s1">&#39;DistributedMatrix&#39;</span><span class="p">,</span> <span class="s1">&#39;IndexedRow&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;IndexedRowMatrix&#39;</span><span class="p">,</span> <span class="s1">&#39;MatrixEntry&#39;</span><span class="p">,</span> <span class="s1">&#39;RowMatrix&#39;</span><span class="p">,</span> <span class="s1">&#39;SingularValueDecomposition&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="DistributedMatrix"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.DistributedMatrix">[docs]</a><span class="k">class</span> <span class="nc">DistributedMatrix</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a distributively stored matrix backed by one or</span>
+<span class="sd">    more RDDs.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="DistributedMatrix.numRows"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.DistributedMatrix.numRows">[docs]</a>    <span class="k">def</span> <span class="nf">numRows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or compute the number of rows.&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="DistributedMatrix.numCols"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.DistributedMatrix.numCols">[docs]</a>    <span class="k">def</span> <span class="nf">numCols</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get or compute the number of cols.&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+
+
+<div class="viewcode-block" id="RowMatrix"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.RowMatrix">[docs]</a><span class="k">class</span> <span class="nc">RowMatrix</span><span class="p">(</span><span class="n">DistributedMatrix</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a row-oriented distributed Matrix with no meaningful</span>
+<span class="sd">    row indices.</span>
+
+<span class="sd">    :param rows: An RDD of vectors.</span>
+<span class="sd">    :param numRows: Number of rows in the matrix. A non-positive</span>
+<span class="sd">                    value means unknown, at which point the number</span>
+<span class="sd">                    of rows will be determined by the number of</span>
+<span class="sd">                    records in the `rows` RDD.</span>
+<span class="sd">    :param numCols: Number of columns in the matrix. A non-positive</span>
+<span class="sd">                    value means unknown, at which point the number</span>
+<span class="sd">                    of columns will be determined by the size of</span>
+<span class="sd">                    the first row.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">numRows</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">numCols</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Note: This docstring is not shown publicly.</span>
+
+<span class="sd">        Create a wrapper over a Java RowMatrix.</span>
+
+<span class="sd">        Publicly, we require that `rows` be an RDD.  However, for</span>
+<span class="sd">        internal usage, `rows` can also be a Java RowMatrix</span>
+<span class="sd">        object, in which case we can wrap it directly.  This</span>
+<span class="sd">        assists in clean matrix conversions.</span>
+
+<span class="sd">        &gt;&gt;&gt; rows = sc.parallelize([[1, 2, 3], [4, 5, 6]])</span>
+<span class="sd">        &gt;&gt;&gt; mat = RowMatrix(rows)</span>
+
+<span class="sd">        &gt;&gt;&gt; mat_diff = RowMatrix(rows)</span>
+<span class="sd">        &gt;&gt;&gt; (mat_diff._java_matrix_wrapper._java_model ==</span>
+<span class="sd">        ...  mat._java_matrix_wrapper._java_model)</span>
+<span class="sd">        False</span>
+
+<span class="sd">        &gt;&gt;&gt; mat_same = RowMatrix(mat._java_matrix_wrapper._java_model)</span>
+<span class="sd">        &gt;&gt;&gt; (mat_same._java_matrix_wrapper._java_model ==</span>
+<span class="sd">        ...  mat._java_matrix_wrapper._java_model)</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">RDD</span><span class="p">):</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="n">rows</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_convert_to_vector</span><span class="p">)</span>
+            <span class="n">java_matrix</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;createRowMatrix&quot;</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">long</span><span class="p">(</span><span class="n">numRows</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">numCols</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">JavaObject</span><span class="p">)</span>
+              <span class="ow">and</span> <span class="n">rows</span><span class="o">.</span><span class="n">getClass</span><span class="p">()</span><span class="o">.</span><span class="n">getSimpleName</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;RowMatrix&quot;</span><span class="p">):</span>
+            <span class="n">java_matrix</span> <span class="o">=</span> <span class="n">rows</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;rows should be an RDD of vectors, got </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">rows</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span> <span class="o">=</span> <span class="n">JavaModelWrapper</span><span class="p">(</span><span class="n">java_matrix</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Rows of the RowMatrix stored as an RDD of vectors.</span>
+
+<span class="sd">        &gt;&gt;&gt; mat = RowMatrix(sc.parallelize([[1, 2, 3], [4, 5, 6]]))</span>
+<span class="sd">        &gt;&gt;&gt; rows = mat.rows</span>
+<span class="sd">        &gt;&gt;&gt; rows.first()</span>
+<span class="sd">        DenseVector([1.0, 2.0, 3.0])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;rows&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RowMatrix.numRows"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.RowMatrix.numRows">[docs]</a>    <span class="k">def</span> <span class="nf">numRows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get or compute the number of rows.</span>
+
+<span class="sd">        &gt;&gt;&gt; rows = sc.parallelize([[1, 2, 3], [4, 5, 6],</span>
+<span class="sd">        ...                        [7, 8, 9], [10, 11, 12]])</span>
+
+<span class="sd">        &gt;&gt;&gt; mat = RowMatrix(rows)</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numRows())</span>
+<span class="sd">        4</span>
+
+<span class="sd">        &gt;&gt;&gt; mat = RowMatrix(rows, 7, 6)</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numRows())</span>
+<span class="sd">        7</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;numRows&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RowMatrix.numCols"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.RowMatrix.numCols">[docs]</a>    <span class="k">def</span> <span class="nf">numCols</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get or compute the number of cols.</span>
+
+<span class="sd">        &gt;&gt;&gt; rows = sc.parallelize([[1, 2, 3], [4, 5, 6],</span>
+<span class="sd">        ...                        [7, 8, 9], [10, 11, 12]])</span>
+
+<span class="sd">        &gt;&gt;&gt; mat = RowMatrix(rows)</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numCols())</span>
+<span class="sd">        3</span>
+
+<span class="sd">        &gt;&gt;&gt; mat = RowMatrix(rows, 7, 6)</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numCols())</span>
+<span class="sd">        6</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;numCols&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RowMatrix.computeColumnSummaryStatistics"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.RowMatrix.computeColumnSummaryStatistics">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.0.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">computeColumnSummaryStatistics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes column-wise summary statistics.</span>
+
+<span class="sd">        :return: :class:`MultivariateStatisticalSummary` object</span>
+<span class="sd">                 containing column-wise summary statistics.</span>
+
+<span class="sd">        &gt;&gt;&gt; rows = sc.parallelize([[1, 2, 3], [4, 5, 6]])</span>
+<span class="sd">        &gt;&gt;&gt; mat = RowMatrix(rows)</span>
+
+<span class="sd">        &gt;&gt;&gt; colStats = mat.computeColumnSummaryStatistics()</span>
+<span class="sd">        &gt;&gt;&gt; colStats.mean()</span>
+<span class="sd">        array([ 2.5,  3.5,  4.5])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">java_col_stats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;computeColumnSummaryStatistics&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">MultivariateStatisticalSummary</span><span class="p">(</span><span class="n">java_col_stats</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RowMatrix.computeCovariance"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.RowMatrix.computeCovariance">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.0.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">computeCovariance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the covariance matrix, treating each row as an</span>
+<span class="sd">        observation.</span>
+
+<span class="sd">        .. note:: This cannot be computed on matrices with more than 65535 columns.</span>
+
+<span class="sd">        &gt;&gt;&gt; rows = sc.parallelize([[1, 2], [2, 1]])</span>
+<span class="sd">        &gt;&gt;&gt; mat = RowMatrix(rows)</span>
+
+<span class="sd">        &gt;&gt;&gt; mat.computeCovariance()</span>
+<span class="sd">        DenseMatrix(2, 2, [0.5, -0.5, -0.5, 0.5], 0)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;computeCovariance&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RowMatrix.computeGramianMatrix"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.RowMatrix.computeGramianMatrix">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.0.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">computeGramianMatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the Gramian matrix `A^T A`.</span>
+
+<span class="sd">        .. note:: This cannot be computed on matrices with more than 65535 columns.</span>
+
+<span class="sd">        &gt;&gt;&gt; rows = sc.parallelize([[1, 2, 3], [4, 5, 6]])</span>
+<span class="sd">        &gt;&gt;&gt; mat = RowMatrix(rows)</span>
+
+<span class="sd">        &gt;&gt;&gt; mat.computeGramianMatrix()</span>
+<span class="sd">        DenseMatrix(3, 3, [17.0, 22.0, 27.0, 22.0, 29.0, 36.0, 27.0, 36.0, 45.0], 0)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;computeGramianMatrix&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RowMatrix.columnSimilarities"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.RowMatrix.columnSimilarities">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.0.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">columnSimilarities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute similarities between columns of this matrix.</span>
+
+<span class="sd">        The threshold parameter is a trade-off knob between estimate</span>
+<span class="sd">        quality and computational cost.</span>
+
+<span class="sd">        The default threshold setting of 0 guarantees deterministically</span>
+<span class="sd">        correct results, but uses the brute-force approach of computing</span>
+<span class="sd">        normalized dot products.</span>
+
+<span class="sd">        Setting the threshold to positive values uses a sampling</span>
+<span class="sd">        approach and incurs strictly less computational cost than the</span>
+<span class="sd">        brute-force approach. However the similarities computed will</span>
+<span class="sd">        be estimates.</span>
+
+<span class="sd">        The sampling guarantees relative-error correctness for those</span>
+<span class="sd">        pairs of columns that have similarity greater than the given</span>
+<span class="sd">        similarity threshold.</span>
+
+<span class="sd">        To describe the guarantee, we set some notation:</span>
+<span class="sd">            * Let A be the smallest in magnitude non-zero element of</span>
+<span class="sd">              this matrix.</span>
+<span class="sd">            * Let B be the largest in magnitude non-zero element of</span>
+<span class="sd">              this matrix.</span>
+<span class="sd">            * Let L be the maximum number of non-zeros per row.</span>
+
+<span class="sd">        For example, for {0,1} matrices: A=B=1.</span>
+<span class="sd">        Another example, for the Netflix matrix: A=1, B=5</span>
+
+<span class="sd">        For those column pairs that are above the threshold, the</span>
+<span class="sd">        computed similarity is correct to within 20% relative error</span>
+<span class="sd">        with probability at least 1 - (0.981)^10/B^</span>
+
+<span class="sd">        The shuffle size is bounded by the *smaller* of the following</span>
+<span class="sd">        two expressions:</span>
+
+<span class="sd">            * O(n log(n) L / (threshold * A))</span>
+<span class="sd">            * O(m L^2^)</span>
+
+<span class="sd">        The latter is the cost of the brute-force approach, so for</span>
+<span class="sd">        non-zero thresholds, the cost is always cheaper than the</span>
+<span class="sd">        brute-force approach.</span>
+
+<span class="sd">        :param: threshold: Set to 0 for deterministic guaranteed</span>
+<span class="sd">                           correctness. Similarities above this</span>
+<span class="sd">                           threshold are estimated with the cost vs</span>
+<span class="sd">                           estimate quality trade-off described above.</span>
+<span class="sd">        :return: An n x n sparse upper-triangular CoordinateMatrix of</span>
+<span class="sd">                 cosine similarities between columns of this matrix.</span>
+
+<span class="sd">        &gt;&gt;&gt; rows = sc.parallelize([[1, 2], [1, 5]])</span>
+<span class="sd">        &gt;&gt;&gt; mat = RowMatrix(rows)</span>
+
+<span class="sd">        &gt;&gt;&gt; sims = mat.columnSimilarities()</span>
+<span class="sd">        &gt;&gt;&gt; sims.entries.first().value</span>
+<span class="sd">        0.91914503...</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">java_sims_mat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;columnSimilarities&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">threshold</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">CoordinateMatrix</span><span class="p">(</span><span class="n">java_sims_mat</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RowMatrix.tallSkinnyQR"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.RowMatrix.tallSkinnyQR">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.0.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">tallSkinnyQR</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">computeQ</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the QR decomposition of this RowMatrix.</span>
+
+<span class="sd">        The implementation is designed to optimize the QR decomposition</span>
+<span class="sd">        (factorization) for the RowMatrix of a tall and skinny shape.</span>
+
+<span class="sd">        Reference:</span>
+<span class="sd">         Paul G. Constantine, David F. Gleich. &quot;Tall and skinny QR</span>
+<span class="sd">         factorizations in MapReduce architectures&quot;</span>
+<span class="sd">         ([[http://dx.doi.org/10.1145/1996092.1996103]])</span>
+
+<span class="sd">        :param: computeQ: whether to computeQ</span>
+<span class="sd">        :return: QRDecomposition(Q: RowMatrix, R: Matrix), where</span>
+<span class="sd">                 Q = None if computeQ = false.</span>
+
+<span class="sd">        &gt;&gt;&gt; rows = sc.parallelize([[3, -6], [4, -8], [0, 1]])</span>
+<span class="sd">        &gt;&gt;&gt; mat = RowMatrix(rows)</span>
+<span class="sd">        &gt;&gt;&gt; decomp = mat.tallSkinnyQR(True)</span>
+<span class="sd">        &gt;&gt;&gt; Q = decomp.Q</span>
+<span class="sd">        &gt;&gt;&gt; R = decomp.R</span>
+
+<span class="sd">        &gt;&gt;&gt; # Test with absolute values</span>
+<span class="sd">        &gt;&gt;&gt; absQRows = Q.rows.map(lambda row: abs(row.toArray()).tolist())</span>
+<span class="sd">        &gt;&gt;&gt; absQRows.collect()</span>
+<span class="sd">        [[0.6..., 0.0], [0.8..., 0.0], [0.0, 1.0]]</span>
+
+<span class="sd">        &gt;&gt;&gt; # Test with absolute values</span>
+<span class="sd">        &gt;&gt;&gt; abs(R.toArray()).tolist()</span>
+<span class="sd">        [[5.0, 10.0], [0.0, 1.0]]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">decomp</span> <span class="o">=</span> <span class="n">JavaModelWrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;tallSkinnyQR&quot;</span><span class="p">,</span> <span class="n">computeQ</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">computeQ</span><span class="p">:</span>
+            <span class="n">java_Q</span> <span class="o">=</span> <span class="n">decomp</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;Q&quot;</span><span class="p">)</span>
+            <span class="n">Q</span> <span class="o">=</span> <span class="n">RowMatrix</span><span class="p">(</span><span class="n">java_Q</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">Q</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">R</span> <span class="o">=</span> <span class="n">decomp</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;R&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">QRDecomposition</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">R</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RowMatrix.computeSVD"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.RowMatrix.computeSVD">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">computeSVD</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">computeU</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">rCond</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the singular value decomposition of the RowMatrix.</span>
+
+<span class="sd">        The given row matrix A of dimension (m X n) is decomposed into</span>
+<span class="sd">        U * s * V&#39;T where</span>
+
+<span class="sd">        * U: (m X k) (left singular vectors) is a RowMatrix whose</span>
+<span class="sd">             columns are the eigenvectors of (A X A&#39;)</span>
+<span class="sd">        * s: DenseVector consisting of square root of the eigenvalues</span>
+<span class="sd">             (singular values) in descending order.</span>
+<span class="sd">        * v: (n X k) (right singular vectors) is a Matrix whose columns</span>
+<span class="sd">             are the eigenvectors of (A&#39; X A)</span>
+
+<span class="sd">        For more specific details on implementation, please refer</span>
+<span class="sd">        the Scala documentation.</span>
+
+<span class="sd">        :param k: Number of leading singular values to keep (`0 &lt; k &lt;= n`).</span>
+<span class="sd">                  It might return less than k if there are numerically zero singular values</span>
+<span class="sd">                  or there are not enough Ritz values converged before the maximum number of</span>
+<span class="sd">                  Arnoldi update iterations is reached (in case that matrix A is ill-conditioned).</span>
+<span class="sd">        :param computeU: Whether or not to compute U. If set to be</span>
+<span class="sd">                         True, then U is computed by A * V * s^-1</span>
+<span class="sd">        :param rCond: Reciprocal condition number. All singular values</span>
+<span class="sd">                      smaller than rCond * s[0] are treated as zero</span>
+<span class="sd">                      where s[0] is the largest singular value.</span>
+<span class="sd">        :returns: :py:class:`SingularValueDecomposition`</span>
+
+<span class="sd">        &gt;&gt;&gt; rows = sc.parallelize([[3, 1, 1], [-1, 3, 1]])</span>
+<span class="sd">        &gt;&gt;&gt; rm = RowMatrix(rows)</span>
+
+<span class="sd">        &gt;&gt;&gt; svd_model = rm.computeSVD(2, True)</span>
+<span class="sd">        &gt;&gt;&gt; svd_model.U.rows.collect()</span>
+<span class="sd">        [DenseVector([-0.7071, 0.7071]), DenseVector([-0.7071, -0.7071])]</span>
+<span class="sd">        &gt;&gt;&gt; svd_model.s</span>
+<span class="sd">        DenseVector([3.4641, 3.1623])</span>
+<span class="sd">        &gt;&gt;&gt; svd_model.V</span>
+<span class="sd">        DenseMatrix(3, 2, [-0.4082, -0.8165, -0.4082, 0.8944, -0.4472, 0.0], 0)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">j_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+            <span class="s2">&quot;computeSVD&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="nb">bool</span><span class="p">(</span><span class="n">computeU</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">rCond</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">SingularValueDecomposition</span><span class="p">(</span><span class="n">j_model</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RowMatrix.computePrincipalComponents"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.RowMatrix.computePrincipalComponents">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">computePrincipalComponents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the k principal components of the given row matrix</span>
+
+<span class="sd">        .. note:: This cannot be computed on matrices with more than 65535 columns.</span>
+
+<span class="sd">        :param k: Number of principal components to keep.</span>
+<span class="sd">        :returns: :py:class:`pyspark.mllib.linalg.DenseMatrix`</span>
+
+<span class="sd">        &gt;&gt;&gt; rows = sc.parallelize([[1, 2, 3], [2, 4, 5], [3, 6, 1]])</span>
+<span class="sd">        &gt;&gt;&gt; rm = RowMatrix(rows)</span>
+
+<span class="sd">        &gt;&gt;&gt; # Returns the two principal components of rm</span>
+<span class="sd">        &gt;&gt;&gt; pca = rm.computePrincipalComponents(2)</span>
+<span class="sd">        &gt;&gt;&gt; pca</span>
+<span class="sd">        DenseMatrix(3, 2, [-0.349, -0.6981, 0.6252, -0.2796, -0.5592, -0.7805], 0)</span>
+
+<span class="sd">        &gt;&gt;&gt; # Transform into new dimensions with the greatest variance.</span>
+<span class="sd">        &gt;&gt;&gt; rm.multiply(pca).rows.collect() # doctest: +NORMALIZE_WHITESPACE</span>
+<span class="sd">        [DenseVector([0.1305, -3.7394]), DenseVector([-0.3642, -6.6983]), \</span>
+<span class="sd">        DenseVector([-4.6102, -4.9745])]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;computePrincipalComponents&quot;</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RowMatrix.multiply"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.RowMatrix.multiply">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">multiply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrix</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Multiply this matrix by a local dense matrix on the right.</span>
+
+<span class="sd">        :param matrix: a local dense matrix whose number of rows must match the number of columns</span>
+<span class="sd">                       of this matrix</span>
+<span class="sd">        :returns: :py:class:`RowMatrix`</span>
+
+<span class="sd">        &gt;&gt;&gt; rm = RowMatrix(sc.parallelize([[0, 1], [2, 3]]))</span>
+<span class="sd">        &gt;&gt;&gt; rm.multiply(DenseMatrix(2, 2, [0, 2, 1, 3])).rows.collect()</span>
+<span class="sd">        [DenseVector([2.0, 3.0]), DenseVector([6.0, 11.0])]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">DenseMatrix</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only multiplication with DenseMatrix &quot;</span>
+                             <span class="s2">&quot;is supported.&quot;</span><span class="p">)</span>
+        <span class="n">j_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;multiply&quot;</span><span class="p">,</span> <span class="n">matrix</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">RowMatrix</span><span class="p">(</span><span class="n">j_model</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="SingularValueDecomposition"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.SingularValueDecomposition">[docs]</a><span class="k">class</span> <span class="nc">SingularValueDecomposition</span><span class="p">(</span><span class="n">JavaModelWrapper</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents singular value decomposition (SVD) factors.</span>
+
+<span class="sd">    .. versionadded:: 2.2.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">U</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a distributed matrix whose columns are the left</span>
+<span class="sd">        singular vectors of the SingularValueDecomposition if computeU was set to be True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;U&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">u</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mat_name</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">getClass</span><span class="p">()</span><span class="o">.</span><span class="n">getSimpleName</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">mat_name</span> <span class="o">==</span> <span class="s2">&quot;RowMatrix&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">RowMatrix</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">mat_name</span> <span class="o">==</span> <span class="s2">&quot;IndexedRowMatrix&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">IndexedRowMatrix</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Expected RowMatrix/IndexedRowMatrix got </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">mat_name</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">s</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a DenseVector with singular values in descending order.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">V</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a DenseMatrix whose columns are the right singular</span>
+<span class="sd">        vectors of the SingularValueDecomposition.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;V&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="IndexedRow"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.IndexedRow">[docs]</a><span class="k">class</span> <span class="nc">IndexedRow</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a row of an IndexedRowMatrix.</span>
+
+<span class="sd">    Just a wrapper over a (long, vector) tuple.</span>
+
+<span class="sd">    :param index: The index for the given row.</span>
+<span class="sd">    :param vector: The row in the matrix at the given index.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">vector</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">long</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vector</span> <span class="o">=</span> <span class="n">_convert_to_vector</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;IndexedRow(</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">vector</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_convert_to_indexed_row</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">IndexedRow</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">row</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">IndexedRow</span><span class="p">(</span><span class="o">*</span><span class="n">row</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot convert type </span><span class="si">%s</span><span class="s2"> into IndexedRow&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">row</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="IndexedRowMatrix"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.IndexedRowMatrix">[docs]</a><span class="k">class</span> <span class="nc">IndexedRowMatrix</span><span class="p">(</span><span class="n">DistributedMatrix</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a row-oriented distributed Matrix with indexed rows.</span>
+
+<span class="sd">    :param rows: An RDD of IndexedRows or (long, vector) tuples.</span>
+<span class="sd">    :param numRows: Number of rows in the matrix. A non-positive</span>
+<span class="sd">                    value means unknown, at which point the number</span>
+<span class="sd">                    of rows will be determined by the max row</span>
+<span class="sd">                    index plus one.</span>
+<span class="sd">    :param numCols: Number of columns in the matrix. A non-positive</span>
+<span class="sd">                    value means unknown, at which point the number</span>
+<span class="sd">                    of columns will be determined by the size of</span>
+<span class="sd">                    the first row.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rows</span><span class="p">,</span> <span class="n">numRows</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">numCols</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Note: This docstring is not shown publicly.</span>
+
+<span class="sd">        Create a wrapper over a Java IndexedRowMatrix.</span>
+
+<span class="sd">        Publicly, we require that `rows` be an RDD.  However, for</span>
+<span class="sd">        internal usage, `rows` can also be a Java IndexedRowMatrix</span>
+<span class="sd">        object, in which case we can wrap it directly.  This</span>
+<span class="sd">        assists in clean matrix conversions.</span>
+
+<span class="sd">        &gt;&gt;&gt; rows = sc.parallelize([IndexedRow(0, [1, 2, 3]),</span>
+<span class="sd">        ...                        IndexedRow(1, [4, 5, 6])])</span>
+<span class="sd">        &gt;&gt;&gt; mat = IndexedRowMatrix(rows)</span>
+
+<span class="sd">        &gt;&gt;&gt; mat_diff = IndexedRowMatrix(rows)</span>
+<span class="sd">        &gt;&gt;&gt; (mat_diff._java_matrix_wrapper._java_model ==</span>
+<span class="sd">        ...  mat._java_matrix_wrapper._java_model)</span>
+<span class="sd">        False</span>
+
+<span class="sd">        &gt;&gt;&gt; mat_same = IndexedRowMatrix(mat._java_matrix_wrapper._java_model)</span>
+<span class="sd">        &gt;&gt;&gt; (mat_same._java_matrix_wrapper._java_model ==</span>
+<span class="sd">        ...  mat._java_matrix_wrapper._java_model)</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">RDD</span><span class="p">):</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="n">rows</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_convert_to_indexed_row</span><span class="p">)</span>
+            <span class="c1"># We use DataFrames for serialization of IndexedRows from</span>
+            <span class="c1"># Python, so first convert the RDD to a DataFrame on this</span>
+            <span class="c1"># side. This will convert each IndexedRow to a Row</span>
+            <span class="c1"># containing the &#39;index&#39; and &#39;vector&#39; values, which can</span>
+            <span class="c1"># both be easily serialized.  We will convert back to</span>
+            <span class="c1"># IndexedRows on the Scala side.</span>
+            <span class="n">java_matrix</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;createIndexedRowMatrix&quot;</span><span class="p">,</span> <span class="n">rows</span><span class="o">.</span><span class="n">toDF</span><span class="p">(),</span>
+                                        <span class="n">long</span><span class="p">(</span><span class="n">numRows</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">numCols</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">JavaObject</span><span class="p">)</span>
+              <span class="ow">and</span> <span class="n">rows</span><span class="o">.</span><span class="n">getClass</span><span class="p">()</span><span class="o">.</span><span class="n">getSimpleName</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;IndexedRowMatrix&quot;</span><span class="p">):</span>
+            <span class="n">java_matrix</span> <span class="o">=</span> <span class="n">rows</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;rows should be an RDD of IndexedRows or (long, vector) tuples, &quot;</span>
+                            <span class="s2">&quot;got </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">rows</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span> <span class="o">=</span> <span class="n">JavaModelWrapper</span><span class="p">(</span><span class="n">java_matrix</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Rows of the IndexedRowMatrix stored as an RDD of IndexedRows.</span>
+
+<span class="sd">        &gt;&gt;&gt; mat = IndexedRowMatrix(sc.parallelize([IndexedRow(0, [1, 2, 3]),</span>
+<span class="sd">        ...                                        IndexedRow(1, [4, 5, 6])]))</span>
+<span class="sd">        &gt;&gt;&gt; rows = mat.rows</span>
+<span class="sd">        &gt;&gt;&gt; rows.first()</span>
+<span class="sd">        IndexedRow(0, [1.0,2.0,3.0])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># We use DataFrames for serialization of IndexedRows from</span>
+        <span class="c1"># Java, so we first convert the RDD of rows to a DataFrame</span>
+        <span class="c1"># on the Scala/Java side. Then we map each Row in the</span>
+        <span class="c1"># DataFrame back to an IndexedRow on this side.</span>
+        <span class="n">rows_df</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;getIndexedRows&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">_java_model</span><span class="p">)</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">rows_df</span><span class="o">.</span><span class="n">rdd</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">IndexedRow</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">rows</span>
+
+<div class="viewcode-block" id="IndexedRowMatrix.numRows"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.IndexedRowMatrix.numRows">[docs]</a>    <span class="k">def</span> <span class="nf">numRows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get or compute the number of rows.</span>
+
+<span class="sd">        &gt;&gt;&gt; rows = sc.parallelize([IndexedRow(0, [1, 2, 3]),</span>
+<span class="sd">        ...                        IndexedRow(1, [4, 5, 6]),</span>
+<span class="sd">        ...                        IndexedRow(2, [7, 8, 9]),</span>
+<span class="sd">        ...                        IndexedRow(3, [10, 11, 12])])</span>
+
+<span class="sd">        &gt;&gt;&gt; mat = IndexedRowMatrix(rows)</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numRows())</span>
+<span class="sd">        4</span>
+
+<span class="sd">        &gt;&gt;&gt; mat = IndexedRowMatrix(rows, 7, 6)</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numRows())</span>
+<span class="sd">        7</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;numRows&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IndexedRowMatrix.numCols"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.IndexedRowMatrix.numCols">[docs]</a>    <span class="k">def</span> <span class="nf">numCols</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get or compute the number of cols.</span>
+
+<span class="sd">        &gt;&gt;&gt; rows = sc.parallelize([IndexedRow(0, [1, 2, 3]),</span>
+<span class="sd">        ...                        IndexedRow(1, [4, 5, 6]),</span>
+<span class="sd">        ...                        IndexedRow(2, [7, 8, 9]),</span>
+<span class="sd">        ...                        IndexedRow(3, [10, 11, 12])])</span>
+
+<span class="sd">        &gt;&gt;&gt; mat = IndexedRowMatrix(rows)</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numCols())</span>
+<span class="sd">        3</span>
+
+<span class="sd">        &gt;&gt;&gt; mat = IndexedRowMatrix(rows, 7, 6)</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numCols())</span>
+<span class="sd">        6</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;numCols&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IndexedRowMatrix.columnSimilarities"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.IndexedRowMatrix.columnSimilarities">[docs]</a>    <span class="k">def</span> <span class="nf">columnSimilarities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute all cosine similarities between columns.</span>
+
+<span class="sd">        &gt;&gt;&gt; rows = sc.parallelize([IndexedRow(0, [1, 2, 3]),</span>
+<span class="sd">        ...                        IndexedRow(6, [4, 5, 6])])</span>
+<span class="sd">        &gt;&gt;&gt; mat = IndexedRowMatrix(rows)</span>
+<span class="sd">        &gt;&gt;&gt; cs = mat.columnSimilarities()</span>
+<span class="sd">        &gt;&gt;&gt; print(cs.numCols())</span>
+<span class="sd">        3</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">java_coordinate_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;columnSimilarities&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">CoordinateMatrix</span><span class="p">(</span><span class="n">java_coordinate_matrix</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IndexedRowMatrix.computeGramianMatrix"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.IndexedRowMatrix.computeGramianMatrix">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.0.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">computeGramianMatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the Gramian matrix `A^T A`.</span>
+
+<span class="sd">        .. note:: This cannot be computed on matrices with more than 65535 columns.</span>
+
+<span class="sd">        &gt;&gt;&gt; rows = sc.parallelize([IndexedRow(0, [1, 2, 3]),</span>
+<span class="sd">        ...                        IndexedRow(1, [4, 5, 6])])</span>
+<span class="sd">        &gt;&gt;&gt; mat = IndexedRowMatrix(rows)</span>
+
+<span class="sd">        &gt;&gt;&gt; mat.computeGramianMatrix()</span>
+<span class="sd">        DenseMatrix(3, 3, [17.0, 22.0, 27.0, 22.0, 29.0, 36.0, 27.0, 36.0, 45.0], 0)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;computeGramianMatrix&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IndexedRowMatrix.toRowMatrix"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.IndexedRowMatrix.toRowMatrix">[docs]</a>    <span class="k">def</span> <span class="nf">toRowMatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert this matrix to a RowMatrix.</span>
+
+<span class="sd">        &gt;&gt;&gt; rows = sc.parallelize([IndexedRow(0, [1, 2, 3]),</span>
+<span class="sd">        ...                        IndexedRow(6, [4, 5, 6])])</span>
+<span class="sd">        &gt;&gt;&gt; mat = IndexedRowMatrix(rows).toRowMatrix()</span>
+<span class="sd">        &gt;&gt;&gt; mat.rows.collect()</span>
+<span class="sd">        [DenseVector([1.0, 2.0, 3.0]), DenseVector([4.0, 5.0, 6.0])]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">java_row_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;toRowMatrix&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">RowMatrix</span><span class="p">(</span><span class="n">java_row_matrix</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IndexedRowMatrix.toCoordinateMatrix"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.IndexedRowMatrix.toCoordinateMatrix">[docs]</a>    <span class="k">def</span> <span class="nf">toCoordinateMatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert this matrix to a CoordinateMatrix.</span>
+
+<span class="sd">        &gt;&gt;&gt; rows = sc.parallelize([IndexedRow(0, [1, 0]),</span>
+<span class="sd">        ...                        IndexedRow(6, [0, 5])])</span>
+<span class="sd">        &gt;&gt;&gt; mat = IndexedRowMatrix(rows).toCoordinateMatrix()</span>
+<span class="sd">        &gt;&gt;&gt; mat.entries.take(3)</span>
+<span class="sd">        [MatrixEntry(0, 0, 1.0), MatrixEntry(0, 1, 0.0), MatrixEntry(6, 0, 0.0)]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">java_coordinate_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;toCoordinateMatrix&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">CoordinateMatrix</span><span class="p">(</span><span class="n">java_coordinate_matrix</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IndexedRowMatrix.toBlockMatrix"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.IndexedRowMatrix.toBlockMatrix">[docs]</a>    <span class="k">def</span> <span class="nf">toBlockMatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rowsPerBlock</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">colsPerBlock</span><span class="o">=</span><span class="mi">1024</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert this matrix to a BlockMatrix.</span>
+
+<span class="sd">        :param rowsPerBlock: Number of rows that make up each block.</span>
+<span class="sd">                             The blocks forming the final rows are not</span>
+<span class="sd">                             required to have the given number of rows.</span>
+<span class="sd">        :param colsPerBlock: Number of columns that make up each block.</span>
+<span class="sd">                             The blocks forming the final columns are not</span>
+<span class="sd">                             required to have the given number of columns.</span>
+
+<span class="sd">        &gt;&gt;&gt; rows = sc.parallelize([IndexedRow(0, [1, 2, 3]),</span>
+<span class="sd">        ...                        IndexedRow(6, [4, 5, 6])])</span>
+<span class="sd">        &gt;&gt;&gt; mat = IndexedRowMatrix(rows).toBlockMatrix()</span>
+
+<span class="sd">        &gt;&gt;&gt; # This IndexedRowMatrix will have 7 effective rows, due to</span>
+<span class="sd">        &gt;&gt;&gt; # the highest row index being 6, and the ensuing</span>
+<span class="sd">        &gt;&gt;&gt; # BlockMatrix will have 7 rows as well.</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numRows())</span>
+<span class="sd">        7</span>
+
+<span class="sd">        &gt;&gt;&gt; print(mat.numCols())</span>
+<span class="sd">        3</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">java_block_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;toBlockMatrix&quot;</span><span class="p">,</span>
+                                                           <span class="n">rowsPerBlock</span><span class="p">,</span>
+                                                           <span class="n">colsPerBlock</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BlockMatrix</span><span class="p">(</span><span class="n">java_block_matrix</span><span class="p">,</span> <span class="n">rowsPerBlock</span><span class="p">,</span> <span class="n">colsPerBlock</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IndexedRowMatrix.computeSVD"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.IndexedRowMatrix.computeSVD">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">computeSVD</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">computeU</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">rCond</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the singular value decomposition of the IndexedRowMatrix.</span>
+
+<span class="sd">        The given row matrix A of dimension (m X n) is decomposed into</span>
+<span class="sd">        U * s * V&#39;T where</span>
+
+<span class="sd">        * U: (m X k) (left singular vectors) is a IndexedRowMatrix</span>
+<span class="sd">             whose columns are the eigenvectors of (A X A&#39;)</span>
+<span class="sd">        * s: DenseVector consisting of square root of the eigenvalues</span>
+<span class="sd">             (singular values) in descending order.</span>
+<span class="sd">        * v: (n X k) (right singular vectors) is a Matrix whose columns</span>
+<span class="sd">             are the eigenvectors of (A&#39; X A)</span>
+
+<span class="sd">        For more specific details on implementation, please refer</span>
+<span class="sd">        the scala documentation.</span>
+
+<span class="sd">        :param k: Number of leading singular values to keep (`0 &lt; k &lt;= n`).</span>
+<span class="sd">                  It might return less than k if there are numerically zero singular values</span>
+<span class="sd">                  or there are not enough Ritz values converged before the maximum number of</span>
+<span class="sd">                  Arnoldi update iterations is reached (in case that matrix A is ill-conditioned).</span>
+<span class="sd">        :param computeU: Whether or not to compute U. If set to be</span>
+<span class="sd">                         True, then U is computed by A * V * s^-1</span>
+<span class="sd">        :param rCond: Reciprocal condition number. All singular values</span>
+<span class="sd">                      smaller than rCond * s[0] are treated as zero</span>
+<span class="sd">                      where s[0] is the largest singular value.</span>
+<span class="sd">        :returns: SingularValueDecomposition object</span>
+
+<span class="sd">        &gt;&gt;&gt; rows = [(0, (3, 1, 1)), (1, (-1, 3, 1))]</span>
+<span class="sd">        &gt;&gt;&gt; irm = IndexedRowMatrix(sc.parallelize(rows))</span>
+<span class="sd">        &gt;&gt;&gt; svd_model = irm.computeSVD(2, True)</span>
+<span class="sd">        &gt;&gt;&gt; svd_model.U.rows.collect() # doctest: +NORMALIZE_WHITESPACE</span>
+<span class="sd">        [IndexedRow(0, [-0.707106781187,0.707106781187]),\</span>
+<span class="sd">        IndexedRow(1, [-0.707106781187,-0.707106781187])]</span>
+<span class="sd">        &gt;&gt;&gt; svd_model.s</span>
+<span class="sd">        DenseVector([3.4641, 3.1623])</span>
+<span class="sd">        &gt;&gt;&gt; svd_model.V</span>
+<span class="sd">        DenseMatrix(3, 2, [-0.4082, -0.8165, -0.4082, 0.8944, -0.4472, 0.0], 0)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">j_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+            <span class="s2">&quot;computeSVD&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="nb">bool</span><span class="p">(</span><span class="n">computeU</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">rCond</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">SingularValueDecomposition</span><span class="p">(</span><span class="n">j_model</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IndexedRowMatrix.multiply"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.IndexedRowMatrix.multiply">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">multiply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">matrix</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Multiply this matrix by a local dense matrix on the right.</span>
+
+<span class="sd">        :param matrix: a local dense matrix whose number of rows must match the number of columns</span>
+<span class="sd">                       of this matrix</span>
+<span class="sd">        :returns: :py:class:`IndexedRowMatrix`</span>
+
+<span class="sd">        &gt;&gt;&gt; mat = IndexedRowMatrix(sc.parallelize([(0, (0, 1)), (1, (2, 3))]))</span>
+<span class="sd">        &gt;&gt;&gt; mat.multiply(DenseMatrix(2, 2, [0, 2, 1, 3])).rows.collect()</span>
+<span class="sd">        [IndexedRow(0, [2.0,3.0]), IndexedRow(1, [6.0,11.0])]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">DenseMatrix</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only multiplication with DenseMatrix &quot;</span>
+                             <span class="s2">&quot;is supported.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">IndexedRowMatrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;multiply&quot;</span><span class="p">,</span> <span class="n">matrix</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="MatrixEntry"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.MatrixEntry">[docs]</a><span class="k">class</span> <span class="nc">MatrixEntry</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents an entry of a CoordinateMatrix.</span>
+
+<span class="sd">    Just a wrapper over a (long, long, float) tuple.</span>
+
+<span class="sd">    :param i: The row index of the matrix.</span>
+<span class="sd">    :param j: The column index of the matrix.</span>
+<span class="sd">    :param value: The (i, j)th entry of the matrix, as a float.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">i</span> <span class="o">=</span> <span class="n">long</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">j</span> <span class="o">=</span> <span class="n">long</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;MatrixEntry(</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_convert_to_matrix_entry</span><span class="p">(</span><span class="n">entry</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">MatrixEntry</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">entry</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">MatrixEntry</span><span class="p">(</span><span class="o">*</span><span class="n">entry</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot convert type </span><span class="si">%s</span><span class="s2"> into MatrixEntry&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">entry</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="CoordinateMatrix"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.CoordinateMatrix">[docs]</a><span class="k">class</span> <span class="nc">CoordinateMatrix</span><span class="p">(</span><span class="n">DistributedMatrix</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a matrix in coordinate format.</span>
+
+<span class="sd">    :param entries: An RDD of MatrixEntry inputs or</span>
+<span class="sd">                    (long, long, float) tuples.</span>
+<span class="sd">    :param numRows: Number of rows in the matrix. A non-positive</span>
+<span class="sd">                    value means unknown, at which point the number</span>
+<span class="sd">                    of rows will be determined by the max row</span>
+<span class="sd">                    index plus one.</span>
+<span class="sd">    :param numCols: Number of columns in the matrix. A non-positive</span>
+<span class="sd">                    value means unknown, at which point the number</span>
+<span class="sd">                    of columns will be determined by the max row</span>
+<span class="sd">                    index plus one.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">entries</span><span class="p">,</span> <span class="n">numRows</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">numCols</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Note: This docstring is not shown publicly.</span>
+
+<span class="sd">        Create a wrapper over a Java CoordinateMatrix.</span>
+
+<span class="sd">        Publicly, we require that `rows` be an RDD.  However, for</span>
+<span class="sd">        internal usage, `rows` can also be a Java CoordinateMatrix</span>
+<span class="sd">        object, in which case we can wrap it directly.  This</span>
+<span class="sd">        assists in clean matrix conversions.</span>
+
+<span class="sd">        &gt;&gt;&gt; entries = sc.parallelize([MatrixEntry(0, 0, 1.2),</span>
+<span class="sd">        ...                           MatrixEntry(6, 4, 2.1)])</span>
+<span class="sd">        &gt;&gt;&gt; mat = CoordinateMatrix(entries)</span>
+
+<span class="sd">        &gt;&gt;&gt; mat_diff = CoordinateMatrix(entries)</span>
+<span class="sd">        &gt;&gt;&gt; (mat_diff._java_matrix_wrapper._java_model ==</span>
+<span class="sd">        ...  mat._java_matrix_wrapper._java_model)</span>
+<span class="sd">        False</span>
+
+<span class="sd">        &gt;&gt;&gt; mat_same = CoordinateMatrix(mat._java_matrix_wrapper._java_model)</span>
+<span class="sd">        &gt;&gt;&gt; (mat_same._java_matrix_wrapper._java_model ==</span>
+<span class="sd">        ...  mat._java_matrix_wrapper._java_model)</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">RDD</span><span class="p">):</span>
+            <span class="n">entries</span> <span class="o">=</span> <span class="n">entries</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_convert_to_matrix_entry</span><span class="p">)</span>
+            <span class="c1"># We use DataFrames for serialization of MatrixEntry entries</span>
+            <span class="c1"># from Python, so first convert the RDD to a DataFrame on</span>
+            <span class="c1"># this side. This will convert each MatrixEntry to a Row</span>
+            <span class="c1"># containing the &#39;i&#39;, &#39;j&#39;, and &#39;value&#39; values, which can</span>
+            <span class="c1"># each be easily serialized. We will convert back to</span>
+            <span class="c1"># MatrixEntry inputs on the Scala side.</span>
+            <span class="n">java_matrix</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;createCoordinateMatrix&quot;</span><span class="p">,</span> <span class="n">entries</span><span class="o">.</span><span class="n">toDF</span><span class="p">(),</span>
+                                        <span class="n">long</span><span class="p">(</span><span class="n">numRows</span><span class="p">),</span> <span class="n">long</span><span class="p">(</span><span class="n">numCols</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">entries</span><span class="p">,</span> <span class="n">JavaObject</span><span class="p">)</span>
+              <span class="ow">and</span> <span class="n">entries</span><span class="o">.</span><span class="n">getClass</span><span class="p">()</span><span class="o">.</span><span class="n">getSimpleName</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;CoordinateMatrix&quot;</span><span class="p">):</span>
+            <span class="n">java_matrix</span> <span class="o">=</span> <span class="n">entries</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;entries should be an RDD of MatrixEntry entries or &quot;</span>
+                            <span class="s2">&quot;(long, long, float) tuples, got </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">entries</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span> <span class="o">=</span> <span class="n">JavaModelWrapper</span><span class="p">(</span><span class="n">java_matrix</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">entries</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Entries of the CoordinateMatrix stored as an RDD of</span>
+<span class="sd">        MatrixEntries.</span>
+
+<span class="sd">        &gt;&gt;&gt; mat = CoordinateMatrix(sc.parallelize([MatrixEntry(0, 0, 1.2),</span>
+<span class="sd">        ...                                        MatrixEntry(6, 4, 2.1)]))</span>
+<span class="sd">        &gt;&gt;&gt; entries = mat.entries</span>
+<span class="sd">        &gt;&gt;&gt; entries.first()</span>
+<span class="sd">        MatrixEntry(0, 0, 1.2)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># We use DataFrames for serialization of MatrixEntry entries</span>
+        <span class="c1"># from Java, so we first convert the RDD of entries to a</span>
+        <span class="c1"># DataFrame on the Scala/Java side. Then we map each Row in</span>
+        <span class="c1"># the DataFrame back to a MatrixEntry on this side.</span>
+        <span class="n">entries_df</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;getMatrixEntries&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">_java_model</span><span class="p">)</span>
+        <span class="n">entries</span> <span class="o">=</span> <span class="n">entries_df</span><span class="o">.</span><span class="n">rdd</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="n">MatrixEntry</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">entries</span>
+
+<div class="viewcode-block" id="CoordinateMatrix.numRows"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.CoordinateMatrix.numRows">[docs]</a>    <span class="k">def</span> <span class="nf">numRows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get or compute the number of rows.</span>
+
+<span class="sd">        &gt;&gt;&gt; entries = sc.parallelize([MatrixEntry(0, 0, 1.2),</span>
+<span class="sd">        ...                           MatrixEntry(1, 0, 2),</span>
+<span class="sd">        ...                           MatrixEntry(2, 1, 3.7)])</span>
+
+<span class="sd">        &gt;&gt;&gt; mat = CoordinateMatrix(entries)</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numRows())</span>
+<span class="sd">        3</span>
+
+<span class="sd">        &gt;&gt;&gt; mat = CoordinateMatrix(entries, 7, 6)</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numRows())</span>
+<span class="sd">        7</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;numRows&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CoordinateMatrix.numCols"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.CoordinateMatrix.numCols">[docs]</a>    <span class="k">def</span> <span class="nf">numCols</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get or compute the number of cols.</span>
+
+<span class="sd">        &gt;&gt;&gt; entries = sc.parallelize([MatrixEntry(0, 0, 1.2),</span>
+<span class="sd">        ...                           MatrixEntry(1, 0, 2),</span>
+<span class="sd">        ...                           MatrixEntry(2, 1, 3.7)])</span>
+
+<span class="sd">        &gt;&gt;&gt; mat = CoordinateMatrix(entries)</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numCols())</span>
+<span class="sd">        2</span>
+
+<span class="sd">        &gt;&gt;&gt; mat = CoordinateMatrix(entries, 7, 6)</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numCols())</span>
+<span class="sd">        6</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;numCols&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CoordinateMatrix.transpose"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.CoordinateMatrix.transpose">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.0.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">transpose</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transpose this CoordinateMatrix.</span>
+
+<span class="sd">        &gt;&gt;&gt; entries = sc.parallelize([MatrixEntry(0, 0, 1.2),</span>
+<span class="sd">        ...                           MatrixEntry(1, 0, 2),</span>
+<span class="sd">        ...                           MatrixEntry(2, 1, 3.7)])</span>
+<span class="sd">        &gt;&gt;&gt; mat = CoordinateMatrix(entries)</span>
+<span class="sd">        &gt;&gt;&gt; mat_transposed = mat.transpose()</span>
+
+<span class="sd">        &gt;&gt;&gt; print(mat_transposed.numRows())</span>
+<span class="sd">        2</span>
+
+<span class="sd">        &gt;&gt;&gt; print(mat_transposed.numCols())</span>
+<span class="sd">        3</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">java_transposed_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;transpose&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">CoordinateMatrix</span><span class="p">(</span><span class="n">java_transposed_matrix</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CoordinateMatrix.toRowMatrix"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.CoordinateMatrix.toRowMatrix">[docs]</a>    <span class="k">def</span> <span class="nf">toRowMatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert this matrix to a RowMatrix.</span>
+
+<span class="sd">        &gt;&gt;&gt; entries = sc.parallelize([MatrixEntry(0, 0, 1.2),</span>
+<span class="sd">        ...                           MatrixEntry(6, 4, 2.1)])</span>
+<span class="sd">        &gt;&gt;&gt; mat = CoordinateMatrix(entries).toRowMatrix()</span>
+
+<span class="sd">        &gt;&gt;&gt; # This CoordinateMatrix will have 7 effective rows, due to</span>
+<span class="sd">        &gt;&gt;&gt; # the highest row index being 6, but the ensuing RowMatrix</span>
+<span class="sd">        &gt;&gt;&gt; # will only have 2 rows since there are only entries on 2</span>
+<span class="sd">        &gt;&gt;&gt; # unique rows.</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numRows())</span>
+<span class="sd">        2</span>
+
+<span class="sd">        &gt;&gt;&gt; # This CoordinateMatrix will have 5 columns, due to the</span>
+<span class="sd">        &gt;&gt;&gt; # highest column index being 4, and the ensuing RowMatrix</span>
+<span class="sd">        &gt;&gt;&gt; # will have 5 columns as well.</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numCols())</span>
+<span class="sd">        5</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">java_row_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;toRowMatrix&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">RowMatrix</span><span class="p">(</span><span class="n">java_row_matrix</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CoordinateMatrix.toIndexedRowMatrix"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.CoordinateMatrix.toIndexedRowMatrix">[docs]</a>    <span class="k">def</span> <span class="nf">toIndexedRowMatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert this matrix to an IndexedRowMatrix.</span>
+
+<span class="sd">        &gt;&gt;&gt; entries = sc.parallelize([MatrixEntry(0, 0, 1.2),</span>
+<span class="sd">        ...                           MatrixEntry(6, 4, 2.1)])</span>
+<span class="sd">        &gt;&gt;&gt; mat = CoordinateMatrix(entries).toIndexedRowMatrix()</span>
+
+<span class="sd">        &gt;&gt;&gt; # This CoordinateMatrix will have 7 effective rows, due to</span>
+<span class="sd">        &gt;&gt;&gt; # the highest row index being 6, and the ensuing</span>
+<span class="sd">        &gt;&gt;&gt; # IndexedRowMatrix will have 7 rows as well.</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numRows())</span>
+<span class="sd">        7</span>
+
+<span class="sd">        &gt;&gt;&gt; # This CoordinateMatrix will have 5 columns, due to the</span>
+<span class="sd">        &gt;&gt;&gt; # highest column index being 4, and the ensuing</span>
+<span class="sd">        &gt;&gt;&gt; # IndexedRowMatrix will have 5 columns as well.</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numCols())</span>
+<span class="sd">        5</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">java_indexed_row_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;toIndexedRowMatrix&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">IndexedRowMatrix</span><span class="p">(</span><span class="n">java_indexed_row_matrix</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CoordinateMatrix.toBlockMatrix"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.CoordinateMatrix.toBlockMatrix">[docs]</a>    <span class="k">def</span> <span class="nf">toBlockMatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rowsPerBlock</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">colsPerBlock</span><span class="o">=</span><span class="mi">1024</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert this matrix to a BlockMatrix.</span>
+
+<span class="sd">        :param rowsPerBlock: Number of rows that make up each block.</span>
+<span class="sd">                             The blocks forming the final rows are not</span>
+<span class="sd">                             required to have the given number of rows.</span>
+<span class="sd">        :param colsPerBlock: Number of columns that make up each block.</span>
+<span class="sd">                             The blocks forming the final columns are not</span>
+<span class="sd">                             required to have the given number of columns.</span>
+
+<span class="sd">        &gt;&gt;&gt; entries = sc.parallelize([MatrixEntry(0, 0, 1.2),</span>
+<span class="sd">        ...                           MatrixEntry(6, 4, 2.1)])</span>
+<span class="sd">        &gt;&gt;&gt; mat = CoordinateMatrix(entries).toBlockMatrix()</span>
+
+<span class="sd">        &gt;&gt;&gt; # This CoordinateMatrix will have 7 effective rows, due to</span>
+<span class="sd">        &gt;&gt;&gt; # the highest row index being 6, and the ensuing</span>
+<span class="sd">        &gt;&gt;&gt; # BlockMatrix will have 7 rows as well.</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numRows())</span>
+<span class="sd">        7</span>
+
+<span class="sd">        &gt;&gt;&gt; # This CoordinateMatrix will have 5 columns, due to the</span>
+<span class="sd">        &gt;&gt;&gt; # highest column index being 4, and the ensuing</span>
+<span class="sd">        &gt;&gt;&gt; # BlockMatrix will have 5 columns as well.</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numCols())</span>
+<span class="sd">        5</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">java_block_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;toBlockMatrix&quot;</span><span class="p">,</span>
+                                                           <span class="n">rowsPerBlock</span><span class="p">,</span>
+                                                           <span class="n">colsPerBlock</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BlockMatrix</span><span class="p">(</span><span class="n">java_block_matrix</span><span class="p">,</span> <span class="n">rowsPerBlock</span><span class="p">,</span> <span class="n">colsPerBlock</span><span class="p">)</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_convert_to_matrix_block_tuple</span><span class="p">(</span><span class="n">block</span><span class="p">):</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">block</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+            <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">block</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">==</span> <span class="mi">2</span>
+            <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">Matrix</span><span class="p">)):</span>
+        <span class="n">blockRowIndex</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">block</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">blockColIndex</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">block</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">subMatrix</span> <span class="o">=</span> <span class="n">block</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">((</span><span class="n">blockRowIndex</span><span class="p">,</span> <span class="n">blockColIndex</span><span class="p">),</span> <span class="n">subMatrix</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Cannot convert type </span><span class="si">%s</span><span class="s2"> into a sub-matrix block tuple&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">block</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="BlockMatrix"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.BlockMatrix">[docs]</a><span class="k">class</span> <span class="nc">BlockMatrix</span><span class="p">(</span><span class="n">DistributedMatrix</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a distributed matrix in blocks of local matrices.</span>
+
+<span class="sd">    :param blocks: An RDD of sub-matrix blocks</span>
+<span class="sd">                   ((blockRowIndex, blockColIndex), sub-matrix) that</span>
+<span class="sd">                   form this distributed matrix. If multiple blocks</span>
+<span class="sd">                   with the same index exist, the results for</span>
+<span class="sd">                   operations like add and multiply will be</span>
+<span class="sd">                   unpredictable.</span>
+<span class="sd">    :param rowsPerBlock: Number of rows that make up each block.</span>
+<span class="sd">                         The blocks forming the final rows are not</span>
+<span class="sd">                         required to have the given number of rows.</span>
+<span class="sd">    :param colsPerBlock: Number of columns that make up each block.</span>
+<span class="sd">                         The blocks forming the final columns are not</span>
+<span class="sd">                         required to have the given number of columns.</span>
+<span class="sd">    :param numRows: Number of rows of this matrix. If the supplied</span>
+<span class="sd">                    value is less than or equal to zero, the number</span>
+<span class="sd">                    of rows will be calculated when `numRows` is</span>
+<span class="sd">                    invoked.</span>
+<span class="sd">    :param numCols: Number of columns of this matrix. If the supplied</span>
+<span class="sd">                    value is less than or equal to zero, the number</span>
+<span class="sd">                    of columns will be calculated when `numCols` is</span>
+<span class="sd">                    invoked.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blocks</span><span class="p">,</span> <span class="n">rowsPerBlock</span><span class="p">,</span> <span class="n">colsPerBlock</span><span class="p">,</span> <span class="n">numRows</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">numCols</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Note: This docstring is not shown publicly.</span>
+
+<span class="sd">        Create a wrapper over a Java BlockMatrix.</span>
+
+<span class="sd">        Publicly, we require that `blocks` be an RDD.  However, for</span>
+<span class="sd">        internal usage, `blocks` can also be a Java BlockMatrix</span>
+<span class="sd">        object, in which case we can wrap it directly.  This</span>
+<span class="sd">        assists in clean matrix conversions.</span>
+
+<span class="sd">        &gt;&gt;&gt; blocks = sc.parallelize([((0, 0), Matrices.dense(3, 2, [1, 2, 3, 4, 5, 6])),</span>
+<span class="sd">        ...                          ((1, 0), Matrices.dense(3, 2, [7, 8, 9, 10, 11, 12]))])</span>
+<span class="sd">        &gt;&gt;&gt; mat = BlockMatrix(blocks, 3, 2)</span>
+
+<span class="sd">        &gt;&gt;&gt; mat_diff = BlockMatrix(blocks, 3, 2)</span>
+<span class="sd">        &gt;&gt;&gt; (mat_diff._java_matrix_wrapper._java_model ==</span>
+<span class="sd">        ...  mat._java_matrix_wrapper._java_model)</span>
+<span class="sd">        False</span>
+
+<span class="sd">        &gt;&gt;&gt; mat_same = BlockMatrix(mat._java_matrix_wrapper._java_model, 3, 2)</span>
+<span class="sd">        &gt;&gt;&gt; (mat_same._java_matrix_wrapper._java_model ==</span>
+<span class="sd">        ...  mat._java_matrix_wrapper._java_model)</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="n">RDD</span><span class="p">):</span>
+            <span class="n">blocks</span> <span class="o">=</span> <span class="n">blocks</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_convert_to_matrix_block_tuple</span><span class="p">)</span>
+            <span class="c1"># We use DataFrames for serialization of sub-matrix blocks</span>
+            <span class="c1"># from Python, so first convert the RDD to a DataFrame on</span>
+            <span class="c1"># this side. This will convert each sub-matrix block</span>
+            <span class="c1"># tuple to a Row containing the &#39;blockRowIndex&#39;,</span>
+            <span class="c1"># &#39;blockColIndex&#39;, and &#39;subMatrix&#39; values, which can</span>
+            <span class="c1"># each be easily serialized.  We will convert back to</span>
+            <span class="c1"># ((blockRowIndex, blockColIndex), sub-matrix) tuples on</span>
+            <span class="c1"># the Scala side.</span>
+            <span class="n">java_matrix</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;createBlockMatrix&quot;</span><span class="p">,</span> <span class="n">blocks</span><span class="o">.</span><span class="n">toDF</span><span class="p">(),</span>
+                                        <span class="nb">int</span><span class="p">(</span><span class="n">rowsPerBlock</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">colsPerBlock</span><span class="p">),</span>
+                                        <span class="n">long</span><span class="p">(</span><span class="n">numRows</span><span class="p">),</span> <span class="n">long</span><span class="p">(</span><span class="n">numCols</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="n">JavaObject</span><span class="p">)</span>
+              <span class="ow">and</span> <span class="n">blocks</span><span class="o">.</span><span class="n">getClass</span><span class="p">()</span><span class="o">.</span><span class="n">getSimpleName</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;BlockMatrix&quot;</span><span class="p">):</span>
+            <span class="n">java_matrix</span> <span class="o">=</span> <span class="n">blocks</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;blocks should be an RDD of sub-matrix blocks as &quot;</span>
+                            <span class="s2">&quot;((int, int), matrix) tuples, got </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">blocks</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span> <span class="o">=</span> <span class="n">JavaModelWrapper</span><span class="p">(</span><span class="n">java_matrix</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The RDD of sub-matrix blocks</span>
+<span class="sd">        ((blockRowIndex, blockColIndex), sub-matrix) that form this</span>
+<span class="sd">        distributed matrix.</span>
+
+<span class="sd">        &gt;&gt;&gt; mat = BlockMatrix(</span>
+<span class="sd">        ...     sc.parallelize([((0, 0), Matrices.dense(3, 2, [1, 2, 3, 4, 5, 6])),</span>
+<span class="sd">        ...                     ((1, 0), Matrices.dense(3, 2, [7, 8, 9, 10, 11, 12]))]), 3, 2)</span>
+<span class="sd">        &gt;&gt;&gt; blocks = mat.blocks</span>
+<span class="sd">        &gt;&gt;&gt; blocks.first()</span>
+<span class="sd">        ((0, 0), DenseMatrix(3, 2, [1.0, 2.0, 3.0, 4.0, 5.0, 6.0], 0))</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># We use DataFrames for serialization of sub-matrix blocks</span>
+        <span class="c1"># from Java, so we first convert the RDD of blocks to a</span>
+        <span class="c1"># DataFrame on the Scala/Java side. Then we map each Row in</span>
+        <span class="c1"># the DataFrame back to a sub-matrix block on this side.</span>
+        <span class="n">blocks_df</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;getMatrixBlocks&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">_java_model</span><span class="p">)</span>
+        <span class="n">blocks</span> <span class="o">=</span> <span class="n">blocks_df</span><span class="o">.</span><span class="n">rdd</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">:</span> <span class="p">((</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> <span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">blocks</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rowsPerBlock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Number of rows that make up each block.</span>
+
+<span class="sd">        &gt;&gt;&gt; blocks = sc.parallelize([((0, 0), Matrices.dense(3, 2, [1, 2, 3, 4, 5, 6])),</span>
+<span class="sd">        ...                          ((1, 0), Matrices.dense(3, 2, [7, 8, 9, 10, 11, 12]))])</span>
+<span class="sd">        &gt;&gt;&gt; mat = BlockMatrix(blocks, 3, 2)</span>
+<span class="sd">        &gt;&gt;&gt; mat.rowsPerBlock</span>
+<span class="sd">        3</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;rowsPerBlock&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">colsPerBlock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Number of columns that make up each block.</span>
+
+<span class="sd">        &gt;&gt;&gt; blocks = sc.parallelize([((0, 0), Matrices.dense(3, 2, [1, 2, 3, 4, 5, 6])),</span>
+<span class="sd">        ...                          ((1, 0), Matrices.dense(3, 2, [7, 8, 9, 10, 11, 12]))])</span>
+<span class="sd">        &gt;&gt;&gt; mat = BlockMatrix(blocks, 3, 2)</span>
+<span class="sd">        &gt;&gt;&gt; mat.colsPerBlock</span>
+<span class="sd">        2</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;colsPerBlock&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">numRowBlocks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Number of rows of blocks in the BlockMatrix.</span>
+
+<span class="sd">        &gt;&gt;&gt; blocks = sc.parallelize([((0, 0), Matrices.dense(3, 2, [1, 2, 3, 4, 5, 6])),</span>
+<span class="sd">        ...                          ((1, 0), Matrices.dense(3, 2, [7, 8, 9, 10, 11, 12]))])</span>
+<span class="sd">        &gt;&gt;&gt; mat = BlockMatrix(blocks, 3, 2)</span>
+<span class="sd">        &gt;&gt;&gt; mat.numRowBlocks</span>
+<span class="sd">        2</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;numRowBlocks&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">numColBlocks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Number of columns of blocks in the BlockMatrix.</span>
+
+<span class="sd">        &gt;&gt;&gt; blocks = sc.parallelize([((0, 0), Matrices.dense(3, 2, [1, 2, 3, 4, 5, 6])),</span>
+<span class="sd">        ...                          ((1, 0), Matrices.dense(3, 2, [7, 8, 9, 10, 11, 12]))])</span>
+<span class="sd">        &gt;&gt;&gt; mat = BlockMatrix(blocks, 3, 2)</span>
+<span class="sd">        &gt;&gt;&gt; mat.numColBlocks</span>
+<span class="sd">        1</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;numColBlocks&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BlockMatrix.numRows"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.BlockMatrix.numRows">[docs]</a>    <span class="k">def</span> <span class="nf">numRows</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get or compute the number of rows.</span>
+
+<span class="sd">        &gt;&gt;&gt; blocks = sc.parallelize([((0, 0), Matrices.dense(3, 2, [1, 2, 3, 4, 5, 6])),</span>
+<span class="sd">        ...                          ((1, 0), Matrices.dense(3, 2, [7, 8, 9, 10, 11, 12]))])</span>
+
+<span class="sd">        &gt;&gt;&gt; mat = BlockMatrix(blocks, 3, 2)</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numRows())</span>
+<span class="sd">        6</span>
+
+<span class="sd">        &gt;&gt;&gt; mat = BlockMatrix(blocks, 3, 2, 7, 6)</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numRows())</span>
+<span class="sd">        7</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;numRows&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BlockMatrix.numCols"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.BlockMatrix.numCols">[docs]</a>    <span class="k">def</span> <span class="nf">numCols</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get or compute the number of cols.</span>
+
+<span class="sd">        &gt;&gt;&gt; blocks = sc.parallelize([((0, 0), Matrices.dense(3, 2, [1, 2, 3, 4, 5, 6])),</span>
+<span class="sd">        ...                          ((1, 0), Matrices.dense(3, 2, [7, 8, 9, 10, 11, 12]))])</span>
+
+<span class="sd">        &gt;&gt;&gt; mat = BlockMatrix(blocks, 3, 2)</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numCols())</span>
+<span class="sd">        2</span>
+
+<span class="sd">        &gt;&gt;&gt; mat = BlockMatrix(blocks, 3, 2, 7, 6)</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numCols())</span>
+<span class="sd">        6</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;numCols&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BlockMatrix.cache"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.BlockMatrix.cache">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.0.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">cache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Caches the underlying RDD.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;cache&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="BlockMatrix.persist"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.BlockMatrix.persist">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.0.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">persist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storageLevel</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Persists the underlying RDD with the specified storage level.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">storageLevel</span><span class="p">,</span> <span class="n">StorageLevel</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`storageLevel` should be a StorageLevel, got </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">storageLevel</span><span class="p">))</span>
+        <span class="n">javaStorageLevel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">_sc</span><span class="o">.</span><span class="n">_getJavaStorageLevel</span><span class="p">(</span><span class="n">storageLevel</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;persist&quot;</span><span class="p">,</span> <span class="n">javaStorageLevel</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="BlockMatrix.validate"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.BlockMatrix.validate">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.0.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validates the block matrix info against the matrix data (`blocks`)</span>
+<span class="sd">        and throws an exception if any error is found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;validate&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BlockMatrix.add"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.BlockMatrix.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds two block matrices together. The matrices must have the</span>
+<span class="sd">        same size and matching `rowsPerBlock` and `colsPerBlock` values.</span>
+<span class="sd">        If one of the sub matrix blocks that are being added is a</span>
+<span class="sd">        SparseMatrix, the resulting sub matrix block will also be a</span>
+<span class="sd">        SparseMatrix, even if it is being added to a DenseMatrix. If</span>
+<span class="sd">        two dense sub matrix blocks are added, the output block will</span>
+<span class="sd">        also be a DenseMatrix.</span>
+
+<span class="sd">        &gt;&gt;&gt; dm1 = Matrices.dense(3, 2, [1, 2, 3, 4, 5, 6])</span>
+<span class="sd">        &gt;&gt;&gt; dm2 = Matrices.dense(3, 2, [7, 8, 9, 10, 11, 12])</span>
+<span class="sd">        &gt;&gt;&gt; sm = Matrices.sparse(3, 2, [0, 1, 3], [0, 1, 2], [7, 11, 12])</span>
+<span class="sd">        &gt;&gt;&gt; blocks1 = sc.parallelize([((0, 0), dm1), ((1, 0), dm2)])</span>
+<span class="sd">        &gt;&gt;&gt; blocks2 = sc.parallelize([((0, 0), dm1), ((1, 0), dm2)])</span>
+<span class="sd">        &gt;&gt;&gt; blocks3 = sc.parallelize([((0, 0), sm), ((1, 0), dm2)])</span>
+<span class="sd">        &gt;&gt;&gt; mat1 = BlockMatrix(blocks1, 3, 2)</span>
+<span class="sd">        &gt;&gt;&gt; mat2 = BlockMatrix(blocks2, 3, 2)</span>
+<span class="sd">        &gt;&gt;&gt; mat3 = BlockMatrix(blocks3, 3, 2)</span>
+
+<span class="sd">        &gt;&gt;&gt; mat1.add(mat2).toLocalMatrix()</span>
+<span class="sd">        DenseMatrix(6, 2, [2.0, 4.0, 6.0, 14.0, 16.0, 18.0, 8.0, 10.0, 12.0, 20.0, 22.0, 24.0], 0)</span>
+
+<span class="sd">        &gt;&gt;&gt; mat1.add(mat3).toLocalMatrix()</span>
+<span class="sd">        DenseMatrix(6, 2, [8.0, 2.0, 3.0, 14.0, 16.0, 18.0, 4.0, 16.0, 18.0, 20.0, 22.0, 24.0], 0)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">BlockMatrix</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Other should be a BlockMatrix, got </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">))</span>
+
+        <span class="n">other_java_block_matrix</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">_java_model</span>
+        <span class="n">java_block_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;add&quot;</span><span class="p">,</span> <span class="n">other_java_block_matrix</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BlockMatrix</span><span class="p">(</span><span class="n">java_block_matrix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rowsPerBlock</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">colsPerBlock</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BlockMatrix.subtract"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.BlockMatrix.subtract">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.0.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">subtract</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Subtracts the given block matrix `other` from this block matrix:</span>
+<span class="sd">        `this - other`. The matrices must have the same size and</span>
+<span class="sd">        matching `rowsPerBlock` and `colsPerBlock` values.  If one of</span>
+<span class="sd">        the sub matrix blocks that are being subtracted is a</span>
+<span class="sd">        SparseMatrix, the resulting sub matrix block will also be a</span>
+<span class="sd">        SparseMatrix, even if it is being subtracted from a DenseMatrix.</span>
+<span class="sd">        If two dense sub matrix blocks are subtracted, the output block</span>
+<span class="sd">        will also be a DenseMatrix.</span>
+
+<span class="sd">        &gt;&gt;&gt; dm1 = Matrices.dense(3, 2, [3, 1, 5, 4, 6, 2])</span>
+<span class="sd">        &gt;&gt;&gt; dm2 = Matrices.dense(3, 2, [7, 8, 9, 10, 11, 12])</span>
+<span class="sd">        &gt;&gt;&gt; sm = Matrices.sparse(3, 2, [0, 1, 3], [0, 1, 2], [1, 2, 3])</span>
+<span class="sd">        &gt;&gt;&gt; blocks1 = sc.parallelize([((0, 0), dm1), ((1, 0), dm2)])</span>
+<span class="sd">        &gt;&gt;&gt; blocks2 = sc.parallelize([((0, 0), dm2), ((1, 0), dm1)])</span>
+<span class="sd">        &gt;&gt;&gt; blocks3 = sc.parallelize([((0, 0), sm), ((1, 0), dm2)])</span>
+<span class="sd">        &gt;&gt;&gt; mat1 = BlockMatrix(blocks1, 3, 2)</span>
+<span class="sd">        &gt;&gt;&gt; mat2 = BlockMatrix(blocks2, 3, 2)</span>
+<span class="sd">        &gt;&gt;&gt; mat3 = BlockMatrix(blocks3, 3, 2)</span>
+
+<span class="sd">        &gt;&gt;&gt; mat1.subtract(mat2).toLocalMatrix()</span>
+<span class="sd">        DenseMatrix(6, 2, [-4.0, -7.0, -4.0, 4.0, 7.0, 4.0, -6.0, -5.0, -10.0, 6.0, 5.0, 10.0], 0)</span>
+
+<span class="sd">        &gt;&gt;&gt; mat2.subtract(mat3).toLocalMatrix()</span>
+<span class="sd">        DenseMatrix(6, 2, [6.0, 8.0, 9.0, -4.0, -7.0, -4.0, 10.0, 9.0, 9.0, -6.0, -5.0, -10.0], 0)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">BlockMatrix</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Other should be a BlockMatrix, got </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">))</span>
+
+        <span class="n">other_java_block_matrix</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">_java_model</span>
+        <span class="n">java_block_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;subtract&quot;</span><span class="p">,</span> <span class="n">other_java_block_matrix</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BlockMatrix</span><span class="p">(</span><span class="n">java_block_matrix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rowsPerBlock</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">colsPerBlock</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BlockMatrix.multiply"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.BlockMatrix.multiply">[docs]</a>    <span class="k">def</span> <span class="nf">multiply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Left multiplies this BlockMatrix by `other`, another</span>
+<span class="sd">        BlockMatrix. The `colsPerBlock` of this matrix must equal the</span>
+<span class="sd">        `rowsPerBlock` of `other`. If `other` contains any SparseMatrix</span>
+<span class="sd">        blocks, they will have to be converted to DenseMatrix blocks.</span>
+<span class="sd">        The output BlockMatrix will only consist of DenseMatrix blocks.</span>
+<span class="sd">        This may cause some performance issues until support for</span>
+<span class="sd">        multiplying two sparse matrices is added.</span>
+
+<span class="sd">        &gt;&gt;&gt; dm1 = Matrices.dense(2, 3, [1, 2, 3, 4, 5, 6])</span>
+<span class="sd">        &gt;&gt;&gt; dm2 = Matrices.dense(2, 3, [7, 8, 9, 10, 11, 12])</span>
+<span class="sd">        &gt;&gt;&gt; dm3 = Matrices.dense(3, 2, [1, 2, 3, 4, 5, 6])</span>
+<span class="sd">        &gt;&gt;&gt; dm4 = Matrices.dense(3, 2, [7, 8, 9, 10, 11, 12])</span>
+<span class="sd">        &gt;&gt;&gt; sm = Matrices.sparse(3, 2, [0, 1, 3], [0, 1, 2], [7, 11, 12])</span>
+<span class="sd">        &gt;&gt;&gt; blocks1 = sc.parallelize([((0, 0), dm1), ((0, 1), dm2)])</span>
+<span class="sd">        &gt;&gt;&gt; blocks2 = sc.parallelize([((0, 0), dm3), ((1, 0), dm4)])</span>
+<span class="sd">        &gt;&gt;&gt; blocks3 = sc.parallelize([((0, 0), sm), ((1, 0), dm4)])</span>
+<span class="sd">        &gt;&gt;&gt; mat1 = BlockMatrix(blocks1, 2, 3)</span>
+<span class="sd">        &gt;&gt;&gt; mat2 = BlockMatrix(blocks2, 3, 2)</span>
+<span class="sd">        &gt;&gt;&gt; mat3 = BlockMatrix(blocks3, 3, 2)</span>
+
+<span class="sd">        &gt;&gt;&gt; mat1.multiply(mat2).toLocalMatrix()</span>
+<span class="sd">        DenseMatrix(2, 2, [242.0, 272.0, 350.0, 398.0], 0)</span>
+
+<span class="sd">        &gt;&gt;&gt; mat1.multiply(mat3).toLocalMatrix()</span>
+<span class="sd">        DenseMatrix(2, 2, [227.0, 258.0, 394.0, 450.0], 0)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">BlockMatrix</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Other should be a BlockMatrix, got </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">))</span>
+
+        <span class="n">other_java_block_matrix</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">_java_model</span>
+        <span class="n">java_block_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;multiply&quot;</span><span class="p">,</span> <span class="n">other_java_block_matrix</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BlockMatrix</span><span class="p">(</span><span class="n">java_block_matrix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rowsPerBlock</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">colsPerBlock</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BlockMatrix.transpose"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.BlockMatrix.transpose">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.0.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">transpose</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transpose this BlockMatrix. Returns a new BlockMatrix</span>
+<span class="sd">        instance sharing the same underlying data. Is a lazy operation.</span>
+
+<span class="sd">        &gt;&gt;&gt; blocks = sc.parallelize([((0, 0), Matrices.dense(3, 2, [1, 2, 3, 4, 5, 6])),</span>
+<span class="sd">        ...                          ((1, 0), Matrices.dense(3, 2, [7, 8, 9, 10, 11, 12]))])</span>
+<span class="sd">        &gt;&gt;&gt; mat = BlockMatrix(blocks, 3, 2)</span>
+
+<span class="sd">        &gt;&gt;&gt; mat_transposed = mat.transpose()</span>
+<span class="sd">        &gt;&gt;&gt; mat_transposed.toLocalMatrix()</span>
+<span class="sd">        DenseMatrix(2, 6, [1.0, 4.0, 2.0, 5.0, 3.0, 6.0, 7.0, 10.0, 8.0, 11.0, 9.0, 12.0], 0)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">java_transposed_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;transpose&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">BlockMatrix</span><span class="p">(</span><span class="n">java_transposed_matrix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">colsPerBlock</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rowsPerBlock</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BlockMatrix.toLocalMatrix"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.BlockMatrix.toLocalMatrix">[docs]</a>    <span class="k">def</span> <span class="nf">toLocalMatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Collect the distributed matrix on the driver as a DenseMatrix.</span>
+
+<span class="sd">        &gt;&gt;&gt; blocks = sc.parallelize([((0, 0), Matrices.dense(3, 2, [1, 2, 3, 4, 5, 6])),</span>
+<span class="sd">        ...                          ((1, 0), Matrices.dense(3, 2, [7, 8, 9, 10, 11, 12]))])</span>
+<span class="sd">        &gt;&gt;&gt; mat = BlockMatrix(blocks, 3, 2).toLocalMatrix()</span>
+
+<span class="sd">        &gt;&gt;&gt; # This BlockMatrix will have 6 effective rows, due to</span>
+<span class="sd">        &gt;&gt;&gt; # having two sub-matrix blocks stacked, each with 3 rows.</span>
+<span class="sd">        &gt;&gt;&gt; # The ensuing DenseMatrix will also have 6 rows.</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numRows)</span>
+<span class="sd">        6</span>
+
+<span class="sd">        &gt;&gt;&gt; # This BlockMatrix will have 2 effective columns, due to</span>
+<span class="sd">        &gt;&gt;&gt; # having two sub-matrix blocks stacked, each with 2</span>
+<span class="sd">        &gt;&gt;&gt; # columns. The ensuing DenseMatrix will also have 2 columns.</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numCols)</span>
+<span class="sd">        2</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;toLocalMatrix&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BlockMatrix.toIndexedRowMatrix"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.BlockMatrix.toIndexedRowMatrix">[docs]</a>    <span class="k">def</span> <span class="nf">toIndexedRowMatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert this matrix to an IndexedRowMatrix.</span>
+
+<span class="sd">        &gt;&gt;&gt; blocks = sc.parallelize([((0, 0), Matrices.dense(3, 2, [1, 2, 3, 4, 5, 6])),</span>
+<span class="sd">        ...                          ((1, 0), Matrices.dense(3, 2, [7, 8, 9, 10, 11, 12]))])</span>
+<span class="sd">        &gt;&gt;&gt; mat = BlockMatrix(blocks, 3, 2).toIndexedRowMatrix()</span>
+
+<span class="sd">        &gt;&gt;&gt; # This BlockMatrix will have 6 effective rows, due to</span>
+<span class="sd">        &gt;&gt;&gt; # having two sub-matrix blocks stacked, each with 3 rows.</span>
+<span class="sd">        &gt;&gt;&gt; # The ensuing IndexedRowMatrix will also have 6 rows.</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numRows())</span>
+<span class="sd">        6</span>
+
+<span class="sd">        &gt;&gt;&gt; # This BlockMatrix will have 2 effective columns, due to</span>
+<span class="sd">        &gt;&gt;&gt; # having two sub-matrix blocks stacked, each with 2 columns.</span>
+<span class="sd">        &gt;&gt;&gt; # The ensuing IndexedRowMatrix will also have 2 columns.</span>
+<span class="sd">        &gt;&gt;&gt; print(mat.numCols())</span>
+<span class="sd">        2</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">java_indexed_row_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;toIndexedRowMatrix&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">IndexedRowMatrix</span><span class="p">(</span><span class="n">java_indexed_row_matrix</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BlockMatrix.toCoordinateMatrix"><a class="viewcode-back" href="../../../../pyspark.mllib.html#pyspark.mllib.linalg.distributed.BlockMatrix.toCoordinateMatrix">[docs]</a>    <span class="k">def</span> <span class="nf">toCoordinateMatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert this matrix to a CoordinateMatrix.</span>
+
+<span class="sd">        &gt;&gt;&gt; blocks = sc.parallelize([((0, 0), Matrices.dense(1, 2, [1, 2])),</span>
+<span class="sd">        ...                          ((1, 0), Matrices.dense(1, 2, [7, 8]))])</span>
+<span class="sd">        &gt;&gt;&gt; mat = BlockMatrix(blocks, 1, 2).toCoordinateMatrix()</span>
+<span class="sd">        &gt;&gt;&gt; mat.entries.take(3)</span>
+<span class="sd">        [MatrixEntry(0, 0, 1.0), MatrixEntry(0, 1, 2.0), MatrixEntry(1, 0, 7.0)]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">java_coordinate_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_matrix_wrapper</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;toCoordinateMatrix&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">CoordinateMatrix</span><span class="p">(</span><span class="n">java_coordinate_matrix</span><span class="p">)</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_test</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="kn">import</span> <span class="nn">numpy</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">SparkSession</span>
+    <span class="kn">from</span> <span class="nn">pyspark.mllib.linalg</span> <span class="k">import</span> <span class="n">Matrices</span>
+    <span class="kn">import</span> <span class="nn">pyspark.mllib.linalg.distributed</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Numpy 1.14+ changed it&#39;s string format.</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">legacy</span><span class="o">=</span><span class="s1">&#39;1.13&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="n">pyspark</span><span class="o">.</span><span class="n">mllib</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">distributed</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span>\
+        <span class="o">.</span><span class="n">master</span><span class="p">(</span><span class="s2">&quot;local[2]&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;mllib.linalg.distributed tests&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;sc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">sparkContext</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;Matrices&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">Matrices</span>
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span> <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span><span class="p">)</span>
+    <span class="n">spark</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">_test</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../index.html">
+              <img class="logo" src="../../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../linalg.html" >pyspark.mllib.linalg</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

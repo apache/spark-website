@@ -1,0 +1,842 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Monitoring and Instrumentation - Spark 2.4.1 Documentation</title>
+        
+          <meta name="description" content="Monitoring, metrics, and instrumentation guide for Spark 2.4.1">
+        
+
+        
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 60px;
+                padding-bottom: 40px;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+
+        <link rel="stylesheet" href="css/pygments-default.css">
+
+        
+        <!-- Google analytics script -->
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-32518208-2']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+        </script>
+        
+
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="https://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
+
+        <div class="navbar navbar-fixed-top" id="topbar">
+            <div class="navbar-inner">
+                <div class="container">
+                    <div class="brand"><a href="index.html">
+                      <img src="img/spark-logo-hd.png" style="height:50px;"/></a><span class="version">2.4.1</span>
+                    </div>
+                    <ul class="nav">
+                        <!--TODO(andyk): Add class="active" attribute to li some how.-->
+                        <li><a href="index.html">Overview</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Programming Guides<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="quick-start.html">Quick Start</a></li>
+                                <li><a href="rdd-programming-guide.html">RDDs, Accumulators, Broadcasts Vars</a></li>
+                                <li><a href="sql-programming-guide.html">SQL, DataFrames, and Datasets</a></li>
+                                <li><a href="structured-streaming-programming-guide.html">Structured Streaming</a></li>
+                                <li><a href="streaming-programming-guide.html">Spark Streaming (DStreams)</a></li>
+                                <li><a href="ml-guide.html">MLlib (Machine Learning)</a></li>
+                                <li><a href="graphx-programming-guide.html">GraphX (Graph Processing)</a></li>
+                                <li><a href="sparkr.html">SparkR (R on Spark)</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">API Docs<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="api/scala/index.html#org.apache.spark.package">Scala</a></li>
+                                <li><a href="api/java/index.html">Java</a></li>
+                                <li><a href="api/python/index.html">Python</a></li>
+                                <li><a href="api/R/index.html">R</a></li>
+                                <li><a href="api/sql/index.html">SQL, Built-in Functions</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Deploying<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="cluster-overview.html">Overview</a></li>
+                                <li><a href="submitting-applications.html">Submitting Applications</a></li>
+                                <li class="divider"></li>
+                                <li><a href="spark-standalone.html">Spark Standalone</a></li>
+                                <li><a href="running-on-mesos.html">Mesos</a></li>
+                                <li><a href="running-on-yarn.html">YARN</a></li>
+                                <li><a href="running-on-kubernetes.html">Kubernetes</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="api.html" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="configuration.html">Configuration</a></li>
+                                <li><a href="monitoring.html">Monitoring</a></li>
+                                <li><a href="tuning.html">Tuning Guide</a></li>
+                                <li><a href="job-scheduling.html">Job Scheduling</a></li>
+                                <li><a href="security.html">Security</a></li>
+                                <li><a href="hardware-provisioning.html">Hardware Provisioning</a></li>
+                                <li class="divider"></li>
+                                <li><a href="building-spark.html">Building Spark</a></li>
+                                <li><a href="https://spark.apache.org/contributing.html">Contributing to Spark</a></li>
+                                <li><a href="https://spark.apache.org/third-party-projects.html">Third Party Projects</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <!--<p class="navbar-text pull-right"><span class="version-text">v2.4.1</span></p>-->
+                </div>
+            </div>
+        </div>
+
+        <div class="container-wrapper">
+
+            
+                <div class="content" id="content">
+                    
+                        <h1 class="title">Monitoring and Instrumentation</h1>
+                    
+
+                    <p>There are several ways to monitor Spark applications: web UIs, metrics, and external instrumentation.</p>
+
+<h1 id="web-interfaces">Web Interfaces</h1>
+
+<p>Every SparkContext launches a web UI, by default on port 4040, that
+displays useful information about the application. This includes:</p>
+
+<ul>
+  <li>A list of scheduler stages and tasks</li>
+  <li>A summary of RDD sizes and memory usage</li>
+  <li>Environmental information.</li>
+  <li>Information about the running executors</li>
+</ul>
+
+<p>You can access this interface by simply opening <code>http://&lt;driver-node&gt;:4040</code> in a web browser.
+If multiple SparkContexts are running on the same host, they will bind to successive ports
+beginning with 4040 (4041, 4042, etc).</p>
+
+<p>Note that this information is only available for the duration of the application by default.
+To view the web UI after the fact, set <code>spark.eventLog.enabled</code> to true before starting the
+application. This configures Spark to log Spark events that encode the information displayed
+in the UI to persisted storage.</p>
+
+<h2 id="viewing-after-the-fact">Viewing After the Fact</h2>
+
+<p>It is still possible to construct the UI of an application through Spark&#8217;s history server, 
+provided that the application&#8217;s event logs exist.
+You can start the history server by executing:</p>
+
+<pre><code>./sbin/start-history-server.sh
+</code></pre>
+
+<p>This creates a web interface at <code>http://&lt;server-url&gt;:18080</code> by default, listing incomplete
+and completed applications and attempts.</p>
+
+<p>When using the file-system provider class (see <code>spark.history.provider</code> below), the base logging
+directory must be supplied in the <code>spark.history.fs.logDirectory</code> configuration option,
+and should contain sub-directories that each represents an application&#8217;s event logs.</p>
+
+<p>The spark jobs themselves must be configured to log events, and to log them to the same shared,
+writable directory. For example, if the server was configured with a log directory of
+<code>hdfs://namenode/shared/spark-logs</code>, then the client-side options would be:</p>
+
+<pre><code>spark.eventLog.enabled true
+spark.eventLog.dir hdfs://namenode/shared/spark-logs
+</code></pre>
+
+<p>The history server can be configured as follows:</p>
+
+<h3 id="environment-variables">Environment Variables</h3>
+
+<table class="table">
+  <tr><th style="width:21%">Environment Variable</th><th>Meaning</th></tr>
+  <tr>
+    <td><code>SPARK_DAEMON_MEMORY</code></td>
+    <td>Memory to allocate to the history server (default: 1g).</td>
+  </tr>
+  <tr>
+    <td><code>SPARK_DAEMON_JAVA_OPTS</code></td>
+    <td>JVM options for the history server (default: none).</td>
+  </tr>
+  <tr>
+    <td><code>SPARK_DAEMON_CLASSPATH</code></td>
+    <td>Classpath for the history server (default: none).</td>
+  </tr>
+  <tr>
+    <td><code>SPARK_PUBLIC_DNS</code></td>
+    <td>
+      The public address for the history server. If this is not set, links to application history
+      may use the internal address of the server, resulting in broken links (default: none).
+    </td>
+  </tr>
+  <tr>
+    <td><code>SPARK_HISTORY_OPTS</code></td>
+    <td>
+      <code>spark.history.*</code> configuration options for the history server (default: none).
+    </td>
+  </tr>
+</table>
+
+<h3 id="spark-history-server-configuration-options">Spark History Server Configuration Options</h3>
+
+<p>Security options for the Spark History Server are covered more detail in the
+<a href="security.html#web-ui">Security</a> page.</p>
+
+<table class="table">
+  <tr><th>Property Name</th><th>Default</th><th>Meaning</th></tr>
+  <tr>
+    <td>spark.history.provider</td>
+    <td><code>org.apache.spark.deploy.history.FsHistoryProvider</code></td>
+    <td>Name of the class implementing the application history backend. Currently there is only
+    one implementation, provided by Spark, which looks for application logs stored in the
+    file system.</td>
+  </tr>
+  <tr>
+    <td>spark.history.fs.logDirectory</td>
+    <td>file:/tmp/spark-events</td>
+    <td>
+    For the filesystem history provider, the URL to the directory containing application event
+    logs to load. This can be a local <code>file://</code> path,
+    an HDFS path <code>hdfs://namenode/shared/spark-logs</code>
+    or that of an alternative filesystem supported by the Hadoop APIs.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.fs.update.interval</td>
+    <td>10s</td>
+    <td>
+      The period at which the filesystem history provider checks for new or
+      updated logs in the log directory. A shorter interval detects new applications faster,
+      at the expense of more server load re-reading updated applications.
+      As soon as an update has completed, listings of the completed and incomplete applications
+      will reflect the changes.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.retainedApplications</td>
+    <td>50</td>
+    <td>
+      The number of applications to retain UI data for in the cache. If this cap is exceeded, then
+      the oldest applications will be removed from the cache. If an application is not in the cache,
+      it will have to be loaded from disk if it is accessed from the UI.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.ui.maxApplications</td>
+    <td>Int.MaxValue</td>
+    <td>
+      The number of applications to display on the history summary page. Application UIs are still
+      available by accessing their URLs directly even if they are not displayed on the history summary page.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.ui.port</td>
+    <td>18080</td>
+    <td>
+      The port to which the web interface of the history server binds.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.kerberos.enabled</td>
+    <td>false</td>
+    <td>
+      Indicates whether the history server should use kerberos to login. This is required
+      if the history server is accessing HDFS files on a secure Hadoop cluster. If this is
+      true, it uses the configs <code>spark.history.kerberos.principal</code> and
+      <code>spark.history.kerberos.keytab</code>.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.kerberos.principal</td>
+    <td>(none)</td>
+    <td>
+      Kerberos principal name for the History Server.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.kerberos.keytab</td>
+    <td>(none)</td>
+    <td>
+      Location of the kerberos keytab file for the History Server.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.fs.cleaner.enabled</td>
+    <td>false</td>
+    <td>
+      Specifies whether the History Server should periodically clean up event logs from storage.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.fs.cleaner.interval</td>
+    <td>1d</td>
+    <td>
+      How often the filesystem job history cleaner checks for files to delete.
+      Files are only deleted if they are older than <code>spark.history.fs.cleaner.maxAge</code>
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.fs.cleaner.maxAge</td>
+    <td>7d</td>
+    <td>
+      Job history files older than this will be deleted when the filesystem history cleaner runs.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.fs.endEventReparseChunkSize</td>
+    <td>1m</td>
+    <td>
+      How many bytes to parse at the end of log files looking for the end event. 
+      This is used to speed up generation of application listings by skipping unnecessary
+      parts of event log files. It can be disabled by setting this config to 0.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.fs.inProgressOptimization.enabled</td>
+    <td>true</td>
+    <td>
+      Enable optimized handling of in-progress logs. This option may leave finished
+      applications that fail to rename their event logs listed as in-progress.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.fs.numReplayThreads</td>
+    <td>25% of available cores</td>
+    <td>
+      Number of threads that will be used by history server to process event logs.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.store.maxDiskUsage</td>
+    <td>10g</td>
+    <td>
+      Maximum disk usage for the local directory where the cache application history information
+      are stored.
+    </td>
+  </tr>
+  <tr>
+    <td>spark.history.store.path</td>
+    <td>(none)</td>
+    <td>
+        Local directory where to cache application history data. If set, the history
+        server will store application data on disk instead of keeping it in memory. The data
+        written to disk will be re-used in the event of a history server restart.
+    </td>
+  </tr>
+</table>
+
+<p>Note that in all of these UIs, the tables are sortable by clicking their headers,
+making it easy to identify slow tasks, data skew, etc.</p>
+
+<p>Note</p>
+
+<ol>
+  <li>
+    <p>The history server displays both completed and incomplete Spark jobs. If an application makes
+multiple attempts after failures, the failed attempts will be displayed, as well as any ongoing
+incomplete attempt or the final successful attempt.</p>
+  </li>
+  <li>
+    <p>Incomplete applications are only updated intermittently. The time between updates is defined
+by the interval between checks for changed files (<code>spark.history.fs.update.interval</code>).
+On larger clusters, the update interval may be set to large values.
+The way to view a running application is actually to view its own web UI.</p>
+  </li>
+  <li>
+    <p>Applications which exited without registering themselves as completed will be listed
+as incomplete —even though they are no longer running. This can happen if an application
+crashes.</p>
+  </li>
+  <li>
+    <p>One way to signal the completion of a Spark job is to stop the Spark Context
+explicitly (<code>sc.stop()</code>), or in Python using the <code>with SparkContext() as sc:</code> construct
+to handle the Spark Context setup and tear down.</p>
+  </li>
+</ol>
+
+<h2 id="rest-api">REST API</h2>
+
+<p>In addition to viewing the metrics in the UI, they are also available as JSON.  This gives developers
+an easy way to create new visualizations and monitoring tools for Spark.  The JSON is available for
+both running applications, and in the history server.  The endpoints are mounted at <code>/api/v1</code>.  Eg.,
+for the history server, they would typically be accessible at <code>http://&lt;server-url&gt;:18080/api/v1</code>, and
+for a running application, at <code>http://localhost:4040/api/v1</code>.</p>
+
+<p>In the API, an application is referenced by its application ID, <code>[app-id]</code>.
+When running on YARN, each application may have multiple attempts, but there are attempt IDs
+only for applications in cluster mode, not applications in client mode. Applications in YARN cluster mode
+can be identified by their <code>[attempt-id]</code>. In the API listed below, when running in YARN cluster mode,
+<code>[app-id]</code> will actually be <code>[base-app-id]/[attempt-id]</code>, where <code>[base-app-id]</code> is the YARN application ID.</p>
+
+<table class="table">
+  <tr><th>Endpoint</th><th>Meaning</th></tr>
+  <tr>
+    <td><code>/applications</code></td>
+    <td>A list of all applications.
+    <br />
+    <code>?status=[completed|running]</code> list only applications in the chosen state.
+    <br />
+    <code>?minDate=[date]</code> earliest start date/time to list.
+    <br />
+    <code>?maxDate=[date]</code> latest start date/time to list.
+    <br />
+    <code>?minEndDate=[date]</code> earliest end date/time to list.
+    <br />
+    <code>?maxEndDate=[date]</code> latest end date/time to list.
+    <br />
+    <code>?limit=[limit]</code> limits the number of applications listed.
+    <br />Examples:
+    <br /><code>?minDate=2015-02-10</code>
+    <br /><code>?minDate=2015-02-03T16:42:40.000GMT</code>
+    <br /><code>?maxDate=2015-02-11T20:41:30.000GMT</code>
+    <br /><code>?minEndDate=2015-02-12</code>
+    <br /><code>?minEndDate=2015-02-12T09:15:10.000GMT</code>
+    <br /><code>?maxEndDate=2015-02-14T16:30:45.000GMT</code>
+    <br /><code>?limit=10</code></td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/jobs</code></td>
+    <td>
+      A list of all jobs for a given application.
+      <br /><code>?status=[running|succeeded|failed|unknown]</code> list only jobs in the specific state.
+    </td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/jobs/[job-id]</code></td>
+    <td>Details for the given job.</td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/stages</code></td>
+    <td>
+      A list of all stages for a given application.
+      <br /><code>?status=[active|complete|pending|failed]</code> list only stages in the state.
+    </td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/stages/[stage-id]</code></td>
+    <td>
+      A list of all attempts for the given stage.
+    </td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/stages/[stage-id]/[stage-attempt-id]</code></td>
+    <td>Details for the given stage attempt.</td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/stages/[stage-id]/[stage-attempt-id]/taskSummary</code></td>
+    <td>
+      Summary metrics of all tasks in the given stage attempt.
+      <br /><code>?quantiles</code> summarize the metrics with the given quantiles.
+      <br />Example: <code>?quantiles=0.01,0.5,0.99</code>
+    </td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/stages/[stage-id]/[stage-attempt-id]/taskList</code></td>
+    <td>
+       A list of all tasks for the given stage attempt.
+      <br /><code>?offset=[offset]&amp;length=[len]</code> list tasks in the given range.
+      <br /><code>?sortBy=[runtime|-runtime]</code> sort the tasks.
+      <br />Example: <code>?offset=10&amp;length=50&amp;sortBy=runtime</code>
+    </td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/executors</code></td>
+    <td>A list of all active executors for the given application.</td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/executors/[executor-id]/threads</code></td>
+    <td>
+      Stack traces of all the threads running within the given active executor.
+      Not available via the history server.
+    </td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/allexecutors</code></td>
+    <td>A list of all(active and dead) executors for the given application.</td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/storage/rdd</code></td>
+    <td>A list of stored RDDs for the given application.</td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/storage/rdd/[rdd-id]</code></td>
+    <td>Details for the storage status of a given RDD.</td>
+  </tr>
+  <tr>
+    <td><code>/applications/[base-app-id]/logs</code></td>
+    <td>Download the event logs for all attempts of the given application as files within
+    a zip file.
+    </td>
+  </tr>
+  <tr>
+    <td><code>/applications/[base-app-id]/[attempt-id]/logs</code></td>
+    <td>Download the event logs for a specific application attempt as a zip file.</td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/streaming/statistics</code></td>
+    <td>Statistics for the streaming context.</td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/streaming/receivers</code></td>
+    <td>A list of all streaming receivers.</td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/streaming/receivers/[stream-id]</code></td>
+    <td>Details of the given receiver.</td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/streaming/batches</code></td>
+    <td>A list of all retained batches.</td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/streaming/batches/[batch-id]</code></td>
+    <td>Details of the given batch.</td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/streaming/batches/[batch-id]/operations</code></td>
+    <td>A list of all output operations of the given batch.</td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/streaming/batches/[batch-id]/operations/[outputOp-id]</code></td>
+    <td>Details of the given operation and given batch.</td>
+  </tr>
+  <tr>
+    <td><code>/applications/[app-id]/environment</code></td>
+    <td>Environment details of the given application.</td>
+  </tr>
+  <tr>
+    <td><code>/version</code></td>
+    <td>Get the current spark version.</td>
+  </tr>
+</table>
+
+<p>The number of jobs and stages which can be retrieved is constrained by the same retention
+mechanism of the standalone Spark UI; <code>"spark.ui.retainedJobs"</code> defines the threshold
+value triggering garbage collection on jobs, and <code>spark.ui.retainedStages</code> that for stages.
+Note that the garbage collection takes place on playback: it is possible to retrieve
+more entries by increasing these values and restarting the history server.</p>
+
+<h3 id="executor-task-metrics">Executor Task Metrics</h3>
+
+<p>The REST API exposes the values of the Task Metrics collected by Spark executors with the granularity
+of task execution. The metrics can be used for performance troubleshooting and workload characterization.
+A list of the available metrics, with a short description:</p>
+
+<table class="table">
+  <tr><th>Spark Executor Task Metric name</th>
+      <th>Short description</th>
+  </tr>
+  <tr>
+    <td>executorRunTime</td>
+    <td>Elapsed time the executor spent running this task. This includes time fetching shuffle data.
+    The value is expressed in milliseconds.</td>
+  </tr>
+  <tr>
+    <td>executorCpuTime</td>
+    <td>CPU time the executor spent running this task. This includes time fetching shuffle data.
+    The value is expressed in nanoseconds.</td>
+  </tr>
+  <tr>
+    <td>executorDeserializeTime</td>
+    <td>Elapsed time spent to deserialize this task. The value is expressed in milliseconds.</td>
+  </tr>
+  <tr>
+    <td>executorDeserializeCpuTime</td>
+    <td>CPU time taken on the executor to deserialize this task. The value is expressed
+    in nanoseconds.</td>
+  </tr>
+  <tr>
+    <td>resultSize</td>
+    <td>The number of bytes this task transmitted back to the driver as the TaskResult.</td>
+  </tr>
+  <tr>
+    <td>jvmGCTime</td>
+    <td>Elapsed time the JVM spent in garbage collection while executing this task.
+    The value is expressed in milliseconds.</td>
+  </tr>
+  <tr>
+    <td>resultSerializationTime</td>
+    <td>Elapsed time spent serializing the task result. The value is expressed in milliseconds.</td>
+  </tr>
+  <tr>
+    <td>memoryBytesSpilled</td>
+    <td>The number of in-memory bytes spilled by this task.</td>
+  </tr>
+  <tr>
+    <td>diskBytesSpilled</td>
+    <td>The number of on-disk bytes spilled by this task.</td>
+  </tr>
+  <tr>
+    <td>peakExecutionMemory</td>
+    <td>Peak memory used by internal data structures created during shuffles, aggregations and
+        joins. The value of this accumulator should be approximately the sum of the peak sizes
+        across all such data structures created in this task. For SQL jobs, this only tracks all
+         unsafe operators and ExternalSort.</td>
+  </tr>
+  <tr>
+    <td>inputMetrics.*</td>
+    <td>Metrics related to reading data from [[org.apache.spark.rdd.HadoopRDD]] 
+    or from persisted data.</td>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;.bytesRead</td>
+    <td>Total number of bytes read.</td>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;.recordsRead</td>
+    <td>Total number of records read.</td>
+  </tr>
+  <tr>
+    <td>outputMetrics.*</td>
+    <td>Metrics related to writing data externally (e.g. to a distributed filesystem),
+    defined only in tasks with output.</td>            
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;.bytesWritten</td>
+    <td>Total number of bytes written</td>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;.recordsWritten</td>
+    <td>Total number of records written</td>
+  </tr>
+  <tr>
+    <td>shuffleReadMetrics.*</td>
+    <td>Metrics related to shuffle read operations.</td>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;.recordsRead</td>
+    <td>Number of records read in shuffle operations</td>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;.remoteBlocksFetched</td>
+    <td>Number of remote blocks fetched in shuffle operations</td>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;.localBlocksFetched</td>
+    <td>Number of local (as opposed to read from a remote executor) blocks fetched
+    in shuffle operations</td>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;.totalBlocksFetched</td>
+    <td>Number of blocks fetched in shuffle operations (both local and remote)</td>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;.remoteBytesRead</td>
+    <td>Number of remote bytes read in shuffle operations</td>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;.localBytesRead</td>
+    <td>Number of bytes read in shuffle operations from local disk (as opposed to
+    read from a remote executor)</td>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;.totalBytesRead</td>
+    <td>Number of bytes read in shuffle operations (both local and remote)</td>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;.remoteBytesReadToDisk</td>
+    <td>Number of remote bytes read to disk in shuffle operations.
+    Large blocks are fetched to disk in shuffle read operations, as opposed to 
+    being read into memory, which is the default behavior.</td>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;.fetchWaitTime</td>
+    <td>Time the task spent waiting for remote shuffle blocks. 
+        This only includes the time blocking on shuffle input data.
+        For instance if block B is being fetched while the task is still not finished 
+        processing block A, it is not considered to be blocking on block B.
+        The value is expressed in milliseconds.</td>
+  </tr>
+  <tr>
+    <td>shuffleWriteMetrics.*</td>
+    <td>Metrics related to operations writing shuffle data.</td>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;.bytesWritten</td>
+    <td>Number of bytes written in shuffle operations</td>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;.recordsWritten</td>
+    <td>Number of records written in shuffle operations</td>
+  </tr>
+  <tr>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;.writeTime</td>
+    <td>Time spent blocking on writes to disk or buffer cache. The value is expressed
+     in nanoseconds.</td>
+  </tr>
+</table>
+
+<h3 id="api-versioning-policy">API Versioning Policy</h3>
+
+<p>These endpoints have been strongly versioned to make it easier to develop applications on top.
+ In particular, Spark guarantees:</p>
+
+<ul>
+  <li>Endpoints will never be removed from one version</li>
+  <li>Individual fields will never be removed for any given endpoint</li>
+  <li>New endpoints may be added</li>
+  <li>New fields may be added to existing endpoints</li>
+  <li>New versions of the api may be added in the future as a separate endpoint (eg., <code>api/v2</code>).  New versions are <em>not</em> required to be backwards compatible.</li>
+  <li>Api versions may be dropped, but only after at least one minor release of co-existing with a new api version.</li>
+</ul>
+
+<p>Note that even when examining the UI of running applications, the <code>applications/[app-id]</code> portion is
+still required, though there is only one application available.  Eg. to see the list of jobs for the
+running app, you would go to <code>http://localhost:4040/api/v1/applications/[app-id]/jobs</code>.  This is to
+keep the paths consistent in both modes.</p>
+
+<h1 id="metrics">Metrics</h1>
+
+<p>Spark has a configurable metrics system based on the
+<a href="http://metrics.dropwizard.io/">Dropwizard Metrics Library</a>.
+This allows users to report Spark metrics to a variety of sinks including HTTP, JMX, and CSV
+files. The metrics system is configured via a configuration file that Spark expects to be present
+at <code>$SPARK_HOME/conf/metrics.properties</code>. A custom file location can be specified via the
+<code>spark.metrics.conf</code> <a href="configuration.html#spark-properties">configuration property</a>.
+By default, the root namespace used for driver or executor metrics is 
+the value of <code>spark.app.id</code>. However, often times, users want to be able to track the metrics 
+across apps for driver and executors, which is hard to do with application ID 
+(i.e. <code>spark.app.id</code>) since it changes with every invocation of the app. For such use cases,
+a custom namespace can be specified for metrics reporting using <code>spark.metrics.namespace</code>
+configuration property. 
+If, say, users wanted to set the metrics namespace to the name of the application, they
+can set the <code>spark.metrics.namespace</code> property to a value like <code>${spark.app.name}</code>. This value is
+then expanded appropriately by Spark and is used as the root namespace of the metrics system. 
+Non-driver and executor metrics are never prefixed with <code>spark.app.id</code>, nor does the
+<code>spark.metrics.namespace</code> property have any such affect on such metrics.</p>
+
+<p>Spark&#8217;s metrics are decoupled into different
+<em>instances</em> corresponding to Spark components. Within each instance, you can configure a
+set of sinks to which metrics are reported. The following instances are currently supported:</p>
+
+<ul>
+  <li><code>master</code>: The Spark standalone master process.</li>
+  <li><code>applications</code>: A component within the master which reports on various applications.</li>
+  <li><code>worker</code>: A Spark standalone worker process.</li>
+  <li><code>executor</code>: A Spark executor.</li>
+  <li><code>driver</code>: The Spark driver process (the process in which your SparkContext is created).</li>
+  <li><code>shuffleService</code>: The Spark shuffle service.</li>
+  <li><code>applicationMaster</code>: The Spark ApplicationMaster when running on YARN.</li>
+</ul>
+
+<p>Each instance can report to zero or more <em>sinks</em>. Sinks are contained in the
+<code>org.apache.spark.metrics.sink</code> package:</p>
+
+<ul>
+  <li><code>ConsoleSink</code>: Logs metrics information to the console.</li>
+  <li><code>CSVSink</code>: Exports metrics data to CSV files at regular intervals.</li>
+  <li><code>JmxSink</code>: Registers metrics for viewing in a JMX console.</li>
+  <li><code>MetricsServlet</code>: Adds a servlet within the existing Spark UI to serve metrics data as JSON data.</li>
+  <li><code>GraphiteSink</code>: Sends metrics to a Graphite node.</li>
+  <li><code>Slf4jSink</code>: Sends metrics to slf4j as log entries.</li>
+  <li><code>StatsdSink</code>: Sends metrics to a StatsD node.</li>
+</ul>
+
+<p>Spark also supports a Ganglia sink which is not included in the default build due to
+licensing restrictions:</p>
+
+<ul>
+  <li><code>GangliaSink</code>: Sends metrics to a Ganglia node or multicast group.</li>
+</ul>
+
+<p>To install the <code>GangliaSink</code> you&#8217;ll need to perform a custom build of Spark. <em><strong>Note that
+by embedding this library you will include <a href="http://www.gnu.org/copyleft/lesser.html">LGPL</a>-licensed
+code in your Spark package</strong></em>. For sbt users, set the
+<code>SPARK_GANGLIA_LGPL</code> environment variable before building. For Maven users, enable
+the <code>-Pspark-ganglia-lgpl</code> profile. In addition to modifying the cluster&#8217;s Spark build
+user applications will need to link to the <code>spark-ganglia-lgpl</code> artifact.</p>
+
+<p>The syntax of the metrics configuration file is defined in an example configuration file,
+<code>$SPARK_HOME/conf/metrics.properties.template</code>.</p>
+
+<h1 id="advanced-instrumentation">Advanced Instrumentation</h1>
+
+<p>Several external tools can be used to help profile the performance of Spark jobs:</p>
+
+<ul>
+  <li>Cluster-wide monitoring tools, such as <a href="http://ganglia.sourceforge.net/">Ganglia</a>, can provide
+insight into overall cluster utilization and resource bottlenecks. For instance, a Ganglia
+dashboard can quickly reveal whether a particular workload is disk bound, network bound, or
+CPU bound.</li>
+  <li>OS profiling tools such as <a href="http://dag.wieers.com/home-made/dstat/">dstat</a>,
+<a href="http://linux.die.net/man/1/iostat">iostat</a>, and <a href="http://linux.die.net/man/1/iotop">iotop</a>
+can provide fine-grained profiling on individual nodes.</li>
+  <li>JVM utilities such as <code>jstack</code> for providing stack traces, <code>jmap</code> for creating heap-dumps,
+<code>jstat</code> for reporting time-series statistics and <code>jconsole</code> for visually exploring various JVM
+properties are useful for those comfortable with JVM internals.</li>
+</ul>
+
+
+                </div>
+            
+             <!-- /container -->
+        </div>
+
+        <script src="js/vendor/jquery-1.8.0.min.js"></script>
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/vendor/anchor.min.js"></script>
+        <script src="js/main.js"></script>
+
+        <!-- MathJax Section -->
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({
+                TeX: { equationNumbers: { autoNumber: "AMS" } }
+            });
+        </script>
+        <script>
+            // Note that we load MathJax this way to work with local file (file://), HTTP and HTTPS.
+            // We could use "//cdn.mathjax...", but that won't support "file://".
+            (function(d, script) {
+                script = d.createElement('script');
+                script.type = 'text/javascript';
+                script.async = true;
+                script.onload = function(){
+                    MathJax.Hub.Config({
+                        tex2jax: {
+                            inlineMath: [ ["$", "$"], ["\\\\(","\\\\)"] ],
+                            displayMath: [ ["$$","$$"], ["\\[", "\\]"] ],
+                            processEscapes: true,
+                            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+                        }
+                    });
+                };
+                script.src = ('https:' == document.location.protocol ? 'https://' : 'http://') +
+                    'cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js' +
+                    '?config=TeX-AMS-MML_HTMLorMML';
+                d.getElementsByTagName('head')[0].appendChild(script);
+            }(document));
+        </script>
+    </body>
+</html>

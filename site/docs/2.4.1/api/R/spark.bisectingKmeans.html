@@ -1,0 +1,179 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Bisecting K-Means Clustering Model</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/languages/r.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</head><body>
+
+<table width="100%" summary="page for spark.bisectingKmeans {SparkR}"><tr><td>spark.bisectingKmeans {SparkR}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Bisecting K-Means Clustering Model</h2>
+
+<h3>Description</h3>
+
+<p>Fits a bisecting k-means clustering model against a SparkDataFrame.
+Users can call <code>summary</code> to print a summary of the fitted model, <code>predict</code> to make
+predictions on new data, and <code>write.ml</code>/<code>read.ml</code> to save/load fitted models.
+</p>
+<p>Get fitted result from a bisecting k-means model.
+Note: A saved-loaded model does not support this method.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+spark.bisectingKmeans(data, formula, ...)
+
+## S4 method for signature 'SparkDataFrame,formula'
+spark.bisectingKmeans(data, formula,
+  k = 4, maxIter = 20, seed = NULL, minDivisibleClusterSize = 1)
+
+## S4 method for signature 'BisectingKMeansModel'
+summary(object)
+
+## S4 method for signature 'BisectingKMeansModel'
+predict(object, newData)
+
+## S4 method for signature 'BisectingKMeansModel'
+fitted(object, method = c("centers",
+  "classes"))
+
+## S4 method for signature 'BisectingKMeansModel,character'
+write.ml(object, path,
+  overwrite = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>a SparkDataFrame for training.</p>
+</td></tr>
+<tr valign="top"><td><code>formula</code></td>
+<td>
+<p>a symbolic description of the model to be fitted. Currently only a few formula
+operators are supported, including '~', '.', ':', '+', and '-'.
+Note that the response variable of formula is empty in spark.bisectingKmeans.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional argument(s) passed to the method.</p>
+</td></tr>
+<tr valign="top"><td><code>k</code></td>
+<td>
+<p>the desired number of leaf clusters. Must be &gt; 1.
+The actual number could be smaller if there are no divisible leaf clusters.</p>
+</td></tr>
+<tr valign="top"><td><code>maxIter</code></td>
+<td>
+<p>maximum iteration number.</p>
+</td></tr>
+<tr valign="top"><td><code>seed</code></td>
+<td>
+<p>the random seed.</p>
+</td></tr>
+<tr valign="top"><td><code>minDivisibleClusterSize</code></td>
+<td>
+<p>The minimum number of points (if greater than or equal to 1.0)
+or the minimum proportion of points (if less than 1.0) of a
+divisible cluster. Note that it is an expert parameter. The
+default value should be good enough for most cases.</p>
+</td></tr>
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>a fitted bisecting k-means model.</p>
+</td></tr>
+<tr valign="top"><td><code>newData</code></td>
+<td>
+<p>a SparkDataFrame for testing.</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p>type of fitted results, <code>"centers"</code> for cluster centers
+or <code>"classes"</code> for assigned classes.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>the directory where the model is saved.</p>
+</td></tr>
+<tr valign="top"><td><code>overwrite</code></td>
+<td>
+<p>overwrites or not if the output path already exists. Default is FALSE
+which means throw exception if the output path exists.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>spark.bisectingKmeans</code> returns a fitted bisecting k-means model.
+</p>
+<p><code>summary</code> returns summary information of the fitted model, which is a list.
+The list includes the model's <code>k</code> (number of cluster centers),
+<code>coefficients</code> (model cluster centers),
+<code>size</code> (number of data points in each cluster), <code>cluster</code>
+(cluster centers of the transformed data; cluster is NULL if is.loaded is TRUE),
+and <code>is.loaded</code> (whether the model is loaded from a saved file).
+</p>
+<p><code>predict</code> returns the predicted values based on a bisecting k-means model.
+</p>
+<p><code>fitted</code> returns a SparkDataFrame containing fitted values.
+</p>
+
+
+<h3>Note</h3>
+
+<p>spark.bisectingKmeans since 2.2.0
+</p>
+<p>summary(BisectingKMeansModel) since 2.2.0
+</p>
+<p>predict(BisectingKMeansModel) since 2.2.0
+</p>
+<p>fitted since 2.2.0
+</p>
+<p>write.ml(BisectingKMeansModel, character) since 2.2.0
+</p>
+
+
+<h3>See Also</h3>
+
+<p><a href="predict.html">predict</a>, <a href="read.ml.html">read.ml</a>, <a href="write.ml.html">write.ml</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre><code class="r">## Not run: 
+##D sparkR.session()
+##D t &lt;- as.data.frame(Titanic)
+##D df &lt;- createDataFrame(t)
+##D model &lt;- spark.bisectingKmeans(df, Class ~ Survived, k = 4)
+##D summary(model)
+##D 
+##D # get fitted result from a bisecting k-means model
+##D fitted.model &lt;- fitted(model, &quot;centers&quot;)
+##D showDF(fitted.model)
+##D 
+##D # fitted values on training data
+##D fitted &lt;- predict(model, df)
+##D head(select(fitted, &quot;Class&quot;, &quot;prediction&quot;))
+##D 
+##D # save fitted model to input path
+##D path &lt;- &quot;path/to/model&quot;
+##D write.ml(model, path)
+##D 
+##D # can also read back the saved model and print
+##D savedModel &lt;- read.ml(path)
+##D summary(savedModel)
+## End(Not run)
+</code></pre>
+
+
+<hr /><div style="text-align: center;">[Package <em>SparkR</em> version 2.4.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

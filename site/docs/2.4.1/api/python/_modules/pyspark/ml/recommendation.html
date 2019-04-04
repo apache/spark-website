@@ -1,0 +1,563 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.ml.recommendation &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.ml.recommendation</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="k">import</span> <span class="n">since</span><span class="p">,</span> <span class="n">keyword_only</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.util</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.wrapper</span> <span class="k">import</span> <span class="n">JavaEstimator</span><span class="p">,</span> <span class="n">JavaModel</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.param.shared</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.common</span> <span class="k">import</span> <span class="n">inherit_doc</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ALS&#39;</span><span class="p">,</span> <span class="s1">&#39;ALSModel&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="ALS"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS">[docs]</a><span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">ALS</span><span class="p">(</span><span class="n">JavaEstimator</span><span class="p">,</span> <span class="n">HasCheckpointInterval</span><span class="p">,</span> <span class="n">HasMaxIter</span><span class="p">,</span> <span class="n">HasPredictionCol</span><span class="p">,</span> <span class="n">HasRegParam</span><span class="p">,</span> <span class="n">HasSeed</span><span class="p">,</span>
+          <span class="n">JavaMLWritable</span><span class="p">,</span> <span class="n">JavaMLReadable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Alternating Least Squares (ALS) matrix factorization.</span>
+
+<span class="sd">    ALS attempts to estimate the ratings matrix `R` as the product of</span>
+<span class="sd">    two lower-rank matrices, `X` and `Y`, i.e. `X * Yt = R`. Typically</span>
+<span class="sd">    these approximations are called &#39;factor&#39; matrices. The general</span>
+<span class="sd">    approach is iterative. During each iteration, one of the factor</span>
+<span class="sd">    matrices is held constant, while the other is solved for using least</span>
+<span class="sd">    squares. The newly-solved factor matrix is then held constant while</span>
+<span class="sd">    solving for the other factor matrix.</span>
+
+<span class="sd">    This is a blocked implementation of the ALS factorization algorithm</span>
+<span class="sd">    that groups the two sets of factors (referred to as &quot;users&quot; and</span>
+<span class="sd">    &quot;products&quot;) into blocks and reduces communication by only sending</span>
+<span class="sd">    one copy of each user vector to each product block on each</span>
+<span class="sd">    iteration, and only for the product blocks that need that user&#39;s</span>
+<span class="sd">    feature vector. This is achieved by pre-computing some information</span>
+<span class="sd">    about the ratings matrix to determine the &quot;out-links&quot; of each user</span>
+<span class="sd">    (which blocks of products it will contribute to) and &quot;in-link&quot;</span>
+<span class="sd">    information for each product (which of the feature vectors it</span>
+<span class="sd">    receives from each user block it will depend on). This allows us to</span>
+<span class="sd">    send only an array of feature vectors between each user block and</span>
+<span class="sd">    product block, and have the product block find the users&#39; ratings</span>
+<span class="sd">    and update the products based on these messages.</span>
+
+<span class="sd">    For implicit preference data, the algorithm used is based on</span>
+<span class="sd">    `&quot;Collaborative Filtering for Implicit Feedback Datasets&quot;,</span>
+<span class="sd">    &lt;http://dx.doi.org/10.1109/ICDM.2008.22&gt;`_, adapted for the blocked</span>
+<span class="sd">    approach used here.</span>
+
+<span class="sd">    Essentially instead of finding the low-rank approximations to the</span>
+<span class="sd">    rating matrix `R`, this finds the approximations for a preference</span>
+<span class="sd">    matrix `P` where the elements of `P` are 1 if r &gt; 0 and 0 if r &lt;= 0.</span>
+<span class="sd">    The ratings then act as &#39;confidence&#39; values related to strength of</span>
+<span class="sd">    indicated user preferences rather than explicit ratings given to</span>
+<span class="sd">    items.</span>
+
+<span class="sd">    &gt;&gt;&gt; df = spark.createDataFrame(</span>
+<span class="sd">    ...     [(0, 0, 4.0), (0, 1, 2.0), (1, 1, 3.0), (1, 2, 4.0), (2, 1, 1.0), (2, 2, 5.0)],</span>
+<span class="sd">    ...     [&quot;user&quot;, &quot;item&quot;, &quot;rating&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; als = ALS(rank=10, maxIter=5, seed=0)</span>
+<span class="sd">    &gt;&gt;&gt; model = als.fit(df)</span>
+<span class="sd">    &gt;&gt;&gt; model.rank</span>
+<span class="sd">    10</span>
+<span class="sd">    &gt;&gt;&gt; model.userFactors.orderBy(&quot;id&quot;).collect()</span>
+<span class="sd">    [Row(id=0, features=[...]), Row(id=1, ...), Row(id=2, ...)]</span>
+<span class="sd">    &gt;&gt;&gt; test = spark.createDataFrame([(0, 2), (1, 0), (2, 0)], [&quot;user&quot;, &quot;item&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; predictions = sorted(model.transform(test).collect(), key=lambda r: r[0])</span>
+<span class="sd">    &gt;&gt;&gt; predictions[0]</span>
+<span class="sd">    Row(user=0, item=2, prediction=-0.13807615637779236)</span>
+<span class="sd">    &gt;&gt;&gt; predictions[1]</span>
+<span class="sd">    Row(user=1, item=0, prediction=2.6258413791656494)</span>
+<span class="sd">    &gt;&gt;&gt; predictions[2]</span>
+<span class="sd">    Row(user=2, item=0, prediction=-1.5018409490585327)</span>
+<span class="sd">    &gt;&gt;&gt; user_recs = model.recommendForAllUsers(3)</span>
+<span class="sd">    &gt;&gt;&gt; user_recs.where(user_recs.user == 0)\</span>
+<span class="sd">        .select(&quot;recommendations.item&quot;, &quot;recommendations.rating&quot;).collect()</span>
+<span class="sd">    [Row(item=[0, 1, 2], rating=[3.910..., 1.992..., -0.138...])]</span>
+<span class="sd">    &gt;&gt;&gt; item_recs = model.recommendForAllItems(3)</span>
+<span class="sd">    &gt;&gt;&gt; item_recs.where(item_recs.item == 2)\</span>
+<span class="sd">        .select(&quot;recommendations.user&quot;, &quot;recommendations.rating&quot;).collect()</span>
+<span class="sd">    [Row(user=[2, 1, 0], rating=[4.901..., 3.981..., -0.138...])]</span>
+<span class="sd">    &gt;&gt;&gt; user_subset = df.where(df.user == 2)</span>
+<span class="sd">    &gt;&gt;&gt; user_subset_recs = model.recommendForUserSubset(user_subset, 3)</span>
+<span class="sd">    &gt;&gt;&gt; user_subset_recs.select(&quot;recommendations.item&quot;, &quot;recommendations.rating&quot;).first()</span>
+<span class="sd">    Row(item=[2, 1, 0], rating=[4.901..., 1.056..., -1.501...])</span>
+<span class="sd">    &gt;&gt;&gt; item_subset = df.where(df.item == 0)</span>
+<span class="sd">    &gt;&gt;&gt; item_subset_recs = model.recommendForItemSubset(item_subset, 3)</span>
+<span class="sd">    &gt;&gt;&gt; item_subset_recs.select(&quot;recommendations.user&quot;, &quot;recommendations.rating&quot;).first()</span>
+<span class="sd">    Row(user=[0, 1, 2], rating=[3.910..., 2.625..., -1.501...])</span>
+<span class="sd">    &gt;&gt;&gt; als_path = temp_path + &quot;/als&quot;</span>
+<span class="sd">    &gt;&gt;&gt; als.save(als_path)</span>
+<span class="sd">    &gt;&gt;&gt; als2 = ALS.load(als_path)</span>
+<span class="sd">    &gt;&gt;&gt; als.getMaxIter()</span>
+<span class="sd">    5</span>
+<span class="sd">    &gt;&gt;&gt; model_path = temp_path + &quot;/als_model&quot;</span>
+<span class="sd">    &gt;&gt;&gt; model.save(model_path)</span>
+<span class="sd">    &gt;&gt;&gt; model2 = ALSModel.load(model_path)</span>
+<span class="sd">    &gt;&gt;&gt; model.rank == model2.rank</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; sorted(model.userFactors.collect()) == sorted(model2.userFactors.collect())</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; sorted(model.itemFactors.collect()) == sorted(model2.itemFactors.collect())</span>
+<span class="sd">    True</span>
+
+<span class="sd">    .. versionadded:: 1.4.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">rank</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;rank&quot;</span><span class="p">,</span> <span class="s2">&quot;rank of the factorization&quot;</span><span class="p">,</span>
+                 <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toInt</span><span class="p">)</span>
+    <span class="n">numUserBlocks</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;numUserBlocks&quot;</span><span class="p">,</span> <span class="s2">&quot;number of user blocks&quot;</span><span class="p">,</span>
+                          <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toInt</span><span class="p">)</span>
+    <span class="n">numItemBlocks</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;numItemBlocks&quot;</span><span class="p">,</span> <span class="s2">&quot;number of item blocks&quot;</span><span class="p">,</span>
+                          <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toInt</span><span class="p">)</span>
+    <span class="n">implicitPrefs</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;implicitPrefs&quot;</span><span class="p">,</span> <span class="s2">&quot;whether to use implicit preference&quot;</span><span class="p">,</span>
+                          <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toBoolean</span><span class="p">)</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;alpha&quot;</span><span class="p">,</span> <span class="s2">&quot;alpha for implicit preference&quot;</span><span class="p">,</span>
+                  <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toFloat</span><span class="p">)</span>
+    <span class="n">userCol</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;userCol&quot;</span><span class="p">,</span> <span class="s2">&quot;column name for user ids. Ids must be within &quot;</span> <span class="o">+</span>
+                    <span class="s2">&quot;the integer value range.&quot;</span><span class="p">,</span> <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toString</span><span class="p">)</span>
+    <span class="n">itemCol</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;itemCol&quot;</span><span class="p">,</span> <span class="s2">&quot;column name for item ids. Ids must be within &quot;</span> <span class="o">+</span>
+                    <span class="s2">&quot;the integer value range.&quot;</span><span class="p">,</span> <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toString</span><span class="p">)</span>
+    <span class="n">ratingCol</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;ratingCol&quot;</span><span class="p">,</span> <span class="s2">&quot;column name for ratings&quot;</span><span class="p">,</span>
+                      <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toString</span><span class="p">)</span>
+    <span class="n">nonnegative</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;nonnegative&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;whether to use nonnegative constraint for least squares&quot;</span><span class="p">,</span>
+                        <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toBoolean</span><span class="p">)</span>
+    <span class="n">intermediateStorageLevel</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;intermediateStorageLevel&quot;</span><span class="p">,</span>
+                                     <span class="s2">&quot;StorageLevel for intermediate datasets. Cannot be &#39;NONE&#39;.&quot;</span><span class="p">,</span>
+                                     <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toString</span><span class="p">)</span>
+    <span class="n">finalStorageLevel</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;finalStorageLevel&quot;</span><span class="p">,</span>
+                              <span class="s2">&quot;StorageLevel for ALS model factors.&quot;</span><span class="p">,</span>
+                              <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toString</span><span class="p">)</span>
+    <span class="n">coldStartStrategy</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;coldStartStrategy&quot;</span><span class="p">,</span> <span class="s2">&quot;strategy for dealing with &quot;</span> <span class="o">+</span>
+                              <span class="s2">&quot;unknown or new users/items at prediction time. This may be useful &quot;</span> <span class="o">+</span>
+                              <span class="s2">&quot;in cross-validation or production scenarios, for handling &quot;</span> <span class="o">+</span>
+                              <span class="s2">&quot;user/item ids the model has not seen in the training data. &quot;</span> <span class="o">+</span>
+                              <span class="s2">&quot;Supported values: &#39;nan&#39;, &#39;drop&#39;.&quot;</span><span class="p">,</span>
+                              <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toString</span><span class="p">)</span>
+
+    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">maxIter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">regParam</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">numUserBlocks</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">numItemBlocks</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                 <span class="n">implicitPrefs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">userCol</span><span class="o">=</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="n">itemCol</span><span class="o">=</span><span class="s2">&quot;item&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">ratingCol</span><span class="o">=</span><span class="s2">&quot;rating&quot;</span><span class="p">,</span> <span class="n">nonnegative</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">checkpointInterval</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                 <span class="n">intermediateStorageLevel</span><span class="o">=</span><span class="s2">&quot;MEMORY_AND_DISK&quot;</span><span class="p">,</span>
+                 <span class="n">finalStorageLevel</span><span class="o">=</span><span class="s2">&quot;MEMORY_AND_DISK&quot;</span><span class="p">,</span> <span class="n">coldStartStrategy</span><span class="o">=</span><span class="s2">&quot;nan&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        __init__(self, rank=10, maxIter=10, regParam=0.1, numUserBlocks=10, numItemBlocks=10, \</span>
+<span class="sd">                 implicitPrefs=false, alpha=1.0, userCol=&quot;user&quot;, itemCol=&quot;item&quot;, seed=None, \</span>
+<span class="sd">                 ratingCol=&quot;rating&quot;, nonnegative=false, checkpointInterval=10, \</span>
+<span class="sd">                 intermediateStorageLevel=&quot;MEMORY_AND_DISK&quot;, \</span>
+<span class="sd">                 finalStorageLevel=&quot;MEMORY_AND_DISK&quot;, coldStartStrategy=&quot;nan&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ALS</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_java_obj</span><span class="p">(</span><span class="s2">&quot;org.apache.spark.ml.recommendation.ALS&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setDefault</span><span class="p">(</span><span class="n">rank</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">maxIter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">regParam</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">numUserBlocks</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">numItemBlocks</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                         <span class="n">implicitPrefs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">userCol</span><span class="o">=</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="n">itemCol</span><span class="o">=</span><span class="s2">&quot;item&quot;</span><span class="p">,</span>
+                         <span class="n">ratingCol</span><span class="o">=</span><span class="s2">&quot;rating&quot;</span><span class="p">,</span> <span class="n">nonnegative</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">checkpointInterval</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                         <span class="n">intermediateStorageLevel</span><span class="o">=</span><span class="s2">&quot;MEMORY_AND_DISK&quot;</span><span class="p">,</span>
+                         <span class="n">finalStorageLevel</span><span class="o">=</span><span class="s2">&quot;MEMORY_AND_DISK&quot;</span><span class="p">,</span> <span class="n">coldStartStrategy</span><span class="o">=</span><span class="s2">&quot;nan&quot;</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setParams</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ALS.setParams"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.setParams">[docs]</a>    <span class="nd">@keyword_only</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setParams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">maxIter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">regParam</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">numUserBlocks</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">numItemBlocks</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                  <span class="n">implicitPrefs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">userCol</span><span class="o">=</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="n">itemCol</span><span class="o">=</span><span class="s2">&quot;item&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">ratingCol</span><span class="o">=</span><span class="s2">&quot;rating&quot;</span><span class="p">,</span> <span class="n">nonnegative</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">checkpointInterval</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                  <span class="n">intermediateStorageLevel</span><span class="o">=</span><span class="s2">&quot;MEMORY_AND_DISK&quot;</span><span class="p">,</span>
+                  <span class="n">finalStorageLevel</span><span class="o">=</span><span class="s2">&quot;MEMORY_AND_DISK&quot;</span><span class="p">,</span> <span class="n">coldStartStrategy</span><span class="o">=</span><span class="s2">&quot;nan&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        setParams(self, rank=10, maxIter=10, regParam=0.1, numUserBlocks=10, numItemBlocks=10, \</span>
+<span class="sd">                 implicitPrefs=False, alpha=1.0, userCol=&quot;user&quot;, itemCol=&quot;item&quot;, seed=None, \</span>
+<span class="sd">                 ratingCol=&quot;rating&quot;, nonnegative=False, checkpointInterval=10, \</span>
+<span class="sd">                 intermediateStorageLevel=&quot;MEMORY_AND_DISK&quot;, \</span>
+<span class="sd">                 finalStorageLevel=&quot;MEMORY_AND_DISK&quot;, coldStartStrategy=&quot;nan&quot;)</span>
+<span class="sd">        Sets params for ALS.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_create_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">java_model</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ALSModel</span><span class="p">(</span><span class="n">java_model</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ALS.setRank"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.setRank">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setRank</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`rank`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">rank</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.getRank"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.getRank">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getRank</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of rank or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.setNumUserBlocks"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.setNumUserBlocks">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setNumUserBlocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`numUserBlocks`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">numUserBlocks</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.getNumUserBlocks"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.getNumUserBlocks">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getNumUserBlocks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of numUserBlocks or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numUserBlocks</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.setNumItemBlocks"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.setNumItemBlocks">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setNumItemBlocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`numItemBlocks`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">numItemBlocks</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.getNumItemBlocks"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.getNumItemBlocks">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getNumItemBlocks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of numItemBlocks or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numItemBlocks</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.setNumBlocks"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.setNumBlocks">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setNumBlocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets both :py:attr:`numUserBlocks` and :py:attr:`numItemBlocks` to the specific value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">numUserBlocks</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">numItemBlocks</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.setImplicitPrefs"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.setImplicitPrefs">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setImplicitPrefs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`implicitPrefs`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">implicitPrefs</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.getImplicitPrefs"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.getImplicitPrefs">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getImplicitPrefs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of implicitPrefs or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">implicitPrefs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.setAlpha"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.setAlpha">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setAlpha</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`alpha`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.getAlpha"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.getAlpha">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getAlpha</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of alpha or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.setUserCol"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.setUserCol">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setUserCol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`userCol`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">userCol</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.getUserCol"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.getUserCol">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getUserCol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of userCol or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">userCol</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.setItemCol"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.setItemCol">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setItemCol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`itemCol`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">itemCol</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.getItemCol"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.getItemCol">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getItemCol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of itemCol or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">itemCol</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.setRatingCol"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.setRatingCol">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setRatingCol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`ratingCol`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">ratingCol</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.getRatingCol"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.getRatingCol">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getRatingCol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of ratingCol or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ratingCol</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.setNonnegative"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.setNonnegative">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setNonnegative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`nonnegative`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">nonnegative</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.getNonnegative"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.getNonnegative">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getNonnegative</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of nonnegative or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nonnegative</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.setIntermediateStorageLevel"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.setIntermediateStorageLevel">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setIntermediateStorageLevel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`intermediateStorageLevel`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">intermediateStorageLevel</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.getIntermediateStorageLevel"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.getIntermediateStorageLevel">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getIntermediateStorageLevel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of intermediateStorageLevel or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">intermediateStorageLevel</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.setFinalStorageLevel"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.setFinalStorageLevel">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setFinalStorageLevel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`finalStorageLevel`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">finalStorageLevel</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.getFinalStorageLevel"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.getFinalStorageLevel">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getFinalStorageLevel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of finalStorageLevel or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">finalStorageLevel</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.setColdStartStrategy"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.setColdStartStrategy">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.2.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setColdStartStrategy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`coldStartStrategy`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">coldStartStrategy</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALS.getColdStartStrategy"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALS.getColdStartStrategy">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.2.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getColdStartStrategy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of coldStartStrategy or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coldStartStrategy</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ALSModel"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALSModel">[docs]</a><span class="k">class</span> <span class="nc">ALSModel</span><span class="p">(</span><span class="n">JavaModel</span><span class="p">,</span> <span class="n">JavaMLWritable</span><span class="p">,</span> <span class="n">JavaMLReadable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Model fitted by ALS.</span>
+
+<span class="sd">    .. versionadded:: 1.4.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">rank</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;rank of the matrix factorization model&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;rank&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">userFactors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        a DataFrame that stores user factors in two columns: `id` and</span>
+<span class="sd">        `features`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;userFactors&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">itemFactors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        a DataFrame that stores item factors in two columns: `id` and</span>
+<span class="sd">        `features`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;itemFactors&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ALSModel.recommendForAllUsers"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALSModel.recommendForAllUsers">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.2.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">recommendForAllUsers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numItems</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns top `numItems` items recommended for each user, for all users.</span>
+
+<span class="sd">        :param numItems: max number of recommendations for each user</span>
+<span class="sd">        :return: a DataFrame of (userCol, recommendations), where recommendations are</span>
+<span class="sd">                 stored as an array of (itemCol, rating) Rows.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;recommendForAllUsers&quot;</span><span class="p">,</span> <span class="n">numItems</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALSModel.recommendForAllItems"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALSModel.recommendForAllItems">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.2.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">recommendForAllItems</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numUsers</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns top `numUsers` users recommended for each item, for all items.</span>
+
+<span class="sd">        :param numUsers: max number of recommendations for each item</span>
+<span class="sd">        :return: a DataFrame of (itemCol, recommendations), where recommendations are</span>
+<span class="sd">                 stored as an array of (userCol, rating) Rows.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;recommendForAllItems&quot;</span><span class="p">,</span> <span class="n">numUsers</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALSModel.recommendForUserSubset"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALSModel.recommendForUserSubset">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.3.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">recommendForUserSubset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">numItems</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns top `numItems` items recommended for each user id in the input data set. Note that</span>
+<span class="sd">        if there are duplicate ids in the input dataset, only one set of recommendations per unique</span>
+<span class="sd">        id will be returned.</span>
+
+<span class="sd">        :param dataset: a Dataset containing a column of user ids. The column name must match</span>
+<span class="sd">                        `userCol`.</span>
+<span class="sd">        :param numItems: max number of recommendations for each user</span>
+<span class="sd">        :return: a DataFrame of (userCol, recommendations), where recommendations are</span>
+<span class="sd">                 stored as an array of (itemCol, rating) Rows.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;recommendForUserSubset&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">numItems</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ALSModel.recommendForItemSubset"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.recommendation.ALSModel.recommendForItemSubset">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.3.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">recommendForItemSubset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">numUsers</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns top `numUsers` users recommended for each item id in the input data set. Note that</span>
+<span class="sd">        if there are duplicate ids in the input dataset, only one set of recommendations per unique</span>
+<span class="sd">        id will be returned.</span>
+
+<span class="sd">        :param dataset: a Dataset containing a column of item ids. The column name must match</span>
+<span class="sd">                        `itemCol`.</span>
+<span class="sd">        :param numUsers: max number of recommendations for each item</span>
+<span class="sd">        :return: a DataFrame of (itemCol, recommendations), where recommendations are</span>
+<span class="sd">                 stored as an array of (userCol, rating) Rows.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;recommendForItemSubset&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">numUsers</span><span class="p">)</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="kn">import</span> <span class="nn">pyspark.ml.recommendation</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">SparkSession</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="n">pyspark</span><span class="o">.</span><span class="n">ml</span><span class="o">.</span><span class="n">recommendation</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="c1"># The small batch size here ensures that we see multiple batches,</span>
+    <span class="c1"># even in these small test examples:</span>
+    <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span>\
+        <span class="o">.</span><span class="n">master</span><span class="p">(</span><span class="s2">&quot;local[2]&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;ml.recommendation tests&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">sparkContext</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;sc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sc</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;spark&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spark</span>
+    <span class="kn">import</span> <span class="nn">tempfile</span>
+    <span class="n">temp_path</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;temp_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp_path</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span> <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span><span class="p">)</span>
+        <span class="n">spark</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">shutil</span> <span class="k">import</span> <span class="n">rmtree</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">rmtree</span><span class="p">(</span><span class="n">temp_path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>
