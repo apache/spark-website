@@ -67,6 +67,9 @@ transforming, and analyzing genomic data using Apache Spark
 - <a href="https://github.com/salesforce/TransmogrifAI">TransmogrifAI</a> - AutoML library for building modular, reusable, strongly typed machine learning workflows on Spark with minimal hand tuning
 - <a href="https://github.com/JohnSnowLabs/spark-nlp">Natural Language Processing for Apache Spark</a> - A library to provide simple, performant, and accurate NLP annotations for machine learning pipelines
 
+<h2>Performance, Monitoring, and Debugging Tools for Spark</h2>
+- <a href="https://github.com/g1thubhub/phil_stopwatch">Performance and debugging library</a> - A library to analyze Spark and PySpark applications for improving performance and finding the cause of failures
+
 <h2>Additional Language Bindings</h2>
 
 <h3>C# / .NET</h3>
