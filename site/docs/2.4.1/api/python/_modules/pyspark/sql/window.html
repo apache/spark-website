@@ -1,0 +1,319 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.sql.window &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.sql.window</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="k">import</span> <span class="n">since</span><span class="p">,</span> <span class="n">SparkContext</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.column</span> <span class="k">import</span> <span class="n">_to_seq</span><span class="p">,</span> <span class="n">_to_java_column</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Window&quot;</span><span class="p">,</span> <span class="s2">&quot;WindowSpec&quot;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_to_java_cols</span><span class="p">(</span><span class="n">cols</span><span class="p">):</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">_to_seq</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">_to_java_column</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Window"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Window">[docs]</a><span class="k">class</span> <span class="nc">Window</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Utility functions for defining window in DataFrames.</span>
+
+<span class="sd">    For example:</span>
+
+<span class="sd">    &gt;&gt;&gt; # ORDER BY date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW</span>
+<span class="sd">    &gt;&gt;&gt; window = Window.orderBy(&quot;date&quot;).rowsBetween(Window.unboundedPreceding, Window.currentRow)</span>
+
+<span class="sd">    &gt;&gt;&gt; # PARTITION BY country ORDER BY date RANGE BETWEEN 3 PRECEDING AND 3 FOLLOWING</span>
+<span class="sd">    &gt;&gt;&gt; window = Window.orderBy(&quot;date&quot;).partitionBy(&quot;country&quot;).rangeBetween(-3, 3)</span>
+
+<span class="sd">    .. note:: When ordering is not defined, an unbounded window frame (rowFrame,</span>
+<span class="sd">         unboundedPreceding, unboundedFollowing) is used by default. When ordering is defined,</span>
+<span class="sd">         a growing window frame (rangeFrame, unboundedPreceding, currentRow) is used by default.</span>
+
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    .. versionadded:: 1.4</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_JAVA_MIN_LONG</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">63</span><span class="p">)</span>  <span class="c1"># -9223372036854775808</span>
+    <span class="n">_JAVA_MAX_LONG</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">63</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># 9223372036854775807</span>
+    <span class="n">_PRECEDING_THRESHOLD</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="o">-</span><span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">,</span> <span class="n">_JAVA_MIN_LONG</span><span class="p">)</span>
+    <span class="n">_FOLLOWING_THRESHOLD</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">,</span> <span class="n">_JAVA_MAX_LONG</span><span class="p">)</span>
+
+    <span class="n">unboundedPreceding</span> <span class="o">=</span> <span class="n">_JAVA_MIN_LONG</span>
+
+    <span class="n">unboundedFollowing</span> <span class="o">=</span> <span class="n">_JAVA_MAX_LONG</span>
+
+    <span class="n">currentRow</span> <span class="o">=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="Window.partitionBy"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Window.partitionBy">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">partitionBy</span><span class="p">(</span><span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a :class:`WindowSpec` with the partitioning defined.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+        <span class="n">jspec</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expressions</span><span class="o">.</span><span class="n">Window</span><span class="o">.</span><span class="n">partitionBy</span><span class="p">(</span><span class="n">_to_java_cols</span><span class="p">(</span><span class="n">cols</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">WindowSpec</span><span class="p">(</span><span class="n">jspec</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Window.orderBy"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Window.orderBy">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">orderBy</span><span class="p">(</span><span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a :class:`WindowSpec` with the ordering defined.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+        <span class="n">jspec</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expressions</span><span class="o">.</span><span class="n">Window</span><span class="o">.</span><span class="n">orderBy</span><span class="p">(</span><span class="n">_to_java_cols</span><span class="p">(</span><span class="n">cols</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">WindowSpec</span><span class="p">(</span><span class="n">jspec</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Window.rowsBetween"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Window.rowsBetween">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.1</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">rowsBetween</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a :class:`WindowSpec` with the frame boundaries defined,</span>
+<span class="sd">        from `start` (inclusive) to `end` (inclusive).</span>
+
+<span class="sd">        Both `start` and `end` are relative positions from the current row.</span>
+<span class="sd">        For example, &quot;0&quot; means &quot;current row&quot;, while &quot;-1&quot; means the row before</span>
+<span class="sd">        the current row, and &quot;5&quot; means the fifth row after the current row.</span>
+
+<span class="sd">        We recommend users use ``Window.unboundedPreceding``, ``Window.unboundedFollowing``,</span>
+<span class="sd">        and ``Window.currentRow`` to specify special boundary values, rather than using integral</span>
+<span class="sd">        values directly.</span>
+
+<span class="sd">        :param start: boundary start, inclusive.</span>
+<span class="sd">                      The frame is unbounded if this is ``Window.unboundedPreceding``, or</span>
+<span class="sd">                      any value less than or equal to -9223372036854775808.</span>
+<span class="sd">        :param end: boundary end, inclusive.</span>
+<span class="sd">                    The frame is unbounded if this is ``Window.unboundedFollowing``, or</span>
+<span class="sd">                    any value greater than or equal to 9223372036854775807.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;=</span> <span class="n">Window</span><span class="o">.</span><span class="n">_PRECEDING_THRESHOLD</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">Window</span><span class="o">.</span><span class="n">unboundedPreceding</span>
+        <span class="k">if</span> <span class="n">end</span> <span class="o">&gt;=</span> <span class="n">Window</span><span class="o">.</span><span class="n">_FOLLOWING_THRESHOLD</span><span class="p">:</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">Window</span><span class="o">.</span><span class="n">unboundedFollowing</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+        <span class="n">jspec</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expressions</span><span class="o">.</span><span class="n">Window</span><span class="o">.</span><span class="n">rowsBetween</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">WindowSpec</span><span class="p">(</span><span class="n">jspec</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Window.rangeBetween"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.Window.rangeBetween">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.1</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">rangeBetween</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a :class:`WindowSpec` with the frame boundaries defined,</span>
+<span class="sd">        from `start` (inclusive) to `end` (inclusive).</span>
+
+<span class="sd">        Both `start` and `end` are relative from the current row. For example,</span>
+<span class="sd">        &quot;0&quot; means &quot;current row&quot;, while &quot;-1&quot; means one off before the current row,</span>
+<span class="sd">        and &quot;5&quot; means the five off after the current row.</span>
+
+<span class="sd">        We recommend users use ``Window.unboundedPreceding``, ``Window.unboundedFollowing``,</span>
+<span class="sd">        and ``Window.currentRow`` to specify special boundary values, rather than using integral</span>
+<span class="sd">        values directly.</span>
+
+<span class="sd">        :param start: boundary start, inclusive.</span>
+<span class="sd">                      The frame is unbounded if this is ``Window.unboundedPreceding``, or</span>
+<span class="sd">                      any value less than or equal to max(-sys.maxsize, -9223372036854775808).</span>
+<span class="sd">        :param end: boundary end, inclusive.</span>
+<span class="sd">                    The frame is unbounded if this is ``Window.unboundedFollowing``, or</span>
+<span class="sd">                    any value greater than or equal to min(sys.maxsize, 9223372036854775807).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;=</span> <span class="n">Window</span><span class="o">.</span><span class="n">_PRECEDING_THRESHOLD</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">Window</span><span class="o">.</span><span class="n">unboundedPreceding</span>
+        <span class="k">if</span> <span class="n">end</span> <span class="o">&gt;=</span> <span class="n">Window</span><span class="o">.</span><span class="n">_FOLLOWING_THRESHOLD</span><span class="p">:</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">Window</span><span class="o">.</span><span class="n">unboundedFollowing</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+        <span class="n">jspec</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">expressions</span><span class="o">.</span><span class="n">Window</span><span class="o">.</span><span class="n">rangeBetween</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">WindowSpec</span><span class="p">(</span><span class="n">jspec</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="WindowSpec"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.WindowSpec">[docs]</a><span class="k">class</span> <span class="nc">WindowSpec</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A window specification that defines the partitioning, ordering,</span>
+<span class="sd">    and frame boundaries.</span>
+
+<span class="sd">    Use the static methods in :class:`Window` to create a :class:`WindowSpec`.</span>
+
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    .. versionadded:: 1.4</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jspec</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jspec</span> <span class="o">=</span> <span class="n">jspec</span>
+
+<div class="viewcode-block" id="WindowSpec.partitionBy"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.WindowSpec.partitionBy">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">partitionBy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Defines the partitioning columns in a :class:`WindowSpec`.</span>
+
+<span class="sd">        :param cols: names of columns or expressions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">WindowSpec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jspec</span><span class="o">.</span><span class="n">partitionBy</span><span class="p">(</span><span class="n">_to_java_cols</span><span class="p">(</span><span class="n">cols</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="WindowSpec.orderBy"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.WindowSpec.orderBy">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">orderBy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Defines the ordering columns in a :class:`WindowSpec`.</span>
+
+<span class="sd">        :param cols: names of columns or expressions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">WindowSpec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jspec</span><span class="o">.</span><span class="n">orderBy</span><span class="p">(</span><span class="n">_to_java_cols</span><span class="p">(</span><span class="n">cols</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="WindowSpec.rowsBetween"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.WindowSpec.rowsBetween">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">rowsBetween</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Defines the frame boundaries, from `start` (inclusive) to `end` (inclusive).</span>
+
+<span class="sd">        Both `start` and `end` are relative positions from the current row.</span>
+<span class="sd">        For example, &quot;0&quot; means &quot;current row&quot;, while &quot;-1&quot; means the row before</span>
+<span class="sd">        the current row, and &quot;5&quot; means the fifth row after the current row.</span>
+
+<span class="sd">        We recommend users use ``Window.unboundedPreceding``, ``Window.unboundedFollowing``,</span>
+<span class="sd">        and ``Window.currentRow`` to specify special boundary values, rather than using integral</span>
+<span class="sd">        values directly.</span>
+
+<span class="sd">        :param start: boundary start, inclusive.</span>
+<span class="sd">                      The frame is unbounded if this is ``Window.unboundedPreceding``, or</span>
+<span class="sd">                      any value less than or equal to max(-sys.maxsize, -9223372036854775808).</span>
+<span class="sd">        :param end: boundary end, inclusive.</span>
+<span class="sd">                    The frame is unbounded if this is ``Window.unboundedFollowing``, or</span>
+<span class="sd">                    any value greater than or equal to min(sys.maxsize, 9223372036854775807).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;=</span> <span class="n">Window</span><span class="o">.</span><span class="n">_PRECEDING_THRESHOLD</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">Window</span><span class="o">.</span><span class="n">unboundedPreceding</span>
+        <span class="k">if</span> <span class="n">end</span> <span class="o">&gt;=</span> <span class="n">Window</span><span class="o">.</span><span class="n">_FOLLOWING_THRESHOLD</span><span class="p">:</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">Window</span><span class="o">.</span><span class="n">unboundedFollowing</span>
+        <span class="k">return</span> <span class="n">WindowSpec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jspec</span><span class="o">.</span><span class="n">rowsBetween</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="WindowSpec.rangeBetween"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.WindowSpec.rangeBetween">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">rangeBetween</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Defines the frame boundaries, from `start` (inclusive) to `end` (inclusive).</span>
+
+<span class="sd">        Both `start` and `end` are relative from the current row. For example,</span>
+<span class="sd">        &quot;0&quot; means &quot;current row&quot;, while &quot;-1&quot; means one off before the current row,</span>
+<span class="sd">        and &quot;5&quot; means the five off after the current row.</span>
+
+<span class="sd">        We recommend users use ``Window.unboundedPreceding``, ``Window.unboundedFollowing``,</span>
+<span class="sd">        and ``Window.currentRow`` to specify special boundary values, rather than using integral</span>
+<span class="sd">        values directly.</span>
+
+<span class="sd">        :param start: boundary start, inclusive.</span>
+<span class="sd">                      The frame is unbounded if this is ``Window.unboundedPreceding``, or</span>
+<span class="sd">                      any value less than or equal to max(-sys.maxsize, -9223372036854775808).</span>
+<span class="sd">        :param end: boundary end, inclusive.</span>
+<span class="sd">                    The frame is unbounded if this is ``Window.unboundedFollowing``, or</span>
+<span class="sd">                    any value greater than or equal to min(sys.maxsize, 9223372036854775807).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;=</span> <span class="n">Window</span><span class="o">.</span><span class="n">_PRECEDING_THRESHOLD</span><span class="p">:</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="n">Window</span><span class="o">.</span><span class="n">unboundedPreceding</span>
+        <span class="k">if</span> <span class="n">end</span> <span class="o">&gt;=</span> <span class="n">Window</span><span class="o">.</span><span class="n">_FOLLOWING_THRESHOLD</span><span class="p">:</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">Window</span><span class="o">.</span><span class="n">unboundedFollowing</span>
+        <span class="k">return</span> <span class="n">WindowSpec</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jspec</span><span class="o">.</span><span class="n">rangeBetween</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">))</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_test</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="n">SparkContext</span><span class="p">(</span><span class="s1">&#39;local[4]&#39;</span><span class="p">,</span> <span class="s1">&#39;PythonTest&#39;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">_test</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

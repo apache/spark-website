@@ -1,0 +1,492 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.sql.udf &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.sql.udf</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">User-defined function related classes and functions</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="k">import</span> <span class="n">SparkContext</span><span class="p">,</span> <span class="n">since</span>
+<span class="kn">from</span> <span class="nn">pyspark.rdd</span> <span class="k">import</span> <span class="n">_prepare_for_python_RDD</span><span class="p">,</span> <span class="n">PythonEvalType</span><span class="p">,</span> <span class="n">ignore_unicode_prefix</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.column</span> <span class="k">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">_to_java_column</span><span class="p">,</span> <span class="n">_to_seq</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="k">import</span> <span class="n">StringType</span><span class="p">,</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">StructType</span><span class="p">,</span> <span class="n">_parse_datatype_string</span><span class="p">,</span>\
+    <span class="n">to_arrow_type</span><span class="p">,</span> <span class="n">to_arrow_schema</span>
+<span class="kn">from</span> <span class="nn">pyspark.util</span> <span class="k">import</span> <span class="n">_get_argspec</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;UDFRegistration&quot;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_wrap_function</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">returnType</span><span class="p">):</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">returnType</span><span class="p">)</span>
+    <span class="n">pickled_command</span><span class="p">,</span> <span class="n">broadcast_vars</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">includes</span> <span class="o">=</span> <span class="n">_prepare_for_python_RDD</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">PythonFunction</span><span class="p">(</span><span class="nb">bytearray</span><span class="p">(</span><span class="n">pickled_command</span><span class="p">),</span> <span class="n">env</span><span class="p">,</span> <span class="n">includes</span><span class="p">,</span> <span class="n">sc</span><span class="o">.</span><span class="n">pythonExec</span><span class="p">,</span>
+                                  <span class="n">sc</span><span class="o">.</span><span class="n">pythonVer</span><span class="p">,</span> <span class="n">broadcast_vars</span><span class="p">,</span> <span class="n">sc</span><span class="o">.</span><span class="n">_javaAccumulator</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_create_udf</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">returnType</span><span class="p">,</span> <span class="n">evalType</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">evalType</span> <span class="ow">in</span> <span class="p">(</span><span class="n">PythonEvalType</span><span class="o">.</span><span class="n">SQL_SCALAR_PANDAS_UDF</span><span class="p">,</span>
+                    <span class="n">PythonEvalType</span><span class="o">.</span><span class="n">SQL_GROUPED_MAP_PANDAS_UDF</span><span class="p">,</span>
+                    <span class="n">PythonEvalType</span><span class="o">.</span><span class="n">SQL_GROUPED_AGG_PANDAS_UDF</span><span class="p">):</span>
+
+        <span class="kn">from</span> <span class="nn">pyspark.sql.utils</span> <span class="k">import</span> <span class="n">require_minimum_pyarrow_version</span>
+        <span class="n">require_minimum_pyarrow_version</span><span class="p">()</span>
+
+        <span class="n">argspec</span> <span class="o">=</span> <span class="n">_get_argspec</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">evalType</span> <span class="o">==</span> <span class="n">PythonEvalType</span><span class="o">.</span><span class="n">SQL_SCALAR_PANDAS_UDF</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">argspec</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> \
+                <span class="n">argspec</span><span class="o">.</span><span class="n">varargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid function: 0-arg pandas_udfs are not supported. &quot;</span>
+                <span class="s2">&quot;Instead, create a 1-arg pandas_udf and ignore the arg in your function.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">evalType</span> <span class="o">==</span> <span class="n">PythonEvalType</span><span class="o">.</span><span class="n">SQL_GROUPED_MAP_PANDAS_UDF</span> \
+                <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">argspec</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid function: pandas_udfs with function type GROUPED_MAP &quot;</span>
+                <span class="s2">&quot;must take either one argument (data) or two arguments (key, data).&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Set the name of the UserDefinedFunction object to be the name of function f</span>
+    <span class="n">udf_obj</span> <span class="o">=</span> <span class="n">UserDefinedFunction</span><span class="p">(</span>
+        <span class="n">f</span><span class="p">,</span> <span class="n">returnType</span><span class="o">=</span><span class="n">returnType</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">evalType</span><span class="o">=</span><span class="n">evalType</span><span class="p">,</span> <span class="n">deterministic</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">udf_obj</span><span class="o">.</span><span class="n">_wrapped</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">UserDefinedFunction</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    User defined function in Python</span>
+
+<span class="sd">    .. versionadded:: 1.3</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span>
+                 <span class="n">returnType</span><span class="o">=</span><span class="n">StringType</span><span class="p">(),</span>
+                 <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">evalType</span><span class="o">=</span><span class="n">PythonEvalType</span><span class="o">.</span><span class="n">SQL_BATCHED_UDF</span><span class="p">,</span>
+                 <span class="n">deterministic</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid function: not a function or callable (__call__ is not defined): &quot;</span>
+                <span class="s2">&quot;</span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">func</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">returnType</span><span class="p">,</span> <span class="p">(</span><span class="n">DataType</span><span class="p">,</span> <span class="nb">str</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid returnType: returnType should be DataType or str &quot;</span>
+                <span class="s2">&quot;but is </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">returnType</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">evalType</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;Invalid evalType: evalType should be an int but is </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">evalType</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="n">func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_returnType</span> <span class="o">=</span> <span class="n">returnType</span>
+        <span class="c1"># Stores UserDefinedPythonFunctions jobj, once initialized</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_returnType_placeholder</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_judf_placeholder</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="s1">&#39;__name__&#39;</span><span class="p">)</span>
+            <span class="k">else</span> <span class="n">func</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evalType</span> <span class="o">=</span> <span class="n">evalType</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deterministic</span> <span class="o">=</span> <span class="n">deterministic</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">returnType</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># This makes sure this is called after SparkContext is initialized.</span>
+        <span class="c1"># ``_parse_datatype_string`` accesses to JVM for parsing a DDL formatted string.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_returnType_placeholder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_returnType</span><span class="p">,</span> <span class="n">DataType</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_returnType_placeholder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_returnType</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_returnType_placeholder</span> <span class="o">=</span> <span class="n">_parse_datatype_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_returnType</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">evalType</span> <span class="o">==</span> <span class="n">PythonEvalType</span><span class="o">.</span><span class="n">SQL_SCALAR_PANDAS_UDF</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">to_arrow_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_returnType_placeholder</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                    <span class="s2">&quot;Invalid returnType with scalar Pandas UDFs: </span><span class="si">%s</span><span class="s2"> is &quot;</span>
+                    <span class="s2">&quot;not supported&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_returnType_placeholder</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">evalType</span> <span class="o">==</span> <span class="n">PythonEvalType</span><span class="o">.</span><span class="n">SQL_GROUPED_MAP_PANDAS_UDF</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_returnType_placeholder</span><span class="p">,</span> <span class="n">StructType</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">to_arrow_schema</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_returnType_placeholder</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                        <span class="s2">&quot;Invalid returnType with grouped map Pandas UDFs: &quot;</span>
+                        <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is not supported&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_returnType_placeholder</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Invalid returnType for grouped map Pandas &quot;</span>
+                                <span class="s2">&quot;UDFs: returnType must be a StructType.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">evalType</span> <span class="o">==</span> <span class="n">PythonEvalType</span><span class="o">.</span><span class="n">SQL_GROUPED_AGG_PANDAS_UDF</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">to_arrow_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_returnType_placeholder</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                    <span class="s2">&quot;Invalid returnType with grouped aggregate Pandas UDFs: &quot;</span>
+                    <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is not supported&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_returnType_placeholder</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_returnType_placeholder</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_judf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># It is possible that concurrent access, to newly created UDF,</span>
+        <span class="c1"># will initialize multiple UserDefinedPythonFunctions.</span>
+        <span class="c1"># This is unlikely, doesn&#39;t affect correctness,</span>
+        <span class="c1"># and should have a minimal performance impact.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_judf_placeholder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_judf_placeholder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_judf</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_judf_placeholder</span>
+
+    <span class="k">def</span> <span class="nf">_create_judf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">SparkSession</span>
+
+        <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">sparkContext</span>
+
+        <span class="n">wrapped_func</span> <span class="o">=</span> <span class="n">_wrap_function</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">returnType</span><span class="p">)</span>
+        <span class="n">jdt</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">_jsparkSession</span><span class="o">.</span><span class="n">parseDataType</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">returnType</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+        <span class="n">judf</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">execution</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">UserDefinedPythonFunction</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span> <span class="n">wrapped_func</span><span class="p">,</span> <span class="n">jdt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">evalType</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">deterministic</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">judf</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+        <span class="n">judf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_judf</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+        <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">judf</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">_to_seq</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">cols</span><span class="p">,</span> <span class="n">_to_java_column</span><span class="p">)))</span>
+
+    <span class="c1"># This function is for improving the online help system in the interactive interpreter.</span>
+    <span class="c1"># For example, the built-in help / pydoc.help. It wraps the UDF with the docstring and</span>
+    <span class="c1"># argument annotation. (See: SPARK-19161)</span>
+    <span class="k">def</span> <span class="nf">_wrapped</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wrap this udf with a function and attach docstring from func</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># It is possible for a callable instance without __name__ attribute or/and</span>
+        <span class="c1"># __module__ attribute to be wrapped here. For example, functools.partial. In this case,</span>
+        <span class="c1"># we should avoid wrapping the attributes from the wrapped function to the wrapper</span>
+        <span class="c1"># function. So, we take out these attribute names from the default names to set and</span>
+        <span class="c1"># then manually assign it after being wrapped.</span>
+        <span class="n">assignments</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+            <span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">functools</span><span class="o">.</span><span class="n">WRAPPER_ASSIGNMENTS</span> <span class="k">if</span> <span class="n">a</span> <span class="o">!=</span> <span class="s1">&#39;__name__&#39;</span> <span class="ow">and</span> <span class="n">a</span> <span class="o">!=</span> <span class="s1">&#39;__module__&#39;</span><span class="p">)</span>
+
+        <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">assigned</span><span class="o">=</span><span class="n">assignments</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="n">wrapper</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+        <span class="n">wrapper</span><span class="o">.</span><span class="vm">__module__</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="vm">__module__</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="s1">&#39;__module__&#39;</span><span class="p">)</span>
+                              <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__module__</span><span class="p">)</span>
+
+        <span class="n">wrapper</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span>
+        <span class="n">wrapper</span><span class="o">.</span><span class="n">returnType</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">returnType</span>
+        <span class="n">wrapper</span><span class="o">.</span><span class="n">evalType</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evalType</span>
+        <span class="n">wrapper</span><span class="o">.</span><span class="n">deterministic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deterministic</span>
+        <span class="n">wrapper</span><span class="o">.</span><span class="n">asNondeterministic</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">asNondeterministic</span><span class="p">)(</span><span class="k">lambda</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">asNondeterministic</span><span class="p">()</span><span class="o">.</span><span class="n">_wrapped</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">wrapper</span>
+
+    <span class="k">def</span> <span class="nf">asNondeterministic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates UserDefinedFunction to nondeterministic.</span>
+
+<span class="sd">        .. versionadded:: 2.3</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Here, we explicitly clean the cache to create a JVM UDF instance</span>
+        <span class="c1"># with &#39;deterministic&#39; updated. See SPARK-23233.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_judf_placeholder</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deterministic</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+
+<div class="viewcode-block" id="UDFRegistration"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.UDFRegistration">[docs]</a><span class="k">class</span> <span class="nc">UDFRegistration</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapper for user-defined function registration. This instance can be accessed by</span>
+<span class="sd">    :attr:`spark.udf` or :attr:`sqlContext.udf`.</span>
+
+<span class="sd">    .. versionadded:: 1.3.1</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparkSession</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sparkSession</span> <span class="o">=</span> <span class="n">sparkSession</span>
+
+<div class="viewcode-block" id="UDFRegistration.register"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.UDFRegistration.register">[docs]</a>    <span class="nd">@ignore_unicode_prefix</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.3.1&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">returnType</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Register a Python function (including lambda function) or a user-defined function</span>
+<span class="sd">        as a SQL function.</span>
+
+<span class="sd">        :param name: name of the user-defined function in SQL statements.</span>
+<span class="sd">        :param f: a Python function, or a user-defined function. The user-defined function can</span>
+<span class="sd">            be either row-at-a-time or vectorized. See :meth:`pyspark.sql.functions.udf` and</span>
+<span class="sd">            :meth:`pyspark.sql.functions.pandas_udf`.</span>
+<span class="sd">        :param returnType: the return type of the registered user-defined function. The value can</span>
+<span class="sd">            be either a :class:`pyspark.sql.types.DataType` object or a DDL-formatted type string.</span>
+<span class="sd">        :return: a user-defined function.</span>
+
+<span class="sd">        To register a nondeterministic Python function, users need to first build</span>
+<span class="sd">        a nondeterministic user-defined function for the Python function and then register it</span>
+<span class="sd">        as a SQL function.</span>
+
+<span class="sd">        `returnType` can be optionally specified when `f` is a Python function but not</span>
+<span class="sd">        when `f` is a user-defined function. Please see below.</span>
+
+<span class="sd">        1. When `f` is a Python function:</span>
+
+<span class="sd">            `returnType` defaults to string type and can be optionally specified. The produced</span>
+<span class="sd">            object must match the specified type. In this case, this API works as if</span>
+<span class="sd">            `register(name, f, returnType=StringType())`.</span>
+
+<span class="sd">            &gt;&gt;&gt; strlen = spark.udf.register(&quot;stringLengthString&quot;, lambda x: len(x))</span>
+<span class="sd">            &gt;&gt;&gt; spark.sql(&quot;SELECT stringLengthString(&#39;test&#39;)&quot;).collect()</span>
+<span class="sd">            [Row(stringLengthString(test)=u&#39;4&#39;)]</span>
+
+<span class="sd">            &gt;&gt;&gt; spark.sql(&quot;SELECT &#39;foo&#39; AS text&quot;).select(strlen(&quot;text&quot;)).collect()</span>
+<span class="sd">            [Row(stringLengthString(text)=u&#39;3&#39;)]</span>
+
+<span class="sd">            &gt;&gt;&gt; from pyspark.sql.types import IntegerType</span>
+<span class="sd">            &gt;&gt;&gt; _ = spark.udf.register(&quot;stringLengthInt&quot;, lambda x: len(x), IntegerType())</span>
+<span class="sd">            &gt;&gt;&gt; spark.sql(&quot;SELECT stringLengthInt(&#39;test&#39;)&quot;).collect()</span>
+<span class="sd">            [Row(stringLengthInt(test)=4)]</span>
+
+<span class="sd">            &gt;&gt;&gt; from pyspark.sql.types import IntegerType</span>
+<span class="sd">            &gt;&gt;&gt; _ = spark.udf.register(&quot;stringLengthInt&quot;, lambda x: len(x), IntegerType())</span>
+<span class="sd">            &gt;&gt;&gt; spark.sql(&quot;SELECT stringLengthInt(&#39;test&#39;)&quot;).collect()</span>
+<span class="sd">            [Row(stringLengthInt(test)=4)]</span>
+
+<span class="sd">        2. When `f` is a user-defined function:</span>
+
+<span class="sd">            Spark uses the return type of the given user-defined function as the return type of</span>
+<span class="sd">            the registered user-defined function. `returnType` should not be specified.</span>
+<span class="sd">            In this case, this API works as if `register(name, f)`.</span>
+
+<span class="sd">            &gt;&gt;&gt; from pyspark.sql.types import IntegerType</span>
+<span class="sd">            &gt;&gt;&gt; from pyspark.sql.functions import udf</span>
+<span class="sd">            &gt;&gt;&gt; slen = udf(lambda s: len(s), IntegerType())</span>
+<span class="sd">            &gt;&gt;&gt; _ = spark.udf.register(&quot;slen&quot;, slen)</span>
+<span class="sd">            &gt;&gt;&gt; spark.sql(&quot;SELECT slen(&#39;test&#39;)&quot;).collect()</span>
+<span class="sd">            [Row(slen(test)=4)]</span>
+
+<span class="sd">            &gt;&gt;&gt; import random</span>
+<span class="sd">            &gt;&gt;&gt; from pyspark.sql.functions import udf</span>
+<span class="sd">            &gt;&gt;&gt; from pyspark.sql.types import IntegerType</span>
+<span class="sd">            &gt;&gt;&gt; random_udf = udf(lambda: random.randint(0, 100), IntegerType()).asNondeterministic()</span>
+<span class="sd">            &gt;&gt;&gt; new_random_udf = spark.udf.register(&quot;random_udf&quot;, random_udf)</span>
+<span class="sd">            &gt;&gt;&gt; spark.sql(&quot;SELECT random_udf()&quot;).collect()  # doctest: +SKIP</span>
+<span class="sd">            [Row(random_udf()=82)]</span>
+
+<span class="sd">            &gt;&gt;&gt; from pyspark.sql.functions import pandas_udf, PandasUDFType</span>
+<span class="sd">            &gt;&gt;&gt; @pandas_udf(&quot;integer&quot;, PandasUDFType.SCALAR)  # doctest: +SKIP</span>
+<span class="sd">            ... def add_one(x):</span>
+<span class="sd">            ...     return x + 1</span>
+<span class="sd">            ...</span>
+<span class="sd">            &gt;&gt;&gt; _ = spark.udf.register(&quot;add_one&quot;, add_one)  # doctest: +SKIP</span>
+<span class="sd">            &gt;&gt;&gt; spark.sql(&quot;SELECT add_one(id) FROM range(3)&quot;).collect()  # doctest: +SKIP</span>
+<span class="sd">            [Row(add_one(id)=1), Row(add_one(id)=2), Row(add_one(id)=3)]</span>
+
+<span class="sd">            &gt;&gt;&gt; @pandas_udf(&quot;integer&quot;, PandasUDFType.GROUPED_AGG)  # doctest: +SKIP</span>
+<span class="sd">            ... def sum_udf(v):</span>
+<span class="sd">            ...     return v.sum()</span>
+<span class="sd">            ...</span>
+<span class="sd">            &gt;&gt;&gt; _ = spark.udf.register(&quot;sum_udf&quot;, sum_udf)  # doctest: +SKIP</span>
+<span class="sd">            &gt;&gt;&gt; q = &quot;SELECT sum_udf(v1) FROM VALUES (3, 0), (2, 0), (1, 1) tbl(v1, v2) GROUP BY v2&quot;</span>
+<span class="sd">            &gt;&gt;&gt; spark.sql(q).collect()  # doctest: +SKIP</span>
+<span class="sd">            [Row(sum_udf(v1)=1), Row(sum_udf(v1)=5)]</span>
+
+<span class="sd">            .. note:: Registration for a user-defined function (case 2.) was added from</span>
+<span class="sd">                Spark 2.3.0.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># This is to check whether the input function is from a user-defined function or</span>
+        <span class="c1"># Python function.</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s1">&#39;asNondeterministic&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">returnType</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="s2">&quot;Invalid returnType: data type can not be specified when f is&quot;</span>
+                    <span class="s2">&quot;a user-defined function, but got </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="n">returnType</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">evalType</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">PythonEvalType</span><span class="o">.</span><span class="n">SQL_BATCHED_UDF</span><span class="p">,</span>
+                                  <span class="n">PythonEvalType</span><span class="o">.</span><span class="n">SQL_SCALAR_PANDAS_UDF</span><span class="p">,</span>
+                                  <span class="n">PythonEvalType</span><span class="o">.</span><span class="n">SQL_GROUPED_AGG_PANDAS_UDF</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Invalid f: f must be SQL_BATCHED_UDF, SQL_SCALAR_PANDAS_UDF or &quot;</span>
+                    <span class="s2">&quot;SQL_GROUPED_AGG_PANDAS_UDF&quot;</span><span class="p">)</span>
+            <span class="n">register_udf</span> <span class="o">=</span> <span class="n">UserDefinedFunction</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">returnType</span><span class="o">=</span><span class="n">f</span><span class="o">.</span><span class="n">returnType</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                                               <span class="n">evalType</span><span class="o">=</span><span class="n">f</span><span class="o">.</span><span class="n">evalType</span><span class="p">,</span>
+                                               <span class="n">deterministic</span><span class="o">=</span><span class="n">f</span><span class="o">.</span><span class="n">deterministic</span><span class="p">)</span>
+            <span class="n">return_udf</span> <span class="o">=</span> <span class="n">f</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">returnType</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">returnType</span> <span class="o">=</span> <span class="n">StringType</span><span class="p">()</span>
+            <span class="n">register_udf</span> <span class="o">=</span> <span class="n">UserDefinedFunction</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">returnType</span><span class="o">=</span><span class="n">returnType</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                                               <span class="n">evalType</span><span class="o">=</span><span class="n">PythonEvalType</span><span class="o">.</span><span class="n">SQL_BATCHED_UDF</span><span class="p">)</span>
+            <span class="n">return_udf</span> <span class="o">=</span> <span class="n">register_udf</span><span class="o">.</span><span class="n">_wrapped</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sparkSession</span><span class="o">.</span><span class="n">_jsparkSession</span><span class="o">.</span><span class="n">udf</span><span class="p">()</span><span class="o">.</span><span class="n">registerPython</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">register_udf</span><span class="o">.</span><span class="n">_judf</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">return_udf</span></div>
+
+<div class="viewcode-block" id="UDFRegistration.registerJavaFunction"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.UDFRegistration.registerJavaFunction">[docs]</a>    <span class="nd">@ignore_unicode_prefix</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.3</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">registerJavaFunction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">javaClassName</span><span class="p">,</span> <span class="n">returnType</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Register a Java user-defined function as a SQL function.</span>
+
+<span class="sd">        In addition to a name and the function itself, the return type can be optionally specified.</span>
+<span class="sd">        When the return type is not specified we would infer it via reflection.</span>
+
+<span class="sd">        :param name: name of the user-defined function</span>
+<span class="sd">        :param javaClassName: fully qualified name of java class</span>
+<span class="sd">        :param returnType: the return type of the registered Java function. The value can be either</span>
+<span class="sd">            a :class:`pyspark.sql.types.DataType` object or a DDL-formatted type string.</span>
+
+<span class="sd">        &gt;&gt;&gt; from pyspark.sql.types import IntegerType</span>
+<span class="sd">        &gt;&gt;&gt; spark.udf.registerJavaFunction(</span>
+<span class="sd">        ...     &quot;javaStringLength&quot;, &quot;test.org.apache.spark.sql.JavaStringLength&quot;, IntegerType())</span>
+<span class="sd">        &gt;&gt;&gt; spark.sql(&quot;SELECT javaStringLength(&#39;test&#39;)&quot;).collect()</span>
+<span class="sd">        [Row(UDF:javaStringLength(test)=4)]</span>
+
+<span class="sd">        &gt;&gt;&gt; spark.udf.registerJavaFunction(</span>
+<span class="sd">        ...     &quot;javaStringLength2&quot;, &quot;test.org.apache.spark.sql.JavaStringLength&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; spark.sql(&quot;SELECT javaStringLength2(&#39;test&#39;)&quot;).collect()</span>
+<span class="sd">        [Row(UDF:javaStringLength2(test)=4)]</span>
+
+<span class="sd">        &gt;&gt;&gt; spark.udf.registerJavaFunction(</span>
+<span class="sd">        ...     &quot;javaStringLength3&quot;, &quot;test.org.apache.spark.sql.JavaStringLength&quot;, &quot;integer&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; spark.sql(&quot;SELECT javaStringLength3(&#39;test&#39;)&quot;).collect()</span>
+<span class="sd">        [Row(UDF:javaStringLength3(test)=4)]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">jdt</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">returnType</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">returnType</span><span class="p">,</span> <span class="n">DataType</span><span class="p">):</span>
+                <span class="n">returnType</span> <span class="o">=</span> <span class="n">_parse_datatype_string</span><span class="p">(</span><span class="n">returnType</span><span class="p">)</span>
+            <span class="n">jdt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sparkSession</span><span class="o">.</span><span class="n">_jsparkSession</span><span class="o">.</span><span class="n">parseDataType</span><span class="p">(</span><span class="n">returnType</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sparkSession</span><span class="o">.</span><span class="n">_jsparkSession</span><span class="o">.</span><span class="n">udf</span><span class="p">()</span><span class="o">.</span><span class="n">registerJava</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">javaClassName</span><span class="p">,</span> <span class="n">jdt</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UDFRegistration.registerJavaUDAF"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.UDFRegistration.registerJavaUDAF">[docs]</a>    <span class="nd">@ignore_unicode_prefix</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.3</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">registerJavaUDAF</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">javaClassName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Register a Java user-defined aggregate function as a SQL function.</span>
+
+<span class="sd">        :param name: name of the user-defined aggregate function</span>
+<span class="sd">        :param javaClassName: fully qualified name of java class</span>
+
+<span class="sd">        &gt;&gt;&gt; spark.udf.registerJavaUDAF(&quot;javaUDAF&quot;, &quot;test.org.apache.spark.sql.MyDoubleAvg&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; df = spark.createDataFrame([(1, &quot;a&quot;),(2, &quot;b&quot;), (3, &quot;a&quot;)],[&quot;id&quot;, &quot;name&quot;])</span>
+<span class="sd">        &gt;&gt;&gt; df.createOrReplaceTempView(&quot;df&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; spark.sql(&quot;SELECT name, javaUDAF(id) as avg from df group by name&quot;).collect()</span>
+<span class="sd">        [Row(name=u&#39;b&#39;, avg=102.0), Row(name=u&#39;a&#39;, avg=102.0)]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sparkSession</span><span class="o">.</span><span class="n">_jsparkSession</span><span class="o">.</span><span class="n">udf</span><span class="p">()</span><span class="o">.</span><span class="n">registerJavaUDAF</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">javaClassName</span><span class="p">)</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_test</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">SparkSession</span>
+    <span class="kn">import</span> <span class="nn">pyspark.sql.udf</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="n">pyspark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">udf</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span>\
+        <span class="o">.</span><span class="n">master</span><span class="p">(</span><span class="s2">&quot;local[4]&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;sql.udf tests&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;spark&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spark</span>
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span>
+        <span class="n">pyspark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">udf</span><span class="p">,</span> <span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span>
+        <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span> <span class="o">|</span> <span class="n">doctest</span><span class="o">.</span><span class="n">NORMALIZE_WHITESPACE</span><span class="p">)</span>
+    <span class="n">spark</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">_test</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

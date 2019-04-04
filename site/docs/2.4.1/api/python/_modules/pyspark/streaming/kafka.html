@@ -1,0 +1,584 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.streaming.kafka &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.streaming.kafka</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">py4j.protocol</span> <span class="k">import</span> <span class="n">Py4JJavaError</span>
+
+<span class="kn">from</span> <span class="nn">pyspark.rdd</span> <span class="k">import</span> <span class="n">RDD</span>
+<span class="kn">from</span> <span class="nn">pyspark.storagelevel</span> <span class="k">import</span> <span class="n">StorageLevel</span>
+<span class="kn">from</span> <span class="nn">pyspark.serializers</span> <span class="k">import</span> <span class="n">AutoBatchedSerializer</span><span class="p">,</span> <span class="n">PickleSerializer</span><span class="p">,</span> <span class="n">PairDeserializer</span><span class="p">,</span> \
+    <span class="n">NoOpSerializer</span>
+<span class="kn">from</span> <span class="nn">pyspark.streaming</span> <span class="k">import</span> <span class="n">DStream</span>
+<span class="kn">from</span> <span class="nn">pyspark.streaming.dstream</span> <span class="k">import</span> <span class="n">TransformedDStream</span>
+<span class="kn">from</span> <span class="nn">pyspark.streaming.util</span> <span class="k">import</span> <span class="n">TransformFunction</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Broker&#39;</span><span class="p">,</span> <span class="s1">&#39;KafkaMessageAndMetadata&#39;</span><span class="p">,</span> <span class="s1">&#39;KafkaUtils&#39;</span><span class="p">,</span> <span class="s1">&#39;OffsetRange&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;TopicAndPartition&#39;</span><span class="p">,</span> <span class="s1">&#39;utf8_decoder&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="utf8_decoder"><a class="viewcode-back" href="../../../pyspark.streaming.html#pyspark.streaming.kafka.utf8_decoder">[docs]</a><span class="k">def</span> <span class="nf">utf8_decoder</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Decode the unicode as UTF-8 &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">s</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="KafkaUtils"><a class="viewcode-back" href="../../../pyspark.streaming.html#pyspark.streaming.kafka.KafkaUtils">[docs]</a><span class="k">class</span> <span class="nc">KafkaUtils</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<div class="viewcode-block" id="KafkaUtils.createStream"><a class="viewcode-back" href="../../../pyspark.streaming.html#pyspark.streaming.kafka.KafkaUtils.createStream">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">createStream</span><span class="p">(</span><span class="n">ssc</span><span class="p">,</span> <span class="n">zkQuorum</span><span class="p">,</span> <span class="n">groupId</span><span class="p">,</span> <span class="n">topics</span><span class="p">,</span> <span class="n">kafkaParams</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">storageLevel</span><span class="o">=</span><span class="n">StorageLevel</span><span class="o">.</span><span class="n">MEMORY_AND_DISK_2</span><span class="p">,</span>
+                     <span class="n">keyDecoder</span><span class="o">=</span><span class="n">utf8_decoder</span><span class="p">,</span> <span class="n">valueDecoder</span><span class="o">=</span><span class="n">utf8_decoder</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an input stream that pulls messages from a Kafka Broker.</span>
+
+<span class="sd">        :param ssc:  StreamingContext object</span>
+<span class="sd">        :param zkQuorum:  Zookeeper quorum (hostname:port,hostname:port,..).</span>
+<span class="sd">        :param groupId:  The group id for this consumer.</span>
+<span class="sd">        :param topics:  Dict of (topic_name -&gt; numPartitions) to consume.</span>
+<span class="sd">                        Each partition is consumed in its own thread.</span>
+<span class="sd">        :param kafkaParams: Additional params for Kafka</span>
+<span class="sd">        :param storageLevel:  RDD storage level.</span>
+<span class="sd">        :param keyDecoder:  A function used to decode key (default is utf8_decoder)</span>
+<span class="sd">        :param valueDecoder:  A function used to decode value (default is utf8_decoder)</span>
+<span class="sd">        :return: A DStream object</span>
+
+<span class="sd">        .. note:: Deprecated in 2.3.0. Kafka 0.8 support is deprecated as of Spark 2.3.0.</span>
+<span class="sd">            See SPARK-21893.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Deprecated in 2.3.0. Kafka 0.8 support is deprecated as of Spark 2.3.0. &quot;</span>
+            <span class="s2">&quot;See SPARK-21893.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kafkaParams</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kafkaParams</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">kafkaParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+            <span class="s2">&quot;zookeeper.connect&quot;</span><span class="p">:</span> <span class="n">zkQuorum</span><span class="p">,</span>
+            <span class="s2">&quot;group.id&quot;</span><span class="p">:</span> <span class="n">groupId</span><span class="p">,</span>
+            <span class="s2">&quot;zookeeper.connection.timeout.ms&quot;</span><span class="p">:</span> <span class="s2">&quot;10000&quot;</span><span class="p">,</span>
+        <span class="p">})</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">topics</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;topics should be dict&quot;</span><span class="p">)</span>
+        <span class="n">jlevel</span> <span class="o">=</span> <span class="n">ssc</span><span class="o">.</span><span class="n">_sc</span><span class="o">.</span><span class="n">_getJavaStorageLevel</span><span class="p">(</span><span class="n">storageLevel</span><span class="p">)</span>
+        <span class="n">helper</span> <span class="o">=</span> <span class="n">KafkaUtils</span><span class="o">.</span><span class="n">_get_helper</span><span class="p">(</span><span class="n">ssc</span><span class="o">.</span><span class="n">_sc</span><span class="p">)</span>
+        <span class="n">jstream</span> <span class="o">=</span> <span class="n">helper</span><span class="o">.</span><span class="n">createStream</span><span class="p">(</span><span class="n">ssc</span><span class="o">.</span><span class="n">_jssc</span><span class="p">,</span> <span class="n">kafkaParams</span><span class="p">,</span> <span class="n">topics</span><span class="p">,</span> <span class="n">jlevel</span><span class="p">)</span>
+        <span class="n">ser</span> <span class="o">=</span> <span class="n">PairDeserializer</span><span class="p">(</span><span class="n">NoOpSerializer</span><span class="p">(),</span> <span class="n">NoOpSerializer</span><span class="p">())</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="n">DStream</span><span class="p">(</span><span class="n">jstream</span><span class="p">,</span> <span class="n">ssc</span><span class="p">,</span> <span class="n">ser</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">stream</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">k_v</span><span class="p">:</span> <span class="p">(</span><span class="n">keyDecoder</span><span class="p">(</span><span class="n">k_v</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">valueDecoder</span><span class="p">(</span><span class="n">k_v</span><span class="p">[</span><span class="mi">1</span><span class="p">])))</span></div>
+
+<div class="viewcode-block" id="KafkaUtils.createDirectStream"><a class="viewcode-back" href="../../../pyspark.streaming.html#pyspark.streaming.kafka.KafkaUtils.createDirectStream">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">createDirectStream</span><span class="p">(</span><span class="n">ssc</span><span class="p">,</span> <span class="n">topics</span><span class="p">,</span> <span class="n">kafkaParams</span><span class="p">,</span> <span class="n">fromOffsets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                           <span class="n">keyDecoder</span><span class="o">=</span><span class="n">utf8_decoder</span><span class="p">,</span> <span class="n">valueDecoder</span><span class="o">=</span><span class="n">utf8_decoder</span><span class="p">,</span>
+                           <span class="n">messageHandler</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an input stream that directly pulls messages from a Kafka Broker and specific offset.</span>
+
+<span class="sd">        This is not a receiver based Kafka input stream, it directly pulls the message from Kafka</span>
+<span class="sd">        in each batch duration and processed without storing.</span>
+
+<span class="sd">        This does not use Zookeeper to store offsets. The consumed offsets are tracked</span>
+<span class="sd">        by the stream itself. For interoperability with Kafka monitoring tools that depend on</span>
+<span class="sd">        Zookeeper, you have to update Kafka/Zookeeper yourself from the streaming application.</span>
+<span class="sd">        You can access the offsets used in each batch from the generated RDDs (see</span>
+
+<span class="sd">        To recover from driver failures, you have to enable checkpointing in the StreamingContext.</span>
+<span class="sd">        The information on consumed offset can be recovered from the checkpoint.</span>
+<span class="sd">        See the programming guide for details (constraints, etc.).</span>
+
+<span class="sd">        :param ssc:  StreamingContext object.</span>
+<span class="sd">        :param topics:  list of topic_name to consume.</span>
+<span class="sd">        :param kafkaParams: Additional params for Kafka.</span>
+<span class="sd">        :param fromOffsets: Per-topic/partition Kafka offsets defining the (inclusive) starting</span>
+<span class="sd">                            point of the stream (a dictionary mapping `TopicAndPartition` to</span>
+<span class="sd">                            integers).</span>
+<span class="sd">        :param keyDecoder:  A function used to decode key (default is utf8_decoder).</span>
+<span class="sd">        :param valueDecoder:  A function used to decode value (default is utf8_decoder).</span>
+<span class="sd">        :param messageHandler: A function used to convert KafkaMessageAndMetadata. You can assess</span>
+<span class="sd">                               meta using messageHandler (default is None).</span>
+<span class="sd">        :return: A DStream object</span>
+
+<span class="sd">        .. note:: Experimental</span>
+<span class="sd">        .. note:: Deprecated in 2.3.0. Kafka 0.8 support is deprecated as of Spark 2.3.0.</span>
+<span class="sd">            See SPARK-21893.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Deprecated in 2.3.0. Kafka 0.8 support is deprecated as of Spark 2.3.0. &quot;</span>
+            <span class="s2">&quot;See SPARK-21893.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fromOffsets</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fromOffsets</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">topics</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;topics should be list&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kafkaParams</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;kafkaParams should be dict&quot;</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">funcWithoutMessageHandler</span><span class="p">(</span><span class="n">k_v</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">keyDecoder</span><span class="p">(</span><span class="n">k_v</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">valueDecoder</span><span class="p">(</span><span class="n">k_v</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+        <span class="k">def</span> <span class="nf">funcWithMessageHandler</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">_set_key_decoder</span><span class="p">(</span><span class="n">keyDecoder</span><span class="p">)</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">_set_value_decoder</span><span class="p">(</span><span class="n">valueDecoder</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">messageHandler</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+        <span class="n">helper</span> <span class="o">=</span> <span class="n">KafkaUtils</span><span class="o">.</span><span class="n">_get_helper</span><span class="p">(</span><span class="n">ssc</span><span class="o">.</span><span class="n">_sc</span><span class="p">)</span>
+
+        <span class="n">jfromOffsets</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">k</span><span class="o">.</span><span class="n">_jTopicAndPartition</span><span class="p">(</span><span class="n">helper</span><span class="p">),</span>
+                              <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">fromOffsets</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+        <span class="k">if</span> <span class="n">messageHandler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ser</span> <span class="o">=</span> <span class="n">PairDeserializer</span><span class="p">(</span><span class="n">NoOpSerializer</span><span class="p">(),</span> <span class="n">NoOpSerializer</span><span class="p">())</span>
+            <span class="n">func</span> <span class="o">=</span> <span class="n">funcWithoutMessageHandler</span>
+            <span class="n">jstream</span> <span class="o">=</span> <span class="n">helper</span><span class="o">.</span><span class="n">createDirectStreamWithoutMessageHandler</span><span class="p">(</span>
+                <span class="n">ssc</span><span class="o">.</span><span class="n">_jssc</span><span class="p">,</span> <span class="n">kafkaParams</span><span class="p">,</span> <span class="nb">set</span><span class="p">(</span><span class="n">topics</span><span class="p">),</span> <span class="n">jfromOffsets</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ser</span> <span class="o">=</span> <span class="n">AutoBatchedSerializer</span><span class="p">(</span><span class="n">PickleSerializer</span><span class="p">())</span>
+            <span class="n">func</span> <span class="o">=</span> <span class="n">funcWithMessageHandler</span>
+            <span class="n">jstream</span> <span class="o">=</span> <span class="n">helper</span><span class="o">.</span><span class="n">createDirectStreamWithMessageHandler</span><span class="p">(</span>
+                <span class="n">ssc</span><span class="o">.</span><span class="n">_jssc</span><span class="p">,</span> <span class="n">kafkaParams</span><span class="p">,</span> <span class="nb">set</span><span class="p">(</span><span class="n">topics</span><span class="p">),</span> <span class="n">jfromOffsets</span><span class="p">)</span>
+
+        <span class="n">stream</span> <span class="o">=</span> <span class="n">DStream</span><span class="p">(</span><span class="n">jstream</span><span class="p">,</span> <span class="n">ssc</span><span class="p">,</span> <span class="n">ser</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">KafkaDStream</span><span class="p">(</span><span class="n">stream</span><span class="o">.</span><span class="n">_jdstream</span><span class="p">,</span> <span class="n">ssc</span><span class="p">,</span> <span class="n">stream</span><span class="o">.</span><span class="n">_jrdd_deserializer</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="KafkaUtils.createRDD"><a class="viewcode-back" href="../../../pyspark.streaming.html#pyspark.streaming.kafka.KafkaUtils.createRDD">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">createRDD</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">kafkaParams</span><span class="p">,</span> <span class="n">offsetRanges</span><span class="p">,</span> <span class="n">leaders</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">keyDecoder</span><span class="o">=</span><span class="n">utf8_decoder</span><span class="p">,</span> <span class="n">valueDecoder</span><span class="o">=</span><span class="n">utf8_decoder</span><span class="p">,</span>
+                  <span class="n">messageHandler</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an RDD from Kafka using offset ranges for each topic and partition.</span>
+
+<span class="sd">        :param sc:  SparkContext object</span>
+<span class="sd">        :param kafkaParams: Additional params for Kafka</span>
+<span class="sd">        :param offsetRanges:  list of offsetRange to specify topic:partition:[start, end) to consume</span>
+<span class="sd">        :param leaders: Kafka brokers for each TopicAndPartition in offsetRanges.  May be an empty</span>
+<span class="sd">            map, in which case leaders will be looked up on the driver.</span>
+<span class="sd">        :param keyDecoder:  A function used to decode key (default is utf8_decoder)</span>
+<span class="sd">        :param valueDecoder:  A function used to decode value (default is utf8_decoder)</span>
+<span class="sd">        :param messageHandler: A function used to convert KafkaMessageAndMetadata. You can assess</span>
+<span class="sd">                               meta using messageHandler (default is None).</span>
+<span class="sd">        :return: An RDD object</span>
+
+<span class="sd">        .. note:: Experimental</span>
+<span class="sd">        .. note:: Deprecated in 2.3.0. Kafka 0.8 support is deprecated as of Spark 2.3.0.</span>
+<span class="sd">            See SPARK-21893.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Deprecated in 2.3.0. Kafka 0.8 support is deprecated as of Spark 2.3.0. &quot;</span>
+            <span class="s2">&quot;See SPARK-21893.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">leaders</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">leaders</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kafkaParams</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;kafkaParams should be dict&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">offsetRanges</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;offsetRanges should be list&quot;</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">funcWithoutMessageHandler</span><span class="p">(</span><span class="n">k_v</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">keyDecoder</span><span class="p">(</span><span class="n">k_v</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">valueDecoder</span><span class="p">(</span><span class="n">k_v</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+        <span class="k">def</span> <span class="nf">funcWithMessageHandler</span><span class="p">(</span><span class="n">m</span><span class="p">):</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">_set_key_decoder</span><span class="p">(</span><span class="n">keyDecoder</span><span class="p">)</span>
+            <span class="n">m</span><span class="o">.</span><span class="n">_set_value_decoder</span><span class="p">(</span><span class="n">valueDecoder</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">messageHandler</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+        <span class="n">helper</span> <span class="o">=</span> <span class="n">KafkaUtils</span><span class="o">.</span><span class="n">_get_helper</span><span class="p">(</span><span class="n">sc</span><span class="p">)</span>
+
+        <span class="n">joffsetRanges</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">_jOffsetRange</span><span class="p">(</span><span class="n">helper</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">offsetRanges</span><span class="p">]</span>
+        <span class="n">jleaders</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">([(</span><span class="n">k</span><span class="o">.</span><span class="n">_jTopicAndPartition</span><span class="p">(</span><span class="n">helper</span><span class="p">),</span>
+                          <span class="n">v</span><span class="o">.</span><span class="n">_jBroker</span><span class="p">(</span><span class="n">helper</span><span class="p">))</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">leaders</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
+        <span class="k">if</span> <span class="n">messageHandler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">jrdd</span> <span class="o">=</span> <span class="n">helper</span><span class="o">.</span><span class="n">createRDDWithoutMessageHandler</span><span class="p">(</span>
+                <span class="n">sc</span><span class="o">.</span><span class="n">_jsc</span><span class="p">,</span> <span class="n">kafkaParams</span><span class="p">,</span> <span class="n">joffsetRanges</span><span class="p">,</span> <span class="n">jleaders</span><span class="p">)</span>
+            <span class="n">ser</span> <span class="o">=</span> <span class="n">PairDeserializer</span><span class="p">(</span><span class="n">NoOpSerializer</span><span class="p">(),</span> <span class="n">NoOpSerializer</span><span class="p">())</span>
+            <span class="n">rdd</span> <span class="o">=</span> <span class="n">RDD</span><span class="p">(</span><span class="n">jrdd</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">ser</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">funcWithoutMessageHandler</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">jrdd</span> <span class="o">=</span> <span class="n">helper</span><span class="o">.</span><span class="n">createRDDWithMessageHandler</span><span class="p">(</span>
+                <span class="n">sc</span><span class="o">.</span><span class="n">_jsc</span><span class="p">,</span> <span class="n">kafkaParams</span><span class="p">,</span> <span class="n">joffsetRanges</span><span class="p">,</span> <span class="n">jleaders</span><span class="p">)</span>
+            <span class="n">rdd</span> <span class="o">=</span> <span class="n">RDD</span><span class="p">(</span><span class="n">jrdd</span><span class="p">,</span> <span class="n">sc</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">funcWithMessageHandler</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">KafkaRDD</span><span class="p">(</span><span class="n">rdd</span><span class="o">.</span><span class="n">_jrdd</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">rdd</span><span class="o">.</span><span class="n">_jrdd_deserializer</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_helper</span><span class="p">(</span><span class="n">sc</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">streaming</span><span class="o">.</span><span class="n">kafka</span><span class="o">.</span><span class="n">KafkaUtilsPythonHelper</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;&#39;JavaPackage&#39; object is not callable&quot;</span><span class="p">:</span>
+                <span class="n">KafkaUtils</span><span class="o">.</span><span class="n">_printErrorMsg</span><span class="p">(</span><span class="n">sc</span><span class="p">)</span>
+            <span class="k">raise</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_printErrorMsg</span><span class="p">(</span><span class="n">sc</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">________________________________________________________________________________________________</span>
+
+<span class="s2">  Spark Streaming&#39;s Kafka libraries not found in class path. Try one of the following.</span>
+
+<span class="s2">  1. Include the Kafka library and its dependencies with in the</span>
+<span class="s2">     spark-submit command as</span>
+
+<span class="s2">     $ bin/spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8:</span><span class="si">%s</span><span class="s2"> ...</span>
+
+<span class="s2">  2. Download the JAR of the artifact from Maven Central http://search.maven.org/,</span>
+<span class="s2">     Group Id = org.apache.spark, Artifact Id = spark-streaming-kafka-0-8-assembly, Version = </span><span class="si">%s</span><span class="s2">.</span>
+<span class="s2">     Then, include the jar in the spark-submit command as</span>
+
+<span class="s2">     $ bin/spark-submit --jars &lt;spark-streaming-kafka-0-8-assembly.jar&gt; ...</span>
+
+<span class="s2">________________________________________________________________________________________________</span>
+
+<span class="s2">&quot;&quot;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">sc</span><span class="o">.</span><span class="n">version</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="OffsetRange"><a class="viewcode-back" href="../../../pyspark.streaming.html#pyspark.streaming.kafka.OffsetRange">[docs]</a><span class="k">class</span> <span class="nc">OffsetRange</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a range of offsets from a single Kafka TopicAndPartition.</span>
+
+<span class="sd">    .. note:: Deprecated in 2.3.0. Kafka 0.8 support is deprecated as of Spark 2.3.0.</span>
+<span class="sd">        See SPARK-21893.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">topic</span><span class="p">,</span> <span class="n">partition</span><span class="p">,</span> <span class="n">fromOffset</span><span class="p">,</span> <span class="n">untilOffset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create an OffsetRange to represent range of offsets</span>
+<span class="sd">        :param topic: Kafka topic name.</span>
+<span class="sd">        :param partition: Kafka partition id.</span>
+<span class="sd">        :param fromOffset: Inclusive starting offset.</span>
+<span class="sd">        :param untilOffset: Exclusive ending offset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Deprecated in 2.3.0. Kafka 0.8 support is deprecated as of Spark 2.3.0. &quot;</span>
+            <span class="s2">&quot;See SPARK-21893.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">topic</span> <span class="o">=</span> <span class="n">topic</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">partition</span> <span class="o">=</span> <span class="n">partition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fromOffset</span> <span class="o">=</span> <span class="n">fromOffset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">untilOffset</span> <span class="o">=</span> <span class="n">untilOffset</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topic</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">topic</span>
+                    <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">partition</span>
+                    <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">fromOffset</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">fromOffset</span>
+                    <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">untilOffset</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">untilOffset</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;OffsetRange(topic: </span><span class="si">%s</span><span class="s2">, partition: </span><span class="si">%d</span><span class="s2">, range: [</span><span class="si">%d</span><span class="s2"> -&gt; </span><span class="si">%d</span><span class="s2">]&quot;</span> \
+               <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topic</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fromOffset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">untilOffset</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_jOffsetRange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">helper</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">helper</span><span class="o">.</span><span class="n">createOffsetRange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topic</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fromOffset</span><span class="p">,</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">untilOffset</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TopicAndPartition"><a class="viewcode-back" href="../../../pyspark.streaming.html#pyspark.streaming.kafka.TopicAndPartition">[docs]</a><span class="k">class</span> <span class="nc">TopicAndPartition</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a specific topic and partition for Kafka.</span>
+
+<span class="sd">    .. note:: Deprecated in 2.3.0. Kafka 0.8 support is deprecated as of Spark 2.3.0.</span>
+<span class="sd">        See SPARK-21893.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">topic</span><span class="p">,</span> <span class="n">partition</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a Python TopicAndPartition to map to the Java related object</span>
+<span class="sd">        :param topic: Kafka topic name.</span>
+<span class="sd">        :param partition: Kafka partition id.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Deprecated in 2.3.0. Kafka 0.8 support is deprecated as of Spark 2.3.0. &quot;</span>
+            <span class="s2">&quot;See SPARK-21893.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_topic</span> <span class="o">=</span> <span class="n">topic</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_partition</span> <span class="o">=</span> <span class="n">partition</span>
+
+    <span class="k">def</span> <span class="nf">_jTopicAndPartition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">helper</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">helper</span><span class="o">.</span><span class="n">createTopicAndPartition</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_topic</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_partition</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_topic</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_topic</span>
+                    <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_partition</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_partition</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_topic</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_partition</span><span class="p">)</span><span class="o">.</span><span class="fm">__hash__</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Broker"><a class="viewcode-back" href="../../../pyspark.streaming.html#pyspark.streaming.kafka.Broker">[docs]</a><span class="k">class</span> <span class="nc">Broker</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represent the host and port info for a Kafka broker.</span>
+
+<span class="sd">    .. note:: Deprecated in 2.3.0. Kafka 0.8 support is deprecated as of Spark 2.3.0.</span>
+<span class="sd">        See SPARK-21893.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a Python Broker to map to the Java related object.</span>
+<span class="sd">        :param host: Broker&#39;s hostname.</span>
+<span class="sd">        :param port: Broker&#39;s port.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Deprecated in 2.3.0. Kafka 0.8 support is deprecated as of Spark 2.3.0. &quot;</span>
+            <span class="s2">&quot;See SPARK-21893.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_host</span> <span class="o">=</span> <span class="n">host</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="n">port</span>
+
+    <span class="k">def</span> <span class="nf">_jBroker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">helper</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">helper</span><span class="o">.</span><span class="n">createBroker</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_port</span><span class="p">)</span></div>
+
+
+<span class="k">class</span> <span class="nc">KafkaRDD</span><span class="p">(</span><span class="n">RDD</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Python wrapper of KafkaRDD, to provide additional information on normal RDD.</span>
+
+<span class="sd">    .. note:: Deprecated in 2.3.0. Kafka 0.8 support is deprecated as of Spark 2.3.0.</span>
+<span class="sd">        See SPARK-21893.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jrdd</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">jrdd_deserializer</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Deprecated in 2.3.0. Kafka 0.8 support is deprecated as of Spark 2.3.0. &quot;</span>
+            <span class="s2">&quot;See SPARK-21893.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">)</span>
+        <span class="n">RDD</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jrdd</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">jrdd_deserializer</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">offsetRanges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the OffsetRange of specific KafkaRDD.</span>
+<span class="sd">        :return: A list of OffsetRange</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">helper</span> <span class="o">=</span> <span class="n">KafkaUtils</span><span class="o">.</span><span class="n">_get_helper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">)</span>
+        <span class="n">joffsetRanges</span> <span class="o">=</span> <span class="n">helper</span><span class="o">.</span><span class="n">offsetRangesOfKafkaRDD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jrdd</span><span class="o">.</span><span class="n">rdd</span><span class="p">())</span>
+        <span class="n">ranges</span> <span class="o">=</span> <span class="p">[</span><span class="n">OffsetRange</span><span class="p">(</span><span class="n">o</span><span class="o">.</span><span class="n">topic</span><span class="p">(),</span> <span class="n">o</span><span class="o">.</span><span class="n">partition</span><span class="p">(),</span> <span class="n">o</span><span class="o">.</span><span class="n">fromOffset</span><span class="p">(),</span> <span class="n">o</span><span class="o">.</span><span class="n">untilOffset</span><span class="p">())</span>
+                  <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">joffsetRanges</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">ranges</span>
+
+
+<span class="k">class</span> <span class="nc">KafkaDStream</span><span class="p">(</span><span class="n">DStream</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Python wrapper of KafkaDStream</span>
+
+<span class="sd">    .. note:: Deprecated in 2.3.0. Kafka 0.8 support is deprecated as of Spark 2.3.0.</span>
+<span class="sd">        See SPARK-21893.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jdstream</span><span class="p">,</span> <span class="n">ssc</span><span class="p">,</span> <span class="n">jrdd_deserializer</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Deprecated in 2.3.0. Kafka 0.8 support is deprecated as of Spark 2.3.0. &quot;</span>
+            <span class="s2">&quot;See SPARK-21893.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">)</span>
+        <span class="n">DStream</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jdstream</span><span class="p">,</span> <span class="n">ssc</span><span class="p">,</span> <span class="n">jrdd_deserializer</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">foreachRDD</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Apply a function to each RDD in this DStream.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">func</span><span class="o">.</span><span class="vm">__code__</span><span class="o">.</span><span class="n">co_argcount</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">old_func</span> <span class="o">=</span> <span class="n">func</span>
+            <span class="n">func</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">r</span><span class="p">,</span> <span class="n">rdd</span><span class="p">:</span> <span class="n">old_func</span><span class="p">(</span><span class="n">rdd</span><span class="p">)</span>
+        <span class="n">jfunc</span> <span class="o">=</span> <span class="n">TransformFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sc</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jrdd_deserializer</span><span class="p">)</span> \
+            <span class="o">.</span><span class="n">rdd_wrapper</span><span class="p">(</span><span class="k">lambda</span> <span class="n">jrdd</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">ser</span><span class="p">:</span> <span class="n">KafkaRDD</span><span class="p">(</span><span class="n">jrdd</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">ser</span><span class="p">))</span>
+        <span class="n">api</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ssc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">PythonDStream</span>
+        <span class="n">api</span><span class="o">.</span><span class="n">callForeachRDD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jdstream</span><span class="p">,</span> <span class="n">jfunc</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a new DStream in which each RDD is generated by applying a function</span>
+<span class="sd">        on each RDD of this DStream.</span>
+
+<span class="sd">        `func` can have one argument of `rdd`, or have two arguments of</span>
+<span class="sd">        (`time`, `rdd`)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">func</span><span class="o">.</span><span class="vm">__code__</span><span class="o">.</span><span class="n">co_argcount</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">oldfunc</span> <span class="o">=</span> <span class="n">func</span>
+            <span class="n">func</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">t</span><span class="p">,</span> <span class="n">rdd</span><span class="p">:</span> <span class="n">oldfunc</span><span class="p">(</span><span class="n">rdd</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">func</span><span class="o">.</span><span class="vm">__code__</span><span class="o">.</span><span class="n">co_argcount</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;func should take one or two arguments&quot;</span>
+
+        <span class="k">return</span> <span class="n">KafkaTransformedDStream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">KafkaTransformedDStream</span><span class="p">(</span><span class="n">TransformedDStream</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Kafka specific wrapper of TransformedDStream to transform on Kafka RDD.</span>
+
+<span class="sd">    .. note:: Deprecated in 2.3.0. Kafka 0.8 support is deprecated as of Spark 2.3.0.</span>
+<span class="sd">        See SPARK-21893.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Deprecated in 2.3.0. Kafka 0.8 support is deprecated as of Spark 2.3.0. &quot;</span>
+            <span class="s2">&quot;See SPARK-21893.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">)</span>
+        <span class="n">TransformedDStream</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_jdstream</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jdstream_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jdstream_val</span>
+
+        <span class="n">jfunc</span> <span class="o">=</span> <span class="n">TransformFunction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">prev</span><span class="o">.</span><span class="n">_jrdd_deserializer</span><span class="p">)</span> \
+            <span class="o">.</span><span class="n">rdd_wrapper</span><span class="p">(</span><span class="k">lambda</span> <span class="n">jrdd</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">ser</span><span class="p">:</span> <span class="n">KafkaRDD</span><span class="p">(</span><span class="n">jrdd</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">ser</span><span class="p">))</span>
+        <span class="n">dstream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">PythonTransformedDStream</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prev</span><span class="o">.</span><span class="n">_jdstream</span><span class="o">.</span><span class="n">dstream</span><span class="p">(),</span> <span class="n">jfunc</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jdstream_val</span> <span class="o">=</span> <span class="n">dstream</span><span class="o">.</span><span class="n">asJavaDStream</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jdstream_val</span>
+
+
+<div class="viewcode-block" id="KafkaMessageAndMetadata"><a class="viewcode-back" href="../../../pyspark.streaming.html#pyspark.streaming.kafka.KafkaMessageAndMetadata">[docs]</a><span class="k">class</span> <span class="nc">KafkaMessageAndMetadata</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Kafka message and metadata information. Including topic, partition, offset and message</span>
+
+<span class="sd">    .. note:: Deprecated in 2.3.0. Kafka 0.8 support is deprecated as of Spark 2.3.0.</span>
+<span class="sd">        See SPARK-21893.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">topic</span><span class="p">,</span> <span class="n">partition</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Python wrapper of Kafka MessageAndMetadata</span>
+<span class="sd">        :param topic: topic name of this Kafka message</span>
+<span class="sd">        :param partition: partition id of this Kafka message</span>
+<span class="sd">        :param offset: Offset of this Kafka message in the specific partition</span>
+<span class="sd">        :param key: key payload of this Kafka message, can be null if this Kafka message has no key</span>
+<span class="sd">                    specified, the return data is undecoded bytearry.</span>
+<span class="sd">        :param message: actual message payload of this Kafka message, the return data is</span>
+<span class="sd">                        undecoded bytearray.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Deprecated in 2.3.0. Kafka 0.8 support is deprecated as of Spark 2.3.0. &quot;</span>
+            <span class="s2">&quot;See SPARK-21893.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">topic</span> <span class="o">=</span> <span class="n">topic</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">partition</span> <span class="o">=</span> <span class="n">partition</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="n">offset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rawKey</span> <span class="o">=</span> <span class="n">key</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rawMessage</span> <span class="o">=</span> <span class="n">message</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_keyDecoder</span> <span class="o">=</span> <span class="n">utf8_decoder</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_valueDecoder</span> <span class="o">=</span> <span class="n">utf8_decoder</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;KafkaMessageAndMetadata(topic: </span><span class="si">%s</span><span class="s2">, partition: </span><span class="si">%d</span><span class="s2">, offset: </span><span class="si">%d</span><span class="s2">, key and message...)&quot;</span> \
+               <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topic</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__reduce__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">KafkaMessageAndMetadata</span><span class="p">,</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topic</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rawKey</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rawMessage</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_set_key_decoder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decoder</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_keyDecoder</span> <span class="o">=</span> <span class="n">decoder</span>
+
+    <span class="k">def</span> <span class="nf">_set_value_decoder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decoder</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_valueDecoder</span> <span class="o">=</span> <span class="n">decoder</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_keyDecoder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rawKey</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">message</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_valueDecoder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rawMessage</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

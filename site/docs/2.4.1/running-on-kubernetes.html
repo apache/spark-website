@@ -1,0 +1,1025 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Running Spark on Kubernetes - Spark 2.4.1 Documentation</title>
+        
+
+        
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 60px;
+                padding-bottom: 40px;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+
+        <link rel="stylesheet" href="css/pygments-default.css">
+
+        
+        <!-- Google analytics script -->
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-32518208-2']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+        </script>
+        
+
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="https://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
+
+        <div class="navbar navbar-fixed-top" id="topbar">
+            <div class="navbar-inner">
+                <div class="container">
+                    <div class="brand"><a href="index.html">
+                      <img src="img/spark-logo-hd.png" style="height:50px;"/></a><span class="version">2.4.1</span>
+                    </div>
+                    <ul class="nav">
+                        <!--TODO(andyk): Add class="active" attribute to li some how.-->
+                        <li><a href="index.html">Overview</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Programming Guides<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="quick-start.html">Quick Start</a></li>
+                                <li><a href="rdd-programming-guide.html">RDDs, Accumulators, Broadcasts Vars</a></li>
+                                <li><a href="sql-programming-guide.html">SQL, DataFrames, and Datasets</a></li>
+                                <li><a href="structured-streaming-programming-guide.html">Structured Streaming</a></li>
+                                <li><a href="streaming-programming-guide.html">Spark Streaming (DStreams)</a></li>
+                                <li><a href="ml-guide.html">MLlib (Machine Learning)</a></li>
+                                <li><a href="graphx-programming-guide.html">GraphX (Graph Processing)</a></li>
+                                <li><a href="sparkr.html">SparkR (R on Spark)</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">API Docs<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="api/scala/index.html#org.apache.spark.package">Scala</a></li>
+                                <li><a href="api/java/index.html">Java</a></li>
+                                <li><a href="api/python/index.html">Python</a></li>
+                                <li><a href="api/R/index.html">R</a></li>
+                                <li><a href="api/sql/index.html">SQL, Built-in Functions</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Deploying<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="cluster-overview.html">Overview</a></li>
+                                <li><a href="submitting-applications.html">Submitting Applications</a></li>
+                                <li class="divider"></li>
+                                <li><a href="spark-standalone.html">Spark Standalone</a></li>
+                                <li><a href="running-on-mesos.html">Mesos</a></li>
+                                <li><a href="running-on-yarn.html">YARN</a></li>
+                                <li><a href="running-on-kubernetes.html">Kubernetes</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="api.html" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="configuration.html">Configuration</a></li>
+                                <li><a href="monitoring.html">Monitoring</a></li>
+                                <li><a href="tuning.html">Tuning Guide</a></li>
+                                <li><a href="job-scheduling.html">Job Scheduling</a></li>
+                                <li><a href="security.html">Security</a></li>
+                                <li><a href="hardware-provisioning.html">Hardware Provisioning</a></li>
+                                <li class="divider"></li>
+                                <li><a href="building-spark.html">Building Spark</a></li>
+                                <li><a href="https://spark.apache.org/contributing.html">Contributing to Spark</a></li>
+                                <li><a href="https://spark.apache.org/third-party-projects.html">Third Party Projects</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <!--<p class="navbar-text pull-right"><span class="version-text">v2.4.1</span></p>-->
+                </div>
+            </div>
+        </div>
+
+        <div class="container-wrapper">
+
+            
+                <div class="content" id="content">
+                    
+                        <h1 class="title">Running Spark on Kubernetes</h1>
+                    
+
+                    <ul id="markdown-toc">
+  <li><a href="#security" id="markdown-toc-security">Security</a>    <ul>
+      <li><a href="#user-identity" id="markdown-toc-user-identity">User Identity</a></li>
+      <li><a href="#volume-mounts" id="markdown-toc-volume-mounts">Volume Mounts</a></li>
+    </ul>
+  </li>
+  <li><a href="#prerequisites" id="markdown-toc-prerequisites">Prerequisites</a></li>
+  <li><a href="#how-it-works" id="markdown-toc-how-it-works">How it works</a></li>
+  <li><a href="#submitting-applications-to-kubernetes" id="markdown-toc-submitting-applications-to-kubernetes">Submitting Applications to Kubernetes</a>    <ul>
+      <li><a href="#docker-images" id="markdown-toc-docker-images">Docker Images</a></li>
+      <li><a href="#cluster-mode" id="markdown-toc-cluster-mode">Cluster Mode</a></li>
+      <li><a href="#client-mode" id="markdown-toc-client-mode">Client Mode</a>        <ul>
+          <li><a href="#client-mode-networking" id="markdown-toc-client-mode-networking">Client Mode Networking</a></li>
+          <li><a href="#client-mode-executor-pod-garbage-collection" id="markdown-toc-client-mode-executor-pod-garbage-collection">Client Mode Executor Pod Garbage Collection</a></li>
+          <li><a href="#authentication-parameters" id="markdown-toc-authentication-parameters">Authentication Parameters</a></li>
+        </ul>
+      </li>
+      <li><a href="#dependency-management" id="markdown-toc-dependency-management">Dependency Management</a></li>
+      <li><a href="#secret-management" id="markdown-toc-secret-management">Secret Management</a></li>
+      <li><a href="#using-kubernetes-volumes" id="markdown-toc-using-kubernetes-volumes">Using Kubernetes Volumes</a></li>
+      <li><a href="#introspection-and-debugging" id="markdown-toc-introspection-and-debugging">Introspection and Debugging</a>        <ul>
+          <li><a href="#accessing-logs" id="markdown-toc-accessing-logs">Accessing Logs</a></li>
+          <li><a href="#accessing-driver-ui" id="markdown-toc-accessing-driver-ui">Accessing Driver UI</a></li>
+          <li><a href="#debugging" id="markdown-toc-debugging">Debugging</a></li>
+        </ul>
+      </li>
+      <li><a href="#kubernetes-features" id="markdown-toc-kubernetes-features">Kubernetes Features</a>        <ul>
+          <li><a href="#namespaces" id="markdown-toc-namespaces">Namespaces</a></li>
+          <li><a href="#rbac" id="markdown-toc-rbac">RBAC</a></li>
+        </ul>
+      </li>
+      <li><a href="#future-work" id="markdown-toc-future-work">Future Work</a></li>
+    </ul>
+  </li>
+  <li><a href="#configuration" id="markdown-toc-configuration">Configuration</a>    <ul>
+      <li><a href="#spark-properties" id="markdown-toc-spark-properties">Spark Properties</a></li>
+    </ul>
+  </li>
+</ul>
+
+<p>Spark can run on clusters managed by <a href="https://kubernetes.io">Kubernetes</a>. This feature makes use of native
+Kubernetes scheduler that has been added to Spark.</p>
+
+<p><strong>The Kubernetes scheduler is currently experimental.
+In future versions, there may be behavioral changes around configuration,
+container images and entrypoints.</strong></p>
+
+<h1 id="security">Security</h1>
+
+<p>Security in Spark is OFF by default. This could mean you are vulnerable to attack by default.
+Please see <a href="security.html">Spark Security</a> and the specific advice below before running Spark.</p>
+
+<h2 id="user-identity">User Identity</h2>
+
+<p>Images built from the project provided Dockerfiles do not contain any <a href="https://docs.docker.com/engine/reference/builder/#user"><code>USER</code></a> directives.  This means that the resulting images will be running the Spark processes as <code>root</code> inside the container.  On unsecured clusters this may provide an attack vector for privilege escalation and container breakout.  Therefore security conscious deployments should consider providing custom images with <code>USER</code> directives specifying an unprivileged UID and GID.</p>
+
+<p>Alternatively the <a href="#pod-template">Pod Template</a> feature can be used to add a <a href="https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#volumes-and-file-systems">Security Context</a> with a <code>runAsUser</code> to the pods that Spark submits.  Please bear in mind that this requires cooperation from your users and as such may not be a suitable solution for shared environments.  Cluster administrators should use <a href="https://kubernetes.io/docs/concepts/policy/pod-security-policy/#users-and-groups">Pod Security Policies</a> if they wish to limit the users that pods may run as.</p>
+
+<h2 id="volume-mounts">Volume Mounts</h2>
+
+<p>As described later in this document under <a href="#using-kubernetes-volumes">Using Kubernetes Volumes</a> Spark on K8S provides configuration options that allow for mounting certain volume types into the driver and executor pods.  In particular it allows for <a href="https://kubernetes.io/docs/concepts/storage/volumes/#hostpath"><code>hostPath</code></a> volumes which as described in the Kubernetes documentation have known security vulnerabilities.</p>
+
+<p>Cluster administrators should use <a href="https://kubernetes.io/docs/concepts/policy/pod-security-policy/">Pod Security Policies</a> to limit the ability to mount <code>hostPath</code> volumes appropriately for their environments.</p>
+
+<h1 id="prerequisites">Prerequisites</h1>
+
+<ul>
+  <li>A runnable distribution of Spark 2.3 or above.</li>
+  <li>A running Kubernetes cluster at version &gt;= 1.6 with access configured to it using
+<a href="https://kubernetes.io/docs/user-guide/prereqs/">kubectl</a>.  If you do not already have a working Kubernetes cluster,
+you may set up a test cluster on your local machine using
+<a href="https://kubernetes.io/docs/getting-started-guides/minikube/">minikube</a>.
+    <ul>
+      <li>We recommend using the latest release of minikube with the DNS addon enabled.</li>
+      <li>Be aware that the default minikube configuration is not enough for running Spark applications.
+We recommend 3 CPUs and 4g of memory to be able to start a simple Spark application with a single
+executor.</li>
+    </ul>
+  </li>
+  <li>You must have appropriate permissions to list, create, edit and delete
+<a href="https://kubernetes.io/docs/user-guide/pods/">pods</a> in your cluster. You can verify that you can list these resources
+by running <code>kubectl auth can-i &lt;list|create|edit|delete&gt; pods</code>.
+    <ul>
+      <li>The service account credentials used by the driver pods must be allowed to create pods, services and configmaps.</li>
+    </ul>
+  </li>
+  <li>You must have <a href="https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/">Kubernetes DNS</a> configured in your cluster.</li>
+</ul>
+
+<h1 id="how-it-works">How it works</h1>
+
+<p style="text-align: center;">
+  <img src="img/k8s-cluster-mode.png" title="Spark cluster components" alt="Spark cluster components" />
+</p>
+
+<p><code>spark-submit</code> can be directly used to submit a Spark application to a Kubernetes cluster.
+The submission mechanism works as follows:</p>
+
+<ul>
+  <li>Spark creates a Spark driver running within a <a href="https://kubernetes.io/docs/concepts/workloads/pods/pod/">Kubernetes pod</a>.</li>
+  <li>The driver creates executors which are also running within Kubernetes pods and connects to them, and executes application code.</li>
+  <li>When the application completes, the executor pods terminate and are cleaned up, but the driver pod persists
+logs and remains in &#8220;completed&#8221; state in the Kubernetes API until it&#8217;s eventually garbage collected or manually cleaned up.</li>
+</ul>
+
+<p>Note that in the completed state, the driver pod does <em>not</em> use any computational or memory resources.</p>
+
+<p>The driver and executor pod scheduling is handled by Kubernetes. It is possible to schedule the
+driver and executor pods on a subset of available nodes through a <a href="https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector">node selector</a>
+using the configuration property for it. It will be possible to use more advanced
+scheduling hints like <a href="https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity">node/pod affinities</a> in a future release.</p>
+
+<h1 id="submitting-applications-to-kubernetes">Submitting Applications to Kubernetes</h1>
+
+<h2 id="docker-images">Docker Images</h2>
+
+<p>Kubernetes requires users to supply images that can be deployed into containers within pods. The images are built to
+be run in a container runtime environment that Kubernetes supports. Docker is a container runtime environment that is
+frequently used with Kubernetes. Spark (starting with version 2.3) ships with a Dockerfile that can be used for this
+purpose, or customized to match an individual application&#8217;s needs. It can be found in the <code>kubernetes/dockerfiles/</code>
+directory.</p>
+
+<p>Spark also ships with a <code>bin/docker-image-tool.sh</code> script that can be used to build and publish the Docker images to
+use with the Kubernetes backend.</p>
+
+<p>Example usage is:</p>
+
+<pre><code class="language-bash">$ ./bin/docker-image-tool.sh -r &lt;repo&gt; -t my-tag build
+$ ./bin/docker-image-tool.sh -r &lt;repo&gt; -t my-tag push
+</code></pre>
+
+<h2 id="cluster-mode">Cluster Mode</h2>
+
+<p>To launch Spark Pi in cluster mode,</p>
+
+<pre><code class="language-bash">$ bin/spark-submit \
+    --master k8s://https://&lt;k8s-apiserver-host&gt;:&lt;k8s-apiserver-port&gt; \
+    --deploy-mode cluster \
+    --name spark-pi \
+    --class org.apache.spark.examples.SparkPi \
+    --conf spark.executor.instances=5 \
+    --conf spark.kubernetes.container.image=&lt;spark-image&gt; \
+    local:///path/to/examples.jar
+</code></pre>
+
+<p>The Spark master, specified either via passing the <code>--master</code> command line argument to <code>spark-submit</code> or by setting
+<code>spark.master</code> in the application&#8217;s configuration, must be a URL with the format <code>k8s://&lt;api_server_url&gt;</code>. Prefixing the
+master string with <code>k8s://</code> will cause the Spark application to launch on the Kubernetes cluster, with the API server
+being contacted at <code>api_server_url</code>. If no HTTP protocol is specified in the URL, it defaults to <code>https</code>. For example,
+setting the master to <code>k8s://example.com:443</code> is equivalent to setting it to <code>k8s://https://example.com:443</code>, but to
+connect without TLS on a different port, the master would be set to <code>k8s://http://example.com:8080</code>.</p>
+
+<p>In Kubernetes mode, the Spark application name that is specified by <code>spark.app.name</code> or the <code>--name</code> argument to
+<code>spark-submit</code> is used by default to name the Kubernetes resources created like drivers and executors. So, application names
+must consist of lower case alphanumeric characters, <code>-</code>, and <code>.</code>  and must start and end with an alphanumeric character.</p>
+
+<p>If you have a Kubernetes cluster setup, one way to discover the apiserver URL is by executing <code>kubectl cluster-info</code>.</p>
+
+<pre><code class="language-bash">$ kubectl cluster-info
+Kubernetes master is running at http://127.0.0.1:6443
+</code></pre>
+
+<p>In the above example, the specific Kubernetes cluster can be used with <code>spark-submit</code> by specifying
+<code>--master k8s://http://127.0.0.1:6443</code> as an argument to spark-submit. Additionally, it is also possible to use the
+authenticating proxy, <code>kubectl proxy</code> to communicate to the Kubernetes API.</p>
+
+<p>The local proxy can be started by:</p>
+
+<pre><code class="language-bash">$ kubectl proxy
+</code></pre>
+
+<p>If the local proxy is running at localhost:8001, <code>--master k8s://http://127.0.0.1:8001</code> can be used as the argument to
+spark-submit. Finally, notice that in the above example we specify a jar with a specific URI with a scheme of <code>local://</code>.
+This URI is the location of the example jar that is already in the Docker image.</p>
+
+<h2 id="client-mode">Client Mode</h2>
+
+<p>Starting with Spark 2.4.0, it is possible to run Spark applications on Kubernetes in client mode. When your application
+runs in client mode, the driver can run inside a pod or on a physical host. When running an application in client mode,
+it is recommended to account for the following factors:</p>
+
+<h3 id="client-mode-networking">Client Mode Networking</h3>
+
+<p>Spark executors must be able to connect to the Spark driver over a hostname and a port that is routable from the Spark
+executors. The specific network configuration that will be required for Spark to work in client mode will vary per
+setup. If you run your driver inside a Kubernetes pod, you can use a
+<a href="https://kubernetes.io/docs/concepts/services-networking/service/#headless-services">headless service</a> to allow your
+driver pod to be routable from the executors by a stable hostname. When deploying your headless service, ensure that
+the service&#8217;s label selector will only match the driver pod and no other pods; it is recommended to assign your driver
+pod a sufficiently unique label and to use that label in the label selector of the headless service. Specify the driver&#8217;s
+hostname via <code>spark.driver.host</code> and your spark driver&#8217;s port to <code>spark.driver.port</code>.</p>
+
+<h3 id="client-mode-executor-pod-garbage-collection">Client Mode Executor Pod Garbage Collection</h3>
+
+<p>If you run your Spark driver in a pod, it is highly recommended to set <code>spark.kubernetes.driver.pod.name</code> to the name of that pod.
+When this property is set, the Spark scheduler will deploy the executor pods with an
+<a href="https://kubernetes.io/docs/concepts/workloads/controllers/garbage-collection/">OwnerReference</a>, which in turn will
+ensure that once the driver pod is deleted from the cluster, all of the application&#8217;s executor pods will also be deleted.
+The driver will look for a pod with the given name in the namespace specified by <code>spark.kubernetes.namespace</code>, and
+an OwnerReference pointing to that pod will be added to each executor pod&#8217;s OwnerReferences list. Be careful to avoid
+setting the OwnerReference to a pod that is not actually that driver pod, or else the executors may be terminated
+prematurely when the wrong pod is deleted.</p>
+
+<p>If your application is not running inside a pod, or if <code>spark.kubernetes.driver.pod.name</code> is not set when your application is
+actually running in a pod, keep in mind that the executor pods may not be properly deleted from the cluster when the
+application exits. The Spark scheduler attempts to delete these pods, but if the network request to the API server fails
+for any reason, these pods will remain in the cluster. The executor processes should exit when they cannot reach the
+driver, so the executor pods should not consume compute resources (cpu and memory) in the cluster after your application
+exits.</p>
+
+<h3 id="authentication-parameters">Authentication Parameters</h3>
+
+<p>Use the exact prefix <code>spark.kubernetes.authenticate</code> for Kubernetes authentication parameters in client mode.</p>
+
+<h2 id="dependency-management">Dependency Management</h2>
+
+<p>If your application&#8217;s dependencies are all hosted in remote locations like HDFS or HTTP servers, they may be referred to
+by their appropriate remote URIs. Also, application dependencies can be pre-mounted into custom-built Docker images.
+Those dependencies can be added to the classpath by referencing them with <code>local://</code> URIs and/or setting the
+<code>SPARK_EXTRA_CLASSPATH</code> environment variable in your Dockerfiles. The <code>local://</code> scheme is also required when referring to
+dependencies in custom-built Docker images in <code>spark-submit</code>. Note that using application dependencies from the submission
+client&#8217;s local file system is currently not yet supported.</p>
+
+<h2 id="secret-management">Secret Management</h2>
+<p>Kubernetes <a href="https://kubernetes.io/docs/concepts/configuration/secret/">Secrets</a> can be used to provide credentials for a
+Spark application to access secured services. To mount a user-specified secret into the driver container, users can use
+the configuration property of the form <code>spark.kubernetes.driver.secrets.[SecretName]=&lt;mount path&gt;</code>. Similarly, the
+configuration property of the form <code>spark.kubernetes.executor.secrets.[SecretName]=&lt;mount path&gt;</code> can be used to mount a
+user-specified secret into the executor containers. Note that it is assumed that the secret to be mounted is in the same
+namespace as that of the driver and executor pods. For example, to mount a secret named <code>spark-secret</code> onto the path
+<code>/etc/secrets</code> in both the driver and executor containers, add the following options to the <code>spark-submit</code> command:</p>
+
+<pre><code>--conf spark.kubernetes.driver.secrets.spark-secret=/etc/secrets
+--conf spark.kubernetes.executor.secrets.spark-secret=/etc/secrets
+</code></pre>
+
+<p>To use a secret through an environment variable use the following options to the <code>spark-submit</code> command:</p>
+<pre><code>--conf spark.kubernetes.driver.secretKeyRef.ENV_NAME=name:key
+--conf spark.kubernetes.executor.secretKeyRef.ENV_NAME=name:key
+</code></pre>
+
+<h2 id="using-kubernetes-volumes">Using Kubernetes Volumes</h2>
+
+<p>Starting with Spark 2.4.0, users can mount the following types of Kubernetes <a href="https://kubernetes.io/docs/concepts/storage/volumes/">volumes</a> into the driver and executor pods:</p>
+<ul>
+  <li><a href="https://kubernetes.io/docs/concepts/storage/volumes/#hostpath">hostPath</a>: mounts a file or directory from the host node’s filesystem into a pod.</li>
+  <li><a href="https://kubernetes.io/docs/concepts/storage/volumes/#emptydir">emptyDir</a>: an initially empty volume created when a pod is assigned to a node.</li>
+  <li><a href="https://kubernetes.io/docs/concepts/storage/volumes/#persistentvolumeclaim">persistentVolumeClaim</a>: used to mount a <code>PersistentVolume</code> into a pod.</li>
+</ul>
+
+<p><strong>NB:</strong> Please see the <a href="#security">Security</a> section of this document for security issues related to volume mounts.</p>
+
+<p>To mount a volume of any of the types above into the driver pod, use the following configuration property:</p>
+
+<pre><code>--conf spark.kubernetes.driver.volumes.[VolumeType].[VolumeName].mount.path=&lt;mount path&gt;
+--conf spark.kubernetes.driver.volumes.[VolumeType].[VolumeName].mount.readOnly=&lt;true|false&gt;
+</code></pre>
+
+<p>Specifically, <code>VolumeType</code> can be one of the following values: <code>hostPath</code>, <code>emptyDir</code>, and <code>persistentVolumeClaim</code>. <code>VolumeName</code> is the name you want to use for the volume under the <code>volumes</code> field in the pod specification.</p>
+
+<p>Each supported type of volumes may have some specific configuration options, which can be specified using configuration properties of the following form:</p>
+
+<pre><code>spark.kubernetes.driver.volumes.[VolumeType].[VolumeName].options.[OptionName]=&lt;value&gt;
+</code></pre>
+
+<p>For example, the claim name of a <code>persistentVolumeClaim</code> with volume name <code>checkpointpvc</code> can be specified using the following property:</p>
+
+<pre><code>spark.kubernetes.driver.volumes.persistentVolumeClaim.checkpointpvc.options.claimName=check-point-pvc-claim
+</code></pre>
+
+<p>The configuration properties for mounting volumes into the executor pods use prefix <code>spark.kubernetes.executor.</code> instead of <code>spark.kubernetes.driver.</code>. For a complete list of available options for each supported type of volumes, please refer to the <a href="#spark-properties">Spark Properties</a> section below.</p>
+
+<h2 id="introspection-and-debugging">Introspection and Debugging</h2>
+
+<p>These are the different ways in which you can investigate a running/completed Spark application, monitor progress, and
+take actions.</p>
+
+<h3 id="accessing-logs">Accessing Logs</h3>
+
+<p>Logs can be accessed using the Kubernetes API and the <code>kubectl</code> CLI. When a Spark application is running, it&#8217;s possible
+to stream logs from the application using:</p>
+
+<pre><code class="language-bash">$ kubectl -n=&lt;namespace&gt; logs -f &lt;driver-pod-name&gt;
+</code></pre>
+
+<p>The same logs can also be accessed through the
+<a href="https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/">Kubernetes dashboard</a> if installed on
+the cluster.</p>
+
+<h3 id="accessing-driver-ui">Accessing Driver UI</h3>
+
+<p>The UI associated with any application can be accessed locally using
+<a href="https://kubernetes.io/docs/tasks/access-application-cluster/port-forward-access-application-cluster/#forward-a-local-port-to-a-port-on-the-pod"><code>kubectl port-forward</code></a>.</p>
+
+<pre><code class="language-bash">$ kubectl port-forward &lt;driver-pod-name&gt; 4040:4040
+</code></pre>
+
+<p>Then, the Spark driver UI can be accessed on <code>http://localhost:4040</code>.</p>
+
+<h3 id="debugging">Debugging</h3>
+
+<p>There may be several kinds of failures. If the Kubernetes API server rejects the request made from spark-submit, or the
+connection is refused for a different reason, the submission logic should indicate the error encountered. However, if there
+are errors during the running of the application, often, the best way to investigate may be through the Kubernetes CLI.</p>
+
+<p>To get some basic information about the scheduling decisions made around the driver pod, you can run:</p>
+
+<pre><code class="language-bash">$ kubectl describe pod &lt;spark-driver-pod&gt;
+</code></pre>
+
+<p>If the pod has encountered a runtime error, the status can be probed further using:</p>
+
+<pre><code class="language-bash">$ kubectl logs &lt;spark-driver-pod&gt;
+</code></pre>
+
+<p>Status and logs of failed executor pods can be checked in similar ways. Finally, deleting the driver pod will clean up the entire spark
+application, including all executors, associated service, etc. The driver pod can be thought of as the Kubernetes representation of
+the Spark application.</p>
+
+<h2 id="kubernetes-features">Kubernetes Features</h2>
+
+<h3 id="namespaces">Namespaces</h3>
+
+<p>Kubernetes has the concept of <a href="https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/">namespaces</a>.
+Namespaces are ways to divide cluster resources between multiple users (via resource quota). Spark on Kubernetes can
+use namespaces to launch Spark applications. This can be made use of through the <code>spark.kubernetes.namespace</code> configuration.</p>
+
+<p>Kubernetes allows using <a href="https://kubernetes.io/docs/concepts/policy/resource-quotas/">ResourceQuota</a> to set limits on
+resources, number of objects, etc on individual namespaces. Namespaces and ResourceQuota can be used in combination by
+administrator to control sharing and resource allocation in a Kubernetes cluster running Spark applications.</p>
+
+<h3 id="rbac">RBAC</h3>
+
+<p>In Kubernetes clusters with <a href="https://kubernetes.io/docs/admin/authorization/rbac/">RBAC</a> enabled, users can configure
+Kubernetes RBAC roles and service accounts used by the various Spark on Kubernetes components to access the Kubernetes
+API server.</p>
+
+<p>The Spark driver pod uses a Kubernetes service account to access the Kubernetes API server to create and watch executor
+pods. The service account used by the driver pod must have the appropriate permission for the driver to be able to do
+its work. Specifically, at minimum, the service account must be granted a
+<a href="https://kubernetes.io/docs/admin/authorization/rbac/#role-and-clusterrole"><code>Role</code> or <code>ClusterRole</code></a> that allows driver
+pods to create pods and services. By default, the driver pod is automatically assigned the <code>default</code> service account in
+the namespace specified by <code>spark.kubernetes.namespace</code>, if no service account is specified when the pod gets created.</p>
+
+<p>Depending on the version and setup of Kubernetes deployed, this <code>default</code> service account may or may not have the role
+that allows driver pods to create pods and services under the default Kubernetes
+<a href="https://kubernetes.io/docs/admin/authorization/rbac/">RBAC</a> policies. Sometimes users may need to specify a custom
+service account that has the right role granted. Spark on Kubernetes supports specifying a custom service account to
+be used by the driver pod through the configuration property
+<code>spark.kubernetes.authenticate.driver.serviceAccountName=&lt;service account name&gt;</code>. For example, to make the driver pod
+use the <code>spark</code> service account, a user simply adds the following option to the <code>spark-submit</code> command:</p>
+
+<pre><code>--conf spark.kubernetes.authenticate.driver.serviceAccountName=spark
+</code></pre>
+
+<p>To create a custom service account, a user can use the <code>kubectl create serviceaccount</code> command. For example, the
+following command creates a service account named <code>spark</code>:</p>
+
+<pre><code class="language-bash">$ kubectl create serviceaccount spark
+</code></pre>
+
+<p>To grant a service account a <code>Role</code> or <code>ClusterRole</code>, a <code>RoleBinding</code> or <code>ClusterRoleBinding</code> is needed. To create
+a <code>RoleBinding</code> or <code>ClusterRoleBinding</code>, a user can use the <code>kubectl create rolebinding</code> (or <code>clusterrolebinding</code>
+for <code>ClusterRoleBinding</code>) command. For example, the following command creates an <code>edit</code> <code>ClusterRole</code> in the <code>default</code>
+namespace and grants it to the <code>spark</code> service account created above:</p>
+
+<pre><code class="language-bash">$ kubectl create clusterrolebinding spark-role --clusterrole=edit --serviceaccount=default:spark --namespace=default
+</code></pre>
+
+<p>Note that a <code>Role</code> can only be used to grant access to resources (like pods) within a single namespace, whereas a
+<code>ClusterRole</code> can be used to grant access to cluster-scoped resources (like nodes) as well as namespaced resources
+(like pods) across all namespaces. For Spark on Kubernetes, since the driver always creates executor pods in the
+same namespace, a <code>Role</code> is sufficient, although users may use a <code>ClusterRole</code> instead. For more information on
+RBAC authorization and how to configure Kubernetes service accounts for pods, please refer to
+<a href="https://kubernetes.io/docs/admin/authorization/rbac/">Using RBAC Authorization</a> and
+<a href="https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/">Configure Service Accounts for Pods</a>.</p>
+
+<h2 id="future-work">Future Work</h2>
+
+<p>There are several Spark on Kubernetes features that are currently being worked on or planned to be worked on. Those features are expected to eventually make it into future versions of the spark-kubernetes integration.</p>
+
+<p>Some of these include:</p>
+
+<ul>
+  <li>Dynamic Resource Allocation and External Shuffle Service</li>
+  <li>Local File Dependency Management</li>
+  <li>Spark Application Management</li>
+  <li>Job Queues and Resource Management</li>
+</ul>
+
+<h1 id="configuration">Configuration</h1>
+
+<p>See the <a href="configuration.html">configuration page</a> for information on Spark configurations.  The following configurations are
+specific to Spark on Kubernetes.</p>
+
+<h4 id="spark-properties">Spark Properties</h4>
+
+<table class="table">
+<tr><th>Property Name</th><th>Default</th><th>Meaning</th></tr>
+<tr>
+  <td><code>spark.kubernetes.namespace</code></td>
+  <td><code>default</code></td>
+  <td>
+    The namespace that will be used for running the driver and executor pods.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.container.image</code></td>
+  <td><code>(none)</code></td>
+  <td>
+    Container image to use for the Spark application.
+    This is usually of the form <code>example.com/repo/spark:v1.0.0</code>.
+    This configuration is required and must be provided by the user, unless explicit
+    images are provided for each different container type.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.driver.container.image</code></td>
+  <td><code>(value of spark.kubernetes.container.image)</code></td>
+  <td>
+    Custom container image to use for the driver.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.executor.container.image</code></td>
+  <td><code>(value of spark.kubernetes.container.image)</code></td>
+  <td>
+    Custom container image to use for executors.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.container.image.pullPolicy</code></td>
+  <td><code>IfNotPresent</code></td>
+  <td>
+    Container image pull policy used when pulling images within Kubernetes.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.container.image.pullSecrets</code></td>
+  <td><code></code></td>
+  <td>
+    Comma separated list of Kubernetes secrets used to pull images from private image registries.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.allocation.batch.size</code></td>
+  <td><code>5</code></td>
+  <td>
+    Number of pods to launch at once in each round of executor pod allocation.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.allocation.batch.delay</code></td>
+  <td><code>1s</code></td>
+  <td>
+    Time to wait between each round of executor pod allocation. Specifying values less than 1 second may lead to
+    excessive CPU usage on the spark driver.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.authenticate.submission.caCertFile</code></td>
+  <td>(none)</td>
+  <td>
+    Path to the CA cert file for connecting to the Kubernetes API server over TLS when starting the driver. This file
+    must be located on the submitting machine's disk. Specify this as a path as opposed to a URI (i.e. do not provide
+    a scheme). In client mode, use <code>spark.kubernetes.authenticate.caCertFile</code> instead.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.authenticate.submission.clientKeyFile</code></td>
+  <td>(none)</td>
+  <td>
+    Path to the client key file for authenticating against the Kubernetes API server when starting the driver. This file
+    must be located on the submitting machine's disk. Specify this as a path as opposed to a URI (i.e. do not provide
+    a scheme). In client mode, use <code>spark.kubernetes.authenticate.clientKeyFile</code> instead.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.authenticate.submission.clientCertFile</code></td>
+  <td>(none)</td>
+  <td>
+    Path to the client cert file for authenticating against the Kubernetes API server when starting the driver. This
+    file must be located on the submitting machine's disk. Specify this as a path as opposed to a URI (i.e. do not
+    provide a scheme). In client mode, use <code>spark.kubernetes.authenticate.clientCertFile</code> instead.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.authenticate.submission.oauthToken</code></td>
+  <td>(none)</td>
+  <td>
+    OAuth token to use when authenticating against the Kubernetes API server when starting the driver. Note
+    that unlike the other authentication options, this is expected to be the exact string value of the token to use for
+    the authentication. In client mode, use <code>spark.kubernetes.authenticate.oauthToken</code> instead.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.authenticate.submission.oauthTokenFile</code></td>
+  <td>(none)</td>
+  <td>
+    Path to the OAuth token file containing the token to use when authenticating against the Kubernetes API server when starting the driver.
+    This file must be located on the submitting machine's disk. Specify this as a path as opposed to a URI (i.e. do not
+    provide a scheme). In client mode, use <code>spark.kubernetes.authenticate.oauthTokenFile</code> instead.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.authenticate.driver.caCertFile</code></td>
+  <td>(none)</td>
+  <td>
+    Path to the CA cert file for connecting to the Kubernetes API server over TLS from the driver pod when requesting
+    executors. This file must be located on the submitting machine's disk, and will be uploaded to the driver pod.
+    Specify this as a path as opposed to a URI (i.e. do not provide a scheme). In client mode, use
+    <code>spark.kubernetes.authenticate.caCertFile</code> instead.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.authenticate.driver.clientKeyFile</code></td>
+  <td>(none)</td>
+  <td>
+    Path to the client key file for authenticating against the Kubernetes API server from the driver pod when requesting
+    executors. This file must be located on the submitting machine's disk, and will be uploaded to the driver pod as
+    a Kubernetes secret. Specify this as a path as opposed to a URI (i.e. do not provide a scheme).
+    In client mode, use <code>spark.kubernetes.authenticate.clientKeyFile</code> instead.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.authenticate.driver.clientCertFile</code></td>
+  <td>(none)</td>
+  <td>
+    Path to the client cert file for authenticating against the Kubernetes API server from the driver pod when
+    requesting executors. This file must be located on the submitting machine's disk, and will be uploaded to the
+    driver pod as a Kubernetes secret. Specify this as a path as opposed to a URI (i.e. do not provide a scheme).
+    In client mode, use <code>spark.kubernetes.authenticate.clientCertFile</code> instead.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.authenticate.driver.oauthToken</code></td>
+  <td>(none)</td>
+  <td>
+    OAuth token to use when authenticating against the Kubernetes API server from the driver pod when
+    requesting executors. Note that unlike the other authentication options, this must be the exact string value of
+    the token to use for the authentication. This token value is uploaded to the driver pod as a Kubernetes secret.
+    In client mode, use <code>spark.kubernetes.authenticate.oauthToken</code> instead.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.authenticate.driver.oauthTokenFile</code></td>
+  <td>(none)</td>
+  <td>
+    Path to the OAuth token file containing the token to use when authenticating against the Kubernetes API server from the driver pod when
+    requesting executors. Note that unlike the other authentication options, this file must contain the exact string value of
+    the token to use for the authentication. This token value is uploaded to the driver pod as a secret. In client mode, use
+    <code>spark.kubernetes.authenticate.oauthTokenFile</code> instead.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.authenticate.driver.mounted.caCertFile</code></td>
+  <td>(none)</td>
+  <td>
+    Path to the CA cert file for connecting to the Kubernetes API server over TLS from the driver pod when requesting
+    executors. This path must be accessible from the driver pod.
+    Specify this as a path as opposed to a URI (i.e. do not provide a scheme). In client mode, use
+    <code>spark.kubernetes.authenticate.caCertFile</code> instead.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.authenticate.driver.mounted.clientKeyFile</code></td>
+  <td>(none)</td>
+  <td>
+    Path to the client key file for authenticating against the Kubernetes API server from the driver pod when requesting
+    executors. This path must be accessible from the driver pod.
+    Specify this as a path as opposed to a URI (i.e. do not provide a scheme). In client mode, use
+    <code>spark.kubernetes.authenticate.clientKeyFile</code> instead.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.authenticate.driver.mounted.clientCertFile</code></td>
+  <td>(none)</td>
+  <td>
+    Path to the client cert file for authenticating against the Kubernetes API server from the driver pod when
+    requesting executors. This path must be accessible from the driver pod.
+    Specify this as a path as opposed to a URI (i.e. do not provide a scheme). In client mode, use
+    <code>spark.kubernetes.authenticate.clientCertFile</code> instead.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.authenticate.driver.mounted.oauthTokenFile</code></td>
+  <td>(none)</td>
+  <td>
+    Path to the file containing the OAuth token to use when authenticating against the Kubernetes API server from the driver pod when
+    requesting executors. This path must be accessible from the driver pod.
+    Note that unlike the other authentication options, this file must contain the exact string value of the token to use
+    for the authentication. In client mode, use <code>spark.kubernetes.authenticate.oauthTokenFile</code> instead.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.authenticate.driver.serviceAccountName</code></td>
+  <td><code>default</code></td>
+  <td>
+    Service account that is used when running the driver pod. The driver pod uses this service account when requesting
+    executor pods from the API server. Note that this cannot be specified alongside a CA cert file, client key file,
+    client cert file, and/or OAuth token. In client mode, use <code>spark.kubernetes.authenticate.serviceAccountName</code> instead.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.authenticate.caCertFile</code></td>
+  <td>(none)</td>
+  <td>
+    In client mode, path to the CA cert file for connecting to the Kubernetes API server over TLS when
+    requesting executors. Specify this as a path as opposed to a URI (i.e. do not provide a scheme).
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.authenticate.clientKeyFile</code></td>
+  <td>(none)</td>
+  <td>
+    In client mode, path to the client key file for authenticating against the Kubernetes API server
+    when requesting executors. Specify this as a path as opposed to a URI (i.e. do not provide a scheme).
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.authenticate.clientCertFile</code></td>
+  <td>(none)</td>
+  <td>
+    In client mode, path to the client cert file for authenticating against the Kubernetes API server
+    when requesting executors. Specify this as a path as opposed to a URI (i.e. do not provide a scheme).
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.authenticate.oauthToken</code></td>
+  <td>(none)</td>
+  <td>
+    In client mode, the OAuth token to use when authenticating against the Kubernetes API server when
+    requesting executors. Note that unlike the other authentication options, this must be the exact string value of
+    the token to use for the authentication.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.authenticate.oauthTokenFile</code></td>
+  <td>(none)</td>
+  <td>
+    In client mode, path to the file containing the OAuth token to use when authenticating against the Kubernetes API
+    server when requesting executors.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.driver.label.[LabelName]</code></td>
+  <td>(none)</td>
+  <td>
+    Add the label specified by <code>LabelName</code> to the driver pod.
+    For example, <code>spark.kubernetes.driver.label.something=true</code>.
+    Note that Spark also adds its own labels to the driver pod
+    for bookkeeping purposes.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.driver.annotation.[AnnotationName]</code></td>
+  <td>(none)</td>
+  <td>
+    Add the annotation specified by <code>AnnotationName</code> to the driver pod.
+    For example, <code>spark.kubernetes.driver.annotation.something=true</code>.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.executor.label.[LabelName]</code></td>
+  <td>(none)</td>
+  <td>
+    Add the label specified by <code>LabelName</code> to the executor pods.
+    For example, <code>spark.kubernetes.executor.label.something=true</code>.
+    Note that Spark also adds its own labels to the driver pod
+    for bookkeeping purposes.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.executor.annotation.[AnnotationName]</code></td>
+  <td>(none)</td>
+  <td>
+    Add the annotation specified by <code>AnnotationName</code> to the executor pods.
+    For example, <code>spark.kubernetes.executor.annotation.something=true</code>.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.driver.pod.name</code></td>
+  <td>(none)</td>
+  <td>
+    Name of the driver pod. In cluster mode, if this is not set, the driver pod name is set to "spark.app.name"
+    suffixed by the current timestamp to avoid name conflicts. In client mode, if your application is running
+    inside a pod, it is highly recommended to set this to the name of the pod your driver is running in. Setting this
+    value in client mode allows the driver to become the owner of its executor pods, which in turn allows the executor
+    pods to be garbage collected by the cluster.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.executor.lostCheck.maxAttempts</code></td>
+  <td><code>10</code></td>
+  <td>
+    Number of times that the driver will try to ascertain the loss reason for a specific executor.
+    The loss reason is used to ascertain whether the executor failure is due to a framework or an application error
+    which in turn decides whether the executor is removed and replaced, or placed into a failed state for debugging.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.submission.waitAppCompletion</code></td>
+  <td><code>true</code></td>
+  <td>
+    In cluster mode, whether to wait for the application to finish before exiting the launcher process.  When changed to
+    false, the launcher has a "fire-and-forget" behavior when launching the Spark job.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.report.interval</code></td>
+  <td><code>1s</code></td>
+  <td>
+    Interval between reports of the current Spark job status in cluster mode.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.driver.limit.cores</code></td>
+  <td>(none)</td>
+  <td>
+    Specify a hard cpu <a href="https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#resource-requests-and-limits-of-pod-and-container">limit</a> for the driver pod.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.executor.request.cores</code></td>
+  <td>(none)</td>
+  <td>
+    Specify the cpu request for each executor pod. Values conform to the Kubernetes <a href="https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#meaning-of-cpu">convention</a>.
+    Example values include 0.1, 500m, 1.5, 5, etc., with the definition of cpu units documented in <a href="https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-resource/#cpu-units">CPU units</a>.
+    This is distinct from <code>spark.executor.cores</code>: it is only used and takes precedence over <code>spark.executor.cores</code> for specifying the executor pod cpu request if set. Task 
+    parallelism, e.g., number of tasks an executor can run concurrently is not affected by this.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.executor.limit.cores</code></td>
+  <td>(none)</td>
+  <td>
+    Specify a hard cpu <a href="https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#resource-requests-and-limits-of-pod-and-container">limit</a> for each executor pod launched for the Spark Application.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.node.selector.[labelKey]</code></td>
+  <td>(none)</td>
+  <td>
+    Adds to the node selector of the driver pod and executor pods, with key <code>labelKey</code> and the value as the
+    configuration's value. For example, setting <code>spark.kubernetes.node.selector.identifier</code> to <code>myIdentifier</code>
+    will result in the driver pod and executors having a node selector with key <code>identifier</code> and value
+     <code>myIdentifier</code>. Multiple node selector keys can be added by setting multiple configurations with this prefix.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.driverEnv.[EnvironmentVariableName]</code></td>
+  <td>(none)</td>
+  <td>
+    Add the environment variable specified by <code>EnvironmentVariableName</code> to
+    the Driver process. The user can specify multiple of these to set multiple environment variables.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.driver.secrets.[SecretName]</code></td>
+  <td>(none)</td>
+  <td>
+   Add the <a href="https://kubernetes.io/docs/concepts/configuration/secret/">Kubernetes Secret</a> named <code>SecretName</code> to the driver pod on the path specified in the value. For example,
+   <code>spark.kubernetes.driver.secrets.spark-secret=/etc/secrets</code>.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.executor.secrets.[SecretName]</code></td>
+  <td>(none)</td>
+  <td>
+   Add the <a href="https://kubernetes.io/docs/concepts/configuration/secret/">Kubernetes Secret</a> named <code>SecretName</code> to the executor pod on the path specified in the value. For example,
+   <code>spark.kubernetes.executor.secrets.spark-secret=/etc/secrets</code>.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.driver.secretKeyRef.[EnvName]</code></td>
+  <td>(none)</td>
+  <td>
+   Add as an environment variable to the driver container with name EnvName (case sensitive), the value referenced by key <code> key </code> in the data of the referenced <a href="https://kubernetes.io/docs/concepts/configuration/secret/#using-secrets-as-environment-variables">Kubernetes Secret</a>. For example,
+   <code>spark.kubernetes.driver.secretKeyRef.ENV_VAR=spark-secret:key</code>.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.executor.secretKeyRef.[EnvName]</code></td>
+  <td>(none)</td>
+  <td>
+   Add as an environment variable to the executor container with name EnvName (case sensitive), the value referenced by key <code> key </code> in the data of the referenced <a href="https://kubernetes.io/docs/concepts/configuration/secret/#using-secrets-as-environment-variables">Kubernetes Secret</a>. For example,
+   <code>spark.kubernetes.executor.secrets.ENV_VAR=spark-secret:key</code>.
+  </td>
+</tr>   
+<tr>
+  <td><code>spark.kubernetes.driver.volumes.[VolumeType].[VolumeName].mount.path</code></td>
+  <td>(none)</td>
+  <td>
+   Add the <a href="https://kubernetes.io/docs/concepts/storage/volumes/">Kubernetes Volume</a> named <code>VolumeName</code> of the <code>VolumeType</code> type to the driver pod on the path specified in the value. For example,
+   <code>spark.kubernetes.driver.volumes.persistentVolumeClaim.checkpointpvc.mount.path=/checkpoint</code>.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.driver.volumes.[VolumeType].[VolumeName].mount.readOnly</code></td>
+  <td>(none)</td>
+  <td>
+   Specify if the mounted volume is read only or not. For example,
+   <code>spark.kubernetes.driver.volumes.persistentVolumeClaim.checkpointpvc.mount.readOnly=false</code>.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.driver.volumes.[VolumeType].[VolumeName].options.[OptionName]</code></td>
+  <td>(none)</td>
+  <td>
+   Configure <a href="https://kubernetes.io/docs/concepts/storage/volumes/">Kubernetes Volume</a> options passed to the Kubernetes with <code>OptionName</code> as key having specified value, must conform with Kubernetes option format. For example,
+   <code>spark.kubernetes.driver.volumes.persistentVolumeClaim.checkpointpvc.options.claimName=spark-pvc-claim</code>.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.executor.volumes.[VolumeType].[VolumeName].mount.path</code></td>
+  <td>(none)</td>
+  <td>
+   Add the <a href="https://kubernetes.io/docs/concepts/storage/volumes/">Kubernetes Volume</a> named <code>VolumeName</code> of the <code>VolumeType</code> type to the executor pod on the path specified in the value. For example,
+   <code>spark.kubernetes.executor.volumes.persistentVolumeClaim.checkpointpvc.mount.path=/checkpoint</code>.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.executor.volumes.[VolumeType].[VolumeName].mount.readOnly</code></td>
+  <td>false</td>
+  <td>
+   Specify if the mounted volume is read only or not. For example,
+   <code>spark.kubernetes.executor.volumes.persistentVolumeClaim.checkpointpvc.mount.readOnly=false</code>.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.executor.volumes.[VolumeType].[VolumeName].options.[OptionName]</code></td>
+  <td>(none)</td>
+  <td>
+   Configure <a href="https://kubernetes.io/docs/concepts/storage/volumes/">Kubernetes Volume</a> options passed to the Kubernetes with <code>OptionName</code> as key having specified value. For example,
+   <code>spark.kubernetes.executor.volumes.persistentVolumeClaim.checkpointpvc.options.claimName=spark-pvc-claim</code>.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.memoryOverheadFactor</code></td>
+  <td><code>0.1</code></td>
+  <td>
+    This sets the Memory Overhead Factor that will allocate memory to non-JVM memory, which includes off-heap memory allocations, non-JVM tasks, and various systems processes. For JVM-based jobs this value will default to 0.10 and 0.40 for non-JVM jobs.
+    This is done as non-JVM tasks need more non-JVM heap space and such tasks commonly fail with "Memory Overhead Exceeded" errors. This prempts this error with a higher default. 
+  </td>
+</tr>
+<tr>
+  <td><code>spark.kubernetes.pyspark.pythonVersion</code></td>
+  <td><code>"2"</code></td>
+  <td>
+   This sets the major Python version of the docker image used to run the driver and executor containers. Can either be 2 or 3. 
+  </td>
+</tr>
+</table>
+
+
+                </div>
+            
+             <!-- /container -->
+        </div>
+
+        <script src="js/vendor/jquery-1.8.0.min.js"></script>
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/vendor/anchor.min.js"></script>
+        <script src="js/main.js"></script>
+
+        <!-- MathJax Section -->
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({
+                TeX: { equationNumbers: { autoNumber: "AMS" } }
+            });
+        </script>
+        <script>
+            // Note that we load MathJax this way to work with local file (file://), HTTP and HTTPS.
+            // We could use "//cdn.mathjax...", but that won't support "file://".
+            (function(d, script) {
+                script = d.createElement('script');
+                script.type = 'text/javascript';
+                script.async = true;
+                script.onload = function(){
+                    MathJax.Hub.Config({
+                        tex2jax: {
+                            inlineMath: [ ["$", "$"], ["\\\\(","\\\\)"] ],
+                            displayMath: [ ["$$","$$"], ["\\[", "\\]"] ],
+                            processEscapes: true,
+                            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+                        }
+                    });
+                };
+                script.src = ('https:' == document.location.protocol ? 'https://' : 'http://') +
+                    'cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js' +
+                    '?config=TeX-AMS-MML_HTMLorMML';
+                d.getElementsByTagName('head')[0].appendChild(script);
+            }(document));
+        </script>
+    </body>
+</html>

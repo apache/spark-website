@@ -1,0 +1,492 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.ml.stat &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.ml.stat</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="k">import</span> <span class="n">since</span><span class="p">,</span> <span class="n">SparkContext</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.common</span> <span class="k">import</span> <span class="n">_java2py</span><span class="p">,</span> <span class="n">_py2java</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.wrapper</span> <span class="k">import</span> <span class="n">JavaWrapper</span><span class="p">,</span> <span class="n">_jvm</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.column</span> <span class="k">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">_to_seq</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="k">import</span> <span class="n">lit</span>
+
+
+<div class="viewcode-block" id="ChiSquareTest"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.stat.ChiSquareTest">[docs]</a><span class="k">class</span> <span class="nc">ChiSquareTest</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    Conduct Pearson&#39;s independence test for every feature against the label. For each feature,</span>
+<span class="sd">    the (feature, label) pairs are converted into a contingency matrix for which the Chi-squared</span>
+<span class="sd">    statistic is computed. All label and feature values must be categorical.</span>
+
+<span class="sd">    The null hypothesis is that the occurrence of the outcomes is statistically independent.</span>
+
+<span class="sd">    .. versionadded:: 2.2.0</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ChiSquareTest.test"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.stat.ChiSquareTest.test">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.2.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">featuresCol</span><span class="p">,</span> <span class="n">labelCol</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform a Pearson&#39;s independence test using dataset.</span>
+
+<span class="sd">        :param dataset:</span>
+<span class="sd">          DataFrame of categorical labels and categorical features.</span>
+<span class="sd">          Real-valued features will be treated as categorical for each distinct value.</span>
+<span class="sd">        :param featuresCol:</span>
+<span class="sd">          Name of features column in dataset, of type `Vector` (`VectorUDT`).</span>
+<span class="sd">        :param labelCol:</span>
+<span class="sd">          Name of label column in dataset, of any numerical type.</span>
+<span class="sd">        :return:</span>
+<span class="sd">          DataFrame containing the test result for every feature against the label.</span>
+<span class="sd">          This DataFrame will contain a single Row with the following fields:</span>
+<span class="sd">          - `pValues: Vector`</span>
+<span class="sd">          - `degreesOfFreedom: Array[Int]`</span>
+<span class="sd">          - `statistics: Vector`</span>
+<span class="sd">          Each of these fields has one value per feature.</span>
+
+<span class="sd">        &gt;&gt;&gt; from pyspark.ml.linalg import Vectors</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.ml.stat import ChiSquareTest</span>
+<span class="sd">        &gt;&gt;&gt; dataset = [[0, Vectors.dense([0, 0, 1])],</span>
+<span class="sd">        ...            [0, Vectors.dense([1, 0, 1])],</span>
+<span class="sd">        ...            [1, Vectors.dense([2, 1, 1])],</span>
+<span class="sd">        ...            [1, Vectors.dense([3, 1, 1])]]</span>
+<span class="sd">        &gt;&gt;&gt; dataset = spark.createDataFrame(dataset, [&quot;label&quot;, &quot;features&quot;])</span>
+<span class="sd">        &gt;&gt;&gt; chiSqResult = ChiSquareTest.test(dataset, &#39;features&#39;, &#39;label&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; chiSqResult.select(&quot;degreesOfFreedom&quot;).collect()[0]</span>
+<span class="sd">        Row(degreesOfFreedom=[3, 1, 0])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+        <span class="n">javaTestObj</span> <span class="o">=</span> <span class="n">_jvm</span><span class="p">()</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">ml</span><span class="o">.</span><span class="n">stat</span><span class="o">.</span><span class="n">ChiSquareTest</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">_py2java</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">featuresCol</span><span class="p">,</span> <span class="n">labelCol</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">_java2py</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">javaTestObj</span><span class="o">.</span><span class="n">test</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="Correlation"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.stat.Correlation">[docs]</a><span class="k">class</span> <span class="nc">Correlation</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    Compute the correlation matrix for the input dataset of Vectors using the specified method.</span>
+<span class="sd">    Methods currently supported: `pearson` (default), `spearman`.</span>
+
+<span class="sd">    .. note:: For Spearman, a rank correlation, we need to create an RDD[Double] for each column</span>
+<span class="sd">      and sort it in order to retrieve the ranks and then join the columns back into an RDD[Vector],</span>
+<span class="sd">      which is fairly costly. Cache the input Dataset before calling corr with `method = &#39;spearman&#39;`</span>
+<span class="sd">      to avoid recomputing the common lineage.</span>
+
+<span class="sd">    .. versionadded:: 2.2.0</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Correlation.corr"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.stat.Correlation.corr">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.2.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">corr</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;pearson&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the correlation matrix with specified method using dataset.</span>
+
+<span class="sd">        :param dataset:</span>
+<span class="sd">          A Dataset or a DataFrame.</span>
+<span class="sd">        :param column:</span>
+<span class="sd">          The name of the column of vectors for which the correlation coefficient needs</span>
+<span class="sd">          to be computed. This must be a column of the dataset, and it must contain</span>
+<span class="sd">          Vector objects.</span>
+<span class="sd">        :param method:</span>
+<span class="sd">          String specifying the method to use for computing correlation.</span>
+<span class="sd">          Supported: `pearson` (default), `spearman`.</span>
+<span class="sd">        :return:</span>
+<span class="sd">          A DataFrame that contains the correlation matrix of the column of vectors. This</span>
+<span class="sd">          DataFrame contains a single row and a single column of name</span>
+<span class="sd">          &#39;$METHODNAME($COLUMN)&#39;.</span>
+
+<span class="sd">        &gt;&gt;&gt; from pyspark.ml.linalg import Vectors</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.ml.stat import Correlation</span>
+<span class="sd">        &gt;&gt;&gt; dataset = [[Vectors.dense([1, 0, 0, -2])],</span>
+<span class="sd">        ...            [Vectors.dense([4, 5, 0, 3])],</span>
+<span class="sd">        ...            [Vectors.dense([6, 7, 0, 8])],</span>
+<span class="sd">        ...            [Vectors.dense([9, 0, 0, 1])]]</span>
+<span class="sd">        &gt;&gt;&gt; dataset = spark.createDataFrame(dataset, [&#39;features&#39;])</span>
+<span class="sd">        &gt;&gt;&gt; pearsonCorr = Correlation.corr(dataset, &#39;features&#39;, &#39;pearson&#39;).collect()[0][0]</span>
+<span class="sd">        &gt;&gt;&gt; print(str(pearsonCorr).replace(&#39;nan&#39;, &#39;NaN&#39;))</span>
+<span class="sd">        DenseMatrix([[ 1.        ,  0.0556...,         NaN,  0.4004...],</span>
+<span class="sd">                     [ 0.0556...,  1.        ,         NaN,  0.9135...],</span>
+<span class="sd">                     [        NaN,         NaN,  1.        ,         NaN],</span>
+<span class="sd">                     [ 0.4004...,  0.9135...,         NaN,  1.        ]])</span>
+<span class="sd">        &gt;&gt;&gt; spearmanCorr = Correlation.corr(dataset, &#39;features&#39;, method=&#39;spearman&#39;).collect()[0][0]</span>
+<span class="sd">        &gt;&gt;&gt; print(str(spearmanCorr).replace(&#39;nan&#39;, &#39;NaN&#39;))</span>
+<span class="sd">        DenseMatrix([[ 1.        ,  0.1054...,         NaN,  0.4       ],</span>
+<span class="sd">                     [ 0.1054...,  1.        ,         NaN,  0.9486... ],</span>
+<span class="sd">                     [        NaN,         NaN,  1.        ,         NaN],</span>
+<span class="sd">                     [ 0.4       ,  0.9486... ,         NaN,  1.        ]])</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+        <span class="n">javaCorrObj</span> <span class="o">=</span> <span class="n">_jvm</span><span class="p">()</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">ml</span><span class="o">.</span><span class="n">stat</span><span class="o">.</span><span class="n">Correlation</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="n">_py2java</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">method</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">_java2py</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">javaCorrObj</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="KolmogorovSmirnovTest"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.stat.KolmogorovSmirnovTest">[docs]</a><span class="k">class</span> <span class="nc">KolmogorovSmirnovTest</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    Conduct the two-sided Kolmogorov Smirnov (KS) test for data sampled from a continuous</span>
+<span class="sd">    distribution.</span>
+
+<span class="sd">    By comparing the largest difference between the empirical cumulative</span>
+<span class="sd">    distribution of the sample data and the theoretical distribution we can provide a test for the</span>
+<span class="sd">    the null hypothesis that the sample data comes from that theoretical distribution.</span>
+
+<span class="sd">    .. versionadded:: 2.4.0</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="KolmogorovSmirnovTest.test"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.stat.KolmogorovSmirnovTest.test">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">sampleCol</span><span class="p">,</span> <span class="n">distName</span><span class="p">,</span> <span class="o">*</span><span class="n">params</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Conduct a one-sample, two-sided Kolmogorov-Smirnov test for probability distribution</span>
+<span class="sd">        equality. Currently supports the normal distribution, taking as parameters the mean and</span>
+<span class="sd">        standard deviation.</span>
+
+<span class="sd">        :param dataset:</span>
+<span class="sd">          a Dataset or a DataFrame containing the sample of data to test.</span>
+<span class="sd">        :param sampleCol:</span>
+<span class="sd">          Name of sample column in dataset, of any numerical type.</span>
+<span class="sd">        :param distName:</span>
+<span class="sd">          a `string` name for a theoretical distribution, currently only support &quot;norm&quot;.</span>
+<span class="sd">        :param params:</span>
+<span class="sd">          a list of `Double` values specifying the parameters to be used for the theoretical</span>
+<span class="sd">          distribution. For &quot;norm&quot; distribution, the parameters includes mean and variance.</span>
+<span class="sd">        :return:</span>
+<span class="sd">          A DataFrame that contains the Kolmogorov-Smirnov test result for the input sampled data.</span>
+<span class="sd">          This DataFrame will contain a single Row with the following fields:</span>
+<span class="sd">          - `pValue: Double`</span>
+<span class="sd">          - `statistic: Double`</span>
+
+<span class="sd">        &gt;&gt;&gt; from pyspark.ml.stat import KolmogorovSmirnovTest</span>
+<span class="sd">        &gt;&gt;&gt; dataset = [[-1.0], [0.0], [1.0]]</span>
+<span class="sd">        &gt;&gt;&gt; dataset = spark.createDataFrame(dataset, [&#39;sample&#39;])</span>
+<span class="sd">        &gt;&gt;&gt; ksResult = KolmogorovSmirnovTest.test(dataset, &#39;sample&#39;, &#39;norm&#39;, 0.0, 1.0).first()</span>
+<span class="sd">        &gt;&gt;&gt; round(ksResult.pValue, 3)</span>
+<span class="sd">        1.0</span>
+<span class="sd">        &gt;&gt;&gt; round(ksResult.statistic, 3)</span>
+<span class="sd">        0.175</span>
+<span class="sd">        &gt;&gt;&gt; dataset = [[2.0], [3.0], [4.0]]</span>
+<span class="sd">        &gt;&gt;&gt; dataset = spark.createDataFrame(dataset, [&#39;sample&#39;])</span>
+<span class="sd">        &gt;&gt;&gt; ksResult = KolmogorovSmirnovTest.test(dataset, &#39;sample&#39;, &#39;norm&#39;, 3.0, 1.0).first()</span>
+<span class="sd">        &gt;&gt;&gt; round(ksResult.pValue, 3)</span>
+<span class="sd">        1.0</span>
+<span class="sd">        &gt;&gt;&gt; round(ksResult.statistic, 3)</span>
+<span class="sd">        0.175</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+        <span class="n">javaTestObj</span> <span class="o">=</span> <span class="n">_jvm</span><span class="p">()</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">ml</span><span class="o">.</span><span class="n">stat</span><span class="o">.</span><span class="n">KolmogorovSmirnovTest</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">_py2java</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">param</span><span class="p">)</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">_java2py</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">javaTestObj</span><span class="o">.</span><span class="n">test</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">sampleCol</span><span class="p">,</span> <span class="n">distName</span><span class="p">,</span>
+                                             <span class="n">_jvm</span><span class="p">()</span><span class="o">.</span><span class="n">PythonUtils</span><span class="o">.</span><span class="n">toSeq</span><span class="p">(</span><span class="n">params</span><span class="p">)))</span></div></div>
+
+
+<div class="viewcode-block" id="Summarizer"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.stat.Summarizer">[docs]</a><span class="k">class</span> <span class="nc">Summarizer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    Tools for vectorized statistics on MLlib Vectors.</span>
+<span class="sd">    The methods in this package provide various statistics for Vectors contained inside DataFrames.</span>
+<span class="sd">    This class lets users pick the statistics they would like to extract for a given column.</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyspark.ml.stat import Summarizer</span>
+<span class="sd">    &gt;&gt;&gt; from pyspark.sql import Row</span>
+<span class="sd">    &gt;&gt;&gt; from pyspark.ml.linalg import Vectors</span>
+<span class="sd">    &gt;&gt;&gt; summarizer = Summarizer.metrics(&quot;mean&quot;, &quot;count&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; df = sc.parallelize([Row(weight=1.0, features=Vectors.dense(1.0, 1.0, 1.0)),</span>
+<span class="sd">    ...                      Row(weight=0.0, features=Vectors.dense(1.0, 2.0, 3.0))]).toDF()</span>
+<span class="sd">    &gt;&gt;&gt; df.select(summarizer.summary(df.features, df.weight)).show(truncate=False)</span>
+<span class="sd">    +-----------------------------------+</span>
+<span class="sd">    |aggregate_metrics(features, weight)|</span>
+<span class="sd">    +-----------------------------------+</span>
+<span class="sd">    |[[1.0,1.0,1.0], 1]                 |</span>
+<span class="sd">    +-----------------------------------+</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">    &gt;&gt;&gt; df.select(summarizer.summary(df.features)).show(truncate=False)</span>
+<span class="sd">    +--------------------------------+</span>
+<span class="sd">    |aggregate_metrics(features, 1.0)|</span>
+<span class="sd">    +--------------------------------+</span>
+<span class="sd">    |[[1.0,1.5,2.0], 2]              |</span>
+<span class="sd">    +--------------------------------+</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">    &gt;&gt;&gt; df.select(Summarizer.mean(df.features, df.weight)).show(truncate=False)</span>
+<span class="sd">    +--------------+</span>
+<span class="sd">    |mean(features)|</span>
+<span class="sd">    +--------------+</span>
+<span class="sd">    |[1.0,1.0,1.0] |</span>
+<span class="sd">    +--------------+</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+<span class="sd">    &gt;&gt;&gt; df.select(Summarizer.mean(df.features)).show(truncate=False)</span>
+<span class="sd">    +--------------+</span>
+<span class="sd">    |mean(features)|</span>
+<span class="sd">    +--------------+</span>
+<span class="sd">    |[1.0,1.5,2.0] |</span>
+<span class="sd">    +--------------+</span>
+<span class="sd">    &lt;BLANKLINE&gt;</span>
+
+<span class="sd">    .. versionadded:: 2.4.0</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Summarizer.mean"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.stat.Summarizer.mean">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">mean</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">weightCol</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        return a column of mean summary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Summarizer</span><span class="o">.</span><span class="n">_get_single_metric</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">weightCol</span><span class="p">,</span> <span class="s2">&quot;mean&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Summarizer.variance"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.stat.Summarizer.variance">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">variance</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">weightCol</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        return a column of variance summary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Summarizer</span><span class="o">.</span><span class="n">_get_single_metric</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">weightCol</span><span class="p">,</span> <span class="s2">&quot;variance&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Summarizer.count"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.stat.Summarizer.count">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">weightCol</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        return a column of count summary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Summarizer</span><span class="o">.</span><span class="n">_get_single_metric</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">weightCol</span><span class="p">,</span> <span class="s2">&quot;count&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Summarizer.numNonZeros"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.stat.Summarizer.numNonZeros">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">numNonZeros</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">weightCol</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        return a column of numNonZero summary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Summarizer</span><span class="o">.</span><span class="n">_get_single_metric</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">weightCol</span><span class="p">,</span> <span class="s2">&quot;numNonZeros&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Summarizer.max"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.stat.Summarizer.max">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">weightCol</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        return a column of max summary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Summarizer</span><span class="o">.</span><span class="n">_get_single_metric</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">weightCol</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Summarizer.min"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.stat.Summarizer.min">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">min</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">weightCol</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        return a column of min summary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Summarizer</span><span class="o">.</span><span class="n">_get_single_metric</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">weightCol</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Summarizer.normL1"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.stat.Summarizer.normL1">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">normL1</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">weightCol</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        return a column of normL1 summary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Summarizer</span><span class="o">.</span><span class="n">_get_single_metric</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">weightCol</span><span class="p">,</span> <span class="s2">&quot;normL1&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Summarizer.normL2"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.stat.Summarizer.normL2">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">normL2</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">weightCol</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        return a column of normL2 summary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Summarizer</span><span class="o">.</span><span class="n">_get_single_metric</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">weightCol</span><span class="p">,</span> <span class="s2">&quot;normL2&quot;</span><span class="p">)</span></div>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_check_param</span><span class="p">(</span><span class="n">featuresCol</span><span class="p">,</span> <span class="n">weightCol</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">weightCol</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">weightCol</span> <span class="o">=</span> <span class="n">lit</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">featuresCol</span><span class="p">,</span> <span class="n">Column</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">weightCol</span><span class="p">,</span> <span class="n">Column</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;featureCol and weightCol should be a Column&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">featuresCol</span><span class="p">,</span> <span class="n">weightCol</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_get_single_metric</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">weightCol</span><span class="p">,</span> <span class="n">metric</span><span class="p">):</span>
+        <span class="n">col</span><span class="p">,</span> <span class="n">weightCol</span> <span class="o">=</span> <span class="n">Summarizer</span><span class="o">.</span><span class="n">_check_param</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">weightCol</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">JavaWrapper</span><span class="o">.</span><span class="n">_new_java_obj</span><span class="p">(</span><span class="s2">&quot;org.apache.spark.ml.stat.Summarizer.&quot;</span> <span class="o">+</span> <span class="n">metric</span><span class="p">,</span>
+                                                <span class="n">col</span><span class="o">.</span><span class="n">_jc</span><span class="p">,</span> <span class="n">weightCol</span><span class="o">.</span><span class="n">_jc</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Summarizer.metrics"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.stat.Summarizer.metrics">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">metrics</span><span class="p">(</span><span class="o">*</span><span class="n">metrics</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a list of metrics, provides a builder that it turns computes metrics from a column.</span>
+
+<span class="sd">        See the documentation of [[Summarizer]] for an example.</span>
+
+<span class="sd">        The following metrics are accepted (case sensitive):</span>
+<span class="sd">         - mean: a vector that contains the coefficient-wise mean.</span>
+<span class="sd">         - variance: a vector tha contains the coefficient-wise variance.</span>
+<span class="sd">         - count: the count of all vectors seen.</span>
+<span class="sd">         - numNonzeros: a vector with the number of non-zeros for each coefficients</span>
+<span class="sd">         - max: the maximum for each coefficient.</span>
+<span class="sd">         - min: the minimum for each coefficient.</span>
+<span class="sd">         - normL2: the Euclidean norm for each coefficient.</span>
+<span class="sd">         - normL1: the L1 norm of each coefficient (sum of the absolute values).</span>
+
+<span class="sd">        :param metrics:</span>
+<span class="sd">         metrics that can be provided.</span>
+<span class="sd">        :return:</span>
+<span class="sd">         an object of :py:class:`pyspark.ml.stat.SummaryBuilder`</span>
+
+<span class="sd">        Note: Currently, the performance of this interface is about 2x~3x slower then using the RDD</span>
+<span class="sd">        interface.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+        <span class="n">js</span> <span class="o">=</span> <span class="n">JavaWrapper</span><span class="o">.</span><span class="n">_new_java_obj</span><span class="p">(</span><span class="s2">&quot;org.apache.spark.ml.stat.Summarizer.metrics&quot;</span><span class="p">,</span>
+                                       <span class="n">_to_seq</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">metrics</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">SummaryBuilder</span><span class="p">(</span><span class="n">js</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="SummaryBuilder"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.stat.SummaryBuilder">[docs]</a><span class="k">class</span> <span class="nc">SummaryBuilder</span><span class="p">(</span><span class="n">JavaWrapper</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    A builder object that provides summary statistics about a given column.</span>
+
+<span class="sd">    Users should not directly create such builders, but instead use one of the methods in</span>
+<span class="sd">    :py:class:`pyspark.ml.stat.Summarizer`</span>
+
+<span class="sd">    .. versionadded:: 2.4.0</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jSummaryBuilder</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SummaryBuilder</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">jSummaryBuilder</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SummaryBuilder.summary"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.stat.SummaryBuilder.summary">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">featuresCol</span><span class="p">,</span> <span class="n">weightCol</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an aggregate object that contains the summary of the column with the requested</span>
+<span class="sd">        metrics.</span>
+
+<span class="sd">        :param featuresCol:</span>
+<span class="sd">         a column that contains features Vector object.</span>
+<span class="sd">        :param weightCol:</span>
+<span class="sd">         a column that contains weight value. Default weight is 1.0.</span>
+<span class="sd">        :return:</span>
+<span class="sd">         an aggregate column that contains the statistics. The exact content of this</span>
+<span class="sd">         structure is determined during the creation of the builder.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">featuresCol</span><span class="p">,</span> <span class="n">weightCol</span> <span class="o">=</span> <span class="n">Summarizer</span><span class="o">.</span><span class="n">_check_param</span><span class="p">(</span><span class="n">featuresCol</span><span class="p">,</span> <span class="n">weightCol</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">featuresCol</span><span class="o">.</span><span class="n">_jc</span><span class="p">,</span> <span class="n">weightCol</span><span class="o">.</span><span class="n">_jc</span><span class="p">))</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="kn">import</span> <span class="nn">numpy</span>
+    <span class="kn">import</span> <span class="nn">pyspark.ml.stat</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">SparkSession</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Numpy 1.14+ changed it&#39;s string format.</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">legacy</span><span class="o">=</span><span class="s1">&#39;1.13&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="n">globs</span> <span class="o">=</span> <span class="n">pyspark</span><span class="o">.</span><span class="n">ml</span><span class="o">.</span><span class="n">stat</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="c1"># The small batch size here ensures that we see multiple batches,</span>
+    <span class="c1"># even in these small test examples:</span>
+    <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span> \
+        <span class="o">.</span><span class="n">master</span><span class="p">(</span><span class="s2">&quot;local[2]&quot;</span><span class="p">)</span> \
+        <span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;ml.stat tests&quot;</span><span class="p">)</span> \
+        <span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">sparkContext</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;sc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sc</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;spark&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spark</span>
+
+    <span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span> <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span><span class="p">)</span>
+    <span class="n">spark</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

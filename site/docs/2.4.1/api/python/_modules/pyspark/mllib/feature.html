@@ -1,0 +1,904 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.mllib.feature &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.mllib.feature</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Python package for feature in MLlib.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">binascii</span>
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span> <span class="o">&gt;=</span> <span class="s1">&#39;3&#39;</span><span class="p">:</span>
+    <span class="n">basestring</span> <span class="o">=</span> <span class="nb">str</span>
+    <span class="n">unicode</span> <span class="o">=</span> <span class="nb">str</span>
+
+<span class="kn">from</span> <span class="nn">py4j.protocol</span> <span class="k">import</span> <span class="n">Py4JJavaError</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="k">import</span> <span class="n">since</span>
+<span class="kn">from</span> <span class="nn">pyspark.rdd</span> <span class="k">import</span> <span class="n">RDD</span><span class="p">,</span> <span class="n">ignore_unicode_prefix</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.common</span> <span class="k">import</span> <span class="n">callMLlibFunc</span><span class="p">,</span> <span class="n">JavaModelWrapper</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.linalg</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">Vector</span><span class="p">,</span> <span class="n">Vectors</span><span class="p">,</span> <span class="n">DenseVector</span><span class="p">,</span> <span class="n">SparseVector</span><span class="p">,</span> <span class="n">_convert_to_vector</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.regression</span> <span class="k">import</span> <span class="n">LabeledPoint</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.util</span> <span class="k">import</span> <span class="n">JavaLoader</span><span class="p">,</span> <span class="n">JavaSaveable</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Normalizer&#39;</span><span class="p">,</span> <span class="s1">&#39;StandardScalerModel&#39;</span><span class="p">,</span> <span class="s1">&#39;StandardScaler&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;HashingTF&#39;</span><span class="p">,</span> <span class="s1">&#39;IDFModel&#39;</span><span class="p">,</span> <span class="s1">&#39;IDF&#39;</span><span class="p">,</span> <span class="s1">&#39;Word2Vec&#39;</span><span class="p">,</span> <span class="s1">&#39;Word2VecModel&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;ChiSqSelector&#39;</span><span class="p">,</span> <span class="s1">&#39;ChiSqSelectorModel&#39;</span><span class="p">,</span> <span class="s1">&#39;ElementwiseProduct&#39;</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">VectorTransformer</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: DeveloperApi</span>
+
+<span class="sd">    Base class for transformation of a vector or RDD of vector</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Applies transformation on a vector.</span>
+
+<span class="sd">        :param vector: vector to be transformed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+
+<div class="viewcode-block" id="Normalizer"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.Normalizer">[docs]</a><span class="k">class</span> <span class="nc">Normalizer</span><span class="p">(</span><span class="n">VectorTransformer</span><span class="p">):</span>
+    <span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normalizes samples individually to unit L\ :sup:`p`\  norm</span>
+
+<span class="sd">    For any 1 &lt;= `p` &lt; float(&#39;inf&#39;), normalizes samples using</span>
+<span class="sd">    sum(abs(vector) :sup:`p`) :sup:`(1/p)` as norm.</span>
+
+<span class="sd">    For `p` = float(&#39;inf&#39;), max(abs(vector)) will be used as norm for</span>
+<span class="sd">    normalization.</span>
+
+<span class="sd">    :param p: Normalization in L^p^ space, p = 2 by default.</span>
+
+<span class="sd">    &gt;&gt;&gt; v = Vectors.dense(range(3))</span>
+<span class="sd">    &gt;&gt;&gt; nor = Normalizer(1)</span>
+<span class="sd">    &gt;&gt;&gt; nor.transform(v)</span>
+<span class="sd">    DenseVector([0.0, 0.3333, 0.6667])</span>
+
+<span class="sd">    &gt;&gt;&gt; rdd = sc.parallelize([v])</span>
+<span class="sd">    &gt;&gt;&gt; nor.transform(rdd).collect()</span>
+<span class="sd">    [DenseVector([0.0, 0.3333, 0.6667])]</span>
+
+<span class="sd">    &gt;&gt;&gt; nor2 = Normalizer(float(&quot;inf&quot;))</span>
+<span class="sd">    &gt;&gt;&gt; nor2.transform(v)</span>
+<span class="sd">    DenseVector([0.0, 0.5, 1.0])</span>
+
+<span class="sd">    .. versionadded:: 1.2.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="mf">2.0</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">p</span> <span class="o">&gt;=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;p should be greater than 1.0&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Normalizer.transform"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.Normalizer.transform">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Applies unit length normalization on a vector.</span>
+
+<span class="sd">        :param vector: vector or RDD of vector to be normalized.</span>
+<span class="sd">        :return: normalized vector. If the norm of the input is zero, it</span>
+<span class="sd">                 will return the input vector.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">RDD</span><span class="p">):</span>
+            <span class="n">vector</span> <span class="o">=</span> <span class="n">vector</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_convert_to_vector</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">vector</span> <span class="o">=</span> <span class="n">_convert_to_vector</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;normalizeVector&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="n">vector</span><span class="p">)</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">JavaVectorTransformer</span><span class="p">(</span><span class="n">JavaModelWrapper</span><span class="p">,</span> <span class="n">VectorTransformer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapper for the model in JVM</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Applies transformation on a vector or an RDD[Vector].</span>
+
+<span class="sd">        .. note:: In Python, transform cannot currently be used within</span>
+<span class="sd">            an RDD transformation or action.</span>
+<span class="sd">            Call transform directly on the RDD instead.</span>
+
+<span class="sd">        :param vector: Vector or RDD of Vector to be transformed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">RDD</span><span class="p">):</span>
+            <span class="n">vector</span> <span class="o">=</span> <span class="n">vector</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_convert_to_vector</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">vector</span> <span class="o">=</span> <span class="n">_convert_to_vector</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;transform&quot;</span><span class="p">,</span> <span class="n">vector</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="StandardScalerModel"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.StandardScalerModel">[docs]</a><span class="k">class</span> <span class="nc">StandardScalerModel</span><span class="p">(</span><span class="n">JavaVectorTransformer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a StandardScaler model that can transform vectors.</span>
+
+<span class="sd">    .. versionadded:: 1.2.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="StandardScalerModel.transform"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.StandardScalerModel.transform">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Applies standardization transformation on a vector.</span>
+
+<span class="sd">        .. note:: In Python, transform cannot currently be used within</span>
+<span class="sd">            an RDD transformation or action.</span>
+<span class="sd">            Call transform directly on the RDD instead.</span>
+
+<span class="sd">        :param vector: Vector or RDD of Vector to be standardized.</span>
+<span class="sd">        :return: Standardized vector. If the variance of a column is</span>
+<span class="sd">                 zero, it will return default `0.0` for the column with</span>
+<span class="sd">                 zero variance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">JavaVectorTransformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="StandardScalerModel.setWithMean"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.StandardScalerModel.setWithMean">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.4.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setWithMean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">withMean</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setter of the boolean which decides</span>
+<span class="sd">        whether it uses mean or not</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;setWithMean&quot;</span><span class="p">,</span> <span class="n">withMean</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="StandardScalerModel.setWithStd"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.StandardScalerModel.setWithStd">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.4.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setWithStd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">withStd</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Setter of the boolean which decides</span>
+<span class="sd">        whether it uses std or not</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;setWithStd&quot;</span><span class="p">,</span> <span class="n">withStd</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.0.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">withStd</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns if the model scales the data to unit standard deviation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;withStd&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.0.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">withMean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns if the model centers the data before scaling.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;withMean&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.0.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">std</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the column standard deviation values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;std&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.0.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the column mean values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;mean&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="StandardScaler"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.StandardScaler">[docs]</a><span class="k">class</span> <span class="nc">StandardScaler</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Standardizes features by removing the mean and scaling to unit</span>
+<span class="sd">    variance using column summary statistics on the samples in the</span>
+<span class="sd">    training set.</span>
+
+<span class="sd">    :param withMean: False by default. Centers the data with mean</span>
+<span class="sd">                     before scaling. It will build a dense output, so take</span>
+<span class="sd">                     care when applying to sparse input.</span>
+<span class="sd">    :param withStd: True by default. Scales the data to unit</span>
+<span class="sd">                    standard deviation.</span>
+
+<span class="sd">    &gt;&gt;&gt; vs = [Vectors.dense([-2.0, 2.3, 0]), Vectors.dense([3.8, 0.0, 1.9])]</span>
+<span class="sd">    &gt;&gt;&gt; dataset = sc.parallelize(vs)</span>
+<span class="sd">    &gt;&gt;&gt; standardizer = StandardScaler(True, True)</span>
+<span class="sd">    &gt;&gt;&gt; model = standardizer.fit(dataset)</span>
+<span class="sd">    &gt;&gt;&gt; result = model.transform(dataset)</span>
+<span class="sd">    &gt;&gt;&gt; for r in result.collect(): r</span>
+<span class="sd">    DenseVector([-0.7071, 0.7071, -0.7071])</span>
+<span class="sd">    DenseVector([0.7071, -0.7071, 0.7071])</span>
+<span class="sd">    &gt;&gt;&gt; int(model.std[0])</span>
+<span class="sd">    4</span>
+<span class="sd">    &gt;&gt;&gt; int(model.mean[0]*10)</span>
+<span class="sd">    9</span>
+<span class="sd">    &gt;&gt;&gt; model.withStd</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; model.withMean</span>
+<span class="sd">    True</span>
+
+<span class="sd">    .. versionadded:: 1.2.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">withMean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">withStd</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">withMean</span> <span class="ow">or</span> <span class="n">withStd</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Both withMean and withStd are false. The model does nothing.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">withMean</span> <span class="o">=</span> <span class="n">withMean</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">withStd</span> <span class="o">=</span> <span class="n">withStd</span>
+
+<div class="viewcode-block" id="StandardScaler.fit"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.StandardScaler.fit">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the mean and variance and stores as a model to be used</span>
+<span class="sd">        for later scaling.</span>
+
+<span class="sd">        :param dataset: The data used to compute the mean and variance</span>
+<span class="sd">                     to build the transformation model.</span>
+<span class="sd">        :return: a StandardScalarModel</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_convert_to_vector</span><span class="p">)</span>
+        <span class="n">jmodel</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;fitStandardScaler&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">withMean</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">withStd</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">StandardScalerModel</span><span class="p">(</span><span class="n">jmodel</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ChiSqSelectorModel"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.ChiSqSelectorModel">[docs]</a><span class="k">class</span> <span class="nc">ChiSqSelectorModel</span><span class="p">(</span><span class="n">JavaVectorTransformer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a Chi Squared selector model.</span>
+
+<span class="sd">    .. versionadded:: 1.4.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ChiSqSelectorModel.transform"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.ChiSqSelectorModel.transform">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.4.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Applies transformation on a vector.</span>
+
+<span class="sd">        :param vector: Vector or RDD of Vector to be transformed.</span>
+<span class="sd">        :return: transformed vector.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">JavaVectorTransformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ChiSqSelector"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.ChiSqSelector">[docs]</a><span class="k">class</span> <span class="nc">ChiSqSelector</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Creates a ChiSquared feature selector.</span>
+<span class="sd">    The selector supports different selection methods: `numTopFeatures`, `percentile`, `fpr`,</span>
+<span class="sd">    `fdr`, `fwe`.</span>
+
+<span class="sd">     * `numTopFeatures` chooses a fixed number of top features according to a chi-squared test.</span>
+
+<span class="sd">     * `percentile` is similar but chooses a fraction of all features</span>
+<span class="sd">       instead of a fixed number.</span>
+
+<span class="sd">     * `fpr` chooses all features whose p-values are below a threshold,</span>
+<span class="sd">       thus controlling the false positive rate of selection.</span>
+
+<span class="sd">     * `fdr` uses the `Benjamini-Hochberg procedure &lt;https://en.wikipedia.org/wiki/</span>
+<span class="sd">       False_discovery_rate#Benjamini.E2.80.93Hochberg_procedure&gt;`_</span>
+<span class="sd">       to choose all features whose false discovery rate is below a threshold.</span>
+
+<span class="sd">     * `fwe` chooses all features whose p-values are below a threshold. The threshold is scaled by</span>
+<span class="sd">       1/numFeatures, thus controlling the family-wise error rate of selection.</span>
+
+<span class="sd">    By default, the selection method is `numTopFeatures`, with the default number of top features</span>
+<span class="sd">    set to 50.</span>
+
+<span class="sd">    &gt;&gt;&gt; data = sc.parallelize([</span>
+<span class="sd">    ...     LabeledPoint(0.0, SparseVector(3, {0: 8.0, 1: 7.0})),</span>
+<span class="sd">    ...     LabeledPoint(1.0, SparseVector(3, {1: 9.0, 2: 6.0})),</span>
+<span class="sd">    ...     LabeledPoint(1.0, [0.0, 9.0, 8.0]),</span>
+<span class="sd">    ...     LabeledPoint(2.0, [7.0, 9.0, 5.0]),</span>
+<span class="sd">    ...     LabeledPoint(2.0, [8.0, 7.0, 3.0])</span>
+<span class="sd">    ... ])</span>
+<span class="sd">    &gt;&gt;&gt; model = ChiSqSelector(numTopFeatures=1).fit(data)</span>
+<span class="sd">    &gt;&gt;&gt; model.transform(SparseVector(3, {1: 9.0, 2: 6.0}))</span>
+<span class="sd">    SparseVector(1, {})</span>
+<span class="sd">    &gt;&gt;&gt; model.transform(DenseVector([7.0, 9.0, 5.0]))</span>
+<span class="sd">    DenseVector([7.0])</span>
+<span class="sd">    &gt;&gt;&gt; model = ChiSqSelector(selectorType=&quot;fpr&quot;, fpr=0.2).fit(data)</span>
+<span class="sd">    &gt;&gt;&gt; model.transform(SparseVector(3, {1: 9.0, 2: 6.0}))</span>
+<span class="sd">    SparseVector(1, {})</span>
+<span class="sd">    &gt;&gt;&gt; model.transform(DenseVector([7.0, 9.0, 5.0]))</span>
+<span class="sd">    DenseVector([7.0])</span>
+<span class="sd">    &gt;&gt;&gt; model = ChiSqSelector(selectorType=&quot;percentile&quot;, percentile=0.34).fit(data)</span>
+<span class="sd">    &gt;&gt;&gt; model.transform(DenseVector([7.0, 9.0, 5.0]))</span>
+<span class="sd">    DenseVector([7.0])</span>
+
+<span class="sd">    .. versionadded:: 1.4.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numTopFeatures</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">selectorType</span><span class="o">=</span><span class="s2">&quot;numTopFeatures&quot;</span><span class="p">,</span> <span class="n">percentile</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">fpr</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+                 <span class="n">fdr</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">fwe</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numTopFeatures</span> <span class="o">=</span> <span class="n">numTopFeatures</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selectorType</span> <span class="o">=</span> <span class="n">selectorType</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">percentile</span> <span class="o">=</span> <span class="n">percentile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fpr</span> <span class="o">=</span> <span class="n">fpr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fdr</span> <span class="o">=</span> <span class="n">fdr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fwe</span> <span class="o">=</span> <span class="n">fwe</span>
+
+<div class="viewcode-block" id="ChiSqSelector.setNumTopFeatures"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.ChiSqSelector.setNumTopFeatures">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.1.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setNumTopFeatures</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numTopFeatures</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        set numTopFeature for feature selection by number of top features.</span>
+<span class="sd">        Only applicable when selectorType = &quot;numTopFeatures&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numTopFeatures</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">numTopFeatures</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="ChiSqSelector.setPercentile"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.ChiSqSelector.setPercentile">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.1.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setPercentile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">percentile</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        set percentile [0.0, 1.0] for feature selection by percentile.</span>
+<span class="sd">        Only applicable when selectorType = &quot;percentile&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">percentile</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">percentile</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="ChiSqSelector.setFpr"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.ChiSqSelector.setFpr">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.1.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setFpr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fpr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        set FPR [0.0, 1.0] for feature selection by FPR.</span>
+<span class="sd">        Only applicable when selectorType = &quot;fpr&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fpr</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">fpr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="ChiSqSelector.setFdr"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.ChiSqSelector.setFdr">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setFdr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fdr</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        set FDR [0.0, 1.0] for feature selection by FDR.</span>
+<span class="sd">        Only applicable when selectorType = &quot;fdr&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fdr</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">fdr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="ChiSqSelector.setFwe"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.ChiSqSelector.setFwe">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setFwe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fwe</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        set FWE [0.0, 1.0] for feature selection by FWE.</span>
+<span class="sd">        Only applicable when selectorType = &quot;fwe&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fwe</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">fwe</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="ChiSqSelector.setSelectorType"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.ChiSqSelector.setSelectorType">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.1.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setSelectorType</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selectorType</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        set the selector type of the ChisqSelector.</span>
+<span class="sd">        Supported options: &quot;numTopFeatures&quot; (default), &quot;percentile&quot;, &quot;fpr&quot;, &quot;fdr&quot;, &quot;fwe&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selectorType</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">selectorType</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="ChiSqSelector.fit"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.ChiSqSelector.fit">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.4.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a ChiSquared feature selector.</span>
+
+<span class="sd">        :param data: an `RDD[LabeledPoint]` containing the labeled dataset</span>
+<span class="sd">                     with categorical features. Real-valued features will be</span>
+<span class="sd">                     treated as categorical for each distinct value.</span>
+<span class="sd">                     Apply feature discretizer before using this function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">jmodel</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;fitChiSqSelector&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">selectorType</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">numTopFeatures</span><span class="p">,</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">percentile</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fpr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fdr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fwe</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ChiSqSelectorModel</span><span class="p">(</span><span class="n">jmodel</span><span class="p">)</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">PCAModel</span><span class="p">(</span><span class="n">JavaVectorTransformer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Model fitted by [[PCA]] that can project vectors to a low-dimensional space using PCA.</span>
+
+<span class="sd">    .. versionadded:: 1.5.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">PCA</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A feature transformer that projects vectors to a low-dimensional space using PCA.</span>
+
+<span class="sd">    &gt;&gt;&gt; data = [Vectors.sparse(5, [(1, 1.0), (3, 7.0)]),</span>
+<span class="sd">    ...     Vectors.dense([2.0, 0.0, 3.0, 4.0, 5.0]),</span>
+<span class="sd">    ...     Vectors.dense([4.0, 0.0, 0.0, 6.0, 7.0])]</span>
+<span class="sd">    &gt;&gt;&gt; model = PCA(2).fit(sc.parallelize(data))</span>
+<span class="sd">    &gt;&gt;&gt; pcArray = model.transform(Vectors.sparse(5, [(1, 1.0), (3, 7.0)])).toArray()</span>
+<span class="sd">    &gt;&gt;&gt; pcArray[0]</span>
+<span class="sd">    1.648...</span>
+<span class="sd">    &gt;&gt;&gt; pcArray[1]</span>
+<span class="sd">    -4.013...</span>
+
+<span class="sd">    .. versionadded:: 1.5.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param k: number of principal components.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.5.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes a [[PCAModel]] that contains the principal components of the input vectors.</span>
+<span class="sd">        :param data: source vectors</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">jmodel</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;fitPCA&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">PCAModel</span><span class="p">(</span><span class="n">jmodel</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="HashingTF"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.HashingTF">[docs]</a><span class="k">class</span> <span class="nc">HashingTF</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Maps a sequence of terms to their term frequencies using the hashing</span>
+<span class="sd">    trick.</span>
+
+<span class="sd">    .. note:: The terms must be hashable (can not be dict/set/list...).</span>
+
+<span class="sd">    :param numFeatures: number of features (default: 2^20)</span>
+
+<span class="sd">    &gt;&gt;&gt; htf = HashingTF(100)</span>
+<span class="sd">    &gt;&gt;&gt; doc = &quot;a a b b c d&quot;.split(&quot; &quot;)</span>
+<span class="sd">    &gt;&gt;&gt; htf.transform(doc)</span>
+<span class="sd">    SparseVector(100, {...})</span>
+
+<span class="sd">    .. versionadded:: 1.2.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numFeatures</span><span class="o">=</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">20</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numFeatures</span> <span class="o">=</span> <span class="n">numFeatures</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">binary</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="HashingTF.setBinary"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.HashingTF.setBinary">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setBinary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If True, term frequency vector will be binary such that non-zero</span>
+<span class="sd">        term counts will be set to 1</span>
+<span class="sd">        (default: False)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">binary</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="HashingTF.indexOf"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.HashingTF.indexOf">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">indexOf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">term</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns the index of the input term. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="n">term</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">numFeatures</span></div>
+
+<div class="viewcode-block" id="HashingTF.transform"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.HashingTF.transform">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">document</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transforms the input document (list of terms) to term frequency</span>
+<span class="sd">        vectors, or transform the RDD of document to RDD of term</span>
+<span class="sd">        frequency vectors.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">document</span><span class="p">,</span> <span class="n">RDD</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">document</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">)</span>
+
+        <span class="n">freq</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">document</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indexOf</span><span class="p">(</span><span class="n">term</span><span class="p">)</span>
+            <span class="n">freq</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">binary</span> <span class="k">else</span> <span class="n">freq</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1.0</span>
+        <span class="k">return</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">sparse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numFeatures</span><span class="p">,</span> <span class="n">freq</span><span class="o">.</span><span class="n">items</span><span class="p">())</span></div></div>
+
+
+<div class="viewcode-block" id="IDFModel"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.IDFModel">[docs]</a><span class="k">class</span> <span class="nc">IDFModel</span><span class="p">(</span><span class="n">JavaVectorTransformer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents an IDF model that can transform term frequency vectors.</span>
+
+<span class="sd">    .. versionadded:: 1.2.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="IDFModel.transform"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.IDFModel.transform">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transforms term frequency (TF) vectors to TF-IDF vectors.</span>
+
+<span class="sd">        If `minDocFreq` was set for the IDF calculation,</span>
+<span class="sd">        the terms which occur in fewer than `minDocFreq`</span>
+<span class="sd">        documents will have an entry of 0.</span>
+
+<span class="sd">        .. note:: In Python, transform cannot currently be used within</span>
+<span class="sd">            an RDD transformation or action.</span>
+<span class="sd">            Call transform directly on the RDD instead.</span>
+
+<span class="sd">        :param x: an RDD of term frequency vectors or a term frequency</span>
+<span class="sd">                  vector</span>
+<span class="sd">        :return: an RDD of TF-IDF vectors or a TF-IDF vector</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">JavaVectorTransformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="IDFModel.idf"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.IDFModel.idf">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.4.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">idf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the current IDF vector.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s1">&#39;idf&#39;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="IDF"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.IDF">[docs]</a><span class="k">class</span> <span class="nc">IDF</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Inverse document frequency (IDF).</span>
+
+<span class="sd">    The standard formulation is used: `idf = log((m + 1) / (d(t) + 1))`,</span>
+<span class="sd">    where `m` is the total number of documents and `d(t)` is the number</span>
+<span class="sd">    of documents that contain term `t`.</span>
+
+<span class="sd">    This implementation supports filtering out terms which do not appear</span>
+<span class="sd">    in a minimum number of documents (controlled by the variable</span>
+<span class="sd">    `minDocFreq`). For terms that are not in at least `minDocFreq`</span>
+<span class="sd">    documents, the IDF is found as 0, resulting in TF-IDFs of 0.</span>
+
+<span class="sd">    :param minDocFreq: minimum of documents in which a term</span>
+<span class="sd">                       should appear for filtering</span>
+
+<span class="sd">    &gt;&gt;&gt; n = 4</span>
+<span class="sd">    &gt;&gt;&gt; freqs = [Vectors.sparse(n, (1, 3), (1.0, 2.0)),</span>
+<span class="sd">    ...          Vectors.dense([0.0, 1.0, 2.0, 3.0]),</span>
+<span class="sd">    ...          Vectors.sparse(n, [1], [1.0])]</span>
+<span class="sd">    &gt;&gt;&gt; data = sc.parallelize(freqs)</span>
+<span class="sd">    &gt;&gt;&gt; idf = IDF()</span>
+<span class="sd">    &gt;&gt;&gt; model = idf.fit(data)</span>
+<span class="sd">    &gt;&gt;&gt; tfidf = model.transform(data)</span>
+<span class="sd">    &gt;&gt;&gt; for r in tfidf.collect(): r</span>
+<span class="sd">    SparseVector(4, {1: 0.0, 3: 0.5754})</span>
+<span class="sd">    DenseVector([0.0, 0.0, 1.3863, 0.863])</span>
+<span class="sd">    SparseVector(4, {1: 0.0})</span>
+<span class="sd">    &gt;&gt;&gt; model.transform(Vectors.dense([0.0, 1.0, 2.0, 3.0]))</span>
+<span class="sd">    DenseVector([0.0, 0.0, 1.3863, 0.863])</span>
+<span class="sd">    &gt;&gt;&gt; model.transform([0.0, 1.0, 2.0, 3.0])</span>
+<span class="sd">    DenseVector([0.0, 0.0, 1.3863, 0.863])</span>
+<span class="sd">    &gt;&gt;&gt; model.transform(Vectors.sparse(n, (1, 3), (1.0, 2.0)))</span>
+<span class="sd">    SparseVector(4, {1: 0.0, 3: 0.5754})</span>
+
+<span class="sd">    .. versionadded:: 1.2.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minDocFreq</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minDocFreq</span> <span class="o">=</span> <span class="n">minDocFreq</span>
+
+<div class="viewcode-block" id="IDF.fit"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.IDF.fit">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the inverse document frequency.</span>
+
+<span class="sd">        :param dataset: an RDD of term frequency vectors</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">RDD</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;dataset should be an RDD of term frequency vectors&quot;</span><span class="p">)</span>
+        <span class="n">jmodel</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;fitIDF&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">minDocFreq</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_convert_to_vector</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">IDFModel</span><span class="p">(</span><span class="n">jmodel</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Word2VecModel"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.Word2VecModel">[docs]</a><span class="k">class</span> <span class="nc">Word2VecModel</span><span class="p">(</span><span class="n">JavaVectorTransformer</span><span class="p">,</span> <span class="n">JavaSaveable</span><span class="p">,</span> <span class="n">JavaLoader</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    class for Word2Vec model</span>
+
+<span class="sd">    .. versionadded:: 1.2.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Word2VecModel.transform"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.Word2VecModel.transform">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transforms a word to its vector representation</span>
+
+<span class="sd">        .. note:: Local use only</span>
+
+<span class="sd">        :param word: a word</span>
+<span class="sd">        :return: vector representation of word(s)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;transform&quot;</span><span class="p">,</span> <span class="n">word</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">Py4JJavaError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> not found&quot;</span> <span class="o">%</span> <span class="n">word</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Word2VecModel.findSynonyms"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.Word2VecModel.findSynonyms">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">findSynonyms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">word</span><span class="p">,</span> <span class="n">num</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find synonyms of a word</span>
+
+<span class="sd">        :param word: a word or a vector representation of word</span>
+<span class="sd">        :param num: number of synonyms to find</span>
+<span class="sd">        :return: array of (word, cosineSimilarity)</span>
+
+<span class="sd">        .. note:: Local use only</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="n">word</span> <span class="o">=</span> <span class="n">_convert_to_vector</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+        <span class="n">words</span><span class="p">,</span> <span class="n">similarity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;findSynonyms&quot;</span><span class="p">,</span> <span class="n">word</span><span class="p">,</span> <span class="n">num</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">zip</span><span class="p">(</span><span class="n">words</span><span class="p">,</span> <span class="n">similarity</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Word2VecModel.getVectors"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.Word2VecModel.getVectors">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.4.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getVectors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a map of words to their vector representations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;getVectors&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Word2VecModel.load"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.Word2VecModel.load">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.5.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load a model from the given path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">jmodel</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">mllib</span><span class="o">.</span><span class="n">feature</span> \
+            <span class="o">.</span><span class="n">Word2VecModel</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jsc</span><span class="o">.</span><span class="n">sc</span><span class="p">(),</span> <span class="n">path</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">mllib</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">Word2VecModelWrapper</span><span class="p">(</span><span class="n">jmodel</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Word2VecModel</span><span class="p">(</span><span class="n">model</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Word2Vec"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.Word2Vec">[docs]</a><span class="nd">@ignore_unicode_prefix</span>
+<span class="k">class</span> <span class="nc">Word2Vec</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Word2Vec creates vector representation of words in a text corpus.</span>
+<span class="sd">    The algorithm first constructs a vocabulary from the corpus</span>
+<span class="sd">    and then learns vector representation of words in the vocabulary.</span>
+<span class="sd">    The vector representation can be used as features in</span>
+<span class="sd">    natural language processing and machine learning algorithms.</span>
+
+<span class="sd">    We used skip-gram model in our implementation and hierarchical</span>
+<span class="sd">    softmax method to train the model. The variable names in the</span>
+<span class="sd">    implementation matches the original C implementation.</span>
+
+<span class="sd">    For original C implementation,</span>
+<span class="sd">    see https://code.google.com/p/word2vec/</span>
+<span class="sd">    For research papers, see</span>
+<span class="sd">    Efficient Estimation of Word Representations in Vector Space</span>
+<span class="sd">    and Distributed Representations of Words and Phrases and their</span>
+<span class="sd">    Compositionality.</span>
+
+<span class="sd">    &gt;&gt;&gt; sentence = &quot;a b &quot; * 100 + &quot;a c &quot; * 10</span>
+<span class="sd">    &gt;&gt;&gt; localDoc = [sentence, sentence]</span>
+<span class="sd">    &gt;&gt;&gt; doc = sc.parallelize(localDoc).map(lambda line: line.split(&quot; &quot;))</span>
+<span class="sd">    &gt;&gt;&gt; model = Word2Vec().setVectorSize(10).setSeed(42).fit(doc)</span>
+
+<span class="sd">    Querying for synonyms of a word will not return that word:</span>
+
+<span class="sd">    &gt;&gt;&gt; syms = model.findSynonyms(&quot;a&quot;, 2)</span>
+<span class="sd">    &gt;&gt;&gt; [s[0] for s in syms]</span>
+<span class="sd">    [u&#39;b&#39;, u&#39;c&#39;]</span>
+
+<span class="sd">    But querying for synonyms of a vector may return the word whose</span>
+<span class="sd">    representation is that vector:</span>
+
+<span class="sd">    &gt;&gt;&gt; vec = model.transform(&quot;a&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; syms = model.findSynonyms(vec, 2)</span>
+<span class="sd">    &gt;&gt;&gt; [s[0] for s in syms]</span>
+<span class="sd">    [u&#39;a&#39;, u&#39;b&#39;]</span>
+
+<span class="sd">    &gt;&gt;&gt; import os, tempfile</span>
+<span class="sd">    &gt;&gt;&gt; path = tempfile.mkdtemp()</span>
+<span class="sd">    &gt;&gt;&gt; model.save(sc, path)</span>
+<span class="sd">    &gt;&gt;&gt; sameModel = Word2VecModel.load(sc, path)</span>
+<span class="sd">    &gt;&gt;&gt; model.transform(&quot;a&quot;) == sameModel.transform(&quot;a&quot;)</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; syms = sameModel.findSynonyms(&quot;a&quot;, 2)</span>
+<span class="sd">    &gt;&gt;&gt; [s[0] for s in syms]</span>
+<span class="sd">    [u&#39;b&#39;, u&#39;c&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; from shutil import rmtree</span>
+<span class="sd">    &gt;&gt;&gt; try:</span>
+<span class="sd">    ...     rmtree(path)</span>
+<span class="sd">    ... except OSError:</span>
+<span class="sd">    ...     pass</span>
+
+<span class="sd">    .. versionadded:: 1.2.0</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct Word2Vec instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vectorSize</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">learningRate</span> <span class="o">=</span> <span class="mf">0.025</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numPartitions</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numIterations</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minCount</span> <span class="o">=</span> <span class="mi">5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">windowSize</span> <span class="o">=</span> <span class="mi">5</span>
+
+<div class="viewcode-block" id="Word2Vec.setVectorSize"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.Word2Vec.setVectorSize">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setVectorSize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vectorSize</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets vector size (default: 100).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vectorSize</span> <span class="o">=</span> <span class="n">vectorSize</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Word2Vec.setLearningRate"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.Word2Vec.setLearningRate">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setLearningRate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">learningRate</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets initial learning rate (default: 0.025).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">learningRate</span> <span class="o">=</span> <span class="n">learningRate</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Word2Vec.setNumPartitions"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.Word2Vec.setNumPartitions">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setNumPartitions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numPartitions</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets number of partitions (default: 1). Use a small number for</span>
+<span class="sd">        accuracy.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numPartitions</span> <span class="o">=</span> <span class="n">numPartitions</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Word2Vec.setNumIterations"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.Word2Vec.setNumIterations">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setNumIterations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numIterations</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets number of iterations (default: 1), which should be smaller</span>
+<span class="sd">        than or equal to number of partitions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numIterations</span> <span class="o">=</span> <span class="n">numIterations</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Word2Vec.setSeed"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.Word2Vec.setSeed">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setSeed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets random seed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Word2Vec.setMinCount"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.Word2Vec.setMinCount">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.4.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setMinCount</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minCount</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets minCount, the minimum number of times a token must appear</span>
+<span class="sd">        to be included in the word2vec model&#39;s vocabulary (default: 5).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minCount</span> <span class="o">=</span> <span class="n">minCount</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Word2Vec.setWindowSize"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.Word2Vec.setWindowSize">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;2.0.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setWindowSize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">windowSize</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets window size (default: 5).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">windowSize</span> <span class="o">=</span> <span class="n">windowSize</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Word2Vec.fit"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.Word2Vec.fit">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.2.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the vector representation of each word in vocabulary.</span>
+
+<span class="sd">        :param data: training data. RDD of list of string</span>
+<span class="sd">        :return: Word2VecModel instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">RDD</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;data should be an RDD of list of string&quot;</span><span class="p">)</span>
+        <span class="n">jmodel</span> <span class="o">=</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;trainWord2VecModel&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vectorSize</span><span class="p">),</span>
+                               <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">learningRate</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numPartitions</span><span class="p">),</span>
+                               <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numIterations</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span>
+                               <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minCount</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">windowSize</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">Word2VecModel</span><span class="p">(</span><span class="n">jmodel</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ElementwiseProduct"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.ElementwiseProduct">[docs]</a><span class="k">class</span> <span class="nc">ElementwiseProduct</span><span class="p">(</span><span class="n">VectorTransformer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Scales each column of the vector, with the supplied weight vector.</span>
+<span class="sd">    i.e the elementwise product.</span>
+
+<span class="sd">    &gt;&gt;&gt; weight = Vectors.dense([1.0, 2.0, 3.0])</span>
+<span class="sd">    &gt;&gt;&gt; eprod = ElementwiseProduct(weight)</span>
+<span class="sd">    &gt;&gt;&gt; a = Vectors.dense([2.0, 1.0, 3.0])</span>
+<span class="sd">    &gt;&gt;&gt; eprod.transform(a)</span>
+<span class="sd">    DenseVector([2.0, 2.0, 9.0])</span>
+<span class="sd">    &gt;&gt;&gt; b = Vectors.dense([9.0, 3.0, 4.0])</span>
+<span class="sd">    &gt;&gt;&gt; rdd = sc.parallelize([a, b])</span>
+<span class="sd">    &gt;&gt;&gt; eprod.transform(rdd).collect()</span>
+<span class="sd">    [DenseVector([2.0, 2.0, 9.0]), DenseVector([9.0, 6.0, 12.0])]</span>
+
+<span class="sd">    .. versionadded:: 1.5.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scalingVector</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scalingVector</span> <span class="o">=</span> <span class="n">_convert_to_vector</span><span class="p">(</span><span class="n">scalingVector</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ElementwiseProduct.transform"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.feature.ElementwiseProduct.transform">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s1">&#39;1.5.0&#39;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vector</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the Hadamard product of the vector.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vector</span><span class="p">,</span> <span class="n">RDD</span><span class="p">):</span>
+            <span class="n">vector</span> <span class="o">=</span> <span class="n">vector</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">_convert_to_vector</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">vector</span> <span class="o">=</span> <span class="n">_convert_to_vector</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;elementwiseProductVector&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">scalingVector</span><span class="p">,</span> <span class="n">vector</span><span class="p">)</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_test</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">SparkSession</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span>\
+        <span class="o">.</span><span class="n">master</span><span class="p">(</span><span class="s2">&quot;local[4]&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;mllib.feature tests&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;sc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">sparkContext</span>
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span> <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span><span class="p">)</span>
+    <span class="n">spark</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">_test</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

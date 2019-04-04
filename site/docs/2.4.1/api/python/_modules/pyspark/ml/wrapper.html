@@ -1,0 +1,425 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.ml.wrapper &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.ml.wrapper</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span> <span class="o">&gt;=</span> <span class="s1">&#39;3&#39;</span><span class="p">:</span>
+    <span class="n">xrange</span> <span class="o">=</span> <span class="nb">range</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="k">import</span> <span class="n">SparkContext</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">DataFrame</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml</span> <span class="k">import</span> <span class="n">Estimator</span><span class="p">,</span> <span class="n">Transformer</span><span class="p">,</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.param</span> <span class="k">import</span> <span class="n">Params</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.util</span> <span class="k">import</span> <span class="n">_jvm</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.common</span> <span class="k">import</span> <span class="n">inherit_doc</span><span class="p">,</span> <span class="n">_java2py</span><span class="p">,</span> <span class="n">_py2java</span>
+
+
+<span class="k">class</span> <span class="nc">JavaWrapper</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapper class for a Java companion object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">java_obj</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">JavaWrapper</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span> <span class="o">=</span> <span class="n">java_obj</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span><span class="o">.</span><span class="n">_gateway</span><span class="o">.</span><span class="n">detach</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_create_from_java_class</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">java_class</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct this object from given Java classname and arguments</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">java_obj</span> <span class="o">=</span> <span class="n">JavaWrapper</span><span class="o">.</span><span class="n">_new_java_obj</span><span class="p">(</span><span class="n">java_class</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">java_obj</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_call_java</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+        <span class="n">java_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">_py2java</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">_java2py</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">m</span><span class="p">(</span><span class="o">*</span><span class="n">java_args</span><span class="p">))</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_new_java_obj</span><span class="p">(</span><span class="n">java_class</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a new Java object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+        <span class="n">java_obj</span> <span class="o">=</span> <span class="n">_jvm</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">java_class</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
+            <span class="n">java_obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">java_obj</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="n">java_args</span> <span class="o">=</span> <span class="p">[</span><span class="n">_py2java</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">java_obj</span><span class="p">(</span><span class="o">*</span><span class="n">java_args</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_new_java_array</span><span class="p">(</span><span class="n">pylist</span><span class="p">,</span> <span class="n">java_class</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a Java array of given java_class type. Useful for</span>
+<span class="sd">        calling a method with a Scala Array from Python with Py4J.</span>
+
+<span class="sd">        :param pylist:</span>
+<span class="sd">          Python list to convert to a Java Array.</span>
+<span class="sd">        :param java_class:</span>
+<span class="sd">          Java class to specify the type of Array. Should be in the</span>
+<span class="sd">          form of sc._gateway.jvm.* (sc is a valid Spark Context).</span>
+<span class="sd">        :return:</span>
+<span class="sd">          Java Array of converted pylist.</span>
+
+<span class="sd">        Example primitive Java classes:</span>
+<span class="sd">          - basestring -&gt; sc._gateway.jvm.java.lang.String</span>
+<span class="sd">          - int -&gt; sc._gateway.jvm.java.lang.Integer</span>
+<span class="sd">          - float -&gt; sc._gateway.jvm.java.lang.Double</span>
+<span class="sd">          - bool -&gt; sc._gateway.jvm.java.lang.Boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+        <span class="n">java_array</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_gateway</span><span class="o">.</span><span class="n">new_array</span><span class="p">(</span><span class="n">java_class</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">pylist</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pylist</span><span class="p">)):</span>
+            <span class="n">java_array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">pylist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">java_array</span>
+
+
+<span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">JavaParams</span><span class="p">(</span><span class="n">JavaWrapper</span><span class="p">,</span> <span class="n">Params</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Utility class to help create wrapper classes from Java/Scala</span>
+<span class="sd">    implementations of pipeline components.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#: The param values in the Java object should be</span>
+    <span class="c1">#: synced with the Python wrapper in fit/transform/evaluate/copy.</span>
+
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
+
+    <span class="k">def</span> <span class="nf">_make_java_param_pair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Makes a Java param pair.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolveParam</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+        <span class="n">java_param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span><span class="o">.</span><span class="n">getParam</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">java_value</span> <span class="o">=</span> <span class="n">_py2java</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">java_param</span><span class="o">.</span><span class="n">w</span><span class="p">(</span><span class="n">java_value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_transfer_params_to_java</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transforms the embedded params to the companion Java object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pair_defaults</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isSet</span><span class="p">(</span><span class="n">param</span><span class="p">):</span>
+                <span class="n">pair</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_java_param_pair</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_paramMap</span><span class="p">[</span><span class="n">param</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hasDefault</span><span class="p">(</span><span class="n">param</span><span class="p">):</span>
+                <span class="n">pair</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_java_param_pair</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_defaultParamMap</span><span class="p">[</span><span class="n">param</span><span class="p">])</span>
+                <span class="n">pair_defaults</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">pair_defaults</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+            <span class="n">pair_defaults_seq</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">PythonUtils</span><span class="o">.</span><span class="n">toSeq</span><span class="p">(</span><span class="n">pair_defaults</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span><span class="o">.</span><span class="n">setDefault</span><span class="p">(</span><span class="n">pair_defaults_seq</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_transfer_param_map_to_java</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pyParamMap</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transforms a Python ParamMap into a Java ParamMap.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">paramMap</span> <span class="o">=</span> <span class="n">JavaWrapper</span><span class="o">.</span><span class="n">_new_java_obj</span><span class="p">(</span><span class="s2">&quot;org.apache.spark.ml.param.ParamMap&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">pyParamMap</span><span class="p">:</span>
+                <span class="n">pair</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_make_java_param_pair</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">pyParamMap</span><span class="p">[</span><span class="n">param</span><span class="p">])</span>
+                <span class="n">paramMap</span><span class="o">.</span><span class="n">put</span><span class="p">([</span><span class="n">pair</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">paramMap</span>
+
+    <span class="k">def</span> <span class="nf">_create_params_from_java</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        SPARK-10931: Temporary fix to create params that are defined in the Java obj but not here</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">java_params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span><span class="o">.</span><span class="n">params</span><span class="p">())</span>
+        <span class="kn">from</span> <span class="nn">pyspark.ml.param</span> <span class="k">import</span> <span class="n">Param</span>
+        <span class="k">for</span> <span class="n">java_param</span> <span class="ow">in</span> <span class="n">java_params</span><span class="p">:</span>
+            <span class="n">java_param_name</span> <span class="o">=</span> <span class="n">java_param</span><span class="o">.</span><span class="n">name</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">java_param_name</span><span class="p">):</span>
+                <span class="n">param</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">java_param_name</span><span class="p">,</span> <span class="n">java_param</span><span class="o">.</span><span class="n">doc</span><span class="p">())</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="s2">&quot;created_from_java_param&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">java_param_name</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_params</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># need to reset so self.params will discover new params</span>
+
+    <span class="k">def</span> <span class="nf">_transfer_params_from_java</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transforms the embedded params from the companion Java object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span><span class="o">.</span><span class="n">hasParam</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+                <span class="n">java_param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span><span class="o">.</span><span class="n">getParam</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="c1"># SPARK-14931: Only check set params back to avoid default params mismatch.</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span><span class="o">.</span><span class="n">isSet</span><span class="p">(</span><span class="n">java_param</span><span class="p">):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">_java2py</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="n">java_param</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span>
+                <span class="c1"># SPARK-10931: Temporary fix for params that have a default in Java</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span><span class="o">.</span><span class="n">hasDefault</span><span class="p">(</span><span class="n">java_param</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">isDefined</span><span class="p">(</span><span class="n">param</span><span class="p">):</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">_java2py</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span><span class="o">.</span><span class="n">getDefault</span><span class="p">(</span><span class="n">java_param</span><span class="p">))</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_setDefault</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">value</span><span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">_transfer_param_map_from_java</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">javaParamMap</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transforms a Java ParamMap into a Python ParamMap.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+        <span class="n">paramMap</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">pair</span> <span class="ow">in</span> <span class="n">javaParamMap</span><span class="o">.</span><span class="n">toList</span><span class="p">():</span>
+            <span class="n">param</span> <span class="o">=</span> <span class="n">pair</span><span class="o">.</span><span class="n">param</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hasParam</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">())):</span>
+                <span class="n">paramMap</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">getParam</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="p">())]</span> <span class="o">=</span> <span class="n">_java2py</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">pair</span><span class="o">.</span><span class="n">value</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">paramMap</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_empty_java_param_map</span><span class="p">():</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an empty Java ParamMap reference.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_jvm</span><span class="p">()</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">ml</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">ParamMap</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_to_java</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transfer this instance&#39;s Params to the wrapped Java object, and return the Java object.</span>
+<span class="sd">        Used for ML persistence.</span>
+
+<span class="sd">        Meta-algorithms such as Pipeline should override this method.</span>
+
+<span class="sd">        :return: Java object equivalent to this instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transfer_params_to_java</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_from_java</span><span class="p">(</span><span class="n">java_stage</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Given a Java object, create and return a Python wrapper of it.</span>
+<span class="sd">        Used for ML persistence.</span>
+
+<span class="sd">        Meta-algorithms such as Pipeline should override this method as a classmethod.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="nf">__get_class</span><span class="p">(</span><span class="n">clazz</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Loads Python class from its name.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">parts</span> <span class="o">=</span> <span class="n">clazz</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+            <span class="n">module</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="n">m</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">comp</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">m</span>
+        <span class="n">stage_name</span> <span class="o">=</span> <span class="n">java_stage</span><span class="o">.</span><span class="n">getClass</span><span class="p">()</span><span class="o">.</span><span class="n">getName</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;org.apache.spark&quot;</span><span class="p">,</span> <span class="s2">&quot;pyspark&quot;</span><span class="p">)</span>
+        <span class="c1"># Generate a default new instance from the stage_name class.</span>
+        <span class="n">py_type</span> <span class="o">=</span> <span class="n">__get_class</span><span class="p">(</span><span class="n">stage_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">py_type</span><span class="p">,</span> <span class="n">JavaParams</span><span class="p">):</span>
+            <span class="c1"># Load information from java_stage to the instance.</span>
+            <span class="n">py_stage</span> <span class="o">=</span> <span class="n">py_type</span><span class="p">()</span>
+            <span class="n">py_stage</span><span class="o">.</span><span class="n">_java_obj</span> <span class="o">=</span> <span class="n">java_stage</span>
+
+            <span class="c1"># SPARK-10931: Temporary fix so that persisted models would own params from Estimator</span>
+            <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">py_type</span><span class="p">,</span> <span class="n">JavaModel</span><span class="p">):</span>
+                <span class="n">py_stage</span><span class="o">.</span><span class="n">_create_params_from_java</span><span class="p">()</span>
+
+            <span class="n">py_stage</span><span class="o">.</span><span class="n">_resetUid</span><span class="p">(</span><span class="n">java_stage</span><span class="o">.</span><span class="n">uid</span><span class="p">())</span>
+            <span class="n">py_stage</span><span class="o">.</span><span class="n">_transfer_params_from_java</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">py_type</span><span class="p">,</span> <span class="s2">&quot;_from_java&quot;</span><span class="p">):</span>
+            <span class="n">py_stage</span> <span class="o">=</span> <span class="n">py_type</span><span class="o">.</span><span class="n">_from_java</span><span class="p">(</span><span class="n">java_stage</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;This Java stage cannot be loaded into Python currently: </span><span class="si">%r</span><span class="s2">&quot;</span>
+                                      <span class="o">%</span> <span class="n">stage_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">py_stage</span>
+
+    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a copy of this instance with the same uid and some</span>
+<span class="sd">        extra params. This implementation first calls Params.copy and</span>
+<span class="sd">        then make a copy of the companion Java pipeline component with</span>
+<span class="sd">        extra params. So both the Python wrapper and the Java pipeline</span>
+<span class="sd">        component get copied.</span>
+
+<span class="sd">        :param extra: Extra parameters to copy to the new instance</span>
+<span class="sd">        :return: Copy of this instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">extra</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">extra</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">that</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">JavaParams</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">that</span><span class="o">.</span><span class="n">_java_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_empty_java_param_map</span><span class="p">())</span>
+            <span class="n">that</span><span class="o">.</span><span class="n">_transfer_params_to_java</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">that</span>
+
+
+<span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">JavaEstimator</span><span class="p">(</span><span class="n">JavaParams</span><span class="p">,</span> <span class="n">Estimator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for :py:class:`Estimator`s that wrap Java/Scala</span>
+<span class="sd">    implementations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_create_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">java_model</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a model from the input Java model reference.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_fit_java</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fits a Java model to the input dataset.</span>
+
+<span class="sd">        :param dataset: input dataset, which is an instance of</span>
+<span class="sd">                        :py:class:`pyspark.sql.DataFrame`</span>
+<span class="sd">        :param params: additional params (overwriting embedded values)</span>
+<span class="sd">        :return: fitted Java model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transfer_params_to_java</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">_jdf</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="n">java_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_java</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_model</span><span class="p">(</span><span class="n">java_model</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_copyValues</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+
+<span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">JavaTransformer</span><span class="p">(</span><span class="n">JavaParams</span><span class="p">,</span> <span class="n">Transformer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for :py:class:`Transformer`s that wrap Java/Scala</span>
+<span class="sd">    implementations. Subclasses should ensure they have the transformer Java object</span>
+<span class="sd">    available as _java_obj.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
+
+    <span class="k">def</span> <span class="nf">_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transfer_params_to_java</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">_jdf</span><span class="p">),</span> <span class="n">dataset</span><span class="o">.</span><span class="n">sql_ctx</span><span class="p">)</span>
+
+
+<span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">JavaModel</span><span class="p">(</span><span class="n">JavaTransformer</span><span class="p">,</span> <span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for :py:class:`Model`s that wrap Java/Scala</span>
+<span class="sd">    implementations. Subclasses should inherit this class before</span>
+<span class="sd">    param mix-ins, because this sets the UID from the Java model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">java_model</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize this instance with a Java model object.</span>
+<span class="sd">        Subclasses should call this constructor, initialize params,</span>
+<span class="sd">        and then call _transfer_params_from_java.</span>
+
+<span class="sd">        This instance can be instantiated without specifying java_model,</span>
+<span class="sd">        it will be assigned after that, but this scenario only used by</span>
+<span class="sd">        :py:class:`JavaMLReader` to load models.  This is a bit of a</span>
+<span class="sd">        hack, but it is easiest since a proper fix would require</span>
+<span class="sd">        MLReader (in pyspark.ml.util) to depend on these wrappers, but</span>
+<span class="sd">        these wrappers depend on pyspark.ml.util (both directly and via</span>
+<span class="sd">        other ML classes).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">JavaModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">java_model</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">java_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="c1"># SPARK-10931: This is a temporary fix to allow models to own params</span>
+            <span class="c1"># from estimators. Eventually, these params should be in models through</span>
+            <span class="c1"># using common base classes between estimators and models.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_create_params_from_java</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_resetUid</span><span class="p">(</span><span class="n">java_model</span><span class="o">.</span><span class="n">uid</span><span class="p">())</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

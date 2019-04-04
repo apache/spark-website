@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Naive Bayes Models</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/languages/r.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</head><body>
+
+<table width="100%" summary="page for spark.naiveBayes {SparkR}"><tr><td>spark.naiveBayes {SparkR}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Naive Bayes Models</h2>
+
+<h3>Description</h3>
+
+<p><code>spark.naiveBayes</code> fits a Bernoulli naive Bayes model against a SparkDataFrame.
+Users can call <code>summary</code> to print a summary of the fitted model, <code>predict</code> to make
+predictions on new data, and <code>write.ml</code>/<code>read.ml</code> to save/load fitted models.
+Only categorical data is supported.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+spark.naiveBayes(data, formula, ...)
+
+## S4 method for signature 'SparkDataFrame,formula'
+spark.naiveBayes(data, formula,
+  smoothing = 1, handleInvalid = c("error", "keep", "skip"))
+
+## S4 method for signature 'NaiveBayesModel'
+summary(object)
+
+## S4 method for signature 'NaiveBayesModel'
+predict(object, newData)
+
+## S4 method for signature 'NaiveBayesModel,character'
+write.ml(object, path,
+  overwrite = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>a <code>SparkDataFrame</code> of observations and labels for model fitting.</p>
+</td></tr>
+<tr valign="top"><td><code>formula</code></td>
+<td>
+<p>a symbolic description of the model to be fitted. Currently only a few formula
+operators are supported, including '~', '.', ':', '+', and '-'.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional argument(s) passed to the method. Currently only <code>smoothing</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>smoothing</code></td>
+<td>
+<p>smoothing parameter.</p>
+</td></tr>
+<tr valign="top"><td><code>handleInvalid</code></td>
+<td>
+<p>How to handle invalid data (unseen labels or NULL values) in features and
+label column of string type.
+Supported options: &quot;skip&quot; (filter out rows with invalid data),
+&quot;error&quot; (throw an error), &quot;keep&quot; (put invalid data in
+a special additional bucket, at index numLabels). Default
+is &quot;error&quot;.</p>
+</td></tr>
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>a naive Bayes model fitted by <code>spark.naiveBayes</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>newData</code></td>
+<td>
+<p>a SparkDataFrame for testing.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>the directory where the model is saved.</p>
+</td></tr>
+<tr valign="top"><td><code>overwrite</code></td>
+<td>
+<p>overwrites or not if the output path already exists. Default is FALSE
+which means throw exception if the output path exists.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>spark.naiveBayes</code> returns a fitted naive Bayes model.
+</p>
+<p><code>summary</code> returns summary information of the fitted model, which is a list.
+The list includes <code>apriori</code> (the label distribution) and
+<code>tables</code> (conditional probabilities given the target label).
+</p>
+<p><code>predict</code> returns a SparkDataFrame containing predicted labeled in a column named
+&quot;prediction&quot;.
+</p>
+
+
+<h3>Note</h3>
+
+<p>spark.naiveBayes since 2.0.0
+</p>
+<p>summary(NaiveBayesModel) since 2.0.0
+</p>
+<p>predict(NaiveBayesModel) since 2.0.0
+</p>
+<p>write.ml(NaiveBayesModel, character) since 2.0.0
+</p>
+
+
+<h3>See Also</h3>
+
+<p>e1071: <a href="https://cran.r-project.org/package=e1071">https://cran.r-project.org/package=e1071</a>
+</p>
+<p><a href="write.ml.html">write.ml</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre><code class="r">## Not run: 
+##D data &lt;- as.data.frame(UCBAdmissions)
+##D df &lt;- createDataFrame(data)
+##D 
+##D # fit a Bernoulli naive Bayes model
+##D model &lt;- spark.naiveBayes(df, Admit ~ Gender + Dept, smoothing = 0)
+##D 
+##D # get the summary of the model
+##D summary(model)
+##D 
+##D # make predictions
+##D predictions &lt;- predict(model, df)
+##D 
+##D # save and load the model
+##D path &lt;- &quot;path/to/model&quot;
+##D write.ml(model, path)
+##D savedModel &lt;- read.ml(path)
+##D summary(savedModel)
+## End(Not run)
+</code></pre>
+
+
+<hr /><div style="text-align: center;">[Package <em>SparkR</em> version 2.4.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

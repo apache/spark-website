@@ -1,0 +1,481 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>PMML model export - RDD-based API - Spark 2.4.1 Documentation</title>
+        
+
+        
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 60px;
+                padding-bottom: 40px;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+
+        <link rel="stylesheet" href="css/pygments-default.css">
+
+        
+        <!-- Google analytics script -->
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-32518208-2']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+        </script>
+        
+
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="https://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
+
+        <div class="navbar navbar-fixed-top" id="topbar">
+            <div class="navbar-inner">
+                <div class="container">
+                    <div class="brand"><a href="index.html">
+                      <img src="img/spark-logo-hd.png" style="height:50px;"/></a><span class="version">2.4.1</span>
+                    </div>
+                    <ul class="nav">
+                        <!--TODO(andyk): Add class="active" attribute to li some how.-->
+                        <li><a href="index.html">Overview</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Programming Guides<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="quick-start.html">Quick Start</a></li>
+                                <li><a href="rdd-programming-guide.html">RDDs, Accumulators, Broadcasts Vars</a></li>
+                                <li><a href="sql-programming-guide.html">SQL, DataFrames, and Datasets</a></li>
+                                <li><a href="structured-streaming-programming-guide.html">Structured Streaming</a></li>
+                                <li><a href="streaming-programming-guide.html">Spark Streaming (DStreams)</a></li>
+                                <li><a href="ml-guide.html">MLlib (Machine Learning)</a></li>
+                                <li><a href="graphx-programming-guide.html">GraphX (Graph Processing)</a></li>
+                                <li><a href="sparkr.html">SparkR (R on Spark)</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">API Docs<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="api/scala/index.html#org.apache.spark.package">Scala</a></li>
+                                <li><a href="api/java/index.html">Java</a></li>
+                                <li><a href="api/python/index.html">Python</a></li>
+                                <li><a href="api/R/index.html">R</a></li>
+                                <li><a href="api/sql/index.html">SQL, Built-in Functions</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Deploying<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="cluster-overview.html">Overview</a></li>
+                                <li><a href="submitting-applications.html">Submitting Applications</a></li>
+                                <li class="divider"></li>
+                                <li><a href="spark-standalone.html">Spark Standalone</a></li>
+                                <li><a href="running-on-mesos.html">Mesos</a></li>
+                                <li><a href="running-on-yarn.html">YARN</a></li>
+                                <li><a href="running-on-kubernetes.html">Kubernetes</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="api.html" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="configuration.html">Configuration</a></li>
+                                <li><a href="monitoring.html">Monitoring</a></li>
+                                <li><a href="tuning.html">Tuning Guide</a></li>
+                                <li><a href="job-scheduling.html">Job Scheduling</a></li>
+                                <li><a href="security.html">Security</a></li>
+                                <li><a href="hardware-provisioning.html">Hardware Provisioning</a></li>
+                                <li class="divider"></li>
+                                <li><a href="building-spark.html">Building Spark</a></li>
+                                <li><a href="https://spark.apache.org/contributing.html">Contributing to Spark</a></li>
+                                <li><a href="https://spark.apache.org/third-party-projects.html">Third Party Projects</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <!--<p class="navbar-text pull-right"><span class="version-text">v2.4.1</span></p>-->
+                </div>
+            </div>
+        </div>
+
+        <div class="container-wrapper">
+
+            
+                
+                    <div class="left-menu-wrapper">
+    <div class="left-menu">
+        <h3><a href="ml-guide.html">MLlib: Main Guide</a></h3>
+        
+<ul>
+
+    <li>
+        <a href="ml-statistics.html">
+            
+                Basic statistics
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-datasource">
+            
+                Data sources
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-pipeline.html">
+            
+                Pipelines
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-features.html">
+            
+                Extracting, transforming and selecting features
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-classification-regression.html">
+            
+                Classification and Regression
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-clustering.html">
+            
+                Clustering
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-collaborative-filtering.html">
+            
+                Collaborative filtering
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-frequent-pattern-mining.html">
+            
+                Frequent Pattern Mining
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-tuning.html">
+            
+                Model selection and tuning
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="ml-advanced.html">
+            
+                Advanced topics
+            
+        </a>
+    </li>
+    
+    
+
+</ul>
+
+        <h3><a href="mllib-guide.html">MLlib: RDD-based API Guide</a></h3>
+        
+<ul>
+
+    <li>
+        <a href="mllib-data-types.html">
+            
+                Data types
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-statistics.html">
+            
+                Basic statistics
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-classification-regression.html">
+            
+                Classification and regression
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-collaborative-filtering.html">
+            
+                Collaborative filtering
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-clustering.html">
+            
+                Clustering
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-dimensionality-reduction.html">
+            
+                Dimensionality reduction
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-feature-extraction.html">
+            
+                Feature extraction and transformation
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-frequent-pattern-mining.html">
+            
+                Frequent pattern mining
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-evaluation-metrics.html">
+            
+                Evaluation metrics
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-pmml-model-export.html">
+            
+                <b>PMML model export</b>
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="mllib-optimization.html">
+            
+                Optimization (developer)
+            
+        </a>
+    </li>
+    
+    
+
+</ul>
+
+    </div>
+</div>
+                
+                <input id="nav-trigger" class="nav-trigger" checked type="checkbox">
+                <label for="nav-trigger"></label>
+                <div class="content-with-sidebar" id="content">
+                    
+                        <h1 class="title">PMML model export - RDD-based API</h1>
+                    
+
+                    <ul id="markdown-toc">
+  <li><a href="#sparkmllib-supported-models" id="markdown-toc-sparkmllib-supported-models">spark.mllib supported models</a></li>
+  <li><a href="#examples" id="markdown-toc-examples">Examples</a></li>
+</ul>
+
+<h2 id="sparkmllib-supported-models">spark.mllib supported models</h2>
+
+<p><code>spark.mllib</code> supports model export to Predictive Model Markup Language (<a href="http://en.wikipedia.org/wiki/Predictive_Model_Markup_Language">PMML</a>).</p>
+
+<p>The table below outlines the <code>spark.mllib</code> models that can be exported to PMML and their equivalent PMML model.</p>
+
+<table class="table">
+  <thead>
+    <tr><th>spark.mllib model</th><th>PMML model</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>KMeansModel</td><td>ClusteringModel</td>
+    </tr>    
+    <tr>
+      <td>LinearRegressionModel</td><td>RegressionModel (functionName="regression")</td>
+    </tr>
+    <tr>
+      <td>RidgeRegressionModel</td><td>RegressionModel (functionName="regression")</td>
+    </tr>
+    <tr>
+      <td>LassoModel</td><td>RegressionModel (functionName="regression")</td>
+    </tr>
+    <tr>
+      <td>SVMModel</td><td>RegressionModel (functionName="classification" normalizationMethod="none")</td>
+    </tr>
+    <tr>
+      <td>Binary LogisticRegressionModel</td><td>RegressionModel (functionName="classification" normalizationMethod="logit")</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="examples">Examples</h2>
+<div class="codetabs">
+
+<div data-lang="scala">
+    <p>To export a supported <code>model</code> (see table above) to PMML, simply call <code>model.toPMML</code>.</p>
+
+    <p>As well as exporting the PMML model to a String (<code>model.toPMML</code> as in the example above), you can export the PMML model to other formats.</p>
+
+    <p>Refer to the <a href="api/scala/index.html#org.apache.spark.mllib.clustering.KMeans"><code>KMeans</code> Scala docs</a> and <a href="api/scala/index.html#org.apache.spark.mllib.linalg.Vectors$"><code>Vectors</code> Scala docs</a> for details on the API.</p>
+
+    <p>Here a complete example of building a KMeansModel and print it out in PMML format:</p>
+    <div class="highlight"><pre><span></span><span class="k">import</span> <span class="nn">org.apache.spark.mllib.clustering.KMeans</span>
+<span class="k">import</span> <span class="nn">org.apache.spark.mllib.linalg.Vectors</span>
+
+<span class="c1">// Load and parse the data</span>
+<span class="k">val</span> <span class="n">data</span> <span class="k">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="o">(</span><span class="s">&quot;data/mllib/kmeans_data.txt&quot;</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">parsedData</span> <span class="k">=</span> <span class="n">data</span><span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">s</span> <span class="k">=&gt;</span> <span class="nc">Vectors</span><span class="o">.</span><span class="n">dense</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="o">(</span><span class="sc">&#39; &#39;</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">toDouble</span><span class="o">))).</span><span class="n">cache</span><span class="o">()</span>
+
+<span class="c1">// Cluster the data into two classes using KMeans</span>
+<span class="k">val</span> <span class="n">numClusters</span> <span class="k">=</span> <span class="mi">2</span>
+<span class="k">val</span> <span class="n">numIterations</span> <span class="k">=</span> <span class="mi">20</span>
+<span class="k">val</span> <span class="n">clusters</span> <span class="k">=</span> <span class="nc">KMeans</span><span class="o">.</span><span class="n">train</span><span class="o">(</span><span class="n">parsedData</span><span class="o">,</span> <span class="n">numClusters</span><span class="o">,</span> <span class="n">numIterations</span><span class="o">)</span>
+
+<span class="c1">// Export to PMML to a String in PMML format</span>
+<span class="n">println</span><span class="o">(</span><span class="s">s&quot;PMML Model:\n </span><span class="si">${</span><span class="n">clusters</span><span class="o">.</span><span class="n">toPMML</span><span class="si">}</span><span class="s">&quot;</span><span class="o">)</span>
+
+<span class="c1">// Export the model to a local file in PMML format</span>
+<span class="n">clusters</span><span class="o">.</span><span class="n">toPMML</span><span class="o">(</span><span class="s">&quot;/tmp/kmeans.xml&quot;</span><span class="o">)</span>
+
+<span class="c1">// Export the model to a directory on a distributed file system in PMML format</span>
+<span class="n">clusters</span><span class="o">.</span><span class="n">toPMML</span><span class="o">(</span><span class="n">sc</span><span class="o">,</span> <span class="s">&quot;/tmp/kmeans&quot;</span><span class="o">)</span>
+
+<span class="c1">// Export the model to the OutputStream in PMML format</span>
+<span class="n">clusters</span><span class="o">.</span><span class="n">toPMML</span><span class="o">(</span><span class="nc">System</span><span class="o">.</span><span class="n">out</span><span class="o">)</span>
+</pre></div>
+    <div><small>Find full example code at "examples/src/main/scala/org/apache/spark/examples/mllib/PMMLModelExportExample.scala" in the Spark repo.</small></div>
+
+    <p>For unsupported models, either you will not find a <code>.toPMML</code> method or an <code>IllegalArgumentException</code> will be thrown.</p>
+
+  </div>
+
+</div>
+
+
+                </div>
+            
+             <!-- /container -->
+        </div>
+
+        <script src="js/vendor/jquery-1.8.0.min.js"></script>
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/vendor/anchor.min.js"></script>
+        <script src="js/main.js"></script>
+
+        <!-- MathJax Section -->
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({
+                TeX: { equationNumbers: { autoNumber: "AMS" } }
+            });
+        </script>
+        <script>
+            // Note that we load MathJax this way to work with local file (file://), HTTP and HTTPS.
+            // We could use "//cdn.mathjax...", but that won't support "file://".
+            (function(d, script) {
+                script = d.createElement('script');
+                script.type = 'text/javascript';
+                script.async = true;
+                script.onload = function(){
+                    MathJax.Hub.Config({
+                        tex2jax: {
+                            inlineMath: [ ["$", "$"], ["\\\\(","\\\\)"] ],
+                            displayMath: [ ["$$","$$"], ["\\[", "\\]"] ],
+                            processEscapes: true,
+                            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+                        }
+                    });
+                };
+                script.src = ('https:' == document.location.protocol ? 'https://' : 'http://') +
+                    'cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js' +
+                    '?config=TeX-AMS-MML_HTMLorMML';
+                d.getElementsByTagName('head')[0].appendChild(script);
+            }(document));
+        </script>
+    </body>
+</html>

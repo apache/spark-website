@@ -1,0 +1,430 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Performance Tuning - Spark 2.4.1 Documentation</title>
+        
+
+        
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 60px;
+                padding-bottom: 40px;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+
+        <link rel="stylesheet" href="css/pygments-default.css">
+
+        
+        <!-- Google analytics script -->
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-32518208-2']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+        </script>
+        
+
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="https://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
+
+        <div class="navbar navbar-fixed-top" id="topbar">
+            <div class="navbar-inner">
+                <div class="container">
+                    <div class="brand"><a href="index.html">
+                      <img src="img/spark-logo-hd.png" style="height:50px;"/></a><span class="version">2.4.1</span>
+                    </div>
+                    <ul class="nav">
+                        <!--TODO(andyk): Add class="active" attribute to li some how.-->
+                        <li><a href="index.html">Overview</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Programming Guides<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="quick-start.html">Quick Start</a></li>
+                                <li><a href="rdd-programming-guide.html">RDDs, Accumulators, Broadcasts Vars</a></li>
+                                <li><a href="sql-programming-guide.html">SQL, DataFrames, and Datasets</a></li>
+                                <li><a href="structured-streaming-programming-guide.html">Structured Streaming</a></li>
+                                <li><a href="streaming-programming-guide.html">Spark Streaming (DStreams)</a></li>
+                                <li><a href="ml-guide.html">MLlib (Machine Learning)</a></li>
+                                <li><a href="graphx-programming-guide.html">GraphX (Graph Processing)</a></li>
+                                <li><a href="sparkr.html">SparkR (R on Spark)</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">API Docs<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="api/scala/index.html#org.apache.spark.package">Scala</a></li>
+                                <li><a href="api/java/index.html">Java</a></li>
+                                <li><a href="api/python/index.html">Python</a></li>
+                                <li><a href="api/R/index.html">R</a></li>
+                                <li><a href="api/sql/index.html">SQL, Built-in Functions</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Deploying<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="cluster-overview.html">Overview</a></li>
+                                <li><a href="submitting-applications.html">Submitting Applications</a></li>
+                                <li class="divider"></li>
+                                <li><a href="spark-standalone.html">Spark Standalone</a></li>
+                                <li><a href="running-on-mesos.html">Mesos</a></li>
+                                <li><a href="running-on-yarn.html">YARN</a></li>
+                                <li><a href="running-on-kubernetes.html">Kubernetes</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="api.html" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="configuration.html">Configuration</a></li>
+                                <li><a href="monitoring.html">Monitoring</a></li>
+                                <li><a href="tuning.html">Tuning Guide</a></li>
+                                <li><a href="job-scheduling.html">Job Scheduling</a></li>
+                                <li><a href="security.html">Security</a></li>
+                                <li><a href="hardware-provisioning.html">Hardware Provisioning</a></li>
+                                <li class="divider"></li>
+                                <li><a href="building-spark.html">Building Spark</a></li>
+                                <li><a href="https://spark.apache.org/contributing.html">Contributing to Spark</a></li>
+                                <li><a href="https://spark.apache.org/third-party-projects.html">Third Party Projects</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <!--<p class="navbar-text pull-right"><span class="version-text">v2.4.1</span></p>-->
+                </div>
+            </div>
+        </div>
+
+        <div class="container-wrapper">
+
+            
+                
+                    <div class="left-menu-wrapper">
+    <div class="left-menu">
+        <h3><a href="sql-programming-guide.html">Spark SQL Guide</a></h3>
+        
+<ul>
+
+    <li>
+        <a href="sql-getting-started.html">
+            
+                Getting Started
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-data-sources.html">
+            
+                Data Sources
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-performance-tuning.html">
+            
+                <b>Performance Tuning</b>
+            
+        </a>
+    </li>
+    
+    
+        
+<ul>
+
+    <li>
+        <a href="sql-performance-tuning.html#caching-data-in-memory">
+            
+                Caching Data In Memory
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-performance-tuning.html#other-configuration-options">
+            
+                Other Configuration Options
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-performance-tuning.html#broadcast-hint-for-sql-queries">
+            
+                Broadcast Hint for SQL Queries
+            
+        </a>
+    </li>
+    
+    
+
+</ul>
+
+    
+
+    <li>
+        <a href="sql-distributed-sql-engine.html">
+            
+                Distributed SQL Engine
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-pyspark-pandas-with-arrow.html">
+            
+                PySpark Usage Guide for Pandas with Apache Arrow
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-migration-guide.html">
+            
+                Migration Guide
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-reference.html">
+            
+                Reference
+            
+        </a>
+    </li>
+    
+    
+
+</ul>
+
+    </div>
+</div>
+                
+                <input id="nav-trigger" class="nav-trigger" checked type="checkbox">
+                <label for="nav-trigger"></label>
+                <div class="content-with-sidebar" id="content">
+                    
+                        <h1 class="title">Performance Tuning</h1>
+                    
+
+                    <ul id="markdown-toc">
+  <li><a href="#caching-data-in-memory" id="markdown-toc-caching-data-in-memory">Caching Data In Memory</a></li>
+  <li><a href="#other-configuration-options" id="markdown-toc-other-configuration-options">Other Configuration Options</a></li>
+  <li><a href="#broadcast-hint-for-sql-queries" id="markdown-toc-broadcast-hint-for-sql-queries">Broadcast Hint for SQL Queries</a></li>
+</ul>
+
+<p>For some workloads, it is possible to improve performance by either caching data in memory, or by
+turning on some experimental options.</p>
+
+<h2 id="caching-data-in-memory">Caching Data In Memory</h2>
+
+<p>Spark SQL can cache tables using an in-memory columnar format by calling <code>spark.catalog.cacheTable("tableName")</code> or <code>dataFrame.cache()</code>.
+Then Spark SQL will scan only required columns and will automatically tune compression to minimize
+memory usage and GC pressure. You can call <code>spark.catalog.uncacheTable("tableName")</code> to remove the table from memory.</p>
+
+<p>Configuration of in-memory caching can be done using the <code>setConf</code> method on <code>SparkSession</code> or by running
+<code>SET key=value</code> commands using SQL.</p>
+
+<table class="table">
+<tr><th>Property Name</th><th>Default</th><th>Meaning</th></tr>
+<tr>
+  <td><code>spark.sql.inMemoryColumnarStorage.compressed</code></td>
+  <td>true</td>
+  <td>
+    When set to true Spark SQL will automatically select a compression codec for each column based
+    on statistics of the data.
+  </td>
+</tr>
+<tr>
+  <td><code>spark.sql.inMemoryColumnarStorage.batchSize</code></td>
+  <td>10000</td>
+  <td>
+    Controls the size of batches for columnar caching. Larger batch sizes can improve memory utilization
+    and compression, but risk OOMs when caching data.
+  </td>
+</tr>
+
+</table>
+
+<h2 id="other-configuration-options">Other Configuration Options</h2>
+
+<p>The following options can also be used to tune the performance of query execution. It is possible
+that these options will be deprecated in future release as more optimizations are performed automatically.</p>
+
+<table class="table">
+  <tr><th>Property Name</th><th>Default</th><th>Meaning</th></tr>
+  <tr>
+    <td><code>spark.sql.files.maxPartitionBytes</code></td>
+    <td>134217728 (128 MB)</td>
+    <td>
+      The maximum number of bytes to pack into a single partition when reading files.
+    </td>
+  </tr>
+  <tr>
+    <td><code>spark.sql.files.openCostInBytes</code></td>
+    <td>4194304 (4 MB)</td>
+    <td>
+      The estimated cost to open a file, measured by the number of bytes could be scanned in the same
+      time. This is used when putting multiple files into a partition. It is better to over-estimated,
+      then the partitions with small files will be faster than partitions with bigger files (which is
+      scheduled first).
+    </td>
+  </tr>
+  <tr>
+    <td><code>spark.sql.broadcastTimeout</code></td>
+    <td>300</td>
+    <td>
+    <p>
+      Timeout in seconds for the broadcast wait time in broadcast joins
+    </p>
+    </td>
+  </tr>
+  <tr>
+    <td><code>spark.sql.autoBroadcastJoinThreshold</code></td>
+    <td>10485760 (10 MB)</td>
+    <td>
+      Configures the maximum size in bytes for a table that will be broadcast to all worker nodes when
+      performing a join. By setting this value to -1 broadcasting can be disabled. Note that currently
+      statistics are only supported for Hive Metastore tables where the command
+      <code>ANALYZE TABLE &lt;tableName&gt; COMPUTE STATISTICS noscan</code> has been run.
+    </td>
+  </tr>
+  <tr>
+    <td><code>spark.sql.shuffle.partitions</code></td>
+    <td>200</td>
+    <td>
+      Configures the number of partitions to use when shuffling data for joins or aggregations.
+    </td>
+  </tr>
+</table>
+
+<h2 id="broadcast-hint-for-sql-queries">Broadcast Hint for SQL Queries</h2>
+
+<p>The <code>BROADCAST</code> hint guides Spark to broadcast each specified table when joining them with another table or view.
+When Spark deciding the join methods, the broadcast hash join (i.e., BHJ) is preferred,
+even if the statistics is above the configuration <code>spark.sql.autoBroadcastJoinThreshold</code>.
+When both sides of a join are specified, Spark broadcasts the one having the lower statistics.
+Note Spark does not guarantee BHJ is always chosen, since not all cases (e.g. full outer join)
+support BHJ. When the broadcast nested loop join is selected, we still respect the hint.</p>
+
+<div class="codetabs">
+
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span></span><span class="k">import</span> <span class="nn">org.apache.spark.sql.functions.broadcast</span>
+<span class="n">broadcast</span><span class="o">(</span><span class="n">spark</span><span class="o">.</span><span class="n">table</span><span class="o">(</span><span class="s">&quot;src&quot;</span><span class="o">)).</span><span class="n">join</span><span class="o">(</span><span class="n">spark</span><span class="o">.</span><span class="n">table</span><span class="o">(</span><span class="s">&quot;records&quot;</span><span class="o">),</span> <span class="s">&quot;key&quot;</span><span class="o">).</span><span class="n">show</span><span class="o">()</span></code></pre></figure>
+
+  </div>
+
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span></span><span class="kn">import static</span> <span class="nn">org.apache.spark.sql.functions.broadcast</span><span class="o">;</span>
+<span class="n">broadcast</span><span class="o">(</span><span class="n">spark</span><span class="o">.</span><span class="na">table</span><span class="o">(</span><span class="s">&quot;src&quot;</span><span class="o">)).</span><span class="na">join</span><span class="o">(</span><span class="n">spark</span><span class="o">.</span><span class="na">table</span><span class="o">(</span><span class="s">&quot;records&quot;</span><span class="o">),</span> <span class="s">&quot;key&quot;</span><span class="o">).</span><span class="na">show</span><span class="o">();</span></code></pre></figure>
+
+  </div>
+
+<div data-lang="python">
+
+    <figure class="highlight"><pre><code class="language-python" data-lang="python"><span></span><span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="kn">import</span> <span class="n">broadcast</span>
+<span class="n">broadcast</span><span class="p">(</span><span class="n">spark</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">&quot;src&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spark</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">&quot;records&quot;</span><span class="p">),</span> <span class="s2">&quot;key&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></code></pre></figure>
+
+  </div>
+
+<div data-lang="r">
+
+    <figure class="highlight"><pre><code class="language-r" data-lang="r"><span></span>src <span class="o">&lt;-</span> sql<span class="p">(</span><span class="s">&quot;SELECT * FROM src&quot;</span><span class="p">)</span>
+records <span class="o">&lt;-</span> sql<span class="p">(</span><span class="s">&quot;SELECT * FROM records&quot;</span><span class="p">)</span>
+<span class="kp">head</span><span class="p">(</span>join<span class="p">(</span>broadcast<span class="p">(</span>src<span class="p">),</span> records<span class="p">,</span> src<span class="o">$</span>key <span class="o">==</span> records<span class="o">$</span>key<span class="p">))</span></code></pre></figure>
+
+  </div>
+
+<div data-lang="sql">
+
+    <figure class="highlight"><pre><code class="language-sql" data-lang="sql"><span></span><span class="c1">-- We accept BROADCAST, BROADCASTJOIN and MAPJOIN for broadcast hint</span>
+<span class="k">SELECT</span> <span class="cm">/*+ BROADCAST(r) */</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">records</span> <span class="n">r</span> <span class="k">JOIN</span> <span class="n">src</span> <span class="n">s</span> <span class="k">ON</span> <span class="n">r</span><span class="p">.</span><span class="k">key</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="k">key</span></code></pre></figure>
+
+  </div>
+</div>
+
+
+                </div>
+            
+             <!-- /container -->
+        </div>
+
+        <script src="js/vendor/jquery-1.8.0.min.js"></script>
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/vendor/anchor.min.js"></script>
+        <script src="js/main.js"></script>
+
+        <!-- MathJax Section -->
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({
+                TeX: { equationNumbers: { autoNumber: "AMS" } }
+            });
+        </script>
+        <script>
+            // Note that we load MathJax this way to work with local file (file://), HTTP and HTTPS.
+            // We could use "//cdn.mathjax...", but that won't support "file://".
+            (function(d, script) {
+                script = d.createElement('script');
+                script.type = 'text/javascript';
+                script.async = true;
+                script.onload = function(){
+                    MathJax.Hub.Config({
+                        tex2jax: {
+                            inlineMath: [ ["$", "$"], ["\\\\(","\\\\)"] ],
+                            displayMath: [ ["$$","$$"], ["\\[", "\\]"] ],
+                            processEscapes: true,
+                            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+                        }
+                    });
+                };
+                script.src = ('https:' == document.location.protocol ? 'https://' : 'http://') +
+                    'cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js' +
+                    '?config=TeX-AMS-MML_HTMLorMML';
+                d.getElementsByTagName('head')[0].appendChild(script);
+            }(document));
+        </script>
+    </body>
+</html>

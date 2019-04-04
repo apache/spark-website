@@ -1,0 +1,606 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.mllib.util &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.mllib.util</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span> <span class="o">&gt;</span> <span class="s1">&#39;3&#39;</span><span class="p">:</span>
+    <span class="n">xrange</span> <span class="o">=</span> <span class="nb">range</span>
+    <span class="n">basestring</span> <span class="o">=</span> <span class="nb">str</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="k">import</span> <span class="n">SparkContext</span><span class="p">,</span> <span class="n">since</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.common</span> <span class="k">import</span> <span class="n">callMLlibFunc</span><span class="p">,</span> <span class="n">inherit_doc</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.linalg</span> <span class="k">import</span> <span class="n">Vectors</span><span class="p">,</span> <span class="n">SparseVector</span><span class="p">,</span> <span class="n">_convert_to_vector</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">DataFrame</span>
+
+
+<div class="viewcode-block" id="MLUtils"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.tree.MLUtils">[docs]</a><span class="k">class</span> <span class="nc">MLUtils</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper methods to load, save and pre-process data used in MLlib.</span>
+
+<span class="sd">    .. versionadded:: 1.0.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_parse_libsvm_line</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">multiclass</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parses a line in LIBSVM format into (label, indices, values).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">multiclass</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;deprecated&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">nnz</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">items</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nnz</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nnz</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">nnz</span><span class="p">):</span>
+            <span class="n">index</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="mi">1</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+            <span class="n">indices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">label</span><span class="p">,</span> <span class="n">indices</span><span class="p">,</span> <span class="n">values</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_convert_labeled_point_to_libsvm</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Converts a LabeledPoint to a string in LIBSVM format.&quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyspark.mllib.regression</span> <span class="k">import</span> <span class="n">LabeledPoint</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">LabeledPoint</span><span class="p">)</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">label</span><span class="p">)]</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">_convert_to_vector</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">SparseVector</span><span class="p">):</span>
+            <span class="n">nnz</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">indices</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="n">nnz</span><span class="p">):</span>
+                <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">indices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)):</span>
+                <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MLUtils.loadLibSVMFile"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.tree.MLUtils.loadLibSVMFile">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">loadLibSVMFile</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">numFeatures</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">minPartitions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multiclass</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads labeled data in the LIBSVM format into an RDD of</span>
+<span class="sd">        LabeledPoint. The LIBSVM format is a text-based format used by</span>
+<span class="sd">        LIBSVM and LIBLINEAR. Each line represents a labeled sparse</span>
+<span class="sd">        feature vector using the following format:</span>
+
+<span class="sd">        label index1:value1 index2:value2 ...</span>
+
+<span class="sd">        where the indices are one-based and in ascending order. This</span>
+<span class="sd">        method parses each line into a LabeledPoint, where the feature</span>
+<span class="sd">        indices are converted to zero-based.</span>
+
+<span class="sd">        :param sc: Spark context</span>
+<span class="sd">        :param path: file or directory path in any Hadoop-supported file</span>
+<span class="sd">                     system URI</span>
+<span class="sd">        :param numFeatures: number of features, which will be determined</span>
+<span class="sd">                            from the input data if a nonpositive value</span>
+<span class="sd">                            is given. This is useful when the dataset is</span>
+<span class="sd">                            already split into multiple files and you</span>
+<span class="sd">                            want to load them separately, because some</span>
+<span class="sd">                            features may not present in certain files,</span>
+<span class="sd">                            which leads to inconsistent feature</span>
+<span class="sd">                            dimensions.</span>
+<span class="sd">        :param minPartitions: min number of partitions</span>
+<span class="sd">        @return: labeled data stored as an RDD of LabeledPoint</span>
+
+<span class="sd">        &gt;&gt;&gt; from tempfile import NamedTemporaryFile</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.mllib.util import MLUtils</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.mllib.regression import LabeledPoint</span>
+<span class="sd">        &gt;&gt;&gt; tempFile = NamedTemporaryFile(delete=True)</span>
+<span class="sd">        &gt;&gt;&gt; _ = tempFile.write(b&quot;+1 1:1.0 3:2.0 5:3.0\\n-1\\n-1 2:4.0 4:5.0 6:6.0&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; tempFile.flush()</span>
+<span class="sd">        &gt;&gt;&gt; examples = MLUtils.loadLibSVMFile(sc, tempFile.name).collect()</span>
+<span class="sd">        &gt;&gt;&gt; tempFile.close()</span>
+<span class="sd">        &gt;&gt;&gt; examples[0]</span>
+<span class="sd">        LabeledPoint(1.0, (6,[0,2,4],[1.0,2.0,3.0]))</span>
+<span class="sd">        &gt;&gt;&gt; examples[1]</span>
+<span class="sd">        LabeledPoint(-1.0, (6,[],[]))</span>
+<span class="sd">        &gt;&gt;&gt; examples[2]</span>
+<span class="sd">        LabeledPoint(-1.0, (6,[1,3,5],[4.0,5.0,6.0]))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyspark.mllib.regression</span> <span class="k">import</span> <span class="n">LabeledPoint</span>
+        <span class="k">if</span> <span class="n">multiclass</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;deprecated&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
+
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">textFile</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">minPartitions</span><span class="p">)</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">lines</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">l</span><span class="p">:</span> <span class="n">MLUtils</span><span class="o">.</span><span class="n">_parse_libsvm_line</span><span class="p">(</span><span class="n">l</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">numFeatures</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">parsed</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+            <span class="n">numFeatures</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="nb">max</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">parsed</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">LabeledPoint</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Vectors</span><span class="o">.</span><span class="n">sparse</span><span class="p">(</span><span class="n">numFeatures</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">])))</span></div>
+
+<div class="viewcode-block" id="MLUtils.saveAsLibSVMFile"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.tree.MLUtils.saveAsLibSVMFile">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">saveAsLibSVMFile</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dir</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save labeled data in LIBSVM format.</span>
+
+<span class="sd">        :param data: an RDD of LabeledPoint to be saved</span>
+<span class="sd">        :param dir: directory to save the data</span>
+
+<span class="sd">        &gt;&gt;&gt; from tempfile import NamedTemporaryFile</span>
+<span class="sd">        &gt;&gt;&gt; from fileinput import input</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.mllib.regression import LabeledPoint</span>
+<span class="sd">        &gt;&gt;&gt; from glob import glob</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.mllib.util import MLUtils</span>
+<span class="sd">        &gt;&gt;&gt; examples = [LabeledPoint(1.1, Vectors.sparse(3, [(0, 1.23), (2, 4.56)])),</span>
+<span class="sd">        ...             LabeledPoint(0.0, Vectors.dense([1.01, 2.02, 3.03]))]</span>
+<span class="sd">        &gt;&gt;&gt; tempFile = NamedTemporaryFile(delete=True)</span>
+<span class="sd">        &gt;&gt;&gt; tempFile.close()</span>
+<span class="sd">        &gt;&gt;&gt; MLUtils.saveAsLibSVMFile(sc.parallelize(examples), tempFile.name)</span>
+<span class="sd">        &gt;&gt;&gt; &#39;&#39;.join(sorted(input(glob(tempFile.name + &quot;/part-0000*&quot;))))</span>
+<span class="sd">        &#39;0.0 1:1.01 2:2.02 3:3.03\\n1.1 1:1.23 3:4.56\\n&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">MLUtils</span><span class="o">.</span><span class="n">_convert_labeled_point_to_libsvm</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">saveAsTextFile</span><span class="p">(</span><span class="nb">dir</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MLUtils.loadLabeledPoints"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.tree.MLUtils.loadLabeledPoints">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.1.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">loadLabeledPoints</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">minPartitions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load labeled points saved using RDD.saveAsTextFile.</span>
+
+<span class="sd">        :param sc: Spark context</span>
+<span class="sd">        :param path: file or directory path in any Hadoop-supported file</span>
+<span class="sd">                     system URI</span>
+<span class="sd">        :param minPartitions: min number of partitions</span>
+<span class="sd">        @return: labeled data stored as an RDD of LabeledPoint</span>
+
+<span class="sd">        &gt;&gt;&gt; from tempfile import NamedTemporaryFile</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.mllib.util import MLUtils</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.mllib.regression import LabeledPoint</span>
+<span class="sd">        &gt;&gt;&gt; examples = [LabeledPoint(1.1, Vectors.sparse(3, [(0, -1.23), (2, 4.56e-7)])),</span>
+<span class="sd">        ...             LabeledPoint(0.0, Vectors.dense([1.01, 2.02, 3.03]))]</span>
+<span class="sd">        &gt;&gt;&gt; tempFile = NamedTemporaryFile(delete=True)</span>
+<span class="sd">        &gt;&gt;&gt; tempFile.close()</span>
+<span class="sd">        &gt;&gt;&gt; sc.parallelize(examples, 1).saveAsTextFile(tempFile.name)</span>
+<span class="sd">        &gt;&gt;&gt; MLUtils.loadLabeledPoints(sc, tempFile.name).collect()</span>
+<span class="sd">        [LabeledPoint(1.1, (3,[0,2],[-1.23,4.56e-07])), LabeledPoint(0.0, [1.01,2.02,3.03])]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">minPartitions</span> <span class="o">=</span> <span class="n">minPartitions</span> <span class="ow">or</span> <span class="nb">min</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">defaultParallelism</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;loadLabeledPoints&quot;</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">minPartitions</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MLUtils.appendBias"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.tree.MLUtils.appendBias">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.5.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">appendBias</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a new vector with `1.0` (bias) appended to</span>
+<span class="sd">        the end of the input vector.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">_convert_to_vector</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="n">SparseVector</span><span class="p">):</span>
+            <span class="n">newIndices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vec</span><span class="o">.</span><span class="n">indices</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">vec</span><span class="p">))</span>
+            <span class="n">newValues</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vec</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">SparseVector</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">newIndices</span><span class="p">,</span> <span class="n">newValues</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_convert_to_vector</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vec</span><span class="o">.</span><span class="n">toArray</span><span class="p">(),</span> <span class="mf">1.0</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="MLUtils.loadVectors"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.tree.MLUtils.loadVectors">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.5.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">loadVectors</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads vectors saved using `RDD[Vector].saveAsTextFile`</span>
+<span class="sd">        with the default number of partitions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;loadVectors&quot;</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MLUtils.convertVectorColumnsToML"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.tree.MLUtils.convertVectorColumnsToML">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">convertVectorColumnsToML</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts vector columns in an input DataFrame from the</span>
+<span class="sd">        :py:class:`pyspark.mllib.linalg.Vector` type to the new</span>
+<span class="sd">        :py:class:`pyspark.ml.linalg.Vector` type under the `spark.ml`</span>
+<span class="sd">        package.</span>
+
+<span class="sd">        :param dataset:</span>
+<span class="sd">          input dataset</span>
+<span class="sd">        :param cols:</span>
+<span class="sd">          a list of vector columns to be converted.</span>
+<span class="sd">          New vector columns will be ignored. If unspecified, all old</span>
+<span class="sd">          vector columns will be converted excepted nested ones.</span>
+<span class="sd">        :return:</span>
+<span class="sd">          the input dataset with old vector columns converted to the</span>
+<span class="sd">          new vector type</span>
+
+<span class="sd">        &gt;&gt;&gt; import pyspark</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.mllib.linalg import Vectors</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.mllib.util import MLUtils</span>
+<span class="sd">        &gt;&gt;&gt; df = spark.createDataFrame(</span>
+<span class="sd">        ...     [(0, Vectors.sparse(2, [1], [1.0]), Vectors.dense(2.0, 3.0))],</span>
+<span class="sd">        ...     [&quot;id&quot;, &quot;x&quot;, &quot;y&quot;])</span>
+<span class="sd">        &gt;&gt;&gt; r1 = MLUtils.convertVectorColumnsToML(df).first()</span>
+<span class="sd">        &gt;&gt;&gt; isinstance(r1.x, pyspark.ml.linalg.SparseVector)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; isinstance(r1.y, pyspark.ml.linalg.DenseVector)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; r2 = MLUtils.convertVectorColumnsToML(df, &quot;x&quot;).first()</span>
+<span class="sd">        &gt;&gt;&gt; isinstance(r2.x, pyspark.ml.linalg.SparseVector)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; isinstance(r2.y, pyspark.mllib.linalg.DenseVector)</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">DataFrame</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input dataset must be a DataFrame but got </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">dataset</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;convertVectorColumnsToML&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">cols</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="MLUtils.convertVectorColumnsFromML"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.tree.MLUtils.convertVectorColumnsFromML">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">convertVectorColumnsFromML</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts vector columns in an input DataFrame to the</span>
+<span class="sd">        :py:class:`pyspark.mllib.linalg.Vector` type from the new</span>
+<span class="sd">        :py:class:`pyspark.ml.linalg.Vector` type under the `spark.ml`</span>
+<span class="sd">        package.</span>
+
+<span class="sd">        :param dataset:</span>
+<span class="sd">          input dataset</span>
+<span class="sd">        :param cols:</span>
+<span class="sd">          a list of vector columns to be converted.</span>
+<span class="sd">          Old vector columns will be ignored. If unspecified, all new</span>
+<span class="sd">          vector columns will be converted except nested ones.</span>
+<span class="sd">        :return:</span>
+<span class="sd">          the input dataset with new vector columns converted to the</span>
+<span class="sd">          old vector type</span>
+
+<span class="sd">        &gt;&gt;&gt; import pyspark</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.ml.linalg import Vectors</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.mllib.util import MLUtils</span>
+<span class="sd">        &gt;&gt;&gt; df = spark.createDataFrame(</span>
+<span class="sd">        ...     [(0, Vectors.sparse(2, [1], [1.0]), Vectors.dense(2.0, 3.0))],</span>
+<span class="sd">        ...     [&quot;id&quot;, &quot;x&quot;, &quot;y&quot;])</span>
+<span class="sd">        &gt;&gt;&gt; r1 = MLUtils.convertVectorColumnsFromML(df).first()</span>
+<span class="sd">        &gt;&gt;&gt; isinstance(r1.x, pyspark.mllib.linalg.SparseVector)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; isinstance(r1.y, pyspark.mllib.linalg.DenseVector)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; r2 = MLUtils.convertVectorColumnsFromML(df, &quot;x&quot;).first()</span>
+<span class="sd">        &gt;&gt;&gt; isinstance(r2.x, pyspark.mllib.linalg.SparseVector)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; isinstance(r2.y, pyspark.ml.linalg.DenseVector)</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">DataFrame</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input dataset must be a DataFrame but got </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">dataset</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;convertVectorColumnsFromML&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">cols</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="MLUtils.convertMatrixColumnsToML"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.tree.MLUtils.convertMatrixColumnsToML">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">convertMatrixColumnsToML</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts matrix columns in an input DataFrame from the</span>
+<span class="sd">        :py:class:`pyspark.mllib.linalg.Matrix` type to the new</span>
+<span class="sd">        :py:class:`pyspark.ml.linalg.Matrix` type under the `spark.ml`</span>
+<span class="sd">        package.</span>
+
+<span class="sd">        :param dataset:</span>
+<span class="sd">          input dataset</span>
+<span class="sd">        :param cols:</span>
+<span class="sd">          a list of matrix columns to be converted.</span>
+<span class="sd">          New matrix columns will be ignored. If unspecified, all old</span>
+<span class="sd">          matrix columns will be converted excepted nested ones.</span>
+<span class="sd">        :return:</span>
+<span class="sd">          the input dataset with old matrix columns converted to the</span>
+<span class="sd">          new matrix type</span>
+
+<span class="sd">        &gt;&gt;&gt; import pyspark</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.mllib.linalg import Matrices</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.mllib.util import MLUtils</span>
+<span class="sd">        &gt;&gt;&gt; df = spark.createDataFrame(</span>
+<span class="sd">        ...     [(0, Matrices.sparse(2, 2, [0, 2, 3], [0, 1, 1], [2, 3, 4]),</span>
+<span class="sd">        ...     Matrices.dense(2, 2, range(4)))], [&quot;id&quot;, &quot;x&quot;, &quot;y&quot;])</span>
+<span class="sd">        &gt;&gt;&gt; r1 = MLUtils.convertMatrixColumnsToML(df).first()</span>
+<span class="sd">        &gt;&gt;&gt; isinstance(r1.x, pyspark.ml.linalg.SparseMatrix)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; isinstance(r1.y, pyspark.ml.linalg.DenseMatrix)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; r2 = MLUtils.convertMatrixColumnsToML(df, &quot;x&quot;).first()</span>
+<span class="sd">        &gt;&gt;&gt; isinstance(r2.x, pyspark.ml.linalg.SparseMatrix)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; isinstance(r2.y, pyspark.mllib.linalg.DenseMatrix)</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">DataFrame</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input dataset must be a DataFrame but got </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">dataset</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;convertMatrixColumnsToML&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">cols</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="MLUtils.convertMatrixColumnsFromML"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.tree.MLUtils.convertMatrixColumnsFromML">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">convertMatrixColumnsFromML</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts matrix columns in an input DataFrame to the</span>
+<span class="sd">        :py:class:`pyspark.mllib.linalg.Matrix` type from the new</span>
+<span class="sd">        :py:class:`pyspark.ml.linalg.Matrix` type under the `spark.ml`</span>
+<span class="sd">        package.</span>
+
+<span class="sd">        :param dataset:</span>
+<span class="sd">          input dataset</span>
+<span class="sd">        :param cols:</span>
+<span class="sd">          a list of matrix columns to be converted.</span>
+<span class="sd">          Old matrix columns will be ignored. If unspecified, all new</span>
+<span class="sd">          matrix columns will be converted except nested ones.</span>
+<span class="sd">        :return:</span>
+<span class="sd">          the input dataset with new matrix columns converted to the</span>
+<span class="sd">          old matrix type</span>
+
+<span class="sd">        &gt;&gt;&gt; import pyspark</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.ml.linalg import Matrices</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.mllib.util import MLUtils</span>
+<span class="sd">        &gt;&gt;&gt; df = spark.createDataFrame(</span>
+<span class="sd">        ...     [(0, Matrices.sparse(2, 2, [0, 2, 3], [0, 1, 1], [2, 3, 4]),</span>
+<span class="sd">        ...     Matrices.dense(2, 2, range(4)))], [&quot;id&quot;, &quot;x&quot;, &quot;y&quot;])</span>
+<span class="sd">        &gt;&gt;&gt; r1 = MLUtils.convertMatrixColumnsFromML(df).first()</span>
+<span class="sd">        &gt;&gt;&gt; isinstance(r1.x, pyspark.mllib.linalg.SparseMatrix)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; isinstance(r1.y, pyspark.mllib.linalg.DenseMatrix)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; r2 = MLUtils.convertMatrixColumnsFromML(df, &quot;x&quot;).first()</span>
+<span class="sd">        &gt;&gt;&gt; isinstance(r2.x, pyspark.mllib.linalg.SparseMatrix)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; isinstance(r2.y, pyspark.ml.linalg.DenseMatrix)</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">DataFrame</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input dataset must be a DataFrame but got </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">dataset</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;convertMatrixColumnsFromML&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">cols</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="Saveable"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.tree.Saveable">[docs]</a><span class="k">class</span> <span class="nc">Saveable</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mixin for models and transformers which may be saved as files.</span>
+
+<span class="sd">    .. versionadded:: 1.3.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Saveable.save"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.tree.Saveable.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save this model to the given path.</span>
+
+<span class="sd">        This saves:</span>
+<span class="sd">         * human-readable (JSON) model metadata to path/metadata/</span>
+<span class="sd">         * Parquet formatted data to path/data/</span>
+
+<span class="sd">        The model may be loaded using py:meth:`Loader.load`.</span>
+
+<span class="sd">        :param sc: Spark context used to save model data.</span>
+<span class="sd">        :param path: Path specifying the directory in which to save</span>
+<span class="sd">                     this model. If the directory already exists,</span>
+<span class="sd">                     this method throws an exception.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+
+
+<div class="viewcode-block" id="JavaSaveable"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.tree.JavaSaveable">[docs]</a><span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">JavaSaveable</span><span class="p">(</span><span class="n">Saveable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mixin for models that provide save() through their Scala</span>
+<span class="sd">    implementation.</span>
+
+<span class="sd">    .. versionadded:: 1.3.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="JavaSaveable.save"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.tree.JavaSaveable.save">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.3.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save this model to the given path.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">SparkContext</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;sc should be a SparkContext, got type </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">sc</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;path should be a basestring, got type </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_model</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jsc</span><span class="o">.</span><span class="n">sc</span><span class="p">(),</span> <span class="n">path</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Loader"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.tree.Loader">[docs]</a><span class="k">class</span> <span class="nc">Loader</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mixin for classes which can load saved models from files.</span>
+
+<span class="sd">    .. versionadded:: 1.3.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Loader.load"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.tree.Loader.load">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load a model from the given path. The model should have been</span>
+<span class="sd">        saved using py:meth:`Saveable.save`.</span>
+
+<span class="sd">        :param sc: Spark context used for loading model files.</span>
+<span class="sd">        :param path: Path specifying the directory to which the model</span>
+<span class="sd">                     was saved.</span>
+<span class="sd">        :return: model instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="bp">NotImplemented</span></div></div>
+
+
+<div class="viewcode-block" id="JavaLoader"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.tree.JavaLoader">[docs]</a><span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">JavaLoader</span><span class="p">(</span><span class="n">Loader</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mixin for classes which can load saved models using its Scala</span>
+<span class="sd">    implementation.</span>
+
+<span class="sd">    .. versionadded:: 1.3.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_java_loader_class</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the full class name of the Java loader. The default</span>
+<span class="sd">        implementation replaces &quot;pyspark&quot; by &quot;org.apache.spark&quot; in</span>
+<span class="sd">        the Python full class name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">java_package</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__module__</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;pyspark&quot;</span><span class="p">,</span> <span class="s2">&quot;org.apache.spark&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">java_package</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">])</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_load_java</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load a Java model from the given path.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">java_class</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_java_loader_class</span><span class="p">()</span>
+        <span class="n">java_obj</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">java_class</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
+            <span class="n">java_obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">java_obj</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">java_obj</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jsc</span><span class="o">.</span><span class="n">sc</span><span class="p">(),</span> <span class="n">path</span><span class="p">)</span>
+
+<div class="viewcode-block" id="JavaLoader.load"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.tree.JavaLoader.load">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.3.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Load a model from the given path.&quot;&quot;&quot;</span>
+        <span class="n">java_model</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_load_java</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">java_model</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="LinearDataGenerator"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.tree.LinearDataGenerator">[docs]</a><span class="k">class</span> <span class="nc">LinearDataGenerator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Utils for generating linear data.</span>
+
+<span class="sd">    .. versionadded:: 1.5.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LinearDataGenerator.generateLinearInput"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.tree.LinearDataGenerator.generateLinearInput">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.5.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">generateLinearInput</span><span class="p">(</span><span class="n">intercept</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">xMean</span><span class="p">,</span> <span class="n">xVariance</span><span class="p">,</span>
+                            <span class="n">nPoints</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">eps</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param: intercept bias factor, the term c in X&#39;w + c</span>
+<span class="sd">        :param: weights   feature vector, the term w in X&#39;w + c</span>
+<span class="sd">        :param: xMean     Point around which the data X is centered.</span>
+<span class="sd">        :param: xVariance Variance of the given data</span>
+<span class="sd">        :param: nPoints   Number of points to be generated</span>
+<span class="sd">        :param: seed      Random Seed</span>
+<span class="sd">        :param: eps       Used to scale the noise. If eps is set high,</span>
+<span class="sd">                          the amount of gaussian noise added is more.</span>
+
+<span class="sd">        Returns a list of LabeledPoints of length nPoints</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span> <span class="k">for</span> <span class="n">weight</span> <span class="ow">in</span> <span class="n">weights</span><span class="p">]</span>
+        <span class="n">xMean</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">mean</span><span class="p">)</span> <span class="k">for</span> <span class="n">mean</span> <span class="ow">in</span> <span class="n">xMean</span><span class="p">]</span>
+        <span class="n">xVariance</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">xVariance</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">callMLlibFunc</span><span class="p">(</span>
+            <span class="s2">&quot;generateLinearInputWrapper&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">intercept</span><span class="p">),</span> <span class="n">weights</span><span class="p">,</span> <span class="n">xMean</span><span class="p">,</span>
+            <span class="n">xVariance</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">nPoints</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">seed</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">eps</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="LinearDataGenerator.generateLinearRDD"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.tree.LinearDataGenerator.generateLinearRDD">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.5.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">generateLinearRDD</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">nexamples</span><span class="p">,</span> <span class="n">nfeatures</span><span class="p">,</span> <span class="n">eps</span><span class="p">,</span>
+                          <span class="n">nParts</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">intercept</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate an RDD of LabeledPoints.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">callMLlibFunc</span><span class="p">(</span>
+            <span class="s2">&quot;generateLinearRDDWrapper&quot;</span><span class="p">,</span> <span class="n">sc</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">nexamples</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">nfeatures</span><span class="p">),</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">eps</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">nParts</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">intercept</span><span class="p">))</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_test</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">SparkSession</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="c1"># The small batch size here ensures that we see multiple batches,</span>
+    <span class="c1"># even in these small test examples:</span>
+    <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span>\
+        <span class="o">.</span><span class="n">master</span><span class="p">(</span><span class="s2">&quot;local[2]&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;mllib.util tests&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;spark&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spark</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;sc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">sparkContext</span>
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span> <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span><span class="p">)</span>
+    <span class="n">spark</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">_test</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

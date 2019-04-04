@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Accelerated Failure Time (AFT) Survival Regression Model</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/languages/r.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</head><body>
+
+<table width="100%" summary="page for spark.survreg {SparkR}"><tr><td>spark.survreg {SparkR}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Accelerated Failure Time (AFT) Survival Regression Model</h2>
+
+<h3>Description</h3>
+
+<p><code>spark.survreg</code> fits an accelerated failure time (AFT) survival regression model on
+a SparkDataFrame. Users can call <code>summary</code> to get a summary of the fitted AFT model,
+<code>predict</code> to make predictions on new data, and <code>write.ml</code>/<code>read.ml</code> to
+save/load fitted models.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+spark.survreg(data, formula, ...)
+
+## S4 method for signature 'SparkDataFrame,formula'
+spark.survreg(data, formula,
+  aggregationDepth = 2, stringIndexerOrderType = c("frequencyDesc",
+  "frequencyAsc", "alphabetDesc", "alphabetAsc"))
+
+## S4 method for signature 'AFTSurvivalRegressionModel'
+summary(object)
+
+## S4 method for signature 'AFTSurvivalRegressionModel'
+predict(object, newData)
+
+## S4 method for signature 'AFTSurvivalRegressionModel,character'
+write.ml(object, path,
+  overwrite = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>a SparkDataFrame for training.</p>
+</td></tr>
+<tr valign="top"><td><code>formula</code></td>
+<td>
+<p>a symbolic description of the model to be fitted. Currently only a few formula
+operators are supported, including '~', ':', '+', and '-'.
+Note that operator '.' is not supported currently.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional arguments passed to the method.</p>
+</td></tr>
+<tr valign="top"><td><code>aggregationDepth</code></td>
+<td>
+<p>The depth for treeAggregate (greater than or equal to 2). If the
+dimensions of features or the number of partitions are large, this
+param could be adjusted to a larger size. This is an expert parameter.
+Default value should be good for most cases.</p>
+</td></tr>
+<tr valign="top"><td><code>stringIndexerOrderType</code></td>
+<td>
+<p>how to order categories of a string feature column. This is used to
+decide the base level of a string feature as the last category
+after ordering is dropped when encoding strings. Supported options
+are &quot;frequencyDesc&quot;, &quot;frequencyAsc&quot;, &quot;alphabetDesc&quot;, and
+&quot;alphabetAsc&quot;. The default value is &quot;frequencyDesc&quot;. When the
+ordering is set to &quot;alphabetDesc&quot;, this drops the same category
+as R when encoding strings.</p>
+</td></tr>
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>a fitted AFT survival regression model.</p>
+</td></tr>
+<tr valign="top"><td><code>newData</code></td>
+<td>
+<p>a SparkDataFrame for testing.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>the directory where the model is saved.</p>
+</td></tr>
+<tr valign="top"><td><code>overwrite</code></td>
+<td>
+<p>overwrites or not if the output path already exists. Default is FALSE
+which means throw exception if the output path exists.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>spark.survreg</code> returns a fitted AFT survival regression model.
+</p>
+<p><code>summary</code> returns summary information of the fitted model, which is a list.
+The list includes the model's <code>coefficients</code> (features, coefficients,
+intercept and log(scale)).
+</p>
+<p><code>predict</code> returns a SparkDataFrame containing predicted values
+on the original scale of the data (mean predicted value at scale = 1.0).
+</p>
+
+
+<h3>Note</h3>
+
+<p>spark.survreg since 2.0.0
+</p>
+<p>summary(AFTSurvivalRegressionModel) since 2.0.0
+</p>
+<p>predict(AFTSurvivalRegressionModel) since 2.0.0
+</p>
+<p>write.ml(AFTSurvivalRegressionModel, character) since 2.0.0
+</p>
+
+
+<h3>See Also</h3>
+
+<p>survival: <a href="https://cran.r-project.org/package=survival">https://cran.r-project.org/package=survival</a>
+</p>
+<p><a href="write.ml.html">write.ml</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre><code class="r">## Not run: 
+##D df &lt;- createDataFrame(ovarian)
+##D model &lt;- spark.survreg(df, Surv(futime, fustat) ~ ecog_ps + rx)
+##D 
+##D # get a summary of the model
+##D summary(model)
+##D 
+##D # make predictions
+##D predicted &lt;- predict(model, df)
+##D showDF(predicted)
+##D 
+##D # save and load the model
+##D path &lt;- &quot;path/to/model&quot;
+##D write.ml(model, path)
+##D savedModel &lt;- read.ml(path)
+##D summary(savedModel)
+## End(Not run)
+</code></pre>
+
+
+<hr /><div style="text-align: center;">[Package <em>SparkR</em> version 2.4.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,351 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.ml.image &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.ml.image</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">.. attribute:: ImageSchema</span>
+
+<span class="sd">    An attribute of this module that contains the instance of :class:`_ImageSchema`.</span>
+
+<span class="sd">.. autoclass:: _ImageSchema</span>
+<span class="sd">   :members:</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">distutils.version</span> <span class="k">import</span> <span class="n">LooseVersion</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="k">import</span> <span class="n">SparkContext</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="k">import</span> <span class="n">Row</span><span class="p">,</span> <span class="n">_create_row</span><span class="p">,</span> <span class="n">_parse_datatype_json_string</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">SparkSession</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ImageSchema&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="_ImageSchema"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.image._ImageSchema">[docs]</a><span class="k">class</span> <span class="nc">_ImageSchema</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Internal class for `pyspark.ml.image.ImageSchema` attribute. Meant to be private and</span>
+<span class="sd">    not to be instantized. Use `pyspark.ml.image.ImageSchema` attribute to access the</span>
+<span class="sd">    APIs of this class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_imageSchema</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ocvTypes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_columnSchema</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_imageFields</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_undefinedImageType</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">imageSchema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the image schema.</span>
+
+<span class="sd">        :return: a :class:`StructType` with a single column of images</span>
+<span class="sd">               named &quot;image&quot; (nullable) and having the same type returned by :meth:`columnSchema`.</span>
+
+<span class="sd">        .. versionadded:: 2.3.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_imageSchema</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ctx</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+            <span class="n">jschema</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">ml</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">ImageSchema</span><span class="o">.</span><span class="n">imageSchema</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_imageSchema</span> <span class="o">=</span> <span class="n">_parse_datatype_json_string</span><span class="p">(</span><span class="n">jschema</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_imageSchema</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ocvTypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the OpenCV type mapping supported.</span>
+
+<span class="sd">        :return: a dictionary containing the OpenCV type mapping supported.</span>
+
+<span class="sd">        .. versionadded:: 2.3.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ocvTypes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ctx</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ocvTypes</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">ml</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">ImageSchema</span><span class="o">.</span><span class="n">javaOcvTypes</span><span class="p">())</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ocvTypes</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">columnSchema</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the schema for the image column.</span>
+
+<span class="sd">        :return: a :class:`StructType` for image column,</span>
+<span class="sd">            ``struct&lt;origin:string, height:int, width:int, nChannels:int, mode:int, data:binary&gt;``.</span>
+
+<span class="sd">        .. versionadded:: 2.4.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columnSchema</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ctx</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+            <span class="n">jschema</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">ml</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">ImageSchema</span><span class="o">.</span><span class="n">columnSchema</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_columnSchema</span> <span class="o">=</span> <span class="n">_parse_datatype_json_string</span><span class="p">(</span><span class="n">jschema</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_columnSchema</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">imageFields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns field names of image columns.</span>
+
+<span class="sd">        :return: a list of field names.</span>
+
+<span class="sd">        .. versionadded:: 2.3.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_imageFields</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ctx</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_imageFields</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">ml</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">ImageSchema</span><span class="o">.</span><span class="n">imageFields</span><span class="p">())</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_imageFields</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">undefinedImageType</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the name of undefined image type for the invalid image.</span>
+
+<span class="sd">        .. versionadded:: 2.3.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_undefinedImageType</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ctx</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_undefinedImageType</span> <span class="o">=</span> \
+                <span class="n">ctx</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">ml</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">ImageSchema</span><span class="o">.</span><span class="n">undefinedImageType</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_undefinedImageType</span>
+
+<div class="viewcode-block" id="_ImageSchema.toNDArray"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.image._ImageSchema.toNDArray">[docs]</a>    <span class="k">def</span> <span class="nf">toNDArray</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts an image to an array with metadata.</span>
+
+<span class="sd">        :param `Row` image: A row that contains the image to be converted. It should</span>
+<span class="sd">            have the attributes specified in `ImageSchema.imageSchema`.</span>
+<span class="sd">        :return: a `numpy.ndarray` that is an image.</span>
+
+<span class="sd">        .. versionadded:: 2.3.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">Row</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;image argument should be pyspark.sql.types.Row; however, &quot;</span>
+                <span class="s2">&quot;it got [</span><span class="si">%s</span><span class="s2">].&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">image</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">image</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">imageFields</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;image argument should have attributes specified in &quot;</span>
+                <span class="s2">&quot;ImageSchema.imageSchema [</span><span class="si">%s</span><span class="s2">].&quot;</span> <span class="o">%</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imageFields</span><span class="p">))</span>
+
+        <span class="n">height</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">height</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">width</span>
+        <span class="n">nChannels</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">nChannels</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">(</span>
+            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">nChannels</span><span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">,</span>
+            <span class="n">buffer</span><span class="o">=</span><span class="n">image</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">strides</span><span class="o">=</span><span class="p">(</span><span class="n">width</span> <span class="o">*</span> <span class="n">nChannels</span><span class="p">,</span> <span class="n">nChannels</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="_ImageSchema.toImage"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.image._ImageSchema.toImage">[docs]</a>    <span class="k">def</span> <span class="nf">toImage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts an array with metadata to a two-dimensional image.</span>
+
+<span class="sd">        :param `numpy.ndarray` array: The array to convert to image.</span>
+<span class="sd">        :param str origin: Path to the image, optional.</span>
+<span class="sd">        :return: a :class:`Row` that is a two dimensional image.</span>
+
+<span class="sd">        .. versionadded:: 2.3.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;array argument should be numpy.ndarray; however, it got [</span><span class="si">%s</span><span class="s2">].&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">array</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid array shape&quot;</span><span class="p">)</span>
+
+        <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">nChannels</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">ocvTypes</span> <span class="o">=</span> <span class="n">ImageSchema</span><span class="o">.</span><span class="n">ocvTypes</span>
+        <span class="k">if</span> <span class="n">nChannels</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="n">ocvTypes</span><span class="p">[</span><span class="s2">&quot;CV_8UC1&quot;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">nChannels</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="n">ocvTypes</span><span class="p">[</span><span class="s2">&quot;CV_8UC3&quot;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">nChannels</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="n">ocvTypes</span><span class="p">[</span><span class="s2">&quot;CV_8UC4&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid number of channels&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Running `bytearray(numpy.array([1]))` fails in specific Python versions</span>
+        <span class="c1"># with a specific Numpy version, for example in Python 3.6.0 and NumPy 1.13.3.</span>
+        <span class="c1"># Here, it avoids it by converting it to bytes.</span>
+        <span class="k">if</span> <span class="n">LooseVersion</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">LooseVersion</span><span class="p">(</span><span class="s1">&#39;1.9&#39;</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span><span class="o">.</span><span class="n">tobytes</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Numpy prior to 1.9 don&#39;t have `tobytes` method.</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+
+        <span class="c1"># Creating new Row with _create_row(), because Row(name = value, ... )</span>
+        <span class="c1"># orders fields by name, which conflicts with expected schema order</span>
+        <span class="c1"># when the new DataFrame is created by UDF</span>
+        <span class="k">return</span> <span class="n">_create_row</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imageFields</span><span class="p">,</span>
+                           <span class="p">[</span><span class="n">origin</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">nChannels</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">data</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="_ImageSchema.readImages"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.image._ImageSchema.readImages">[docs]</a>    <span class="k">def</span> <span class="nf">readImages</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">numPartitions</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+                   <span class="n">dropImageFailures</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sampleRatio</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads the directory of images from the local or remote source.</span>
+
+<span class="sd">        .. note:: If multiple jobs are run in parallel with different sampleRatio or recursive flag,</span>
+<span class="sd">            there may be a race condition where one job overwrites the hadoop configs of another.</span>
+
+<span class="sd">        .. note:: If sample ratio is less than 1, sampling uses a PathFilter that is efficient but</span>
+<span class="sd">            potentially non-deterministic.</span>
+
+<span class="sd">        .. note:: Deprecated in 2.4.0. Use `spark.read.format(&quot;image&quot;).load(path)` instead and</span>
+<span class="sd">            this `readImages` will be removed in 3.0.0.</span>
+
+<span class="sd">        :param str path: Path to the image directory.</span>
+<span class="sd">        :param bool recursive: Recursive search flag.</span>
+<span class="sd">        :param int numPartitions: Number of DataFrame partitions.</span>
+<span class="sd">        :param bool dropImageFailures: Drop the files that are not valid images.</span>
+<span class="sd">        :param float sampleRatio: Fraction of the images loaded.</span>
+<span class="sd">        :param int seed: Random number seed.</span>
+<span class="sd">        :return: a :class:`DataFrame` with a single column of &quot;images&quot;,</span>
+<span class="sd">               see ImageSchema for details.</span>
+
+<span class="sd">        &gt;&gt;&gt; df = ImageSchema.readImages(&#39;data/mllib/images/origin/kittens&#39;, recursive=True)</span>
+<span class="sd">        &gt;&gt;&gt; df.count()</span>
+<span class="sd">        5</span>
+
+<span class="sd">        .. versionadded:: 2.3.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;`ImageSchema.readImage` is deprecated. &quot;</span> <span class="o">+</span>
+                      <span class="s2">&quot;Use `spark.read.format(</span><span class="se">\&quot;</span><span class="s2">image</span><span class="se">\&quot;</span><span class="s2">).load(path)` instead.&quot;</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">)</span>
+        <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+        <span class="n">image_schema</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">ml</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">ImageSchema</span>
+        <span class="n">jsession</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">_jsparkSession</span>
+        <span class="n">jresult</span> <span class="o">=</span> <span class="n">image_schema</span><span class="o">.</span><span class="n">readImages</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">jsession</span><span class="p">,</span> <span class="n">recursive</span><span class="p">,</span> <span class="n">numPartitions</span><span class="p">,</span>
+                                          <span class="n">dropImageFailures</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">sampleRatio</span><span class="p">),</span> <span class="n">seed</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DataFrame</span><span class="p">(</span><span class="n">jresult</span><span class="p">,</span> <span class="n">spark</span><span class="o">.</span><span class="n">_wrapped</span><span class="p">)</span></div></div>
+
+
+<span class="n">ImageSchema</span> <span class="o">=</span> <span class="n">_ImageSchema</span><span class="p">()</span>
+
+
+<span class="c1"># Monkey patch to disallow instantiation of this class.</span>
+<span class="k">def</span> <span class="nf">_disallow_instance</span><span class="p">(</span><span class="n">_</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Creating instance of _ImageSchema class is disallowed.&quot;</span><span class="p">)</span>
+<span class="n">_ImageSchema</span><span class="o">.</span><span class="fm">__init__</span> <span class="o">=</span> <span class="n">_disallow_instance</span>
+
+
+<span class="k">def</span> <span class="nf">_test</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="kn">import</span> <span class="nn">pyspark.ml.image</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="n">pyspark</span><span class="o">.</span><span class="n">ml</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span>\
+        <span class="o">.</span><span class="n">master</span><span class="p">(</span><span class="s2">&quot;local[2]&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;ml.image tests&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;spark&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spark</span>
+
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span>
+        <span class="n">pyspark</span><span class="o">.</span><span class="n">ml</span><span class="o">.</span><span class="n">image</span><span class="p">,</span> <span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span>
+        <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span> <span class="o">|</span> <span class="n">doctest</span><span class="o">.</span><span class="n">NORMALIZE_WHITESPACE</span><span class="p">)</span>
+    <span class="n">spark</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">_test</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

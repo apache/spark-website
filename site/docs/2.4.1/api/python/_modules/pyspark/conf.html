@@ -1,0 +1,302 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.conf &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.conf</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">&gt;&gt;&gt; from pyspark.conf import SparkConf</span>
+<span class="sd">&gt;&gt;&gt; from pyspark.context import SparkContext</span>
+<span class="sd">&gt;&gt;&gt; conf = SparkConf()</span>
+<span class="sd">&gt;&gt;&gt; conf.setMaster(&quot;local&quot;).setAppName(&quot;My app&quot;)</span>
+<span class="sd">&lt;pyspark.conf.SparkConf object at ...&gt;</span>
+<span class="sd">&gt;&gt;&gt; conf.get(&quot;spark.master&quot;)</span>
+<span class="sd">u&#39;local&#39;</span>
+<span class="sd">&gt;&gt;&gt; conf.get(&quot;spark.app.name&quot;)</span>
+<span class="sd">u&#39;My app&#39;</span>
+<span class="sd">&gt;&gt;&gt; sc = SparkContext(conf=conf)</span>
+<span class="sd">&gt;&gt;&gt; sc.master</span>
+<span class="sd">u&#39;local&#39;</span>
+<span class="sd">&gt;&gt;&gt; sc.appName</span>
+<span class="sd">u&#39;My app&#39;</span>
+<span class="sd">&gt;&gt;&gt; sc.sparkHome is None</span>
+<span class="sd">True</span>
+
+<span class="sd">&gt;&gt;&gt; conf = SparkConf(loadDefaults=False)</span>
+<span class="sd">&gt;&gt;&gt; conf.setSparkHome(&quot;/path&quot;)</span>
+<span class="sd">&lt;pyspark.conf.SparkConf object at ...&gt;</span>
+<span class="sd">&gt;&gt;&gt; conf.get(&quot;spark.home&quot;)</span>
+<span class="sd">u&#39;/path&#39;</span>
+<span class="sd">&gt;&gt;&gt; conf.setExecutorEnv(&quot;VAR1&quot;, &quot;value1&quot;)</span>
+<span class="sd">&lt;pyspark.conf.SparkConf object at ...&gt;</span>
+<span class="sd">&gt;&gt;&gt; conf.setExecutorEnv(pairs = [(&quot;VAR3&quot;, &quot;value3&quot;), (&quot;VAR4&quot;, &quot;value4&quot;)])</span>
+<span class="sd">&lt;pyspark.conf.SparkConf object at ...&gt;</span>
+<span class="sd">&gt;&gt;&gt; conf.get(&quot;spark.executorEnv.VAR1&quot;)</span>
+<span class="sd">u&#39;value1&#39;</span>
+<span class="sd">&gt;&gt;&gt; print(conf.toDebugString())</span>
+<span class="sd">spark.executorEnv.VAR1=value1</span>
+<span class="sd">spark.executorEnv.VAR3=value3</span>
+<span class="sd">spark.executorEnv.VAR4=value4</span>
+<span class="sd">spark.home=/path</span>
+<span class="sd">&gt;&gt;&gt; sorted(conf.getAll(), key=lambda p: p[0])</span>
+<span class="sd">[(u&#39;spark.executorEnv.VAR1&#39;, u&#39;value1&#39;), (u&#39;spark.executorEnv.VAR3&#39;, u&#39;value3&#39;), \</span>
+<span class="sd">(u&#39;spark.executorEnv.VAR4&#39;, u&#39;value4&#39;), (u&#39;spark.home&#39;, u&#39;/path&#39;)]</span>
+<span class="sd">&gt;&gt;&gt; conf._jconf.setExecutorEnv(&quot;VAR5&quot;, &quot;value5&quot;)</span>
+<span class="sd">JavaObject id...</span>
+<span class="sd">&gt;&gt;&gt; print(conf.toDebugString())</span>
+<span class="sd">spark.executorEnv.VAR1=value1</span>
+<span class="sd">spark.executorEnv.VAR3=value3</span>
+<span class="sd">spark.executorEnv.VAR4=value4</span>
+<span class="sd">spark.executorEnv.VAR5=value5</span>
+<span class="sd">spark.home=/path</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;SparkConf&#39;</span><span class="p">]</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span> <span class="o">&gt;</span> <span class="s1">&#39;3&#39;</span><span class="p">:</span>
+    <span class="n">unicode</span> <span class="o">=</span> <span class="nb">str</span>
+    <span class="vm">__doc__</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\W|^)[uU]([&#39;])&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s1">&#39;\1\2&#39;</span><span class="p">,</span> <span class="vm">__doc__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="SparkConf"><a class="viewcode-back" href="../../pyspark.html#pyspark.SparkConf">[docs]</a><span class="k">class</span> <span class="nc">SparkConf</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Configuration for a Spark application. Used to set various Spark</span>
+<span class="sd">    parameters as key-value pairs.</span>
+
+<span class="sd">    Most of the time, you would create a SparkConf object with</span>
+<span class="sd">    C{SparkConf()}, which will load values from C{spark.*} Java system</span>
+<span class="sd">    properties as well. In this case, any parameters you set directly on</span>
+<span class="sd">    the C{SparkConf} object take priority over system properties.</span>
+
+<span class="sd">    For unit tests, you can also call C{SparkConf(false)} to skip</span>
+<span class="sd">    loading external settings and get the same configuration no matter</span>
+<span class="sd">    what the system properties are.</span>
+
+<span class="sd">    All setter methods in this class support chaining. For example,</span>
+<span class="sd">    you can write C{conf.setMaster(&quot;local&quot;).setAppName(&quot;My app&quot;)}.</span>
+
+<span class="sd">    .. note:: Once a SparkConf object is passed to Spark, it is cloned</span>
+<span class="sd">        and can no longer be modified by the user.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loadDefaults</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">_jvm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_jconf</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new Spark configuration.</span>
+
+<span class="sd">        :param loadDefaults: whether to load values from Java system</span>
+<span class="sd">               properties (True by default)</span>
+<span class="sd">        :param _jvm: internal parameter used to pass a handle to the</span>
+<span class="sd">               Java VM; does not need to be set by users</span>
+<span class="sd">        :param _jconf: Optionally pass in an existing SparkConf handle</span>
+<span class="sd">               to use its parameters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">_jconf</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_jconf</span> <span class="o">=</span> <span class="n">_jconf</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">pyspark.context</span> <span class="k">import</span> <span class="n">SparkContext</span>
+            <span class="n">_jvm</span> <span class="o">=</span> <span class="n">_jvm</span> <span class="ow">or</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_jvm</span>
+
+            <span class="k">if</span> <span class="n">_jvm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># JVM is created, so create self._jconf directly through JVM</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_jconf</span> <span class="o">=</span> <span class="n">_jvm</span><span class="o">.</span><span class="n">SparkConf</span><span class="p">(</span><span class="n">loadDefaults</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># JVM is not created, so store data in self._conf first</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_jconf</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="SparkConf.set"><a class="viewcode-back" href="../../pyspark.html#pyspark.SparkConf.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set a configuration property.&quot;&quot;&quot;</span>
+        <span class="c1"># Try to set self._jconf first if JVM is created, set self._conf if JVM is not created yet.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jconf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_jconf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">unicode</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">unicode</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="SparkConf.setIfMissing"><a class="viewcode-back" href="../../pyspark.html#pyspark.SparkConf.setIfMissing">[docs]</a>    <span class="k">def</span> <span class="nf">setIfMissing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set a configuration property, if not already set.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="SparkConf.setMaster"><a class="viewcode-back" href="../../pyspark.html#pyspark.SparkConf.setMaster">[docs]</a>    <span class="k">def</span> <span class="nf">setMaster</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set master URL to connect to.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;spark.master&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="SparkConf.setAppName"><a class="viewcode-back" href="../../pyspark.html#pyspark.SparkConf.setAppName">[docs]</a>    <span class="k">def</span> <span class="nf">setAppName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set application name.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;spark.app.name&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="SparkConf.setSparkHome"><a class="viewcode-back" href="../../pyspark.html#pyspark.SparkConf.setSparkHome">[docs]</a>    <span class="k">def</span> <span class="nf">setSparkHome</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set path where Spark is installed on worker nodes.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;spark.home&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="SparkConf.setExecutorEnv"><a class="viewcode-back" href="../../pyspark.html#pyspark.SparkConf.setExecutorEnv">[docs]</a>    <span class="k">def</span> <span class="nf">setExecutorEnv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pairs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set an environment variable to be passed to executors.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pairs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">key</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pairs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Either pass one key-value pair or a list of pairs&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;spark.executorEnv.&quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">pairs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;spark.executorEnv.&quot;</span> <span class="o">+</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="SparkConf.setAll"><a class="viewcode-back" href="../../pyspark.html#pyspark.SparkConf.setAll">[docs]</a>    <span class="k">def</span> <span class="nf">setAll</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pairs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set multiple parameters, passed as a list of key-value pairs.</span>
+
+<span class="sd">        :param pairs: list of key-value pairs to set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="SparkConf.get"><a class="viewcode-back" href="../../pyspark.html#pyspark.SparkConf.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">defaultValue</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the configured value for some key, or return a default otherwise.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">defaultValue</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>   <span class="c1"># Py4J doesn&#39;t call the right get() if we pass None</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jconf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jconf</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jconf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jconf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jconf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">defaultValue</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">defaultValue</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SparkConf.getAll"><a class="viewcode-back" href="../../pyspark.html#pyspark.SparkConf.getAll">[docs]</a>    <span class="k">def</span> <span class="nf">getAll</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get all values as a list of key-value pairs.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jconf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[(</span><span class="n">elem</span><span class="o">.</span><span class="n">_1</span><span class="p">(),</span> <span class="n">elem</span><span class="o">.</span><span class="n">_2</span><span class="p">())</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jconf</span><span class="o">.</span><span class="n">getAll</span><span class="p">()]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="o">.</span><span class="n">items</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SparkConf.contains"><a class="viewcode-back" href="../../pyspark.html#pyspark.SparkConf.contains">[docs]</a>    <span class="k">def</span> <span class="nf">contains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Does this configuration contain a given key?&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jconf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jconf</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span></div>
+
+<div class="viewcode-block" id="SparkConf.toDebugString"><a class="viewcode-back" href="../../pyspark.html#pyspark.SparkConf.toDebugString">[docs]</a>    <span class="k">def</span> <span class="nf">toDebugString</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a printable version of the configuration, as a list of</span>
+<span class="sd">        key=value pairs, one per line.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jconf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jconf</span><span class="o">.</span><span class="n">toDebugString</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">=</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="o">.</span><span class="n">items</span><span class="p">())</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_test</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">_test</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

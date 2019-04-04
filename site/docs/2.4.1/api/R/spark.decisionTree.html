@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Decision Tree Model for Regression and Classification</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/languages/r.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</head><body>
+
+<table width="100%" summary="page for spark.decisionTree {SparkR}"><tr><td>spark.decisionTree {SparkR}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Decision Tree Model for Regression and Classification</h2>
+
+<h3>Description</h3>
+
+<p><code>spark.decisionTree</code> fits a Decision Tree Regression model or Classification model on
+a SparkDataFrame. Users can call <code>summary</code> to get a summary of the fitted Decision Tree
+model, <code>predict</code> to make predictions on new data, and <code>write.ml</code>/<code>read.ml</code> to
+save/load fitted models.
+For more details, see
+<a href="http://spark.apache.org/docs/latest/ml-classification-regression.html#decision-tree-regression">
+Decision Tree Regression</a> and
+<a href="http://spark.apache.org/docs/latest/ml-classification-regression.html#decision-tree-classifier">
+Decision Tree Classification</a>
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+spark.decisionTree(data, formula, ...)
+
+## S4 method for signature 'SparkDataFrame,formula'
+spark.decisionTree(data, formula,
+  type = c("regression", "classification"), maxDepth = 5,
+  maxBins = 32, impurity = NULL, seed = NULL,
+  minInstancesPerNode = 1, minInfoGain = 0, checkpointInterval = 10,
+  maxMemoryInMB = 256, cacheNodeIds = FALSE,
+  handleInvalid = c("error", "keep", "skip"))
+
+## S4 method for signature 'DecisionTreeRegressionModel'
+summary(object)
+
+## S3 method for class 'summary.DecisionTreeRegressionModel'
+print(x, ...)
+
+## S4 method for signature 'DecisionTreeClassificationModel'
+summary(object)
+
+## S3 method for class 'summary.DecisionTreeClassificationModel'
+print(x, ...)
+
+## S4 method for signature 'DecisionTreeRegressionModel'
+predict(object, newData)
+
+## S4 method for signature 'DecisionTreeClassificationModel'
+predict(object, newData)
+
+## S4 method for signature 'DecisionTreeRegressionModel,character'
+write.ml(object, path,
+  overwrite = FALSE)
+
+## S4 method for signature 'DecisionTreeClassificationModel,character'
+write.ml(object,
+  path, overwrite = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>a SparkDataFrame for training.</p>
+</td></tr>
+<tr valign="top"><td><code>formula</code></td>
+<td>
+<p>a symbolic description of the model to be fitted. Currently only a few formula
+operators are supported, including '~', ':', '+', and '-'.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional arguments passed to the method.</p>
+</td></tr>
+<tr valign="top"><td><code>type</code></td>
+<td>
+<p>type of model, one of &quot;regression&quot; or &quot;classification&quot;, to fit</p>
+</td></tr>
+<tr valign="top"><td><code>maxDepth</code></td>
+<td>
+<p>Maximum depth of the tree (&gt;= 0).</p>
+</td></tr>
+<tr valign="top"><td><code>maxBins</code></td>
+<td>
+<p>Maximum number of bins used for discretizing continuous features and for choosing
+how to split on features at each node. More bins give higher granularity. Must be
+&gt;= 2 and &gt;= number of categories in any categorical feature.</p>
+</td></tr>
+<tr valign="top"><td><code>impurity</code></td>
+<td>
+<p>Criterion used for information gain calculation.
+For regression, must be &quot;variance&quot;. For classification, must be one of
+&quot;entropy&quot; and &quot;gini&quot;, default is &quot;gini&quot;.</p>
+</td></tr>
+<tr valign="top"><td><code>seed</code></td>
+<td>
+<p>integer seed for random number generation.</p>
+</td></tr>
+<tr valign="top"><td><code>minInstancesPerNode</code></td>
+<td>
+<p>Minimum number of instances each child must have after split.</p>
+</td></tr>
+<tr valign="top"><td><code>minInfoGain</code></td>
+<td>
+<p>Minimum information gain for a split to be considered at a tree node.</p>
+</td></tr>
+<tr valign="top"><td><code>checkpointInterval</code></td>
+<td>
+<p>Param for set checkpoint interval (&gt;= 1) or disable checkpoint (-1).
+Note: this setting will be ignored if the checkpoint directory is not
+set.</p>
+</td></tr>
+<tr valign="top"><td><code>maxMemoryInMB</code></td>
+<td>
+<p>Maximum memory in MB allocated to histogram aggregation.</p>
+</td></tr>
+<tr valign="top"><td><code>cacheNodeIds</code></td>
+<td>
+<p>If FALSE, the algorithm will pass trees to executors to match instances with
+nodes. If TRUE, the algorithm will cache node IDs for each instance. Caching
+can speed up training of deeper trees. Users can set how often should the
+cache be checkpointed or disable it by setting checkpointInterval.</p>
+</td></tr>
+<tr valign="top"><td><code>handleInvalid</code></td>
+<td>
+<p>How to handle invalid data (unseen labels or NULL values) in features and
+label column of string type in classification model.
+Supported options: &quot;skip&quot; (filter out rows with invalid data),
+&quot;error&quot; (throw an error), &quot;keep&quot; (put invalid data in
+a special additional bucket, at index numLabels). Default
+is &quot;error&quot;.</p>
+</td></tr>
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>A fitted Decision Tree regression model or classification model.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>summary object of Decision Tree regression model or classification model
+returned by <code>summary</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>newData</code></td>
+<td>
+<p>a SparkDataFrame for testing.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>The directory where the model is saved.</p>
+</td></tr>
+<tr valign="top"><td><code>overwrite</code></td>
+<td>
+<p>Overwrites or not if the output path already exists. Default is FALSE
+which means throw exception if the output path exists.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>spark.decisionTree</code> returns a fitted Decision Tree model.
+</p>
+<p><code>summary</code> returns summary information of the fitted model, which is a list.
+The list of components includes <code>formula</code> (formula),
+<code>numFeatures</code> (number of features), <code>features</code> (list of features),
+<code>featureImportances</code> (feature importances), and <code>maxDepth</code> (max depth of
+trees).
+</p>
+<p><code>predict</code> returns a SparkDataFrame containing predicted labeled in a column named
+&quot;prediction&quot;.
+</p>
+
+
+<h3>Note</h3>
+
+<p>spark.decisionTree since 2.3.0
+</p>
+<p>summary(DecisionTreeRegressionModel) since 2.3.0
+</p>
+<p>print.summary.DecisionTreeRegressionModel since 2.3.0
+</p>
+<p>summary(DecisionTreeClassificationModel) since 2.3.0
+</p>
+<p>print.summary.DecisionTreeClassificationModel since 2.3.0
+</p>
+<p>predict(DecisionTreeRegressionModel) since 2.3.0
+</p>
+<p>predict(DecisionTreeClassificationModel) since 2.3.0
+</p>
+<p>write.ml(DecisionTreeRegressionModel, character) since 2.3.0
+</p>
+<p>write.ml(DecisionTreeClassificationModel, character) since 2.3.0
+</p>
+
+
+<h3>Examples</h3>
+
+<pre><code class="r">## Not run: 
+##D # fit a Decision Tree Regression Model
+##D df &lt;- createDataFrame(longley)
+##D model &lt;- spark.decisionTree(df, Employed ~ ., type = &quot;regression&quot;, maxDepth = 5, maxBins = 16)
+##D 
+##D # get the summary of the model
+##D summary(model)
+##D 
+##D # make predictions
+##D predictions &lt;- predict(model, df)
+##D 
+##D # save and load the model
+##D path &lt;- &quot;path/to/model&quot;
+##D write.ml(model, path)
+##D savedModel &lt;- read.ml(path)
+##D summary(savedModel)
+##D 
+##D # fit a Decision Tree Classification Model
+##D t &lt;- as.data.frame(Titanic)
+##D df &lt;- createDataFrame(t)
+##D model &lt;- spark.decisionTree(df, Survived ~ Freq + Age, &quot;classification&quot;)
+## End(Not run)
+</code></pre>
+
+
+<hr /><div style="text-align: center;">[Package <em>SparkR</em> version 2.4.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

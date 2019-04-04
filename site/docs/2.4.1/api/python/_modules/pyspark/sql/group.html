@@ -1,0 +1,395 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.sql.group &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.sql.group</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="k">import</span> <span class="n">since</span>
+<span class="kn">from</span> <span class="nn">pyspark.rdd</span> <span class="k">import</span> <span class="n">ignore_unicode_prefix</span><span class="p">,</span> <span class="n">PythonEvalType</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.column</span> <span class="k">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">_to_seq</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.dataframe</span> <span class="k">import</span> <span class="n">DataFrame</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="k">import</span> <span class="o">*</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;GroupedData&quot;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">dfapi</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_api</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">jdf</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jgd</span><span class="p">,</span> <span class="n">name</span><span class="p">)()</span>
+        <span class="k">return</span> <span class="n">DataFrame</span><span class="p">(</span><span class="n">jdf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sql_ctx</span><span class="p">)</span>
+    <span class="n">_api</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="vm">__name__</span>
+    <span class="n">_api</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="vm">__doc__</span>
+    <span class="k">return</span> <span class="n">_api</span>
+
+
+<span class="k">def</span> <span class="nf">df_varargs_api</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_api</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="n">jdf</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jgd</span><span class="p">,</span> <span class="n">name</span><span class="p">)(</span><span class="n">_to_seq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sql_ctx</span><span class="o">.</span><span class="n">_sc</span><span class="p">,</span> <span class="n">cols</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">DataFrame</span><span class="p">(</span><span class="n">jdf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sql_ctx</span><span class="p">)</span>
+    <span class="n">_api</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="vm">__name__</span>
+    <span class="n">_api</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="vm">__doc__</span>
+    <span class="k">return</span> <span class="n">_api</span>
+
+
+<div class="viewcode-block" id="GroupedData"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.GroupedData">[docs]</a><span class="k">class</span> <span class="nc">GroupedData</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A set of methods for aggregations on a :class:`DataFrame`,</span>
+<span class="sd">    created by :func:`DataFrame.groupBy`.</span>
+
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    .. versionadded:: 1.3</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jgd</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jgd</span> <span class="o">=</span> <span class="n">jgd</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_df</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sql_ctx</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sql_ctx</span>
+
+<div class="viewcode-block" id="GroupedData.agg"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.GroupedData.agg">[docs]</a>    <span class="nd">@ignore_unicode_prefix</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.3</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">agg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">exprs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute aggregates and returns the result as a :class:`DataFrame`.</span>
+
+<span class="sd">        The available aggregate functions can be:</span>
+
+<span class="sd">        1. built-in aggregation functions, such as `avg`, `max`, `min`, `sum`, `count`</span>
+
+<span class="sd">        2. group aggregate pandas UDFs, created with :func:`pyspark.sql.functions.pandas_udf`</span>
+
+<span class="sd">           .. note:: There is no partial aggregation with group aggregate UDFs, i.e.,</span>
+<span class="sd">               a full shuffle is required. Also, all the data of a group will be loaded into</span>
+<span class="sd">               memory, so the user should be aware of the potential OOM risk if data is skewed</span>
+<span class="sd">               and certain groups are too large to fit in memory.</span>
+
+<span class="sd">           .. seealso:: :func:`pyspark.sql.functions.pandas_udf`</span>
+
+<span class="sd">        If ``exprs`` is a single :class:`dict` mapping from string to string, then the key</span>
+<span class="sd">        is the column to perform aggregation on, and the value is the aggregate function.</span>
+
+<span class="sd">        Alternatively, ``exprs`` can also be a list of aggregate :class:`Column` expressions.</span>
+
+<span class="sd">        .. note:: Built-in aggregation functions and group aggregate pandas UDFs cannot be mixed</span>
+<span class="sd">            in a single call to this function.</span>
+
+<span class="sd">        :param exprs: a dict mapping from column name (string) to aggregate functions (string),</span>
+<span class="sd">            or a list of :class:`Column`.</span>
+
+<span class="sd">        &gt;&gt;&gt; gdf = df.groupBy(df.name)</span>
+<span class="sd">        &gt;&gt;&gt; sorted(gdf.agg({&quot;*&quot;: &quot;count&quot;}).collect())</span>
+<span class="sd">        [Row(name=u&#39;Alice&#39;, count(1)=1), Row(name=u&#39;Bob&#39;, count(1)=1)]</span>
+
+<span class="sd">        &gt;&gt;&gt; from pyspark.sql import functions as F</span>
+<span class="sd">        &gt;&gt;&gt; sorted(gdf.agg(F.min(df.age)).collect())</span>
+<span class="sd">        [Row(name=u&#39;Alice&#39;, min(age)=2), Row(name=u&#39;Bob&#39;, min(age)=5)]</span>
+
+<span class="sd">        &gt;&gt;&gt; from pyspark.sql.functions import pandas_udf, PandasUDFType</span>
+<span class="sd">        &gt;&gt;&gt; @pandas_udf(&#39;int&#39;, PandasUDFType.GROUPED_AGG)  # doctest: +SKIP</span>
+<span class="sd">        ... def min_udf(v):</span>
+<span class="sd">        ...     return v.min()</span>
+<span class="sd">        &gt;&gt;&gt; sorted(gdf.agg(min_udf(df.age)).collect())  # doctest: +SKIP</span>
+<span class="sd">        [Row(name=u&#39;Alice&#39;, min_udf(age)=2), Row(name=u&#39;Bob&#39;, min_udf(age)=5)]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">exprs</span><span class="p">,</span> <span class="s2">&quot;exprs should not be empty&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">exprs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exprs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">jdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jgd</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">exprs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Columns</span>
+            <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">Column</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">exprs</span><span class="p">),</span> <span class="s2">&quot;all exprs should be Column&quot;</span>
+            <span class="n">jdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jgd</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">exprs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">_jc</span><span class="p">,</span>
+                                <span class="n">_to_seq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sql_ctx</span><span class="o">.</span><span class="n">_sc</span><span class="p">,</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">_jc</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">exprs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]))</span>
+        <span class="k">return</span> <span class="n">DataFrame</span><span class="p">(</span><span class="n">jdf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sql_ctx</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GroupedData.count"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.GroupedData.count">[docs]</a>    <span class="nd">@dfapi</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.3</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Counts the number of records for each group.</span>
+
+<span class="sd">        &gt;&gt;&gt; sorted(df.groupBy(df.age).count().collect())</span>
+<span class="sd">        [Row(age=2, count=1), Row(age=5, count=1)]</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="GroupedData.mean"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.GroupedData.mean">[docs]</a>    <span class="nd">@df_varargs_api</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.3</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">mean</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Computes average values for each numeric columns for each group.</span>
+
+<span class="sd">        :func:`mean` is an alias for :func:`avg`.</span>
+
+<span class="sd">        :param cols: list of column names (string). Non-numeric columns are ignored.</span>
+
+<span class="sd">        &gt;&gt;&gt; df.groupBy().mean(&#39;age&#39;).collect()</span>
+<span class="sd">        [Row(avg(age)=3.5)]</span>
+<span class="sd">        &gt;&gt;&gt; df3.groupBy().mean(&#39;age&#39;, &#39;height&#39;).collect()</span>
+<span class="sd">        [Row(avg(age)=3.5, avg(height)=82.5)]</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="GroupedData.avg"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.GroupedData.avg">[docs]</a>    <span class="nd">@df_varargs_api</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.3</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">avg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Computes average values for each numeric columns for each group.</span>
+
+<span class="sd">        :func:`mean` is an alias for :func:`avg`.</span>
+
+<span class="sd">        :param cols: list of column names (string). Non-numeric columns are ignored.</span>
+
+<span class="sd">        &gt;&gt;&gt; df.groupBy().avg(&#39;age&#39;).collect()</span>
+<span class="sd">        [Row(avg(age)=3.5)]</span>
+<span class="sd">        &gt;&gt;&gt; df3.groupBy().avg(&#39;age&#39;, &#39;height&#39;).collect()</span>
+<span class="sd">        [Row(avg(age)=3.5, avg(height)=82.5)]</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="GroupedData.max"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.GroupedData.max">[docs]</a>    <span class="nd">@df_varargs_api</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.3</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Computes the max value for each numeric columns for each group.</span>
+
+<span class="sd">        &gt;&gt;&gt; df.groupBy().max(&#39;age&#39;).collect()</span>
+<span class="sd">        [Row(max(age)=5)]</span>
+<span class="sd">        &gt;&gt;&gt; df3.groupBy().max(&#39;age&#39;, &#39;height&#39;).collect()</span>
+<span class="sd">        [Row(max(age)=5, max(height)=85)]</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="GroupedData.min"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.GroupedData.min">[docs]</a>    <span class="nd">@df_varargs_api</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.3</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Computes the min value for each numeric column for each group.</span>
+
+<span class="sd">        :param cols: list of column names (string). Non-numeric columns are ignored.</span>
+
+<span class="sd">        &gt;&gt;&gt; df.groupBy().min(&#39;age&#39;).collect()</span>
+<span class="sd">        [Row(min(age)=2)]</span>
+<span class="sd">        &gt;&gt;&gt; df3.groupBy().min(&#39;age&#39;, &#39;height&#39;).collect()</span>
+<span class="sd">        [Row(min(age)=2, min(height)=80)]</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="GroupedData.sum"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.GroupedData.sum">[docs]</a>    <span class="nd">@df_varargs_api</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.3</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">sum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute the sum for each numeric columns for each group.</span>
+
+<span class="sd">        :param cols: list of column names (string). Non-numeric columns are ignored.</span>
+
+<span class="sd">        &gt;&gt;&gt; df.groupBy().sum(&#39;age&#39;).collect()</span>
+<span class="sd">        [Row(sum(age)=7)]</span>
+<span class="sd">        &gt;&gt;&gt; df3.groupBy().sum(&#39;age&#39;, &#39;height&#39;).collect()</span>
+<span class="sd">        [Row(sum(age)=7, sum(height)=165)]</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="GroupedData.pivot"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.GroupedData.pivot">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.6</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">pivot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pivot_col</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Pivots a column of the current :class:`DataFrame` and perform the specified aggregation.</span>
+<span class="sd">        There are two versions of pivot function: one that requires the caller to specify the list</span>
+<span class="sd">        of distinct values to pivot on, and one that does not. The latter is more concise but less</span>
+<span class="sd">        efficient, because Spark needs to first compute the list of distinct values internally.</span>
+
+<span class="sd">        :param pivot_col: Name of the column to pivot.</span>
+<span class="sd">        :param values: List of values that will be translated to columns in the output DataFrame.</span>
+
+<span class="sd">        # Compute the sum of earnings for each year by course with each course as a separate column</span>
+
+<span class="sd">        &gt;&gt;&gt; df4.groupBy(&quot;year&quot;).pivot(&quot;course&quot;, [&quot;dotNET&quot;, &quot;Java&quot;]).sum(&quot;earnings&quot;).collect()</span>
+<span class="sd">        [Row(year=2012, dotNET=15000, Java=20000), Row(year=2013, dotNET=48000, Java=30000)]</span>
+
+<span class="sd">        # Or without specifying column values (less efficient)</span>
+
+<span class="sd">        &gt;&gt;&gt; df4.groupBy(&quot;year&quot;).pivot(&quot;course&quot;).sum(&quot;earnings&quot;).collect()</span>
+<span class="sd">        [Row(year=2012, Java=20000, dotNET=15000), Row(year=2013, Java=30000, dotNET=48000)]</span>
+<span class="sd">        &gt;&gt;&gt; df5.groupBy(&quot;sales.year&quot;).pivot(&quot;sales.course&quot;).sum(&quot;sales.earnings&quot;).collect()</span>
+<span class="sd">        [Row(year=2012, Java=20000, dotNET=15000), Row(year=2013, Java=30000, dotNET=48000)]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">values</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">jgd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jgd</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">pivot_col</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">jgd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jgd</span><span class="o">.</span><span class="n">pivot</span><span class="p">(</span><span class="n">pivot_col</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">GroupedData</span><span class="p">(</span><span class="n">jgd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GroupedData.apply"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.GroupedData.apply">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.3</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">udf</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Maps each group of the current :class:`DataFrame` using a pandas udf and returns the result</span>
+<span class="sd">        as a `DataFrame`.</span>
+
+<span class="sd">        The user-defined function should take a `pandas.DataFrame` and return another</span>
+<span class="sd">        `pandas.DataFrame`. For each group, all columns are passed together as a `pandas.DataFrame`</span>
+<span class="sd">        to the user-function and the returned `pandas.DataFrame` are combined as a</span>
+<span class="sd">        :class:`DataFrame`.</span>
+
+<span class="sd">        The returned `pandas.DataFrame` can be of arbitrary length and its schema must match the</span>
+<span class="sd">        returnType of the pandas udf.</span>
+
+<span class="sd">        .. note:: This function requires a full shuffle. all the data of a group will be loaded</span>
+<span class="sd">            into memory, so the user should be aware of the potential OOM risk if data is skewed</span>
+<span class="sd">            and certain groups are too large to fit in memory.</span>
+
+<span class="sd">        .. note:: Experimental</span>
+
+<span class="sd">        :param udf: a grouped map user-defined function returned by</span>
+<span class="sd">            :func:`pyspark.sql.functions.pandas_udf`.</span>
+
+<span class="sd">        &gt;&gt;&gt; from pyspark.sql.functions import pandas_udf, PandasUDFType</span>
+<span class="sd">        &gt;&gt;&gt; df = spark.createDataFrame(</span>
+<span class="sd">        ...     [(1, 1.0), (1, 2.0), (2, 3.0), (2, 5.0), (2, 10.0)],</span>
+<span class="sd">        ...     (&quot;id&quot;, &quot;v&quot;))</span>
+<span class="sd">        &gt;&gt;&gt; @pandas_udf(&quot;id long, v double&quot;, PandasUDFType.GROUPED_MAP)  # doctest: +SKIP</span>
+<span class="sd">        ... def normalize(pdf):</span>
+<span class="sd">        ...     v = pdf.v</span>
+<span class="sd">        ...     return pdf.assign(v=(v - v.mean()) / v.std())</span>
+<span class="sd">        &gt;&gt;&gt; df.groupby(&quot;id&quot;).apply(normalize).show()  # doctest: +SKIP</span>
+<span class="sd">        +---+-------------------+</span>
+<span class="sd">        | id|                  v|</span>
+<span class="sd">        +---+-------------------+</span>
+<span class="sd">        |  1|-0.7071067811865475|</span>
+<span class="sd">        |  1| 0.7071067811865475|</span>
+<span class="sd">        |  2|-0.8320502943378437|</span>
+<span class="sd">        |  2|-0.2773500981126146|</span>
+<span class="sd">        |  2| 1.1094003924504583|</span>
+<span class="sd">        +---+-------------------+</span>
+
+<span class="sd">        .. seealso:: :meth:`pyspark.sql.functions.pandas_udf`</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Columns are special because hasattr always return True</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">udf</span><span class="p">,</span> <span class="n">Column</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">udf</span><span class="p">,</span> <span class="s1">&#39;func&#39;</span><span class="p">)</span> \
+           <span class="ow">or</span> <span class="n">udf</span><span class="o">.</span><span class="n">evalType</span> <span class="o">!=</span> <span class="n">PythonEvalType</span><span class="o">.</span><span class="n">SQL_GROUPED_MAP_PANDAS_UDF</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid udf: the udf argument must be a pandas_udf of type &quot;</span>
+                             <span class="s2">&quot;GROUPED_MAP.&quot;</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span>
+        <span class="n">udf_column</span> <span class="o">=</span> <span class="n">udf</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">])</span>
+        <span class="n">jdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jgd</span><span class="o">.</span><span class="n">flatMapGroupsInPandas</span><span class="p">(</span><span class="n">udf_column</span><span class="o">.</span><span class="n">_jc</span><span class="o">.</span><span class="n">expr</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">DataFrame</span><span class="p">(</span><span class="n">jdf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sql_ctx</span><span class="p">)</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_test</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">Row</span><span class="p">,</span> <span class="n">SparkSession</span>
+    <span class="kn">import</span> <span class="nn">pyspark.sql.group</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="n">pyspark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">group</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span>\
+        <span class="o">.</span><span class="n">master</span><span class="p">(</span><span class="s2">&quot;local[4]&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;sql.group tests&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">sparkContext</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;sc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sc</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;spark&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spark</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;df&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="p">([(</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;Alice&#39;</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="s1">&#39;Bob&#39;</span><span class="p">)])</span> \
+        <span class="o">.</span><span class="n">toDF</span><span class="p">(</span><span class="n">StructType</span><span class="p">([</span><span class="n">StructField</span><span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">()),</span>
+                          <span class="n">StructField</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">())]))</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;df3&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="p">([</span><span class="n">Row</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Alice&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">80</span><span class="p">),</span>
+                                   <span class="n">Row</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Bob&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">85</span><span class="p">)])</span><span class="o">.</span><span class="n">toDF</span><span class="p">()</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;df4&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="p">([</span><span class="n">Row</span><span class="p">(</span><span class="n">course</span><span class="o">=</span><span class="s2">&quot;dotNET&quot;</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2012</span><span class="p">,</span> <span class="n">earnings</span><span class="o">=</span><span class="mi">10000</span><span class="p">),</span>
+                                   <span class="n">Row</span><span class="p">(</span><span class="n">course</span><span class="o">=</span><span class="s2">&quot;Java&quot;</span><span class="p">,</span>   <span class="n">year</span><span class="o">=</span><span class="mi">2012</span><span class="p">,</span> <span class="n">earnings</span><span class="o">=</span><span class="mi">20000</span><span class="p">),</span>
+                                   <span class="n">Row</span><span class="p">(</span><span class="n">course</span><span class="o">=</span><span class="s2">&quot;dotNET&quot;</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2012</span><span class="p">,</span> <span class="n">earnings</span><span class="o">=</span><span class="mi">5000</span><span class="p">),</span>
+                                   <span class="n">Row</span><span class="p">(</span><span class="n">course</span><span class="o">=</span><span class="s2">&quot;dotNET&quot;</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2013</span><span class="p">,</span> <span class="n">earnings</span><span class="o">=</span><span class="mi">48000</span><span class="p">),</span>
+                                   <span class="n">Row</span><span class="p">(</span><span class="n">course</span><span class="o">=</span><span class="s2">&quot;Java&quot;</span><span class="p">,</span>   <span class="n">year</span><span class="o">=</span><span class="mi">2013</span><span class="p">,</span> <span class="n">earnings</span><span class="o">=</span><span class="mi">30000</span><span class="p">)])</span><span class="o">.</span><span class="n">toDF</span><span class="p">()</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;df5&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="p">([</span>
+        <span class="n">Row</span><span class="p">(</span><span class="n">training</span><span class="o">=</span><span class="s2">&quot;expert&quot;</span><span class="p">,</span> <span class="n">sales</span><span class="o">=</span><span class="n">Row</span><span class="p">(</span><span class="n">course</span><span class="o">=</span><span class="s2">&quot;dotNET&quot;</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2012</span><span class="p">,</span> <span class="n">earnings</span><span class="o">=</span><span class="mi">10000</span><span class="p">)),</span>
+        <span class="n">Row</span><span class="p">(</span><span class="n">training</span><span class="o">=</span><span class="s2">&quot;junior&quot;</span><span class="p">,</span> <span class="n">sales</span><span class="o">=</span><span class="n">Row</span><span class="p">(</span><span class="n">course</span><span class="o">=</span><span class="s2">&quot;Java&quot;</span><span class="p">,</span>   <span class="n">year</span><span class="o">=</span><span class="mi">2012</span><span class="p">,</span> <span class="n">earnings</span><span class="o">=</span><span class="mi">20000</span><span class="p">)),</span>
+        <span class="n">Row</span><span class="p">(</span><span class="n">training</span><span class="o">=</span><span class="s2">&quot;expert&quot;</span><span class="p">,</span> <span class="n">sales</span><span class="o">=</span><span class="n">Row</span><span class="p">(</span><span class="n">course</span><span class="o">=</span><span class="s2">&quot;dotNET&quot;</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2012</span><span class="p">,</span> <span class="n">earnings</span><span class="o">=</span><span class="mi">5000</span><span class="p">)),</span>
+        <span class="n">Row</span><span class="p">(</span><span class="n">training</span><span class="o">=</span><span class="s2">&quot;junior&quot;</span><span class="p">,</span> <span class="n">sales</span><span class="o">=</span><span class="n">Row</span><span class="p">(</span><span class="n">course</span><span class="o">=</span><span class="s2">&quot;dotNET&quot;</span><span class="p">,</span> <span class="n">year</span><span class="o">=</span><span class="mi">2013</span><span class="p">,</span> <span class="n">earnings</span><span class="o">=</span><span class="mi">48000</span><span class="p">)),</span>
+        <span class="n">Row</span><span class="p">(</span><span class="n">training</span><span class="o">=</span><span class="s2">&quot;expert&quot;</span><span class="p">,</span> <span class="n">sales</span><span class="o">=</span><span class="n">Row</span><span class="p">(</span><span class="n">course</span><span class="o">=</span><span class="s2">&quot;Java&quot;</span><span class="p">,</span>   <span class="n">year</span><span class="o">=</span><span class="mi">2013</span><span class="p">,</span> <span class="n">earnings</span><span class="o">=</span><span class="mi">30000</span><span class="p">))])</span><span class="o">.</span><span class="n">toDF</span><span class="p">()</span>
+
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span>
+        <span class="n">pyspark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">group</span><span class="p">,</span> <span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span>
+        <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span> <span class="o">|</span> <span class="n">doctest</span><span class="o">.</span><span class="n">NORMALIZE_WHITESPACE</span> <span class="o">|</span> <span class="n">doctest</span><span class="o">.</span><span class="n">REPORT_NDIFF</span><span class="p">)</span>
+    <span class="n">spark</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">_test</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

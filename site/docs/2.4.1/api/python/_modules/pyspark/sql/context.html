@@ -1,0 +1,633 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.sql.context &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.sql.context</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span> <span class="o">&gt;=</span> <span class="s1">&#39;3&#39;</span><span class="p">:</span>
+    <span class="n">basestring</span> <span class="o">=</span> <span class="n">unicode</span> <span class="o">=</span> <span class="nb">str</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="k">import</span> <span class="n">since</span><span class="p">,</span> <span class="n">_NoValue</span>
+<span class="kn">from</span> <span class="nn">pyspark.rdd</span> <span class="k">import</span> <span class="n">ignore_unicode_prefix</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.session</span> <span class="k">import</span> <span class="n">_monkey_patch_RDD</span><span class="p">,</span> <span class="n">SparkSession</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.dataframe</span> <span class="k">import</span> <span class="n">DataFrame</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.readwriter</span> <span class="k">import</span> <span class="n">DataFrameReader</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.streaming</span> <span class="k">import</span> <span class="n">DataStreamReader</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="k">import</span> <span class="n">IntegerType</span><span class="p">,</span> <span class="n">Row</span><span class="p">,</span> <span class="n">StringType</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.udf</span> <span class="k">import</span> <span class="n">UDFRegistration</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.utils</span> <span class="k">import</span> <span class="n">install_exception_handler</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;SQLContext&quot;</span><span class="p">,</span> <span class="s2">&quot;HiveContext&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="SQLContext"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.SQLContext">[docs]</a><span class="k">class</span> <span class="nc">SQLContext</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The entry point for working with structured data (rows and columns) in Spark, in Spark 1.x.</span>
+
+<span class="sd">    As of Spark 2.0, this is replaced by :class:`SparkSession`. However, we are keeping the class</span>
+<span class="sd">    here for backward compatibility.</span>
+
+<span class="sd">    A SQLContext can be used create :class:`DataFrame`, register :class:`DataFrame` as</span>
+<span class="sd">    tables, execute SQL over tables, cache tables, and read parquet files.</span>
+
+<span class="sd">    :param sparkContext: The :class:`SparkContext` backing this SQLContext.</span>
+<span class="sd">    :param sparkSession: The :class:`SparkSession` around which this SQLContext wraps.</span>
+<span class="sd">    :param jsqlContext: An optional JVM Scala SQLContext. If set, we do not instantiate a new</span>
+<span class="sd">        SQLContext in the JVM, instead we make all calls to this object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_instantiatedContext</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@ignore_unicode_prefix</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparkContext</span><span class="p">,</span> <span class="n">sparkSession</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">jsqlContext</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates a new SQLContext.</span>
+
+<span class="sd">        &gt;&gt;&gt; from datetime import datetime</span>
+<span class="sd">        &gt;&gt;&gt; sqlContext = SQLContext(sc)</span>
+<span class="sd">        &gt;&gt;&gt; allTypes = sc.parallelize([Row(i=1, s=&quot;string&quot;, d=1.0, l=1,</span>
+<span class="sd">        ...     b=True, list=[1, 2, 3], dict={&quot;s&quot;: 0}, row=Row(a=1),</span>
+<span class="sd">        ...     time=datetime(2014, 8, 1, 14, 1, 5))])</span>
+<span class="sd">        &gt;&gt;&gt; df = allTypes.toDF()</span>
+<span class="sd">        &gt;&gt;&gt; df.createOrReplaceTempView(&quot;allTypes&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; sqlContext.sql(&#39;select i+1, d+1, not b, list[1], dict[&quot;s&quot;], time, row.a &#39;</span>
+<span class="sd">        ...            &#39;from allTypes where b and i &gt; 0&#39;).collect()</span>
+<span class="sd">        [Row((i + CAST(1 AS BIGINT))=2, (d + CAST(1 AS DOUBLE))=2.0, (NOT b)=False, list[1]=2, \</span>
+<span class="sd">            dict[s]=0, time=datetime.datetime(2014, 8, 1, 14, 1, 5), a=1)]</span>
+<span class="sd">        &gt;&gt;&gt; df.rdd.map(lambda x: (x.i, x.s, x.d, x.l, x.b, x.time, x.row.a, x.list)).collect()</span>
+<span class="sd">        [(1, u&#39;string&#39;, 1.0, 1, True, datetime.datetime(2014, 8, 1, 14, 1, 5), 1, [1, 2, 3])]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sc</span> <span class="o">=</span> <span class="n">sparkContext</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jsc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sc</span><span class="o">.</span><span class="n">_jsc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jvm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sc</span><span class="o">.</span><span class="n">_jvm</span>
+        <span class="k">if</span> <span class="n">sparkSession</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sparkSession</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">jsqlContext</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">jsqlContext</span> <span class="o">=</span> <span class="n">sparkSession</span><span class="o">.</span><span class="n">_jwrapped</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sparkSession</span> <span class="o">=</span> <span class="n">sparkSession</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jsqlContext</span> <span class="o">=</span> <span class="n">jsqlContext</span>
+        <span class="n">_monkey_patch_RDD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sparkSession</span><span class="p">)</span>
+        <span class="n">install_exception_handler</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">SQLContext</span><span class="o">.</span><span class="n">_instantiatedContext</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">SQLContext</span><span class="o">.</span><span class="n">_instantiatedContext</span> <span class="o">=</span> <span class="bp">self</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_ssql_ctx</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Accessor for the JVM Spark SQL context.</span>
+
+<span class="sd">        Subclasses can override this property to provide their own</span>
+<span class="sd">        JVM Contexts.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jsqlContext</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_conf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Accessor for the JVM SQL-specific configurations&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sparkSession</span><span class="o">.</span><span class="n">_jsparkSession</span><span class="o">.</span><span class="n">sessionState</span><span class="p">()</span><span class="o">.</span><span class="n">conf</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SQLContext.getOrCreate"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.SQLContext.getOrCreate">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.6</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getOrCreate</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sc</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the existing SQLContext or create a new one with given SparkContext.</span>
+
+<span class="sd">        :param sc: SparkContext</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_instantiatedContext</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">jsqlContext</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">SQLContext</span><span class="o">.</span><span class="n">getOrCreate</span><span class="p">(</span><span class="n">sc</span><span class="o">.</span><span class="n">_jsc</span><span class="o">.</span><span class="n">sc</span><span class="p">())</span>
+            <span class="n">sparkSession</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">jsqlContext</span><span class="o">.</span><span class="n">sparkSession</span><span class="p">())</span>
+            <span class="bp">cls</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">sparkSession</span><span class="p">,</span> <span class="n">jsqlContext</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_instantiatedContext</span></div>
+
+<div class="viewcode-block" id="SQLContext.newSession"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.SQLContext.newSession">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.6</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">newSession</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a new SQLContext as new session, that has separate SQLConf,</span>
+<span class="sd">        registered temporary views and UDFs, but shared SparkContext and</span>
+<span class="sd">        table cache.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sparkSession</span><span class="o">.</span><span class="n">newSession</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="SQLContext.setConf"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.SQLContext.setConf">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.3</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setConf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the given Spark SQL configuration property.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sparkSession</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SQLContext.getConf"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.SQLContext.getConf">[docs]</a>    <span class="nd">@ignore_unicode_prefix</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.3</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getConf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">defaultValue</span><span class="o">=</span><span class="n">_NoValue</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the value of Spark SQL configuration property for the given key.</span>
+
+<span class="sd">        If the key is not set and defaultValue is set, return</span>
+<span class="sd">        defaultValue. If the key is not set and defaultValue is not set, return</span>
+<span class="sd">        the system default value.</span>
+
+<span class="sd">        &gt;&gt;&gt; sqlContext.getConf(&quot;spark.sql.shuffle.partitions&quot;)</span>
+<span class="sd">        u&#39;200&#39;</span>
+<span class="sd">        &gt;&gt;&gt; sqlContext.getConf(&quot;spark.sql.shuffle.partitions&quot;, u&quot;10&quot;)</span>
+<span class="sd">        u&#39;10&#39;</span>
+<span class="sd">        &gt;&gt;&gt; sqlContext.setConf(&quot;spark.sql.shuffle.partitions&quot;, u&quot;50&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; sqlContext.getConf(&quot;spark.sql.shuffle.partitions&quot;, u&quot;10&quot;)</span>
+<span class="sd">        u&#39;50&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sparkSession</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">defaultValue</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.3.1&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">udf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a :class:`UDFRegistration` for UDF registration.</span>
+
+<span class="sd">        :return: :class:`UDFRegistration`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sparkSession</span><span class="o">.</span><span class="n">udf</span>
+
+<div class="viewcode-block" id="SQLContext.range"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.SQLContext.range">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">numPartitions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a :class:`DataFrame` with single :class:`pyspark.sql.types.LongType` column named</span>
+<span class="sd">        ``id``, containing elements in a range from ``start`` to ``end`` (exclusive) with</span>
+<span class="sd">        step value ``step``.</span>
+
+<span class="sd">        :param start: the start value</span>
+<span class="sd">        :param end: the end value (exclusive)</span>
+<span class="sd">        :param step: the incremental step (default: 1)</span>
+<span class="sd">        :param numPartitions: the number of partitions of the DataFrame</span>
+<span class="sd">        :return: :class:`DataFrame`</span>
+
+<span class="sd">        &gt;&gt;&gt; sqlContext.range(1, 7, 2).collect()</span>
+<span class="sd">        [Row(id=1), Row(id=3), Row(id=5)]</span>
+
+<span class="sd">        If only one argument is specified, it will be used as the end value.</span>
+
+<span class="sd">        &gt;&gt;&gt; sqlContext.range(3).collect()</span>
+<span class="sd">        [Row(id=0), Row(id=1), Row(id=2)]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sparkSession</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">numPartitions</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SQLContext.registerFunction"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.SQLContext.registerFunction">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.2</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">registerFunction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">returnType</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;An alias for :func:`spark.udf.register`.</span>
+<span class="sd">        See :meth:`pyspark.sql.UDFRegistration.register`.</span>
+
+<span class="sd">        .. note:: Deprecated in 2.3.0. Use :func:`spark.udf.register` instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Deprecated in 2.3.0. Use spark.udf.register instead.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sparkSession</span><span class="o">.</span><span class="n">udf</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">returnType</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SQLContext.registerJavaFunction"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.SQLContext.registerJavaFunction">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.1</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">registerJavaFunction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">javaClassName</span><span class="p">,</span> <span class="n">returnType</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;An alias for :func:`spark.udf.registerJavaFunction`.</span>
+<span class="sd">        See :meth:`pyspark.sql.UDFRegistration.registerJavaFunction`.</span>
+
+<span class="sd">        .. note:: Deprecated in 2.3.0. Use :func:`spark.udf.registerJavaFunction` instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Deprecated in 2.3.0. Use spark.udf.registerJavaFunction instead.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sparkSession</span><span class="o">.</span><span class="n">udf</span><span class="o">.</span><span class="n">registerJavaFunction</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">javaClassName</span><span class="p">,</span> <span class="n">returnType</span><span class="p">)</span></div>
+
+    <span class="c1"># TODO(andrew): delete this once we refactor things to take in SparkSession</span>
+    <span class="k">def</span> <span class="nf">_inferSchema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rdd</span><span class="p">,</span> <span class="n">samplingRatio</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Infer schema from an RDD of Row or tuple.</span>
+
+<span class="sd">        :param rdd: an RDD of Row or tuple</span>
+<span class="sd">        :param samplingRatio: sampling ratio, or no sampling (default)</span>
+<span class="sd">        :return: :class:`pyspark.sql.types.StructType`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sparkSession</span><span class="o">.</span><span class="n">_inferSchema</span><span class="p">(</span><span class="n">rdd</span><span class="p">,</span> <span class="n">samplingRatio</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SQLContext.createDataFrame"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.SQLContext.createDataFrame">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.3</span><span class="p">)</span>
+    <span class="nd">@ignore_unicode_prefix</span>
+    <span class="k">def</span> <span class="nf">createDataFrame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">samplingRatio</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verifySchema</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Creates a :class:`DataFrame` from an :class:`RDD`, a list or a :class:`pandas.DataFrame`.</span>
+
+<span class="sd">        When ``schema`` is a list of column names, the type of each column</span>
+<span class="sd">        will be inferred from ``data``.</span>
+
+<span class="sd">        When ``schema`` is ``None``, it will try to infer the schema (column names and types)</span>
+<span class="sd">        from ``data``, which should be an RDD of :class:`Row`,</span>
+<span class="sd">        or :class:`namedtuple`, or :class:`dict`.</span>
+
+<span class="sd">        When ``schema`` is :class:`pyspark.sql.types.DataType` or a datatype string it must match</span>
+<span class="sd">        the real data, or an exception will be thrown at runtime. If the given schema is not</span>
+<span class="sd">        :class:`pyspark.sql.types.StructType`, it will be wrapped into a</span>
+<span class="sd">        :class:`pyspark.sql.types.StructType` as its only field, and the field name will be &quot;value&quot;,</span>
+<span class="sd">        each record will also be wrapped into a tuple, which can be converted to row later.</span>
+
+<span class="sd">        If schema inference is needed, ``samplingRatio`` is used to determined the ratio of</span>
+<span class="sd">        rows used for schema inference. The first row will be used if ``samplingRatio`` is ``None``.</span>
+
+<span class="sd">        :param data: an RDD of any kind of SQL data representation(e.g. :class:`Row`,</span>
+<span class="sd">            :class:`tuple`, ``int``, ``boolean``, etc.), or :class:`list`, or</span>
+<span class="sd">            :class:`pandas.DataFrame`.</span>
+<span class="sd">        :param schema: a :class:`pyspark.sql.types.DataType` or a datatype string or a list of</span>
+<span class="sd">            column names, default is None.  The data type string format equals to</span>
+<span class="sd">            :class:`pyspark.sql.types.DataType.simpleString`, except that top level struct type can</span>
+<span class="sd">            omit the ``struct&lt;&gt;`` and atomic types use ``typeName()`` as their format, e.g. use</span>
+<span class="sd">            ``byte`` instead of ``tinyint`` for :class:`pyspark.sql.types.ByteType`.</span>
+<span class="sd">            We can also use ``int`` as a short name for :class:`pyspark.sql.types.IntegerType`.</span>
+<span class="sd">        :param samplingRatio: the sample ratio of rows used for inferring</span>
+<span class="sd">        :param verifySchema: verify data types of every row against schema.</span>
+<span class="sd">        :return: :class:`DataFrame`</span>
+
+<span class="sd">        .. versionchanged:: 2.0</span>
+<span class="sd">           The ``schema`` parameter can be a :class:`pyspark.sql.types.DataType` or a</span>
+<span class="sd">           datatype string after 2.0.</span>
+<span class="sd">           If it&#39;s not a :class:`pyspark.sql.types.StructType`, it will be wrapped into a</span>
+<span class="sd">           :class:`pyspark.sql.types.StructType` and each record will also be wrapped into a tuple.</span>
+
+<span class="sd">        .. versionchanged:: 2.1</span>
+<span class="sd">           Added verifySchema.</span>
+
+<span class="sd">        &gt;&gt;&gt; l = [(&#39;Alice&#39;, 1)]</span>
+<span class="sd">        &gt;&gt;&gt; sqlContext.createDataFrame(l).collect()</span>
+<span class="sd">        [Row(_1=u&#39;Alice&#39;, _2=1)]</span>
+<span class="sd">        &gt;&gt;&gt; sqlContext.createDataFrame(l, [&#39;name&#39;, &#39;age&#39;]).collect()</span>
+<span class="sd">        [Row(name=u&#39;Alice&#39;, age=1)]</span>
+
+<span class="sd">        &gt;&gt;&gt; d = [{&#39;name&#39;: &#39;Alice&#39;, &#39;age&#39;: 1}]</span>
+<span class="sd">        &gt;&gt;&gt; sqlContext.createDataFrame(d).collect()</span>
+<span class="sd">        [Row(age=1, name=u&#39;Alice&#39;)]</span>
+
+<span class="sd">        &gt;&gt;&gt; rdd = sc.parallelize(l)</span>
+<span class="sd">        &gt;&gt;&gt; sqlContext.createDataFrame(rdd).collect()</span>
+<span class="sd">        [Row(_1=u&#39;Alice&#39;, _2=1)]</span>
+<span class="sd">        &gt;&gt;&gt; df = sqlContext.createDataFrame(rdd, [&#39;name&#39;, &#39;age&#39;])</span>
+<span class="sd">        &gt;&gt;&gt; df.collect()</span>
+<span class="sd">        [Row(name=u&#39;Alice&#39;, age=1)]</span>
+
+<span class="sd">        &gt;&gt;&gt; from pyspark.sql import Row</span>
+<span class="sd">        &gt;&gt;&gt; Person = Row(&#39;name&#39;, &#39;age&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; person = rdd.map(lambda r: Person(*r))</span>
+<span class="sd">        &gt;&gt;&gt; df2 = sqlContext.createDataFrame(person)</span>
+<span class="sd">        &gt;&gt;&gt; df2.collect()</span>
+<span class="sd">        [Row(name=u&#39;Alice&#39;, age=1)]</span>
+
+<span class="sd">        &gt;&gt;&gt; from pyspark.sql.types import *</span>
+<span class="sd">        &gt;&gt;&gt; schema = StructType([</span>
+<span class="sd">        ...    StructField(&quot;name&quot;, StringType(), True),</span>
+<span class="sd">        ...    StructField(&quot;age&quot;, IntegerType(), True)])</span>
+<span class="sd">        &gt;&gt;&gt; df3 = sqlContext.createDataFrame(rdd, schema)</span>
+<span class="sd">        &gt;&gt;&gt; df3.collect()</span>
+<span class="sd">        [Row(name=u&#39;Alice&#39;, age=1)]</span>
+
+<span class="sd">        &gt;&gt;&gt; sqlContext.createDataFrame(df.toPandas()).collect()  # doctest: +SKIP</span>
+<span class="sd">        [Row(name=u&#39;Alice&#39;, age=1)]</span>
+<span class="sd">        &gt;&gt;&gt; sqlContext.createDataFrame(pandas.DataFrame([[1, 2]])).collect()  # doctest: +SKIP</span>
+<span class="sd">        [Row(0=1, 1=2)]</span>
+
+<span class="sd">        &gt;&gt;&gt; sqlContext.createDataFrame(rdd, &quot;a: string, b: int&quot;).collect()</span>
+<span class="sd">        [Row(a=u&#39;Alice&#39;, b=1)]</span>
+<span class="sd">        &gt;&gt;&gt; rdd = rdd.map(lambda row: row[1])</span>
+<span class="sd">        &gt;&gt;&gt; sqlContext.createDataFrame(rdd, &quot;int&quot;).collect()</span>
+<span class="sd">        [Row(value=1)]</span>
+<span class="sd">        &gt;&gt;&gt; sqlContext.createDataFrame(rdd, &quot;boolean&quot;).collect() # doctest: +IGNORE_EXCEPTION_DETAIL</span>
+<span class="sd">        Traceback (most recent call last):</span>
+<span class="sd">            ...</span>
+<span class="sd">        Py4JJavaError: ...</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sparkSession</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">samplingRatio</span><span class="p">,</span> <span class="n">verifySchema</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SQLContext.registerDataFrameAsTable"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.SQLContext.registerDataFrameAsTable">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.3</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">registerDataFrameAsTable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">tableName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Registers the given :class:`DataFrame` as a temporary table in the catalog.</span>
+
+<span class="sd">        Temporary tables exist only during the lifetime of this instance of :class:`SQLContext`.</span>
+
+<span class="sd">        &gt;&gt;&gt; sqlContext.registerDataFrameAsTable(df, &quot;table1&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">createOrReplaceTempView</span><span class="p">(</span><span class="n">tableName</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SQLContext.dropTempTable"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.SQLContext.dropTempTable">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.6</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">dropTempTable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tableName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Remove the temp table from catalog.</span>
+
+<span class="sd">        &gt;&gt;&gt; sqlContext.registerDataFrameAsTable(df, &quot;table1&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; sqlContext.dropTempTable(&quot;table1&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sparkSession</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="n">dropTempView</span><span class="p">(</span><span class="n">tableName</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SQLContext.createExternalTable"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.SQLContext.createExternalTable">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.3</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">createExternalTable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tableName</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates an external table based on the dataset in a data source.</span>
+
+<span class="sd">        It returns the DataFrame associated with the external table.</span>
+
+<span class="sd">        The data source is specified by the ``source`` and a set of ``options``.</span>
+<span class="sd">        If ``source`` is not specified, the default data source configured by</span>
+<span class="sd">        ``spark.sql.sources.default`` will be used.</span>
+
+<span class="sd">        Optionally, a schema can be provided as the schema of the returned :class:`DataFrame` and</span>
+<span class="sd">        created external table.</span>
+
+<span class="sd">        :return: :class:`DataFrame`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sparkSession</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="n">createExternalTable</span><span class="p">(</span>
+            <span class="n">tableName</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SQLContext.sql"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.SQLContext.sql">[docs]</a>    <span class="nd">@ignore_unicode_prefix</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">sql</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sqlQuery</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a :class:`DataFrame` representing the result of the given query.</span>
+
+<span class="sd">        :return: :class:`DataFrame`</span>
+
+<span class="sd">        &gt;&gt;&gt; sqlContext.registerDataFrameAsTable(df, &quot;table1&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; df2 = sqlContext.sql(&quot;SELECT field1 AS f1, field2 as f2 from table1&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; df2.collect()</span>
+<span class="sd">        [Row(f1=1, f2=u&#39;row1&#39;), Row(f1=2, f2=u&#39;row2&#39;), Row(f1=3, f2=u&#39;row3&#39;)]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sparkSession</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="n">sqlQuery</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SQLContext.table"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.SQLContext.table">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tableName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the specified table or view as a :class:`DataFrame`.</span>
+
+<span class="sd">        :return: :class:`DataFrame`</span>
+
+<span class="sd">        &gt;&gt;&gt; sqlContext.registerDataFrameAsTable(df, &quot;table1&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; df2 = sqlContext.table(&quot;table1&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; sorted(df.collect()) == sorted(df2.collect())</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sparkSession</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">tableName</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SQLContext.tables"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.SQLContext.tables">[docs]</a>    <span class="nd">@ignore_unicode_prefix</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.3</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">tables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dbName</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a :class:`DataFrame` containing names of tables in the given database.</span>
+
+<span class="sd">        If ``dbName`` is not specified, the current database will be used.</span>
+
+<span class="sd">        The returned DataFrame has two columns: ``tableName`` and ``isTemporary``</span>
+<span class="sd">        (a column with :class:`BooleanType` indicating if a table is a temporary one or not).</span>
+
+<span class="sd">        :param dbName: string, name of the database to use.</span>
+<span class="sd">        :return: :class:`DataFrame`</span>
+
+<span class="sd">        &gt;&gt;&gt; sqlContext.registerDataFrameAsTable(df, &quot;table1&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; df2 = sqlContext.tables()</span>
+<span class="sd">        &gt;&gt;&gt; df2.filter(&quot;tableName = &#39;table1&#39;&quot;).first()</span>
+<span class="sd">        Row(database=u&#39;&#39;, tableName=u&#39;table1&#39;, isTemporary=True)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">dbName</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ssql_ctx</span><span class="o">.</span><span class="n">tables</span><span class="p">(),</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ssql_ctx</span><span class="o">.</span><span class="n">tables</span><span class="p">(</span><span class="n">dbName</span><span class="p">),</span> <span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SQLContext.tableNames"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.SQLContext.tableNames">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.3</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">tableNames</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dbName</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a list of names of tables in the database ``dbName``.</span>
+
+<span class="sd">        :param dbName: string, name of the database to use. Default to the current database.</span>
+<span class="sd">        :return: list of table names, in string</span>
+
+<span class="sd">        &gt;&gt;&gt; sqlContext.registerDataFrameAsTable(df, &quot;table1&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; &quot;table1&quot; in sqlContext.tableNames()</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; &quot;table1&quot; in sqlContext.tableNames(&quot;default&quot;)</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">dbName</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ssql_ctx</span><span class="o">.</span><span class="n">tableNames</span><span class="p">()]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ssql_ctx</span><span class="o">.</span><span class="n">tableNames</span><span class="p">(</span><span class="n">dbName</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="SQLContext.cacheTable"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.SQLContext.cacheTable">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">cacheTable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tableName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Caches the specified table in-memory.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ssql_ctx</span><span class="o">.</span><span class="n">cacheTable</span><span class="p">(</span><span class="n">tableName</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SQLContext.uncacheTable"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.SQLContext.uncacheTable">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">uncacheTable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tableName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Removes the specified table from the in-memory cache.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ssql_ctx</span><span class="o">.</span><span class="n">uncacheTable</span><span class="p">(</span><span class="n">tableName</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SQLContext.clearCache"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.SQLContext.clearCache">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.3</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">clearCache</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Removes all cached tables from the in-memory cache. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ssql_ctx</span><span class="o">.</span><span class="n">clearCache</span><span class="p">()</span></div>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a :class:`DataFrameReader` that can be used to read data</span>
+<span class="sd">        in as a :class:`DataFrame`.</span>
+
+<span class="sd">        :return: :class:`DataFrameReader`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">DataFrameReader</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">readStream</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a :class:`DataStreamReader` that can be used to read data streams</span>
+<span class="sd">        as a streaming :class:`DataFrame`.</span>
+
+<span class="sd">        .. note:: Evolving.</span>
+
+<span class="sd">        :return: :class:`DataStreamReader`</span>
+
+<span class="sd">        &gt;&gt;&gt; text_sdf = sqlContext.readStream.text(tempfile.mkdtemp())</span>
+<span class="sd">        &gt;&gt;&gt; text_sdf.isStreaming</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">DataStreamReader</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">streams</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a :class:`StreamingQueryManager` that allows managing all the</span>
+<span class="sd">        :class:`StreamingQuery` StreamingQueries active on `this` context.</span>
+
+<span class="sd">        .. note:: Evolving.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyspark.sql.streaming</span> <span class="k">import</span> <span class="n">StreamingQueryManager</span>
+        <span class="k">return</span> <span class="n">StreamingQueryManager</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ssql_ctx</span><span class="o">.</span><span class="n">streams</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="HiveContext"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.HiveContext">[docs]</a><span class="k">class</span> <span class="nc">HiveContext</span><span class="p">(</span><span class="n">SQLContext</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A variant of Spark SQL that integrates with data stored in Hive.</span>
+
+<span class="sd">    Configuration for Hive is read from ``hive-site.xml`` on the classpath.</span>
+<span class="sd">    It supports running both SQL and HiveQL commands.</span>
+
+<span class="sd">    :param sparkContext: The SparkContext to wrap.</span>
+<span class="sd">    :param jhiveContext: An optional JVM Scala HiveContext. If set, we do not instantiate a new</span>
+<span class="sd">        :class:`HiveContext` in the JVM, instead we make all calls to this object.</span>
+
+<span class="sd">    .. note:: Deprecated in 2.0.0. Use SparkSession.builder.enableHiveSupport().getOrCreate().</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparkContext</span><span class="p">,</span> <span class="n">jhiveContext</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;HiveContext is deprecated in Spark 2.0.0. Please use &quot;</span> <span class="o">+</span>
+            <span class="s2">&quot;SparkSession.builder.enableHiveSupport().getOrCreate() instead.&quot;</span><span class="p">,</span>
+            <span class="ne">DeprecationWarning</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">jhiveContext</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sparkSession</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">enableHiveSupport</span><span class="p">()</span><span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sparkSession</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="p">(</span><span class="n">sparkContext</span><span class="p">,</span> <span class="n">jhiveContext</span><span class="o">.</span><span class="n">sparkSession</span><span class="p">())</span>
+        <span class="n">SQLContext</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sparkContext</span><span class="p">,</span> <span class="n">sparkSession</span><span class="p">,</span> <span class="n">jhiveContext</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_createForTesting</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">sparkContext</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;(Internal use only) Create a new HiveContext for testing.</span>
+
+<span class="sd">        All test code that touches HiveContext *must* go through this method. Otherwise,</span>
+<span class="sd">        you may end up launching multiple derby instances and encounter with incredibly</span>
+<span class="sd">        confusing error messages.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">jsc</span> <span class="o">=</span> <span class="n">sparkContext</span><span class="o">.</span><span class="n">_jsc</span><span class="o">.</span><span class="n">sc</span><span class="p">()</span>
+        <span class="n">jtestHive</span> <span class="o">=</span> <span class="n">sparkContext</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">hive</span><span class="o">.</span><span class="n">test</span><span class="o">.</span><span class="n">TestHiveContext</span><span class="p">(</span><span class="n">jsc</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">sparkContext</span><span class="p">,</span> <span class="n">jtestHive</span><span class="p">)</span>
+
+<div class="viewcode-block" id="HiveContext.refreshTable"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.HiveContext.refreshTable">[docs]</a>    <span class="k">def</span> <span class="nf">refreshTable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tableName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Invalidate and refresh all the cached the metadata of the given</span>
+<span class="sd">        table. For performance reasons, Spark SQL or the external data source</span>
+<span class="sd">        library it uses might cache certain metadata about a table, such as the</span>
+<span class="sd">        location of blocks. When those change outside of Spark SQL, users should</span>
+<span class="sd">        call this function to invalidate the cache.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ssql_ctx</span><span class="o">.</span><span class="n">refreshTable</span><span class="p">(</span><span class="n">tableName</span><span class="p">)</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_test</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="kn">import</span> <span class="nn">tempfile</span>
+    <span class="kn">from</span> <span class="nn">pyspark.context</span> <span class="k">import</span> <span class="n">SparkContext</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">Row</span><span class="p">,</span> <span class="n">SQLContext</span>
+    <span class="kn">import</span> <span class="nn">pyspark.sql.context</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;SPARK_HOME&quot;</span><span class="p">])</span>
+
+    <span class="n">globs</span> <span class="o">=</span> <span class="n">pyspark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="p">(</span><span class="s1">&#39;local[4]&#39;</span><span class="p">,</span> <span class="s1">&#39;PythonTest&#39;</span><span class="p">)</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;tempfile&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tempfile</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;os&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;sc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sc</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;sqlContext&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SQLContext</span><span class="p">(</span><span class="n">sc</span><span class="p">)</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;rdd&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rdd</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">Row</span><span class="p">(</span><span class="n">field1</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">field2</span><span class="o">=</span><span class="s2">&quot;row1&quot;</span><span class="p">),</span>
+         <span class="n">Row</span><span class="p">(</span><span class="n">field1</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">field2</span><span class="o">=</span><span class="s2">&quot;row2&quot;</span><span class="p">),</span>
+         <span class="n">Row</span><span class="p">(</span><span class="n">field1</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">field2</span><span class="o">=</span><span class="s2">&quot;row3&quot;</span><span class="p">)]</span>
+    <span class="p">)</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;df&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rdd</span><span class="o">.</span><span class="n">toDF</span><span class="p">()</span>
+    <span class="n">jsonStrings</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;{&quot;field1&quot;: 1, &quot;field2&quot;: &quot;row1&quot;, &quot;field3&quot;:{&quot;field4&quot;:11}}&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;{&quot;field1&quot; : 2, &quot;field3&quot;:{&quot;field4&quot;:22, &quot;field5&quot;: [10, 11]},&#39;</span>
+        <span class="s1">&#39;&quot;field6&quot;:[{&quot;field7&quot;: &quot;row2&quot;}]}&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;{&quot;field1&quot; : null, &quot;field2&quot;: &quot;row3&quot;, &#39;</span>
+        <span class="s1">&#39;&quot;field3&quot;:{&quot;field4&quot;:33, &quot;field5&quot;: []}}&#39;</span>
+    <span class="p">]</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;jsonStrings&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">jsonStrings</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;json&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="p">(</span><span class="n">jsonStrings</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span>
+        <span class="n">pyspark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">context</span><span class="p">,</span> <span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span>
+        <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span> <span class="o">|</span> <span class="n">doctest</span><span class="o">.</span><span class="n">NORMALIZE_WHITESPACE</span><span class="p">)</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;sc&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">_test</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

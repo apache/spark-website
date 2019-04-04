@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Isotonic Regression Model</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/languages/r.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</head><body>
+
+<table width="100%" summary="page for spark.isoreg {SparkR}"><tr><td>spark.isoreg {SparkR}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Isotonic Regression Model</h2>
+
+<h3>Description</h3>
+
+<p>Fits an Isotonic Regression model against a SparkDataFrame, similarly to R's isoreg().
+Users can print, make predictions on the produced model and save the model to the input path.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+spark.isoreg(data, formula, ...)
+
+## S4 method for signature 'SparkDataFrame,formula'
+spark.isoreg(data, formula,
+  isotonic = TRUE, featureIndex = 0, weightCol = NULL)
+
+## S4 method for signature 'IsotonicRegressionModel'
+summary(object)
+
+## S4 method for signature 'IsotonicRegressionModel'
+predict(object, newData)
+
+## S4 method for signature 'IsotonicRegressionModel,character'
+write.ml(object, path,
+  overwrite = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>SparkDataFrame for training.</p>
+</td></tr>
+<tr valign="top"><td><code>formula</code></td>
+<td>
+<p>A symbolic description of the model to be fitted. Currently only a few formula
+operators are supported, including '~', '.', ':', '+', and '-'.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional arguments passed to the method.</p>
+</td></tr>
+<tr valign="top"><td><code>isotonic</code></td>
+<td>
+<p>Whether the output sequence should be isotonic/increasing (TRUE) or
+antitonic/decreasing (FALSE).</p>
+</td></tr>
+<tr valign="top"><td><code>featureIndex</code></td>
+<td>
+<p>The index of the feature if <code>featuresCol</code> is a vector column
+(default: 0), no effect otherwise.</p>
+</td></tr>
+<tr valign="top"><td><code>weightCol</code></td>
+<td>
+<p>The weight column name.</p>
+</td></tr>
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>a fitted IsotonicRegressionModel.</p>
+</td></tr>
+<tr valign="top"><td><code>newData</code></td>
+<td>
+<p>SparkDataFrame for testing.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>The directory where the model is saved.</p>
+</td></tr>
+<tr valign="top"><td><code>overwrite</code></td>
+<td>
+<p>Overwrites or not if the output path already exists. Default is FALSE
+which means throw exception if the output path exists.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>spark.isoreg</code> returns a fitted Isotonic Regression model.
+</p>
+<p><code>summary</code> returns summary information of the fitted model, which is a list.
+The list includes model's <code>boundaries</code> (boundaries in increasing order)
+and <code>predictions</code> (predictions associated with the boundaries at the same index).
+</p>
+<p><code>predict</code> returns a SparkDataFrame containing predicted values.
+</p>
+
+
+<h3>Note</h3>
+
+<p>spark.isoreg since 2.1.0
+</p>
+<p>summary(IsotonicRegressionModel) since 2.1.0
+</p>
+<p>predict(IsotonicRegressionModel) since 2.1.0
+</p>
+<p>write.ml(IsotonicRegression, character) since 2.1.0
+</p>
+
+
+<h3>Examples</h3>
+
+<pre><code class="r">## Not run: 
+##D sparkR.session()
+##D data &lt;- list(list(7.0, 0.0), list(5.0, 1.0), list(3.0, 2.0),
+##D         list(5.0, 3.0), list(1.0, 4.0))
+##D df &lt;- createDataFrame(data, c(&quot;label&quot;, &quot;feature&quot;))
+##D model &lt;- spark.isoreg(df, label ~ feature, isotonic = FALSE)
+##D # return model boundaries and prediction as lists
+##D result &lt;- summary(model, df)
+##D # prediction based on fitted model
+##D predict_data &lt;- list(list(-2.0), list(-1.0), list(0.5),
+##D                 list(0.75), list(1.0), list(2.0), list(9.0))
+##D predict_df &lt;- createDataFrame(predict_data, c(&quot;feature&quot;))
+##D # get prediction column
+##D predict_result &lt;- collect(select(predict(model, predict_df), &quot;prediction&quot;))
+##D 
+##D # save fitted model to input path
+##D path &lt;- &quot;path/to/model&quot;
+##D write.ml(model, path)
+##D 
+##D # can also read back the saved model and print
+##D savedModel &lt;- read.ml(path)
+##D summary(savedModel)
+## End(Not run)
+</code></pre>
+
+
+<hr /><div style="text-align: center;">[Package <em>SparkR</em> version 2.4.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

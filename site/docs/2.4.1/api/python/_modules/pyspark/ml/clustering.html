@@ -1,0 +1,1482 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.ml.clustering &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.ml.clustering</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="k">import</span> <span class="n">since</span><span class="p">,</span> <span class="n">keyword_only</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.util</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.wrapper</span> <span class="k">import</span> <span class="n">JavaEstimator</span><span class="p">,</span> <span class="n">JavaModel</span><span class="p">,</span> <span class="n">JavaParams</span><span class="p">,</span> <span class="n">JavaWrapper</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.param.shared</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.common</span> <span class="k">import</span> <span class="n">inherit_doc</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">DataFrame</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;BisectingKMeans&#39;</span><span class="p">,</span> <span class="s1">&#39;BisectingKMeansModel&#39;</span><span class="p">,</span> <span class="s1">&#39;BisectingKMeansSummary&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;KMeans&#39;</span><span class="p">,</span> <span class="s1">&#39;KMeansModel&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;GaussianMixture&#39;</span><span class="p">,</span> <span class="s1">&#39;GaussianMixtureModel&#39;</span><span class="p">,</span> <span class="s1">&#39;GaussianMixtureSummary&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;LDA&#39;</span><span class="p">,</span> <span class="s1">&#39;LDAModel&#39;</span><span class="p">,</span> <span class="s1">&#39;LocalLDAModel&#39;</span><span class="p">,</span> <span class="s1">&#39;DistributedLDAModel&#39;</span><span class="p">,</span> <span class="s1">&#39;PowerIterationClustering&#39;</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">ClusteringSummary</span><span class="p">(</span><span class="n">JavaWrapper</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    Clustering results for a given model.</span>
+
+<span class="sd">    .. versionadded:: 2.1.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.1.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">predictionCol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Name for column of predicted clusters in `predictions`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;predictionCol&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.1.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">predictions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        DataFrame produced by the model&#39;s `transform` method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;predictions&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.1.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">featuresCol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Name for column of features in `predictions`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;featuresCol&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.1.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">k</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The number of clusters the model was trained with.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;k&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.1.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">cluster</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        DataFrame of predicted cluster centers for each training data point.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;cluster&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.1.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">clusterSizes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Size of (number of data points in) each cluster.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;clusterSizes&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">numIter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Number of iterations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;numIter&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="GaussianMixtureModel"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.GaussianMixtureModel">[docs]</a><span class="k">class</span> <span class="nc">GaussianMixtureModel</span><span class="p">(</span><span class="n">JavaModel</span><span class="p">,</span> <span class="n">JavaMLWritable</span><span class="p">,</span> <span class="n">JavaMLReadable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Model fitted by GaussianMixture.</span>
+
+<span class="sd">    .. versionadded:: 2.0.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Weight for each Gaussian distribution in the mixture.</span>
+<span class="sd">        This is a multinomial probability distribution over the k Gaussians,</span>
+<span class="sd">        where weights[i] is the weight for Gaussian i, and weights sum to 1.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;weights&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">gaussiansDF</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve Gaussian distributions as a DataFrame.</span>
+<span class="sd">        Each row represents a Gaussian Distribution.</span>
+<span class="sd">        The DataFrame has two columns: mean (Vector) and cov (Matrix).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;gaussiansDF&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.1.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">hasSummary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Indicates whether a training summary exists for this model</span>
+<span class="sd">        instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;hasSummary&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.1.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">summary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets summary (e.g. cluster assignments, cluster sizes) of the model trained on the</span>
+<span class="sd">        training set. An exception is thrown if no summary exists.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hasSummary</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">GaussianMixtureSummary</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;summary&quot;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No training summary available for this </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GaussianMixture"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.GaussianMixture">[docs]</a><span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">GaussianMixture</span><span class="p">(</span><span class="n">JavaEstimator</span><span class="p">,</span> <span class="n">HasFeaturesCol</span><span class="p">,</span> <span class="n">HasPredictionCol</span><span class="p">,</span> <span class="n">HasMaxIter</span><span class="p">,</span> <span class="n">HasTol</span><span class="p">,</span> <span class="n">HasSeed</span><span class="p">,</span>
+                      <span class="n">HasProbabilityCol</span><span class="p">,</span> <span class="n">JavaMLWritable</span><span class="p">,</span> <span class="n">JavaMLReadable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    GaussianMixture clustering.</span>
+<span class="sd">    This class performs expectation maximization for multivariate Gaussian</span>
+<span class="sd">    Mixture Models (GMMs).  A GMM represents a composite distribution of</span>
+<span class="sd">    independent Gaussian distributions with associated &quot;mixing&quot; weights</span>
+<span class="sd">    specifying each&#39;s contribution to the composite.</span>
+
+<span class="sd">    Given a set of sample points, this class will maximize the log-likelihood</span>
+<span class="sd">    for a mixture of k Gaussians, iterating until the log-likelihood changes by</span>
+<span class="sd">    less than convergenceTol, or until it has reached the max number of iterations.</span>
+<span class="sd">    While this process is generally guaranteed to converge, it is not guaranteed</span>
+<span class="sd">    to find a global optimum.</span>
+
+<span class="sd">    .. note:: For high-dimensional data (with many features), this algorithm may perform poorly.</span>
+<span class="sd">          This is due to high-dimensional data (a) making it difficult to cluster at all</span>
+<span class="sd">          (based on statistical/theoretical arguments) and (b) numerical issues with</span>
+<span class="sd">          Gaussian distributions.</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyspark.ml.linalg import Vectors</span>
+
+<span class="sd">    &gt;&gt;&gt; data = [(Vectors.dense([-0.1, -0.05 ]),),</span>
+<span class="sd">    ...         (Vectors.dense([-0.01, -0.1]),),</span>
+<span class="sd">    ...         (Vectors.dense([0.9, 0.8]),),</span>
+<span class="sd">    ...         (Vectors.dense([0.75, 0.935]),),</span>
+<span class="sd">    ...         (Vectors.dense([-0.83, -0.68]),),</span>
+<span class="sd">    ...         (Vectors.dense([-0.91, -0.76]),)]</span>
+<span class="sd">    &gt;&gt;&gt; df = spark.createDataFrame(data, [&quot;features&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; gm = GaussianMixture(k=3, tol=0.0001,</span>
+<span class="sd">    ...                      maxIter=10, seed=10)</span>
+<span class="sd">    &gt;&gt;&gt; model = gm.fit(df)</span>
+<span class="sd">    &gt;&gt;&gt; model.hasSummary</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; summary = model.summary</span>
+<span class="sd">    &gt;&gt;&gt; summary.k</span>
+<span class="sd">    3</span>
+<span class="sd">    &gt;&gt;&gt; summary.clusterSizes</span>
+<span class="sd">    [2, 2, 2]</span>
+<span class="sd">    &gt;&gt;&gt; summary.logLikelihood</span>
+<span class="sd">    8.14636...</span>
+<span class="sd">    &gt;&gt;&gt; weights = model.weights</span>
+<span class="sd">    &gt;&gt;&gt; len(weights)</span>
+<span class="sd">    3</span>
+<span class="sd">    &gt;&gt;&gt; model.gaussiansDF.select(&quot;mean&quot;).head()</span>
+<span class="sd">    Row(mean=DenseVector([0.825, 0.8675]))</span>
+<span class="sd">    &gt;&gt;&gt; model.gaussiansDF.select(&quot;cov&quot;).head()</span>
+<span class="sd">    Row(cov=DenseMatrix(2, 2, [0.0056, -0.0051, -0.0051, 0.0046], False))</span>
+<span class="sd">    &gt;&gt;&gt; transformed = model.transform(df).select(&quot;features&quot;, &quot;prediction&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; rows = transformed.collect()</span>
+<span class="sd">    &gt;&gt;&gt; rows[4].prediction == rows[5].prediction</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; rows[2].prediction == rows[3].prediction</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; gmm_path = temp_path + &quot;/gmm&quot;</span>
+<span class="sd">    &gt;&gt;&gt; gm.save(gmm_path)</span>
+<span class="sd">    &gt;&gt;&gt; gm2 = GaussianMixture.load(gmm_path)</span>
+<span class="sd">    &gt;&gt;&gt; gm2.getK()</span>
+<span class="sd">    3</span>
+<span class="sd">    &gt;&gt;&gt; model_path = temp_path + &quot;/gmm_model&quot;</span>
+<span class="sd">    &gt;&gt;&gt; model.save(model_path)</span>
+<span class="sd">    &gt;&gt;&gt; model2 = GaussianMixtureModel.load(model_path)</span>
+<span class="sd">    &gt;&gt;&gt; model2.hasSummary</span>
+<span class="sd">    False</span>
+<span class="sd">    &gt;&gt;&gt; model2.weights == model.weights</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; model2.gaussiansDF.select(&quot;mean&quot;).head()</span>
+<span class="sd">    Row(mean=DenseVector([0.825, 0.8675]))</span>
+<span class="sd">    &gt;&gt;&gt; model2.gaussiansDF.select(&quot;cov&quot;).head()</span>
+<span class="sd">    Row(cov=DenseMatrix(2, 2, [0.0056, -0.0051, -0.0051, 0.0046], False))</span>
+
+<span class="sd">    .. versionadded:: 2.0.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">k</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="s2">&quot;Number of independent Gaussians in the mixture model. &quot;</span> <span class="o">+</span>
+              <span class="s2">&quot;Must be &gt; 1.&quot;</span><span class="p">,</span> <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toInt</span><span class="p">)</span>
+
+    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">featuresCol</span><span class="o">=</span><span class="s2">&quot;features&quot;</span><span class="p">,</span> <span class="n">predictionCol</span><span class="o">=</span><span class="s2">&quot;prediction&quot;</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                 <span class="n">probabilityCol</span><span class="o">=</span><span class="s2">&quot;probability&quot;</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">maxIter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        __init__(self, featuresCol=&quot;features&quot;, predictionCol=&quot;prediction&quot;, k=2, \</span>
+<span class="sd">                 probabilityCol=&quot;probability&quot;, tol=0.01, maxIter=100, seed=None)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">GaussianMixture</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_java_obj</span><span class="p">(</span><span class="s2">&quot;org.apache.spark.ml.clustering.GaussianMixture&quot;</span><span class="p">,</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setDefault</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">maxIter</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setParams</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">java_model</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">GaussianMixtureModel</span><span class="p">(</span><span class="n">java_model</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GaussianMixture.setParams"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.GaussianMixture.setParams">[docs]</a>    <span class="nd">@keyword_only</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setParams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">featuresCol</span><span class="o">=</span><span class="s2">&quot;features&quot;</span><span class="p">,</span> <span class="n">predictionCol</span><span class="o">=</span><span class="s2">&quot;prediction&quot;</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                  <span class="n">probabilityCol</span><span class="o">=</span><span class="s2">&quot;probability&quot;</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">maxIter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        setParams(self, featuresCol=&quot;features&quot;, predictionCol=&quot;prediction&quot;, k=2, \</span>
+<span class="sd">                  probabilityCol=&quot;probability&quot;, tol=0.01, maxIter=100, seed=None)</span>
+
+<span class="sd">        Sets params for GaussianMixture.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GaussianMixture.setK"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.GaussianMixture.setK">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setK</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`k`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GaussianMixture.getK"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.GaussianMixture.getK">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getK</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of `k`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="GaussianMixtureSummary"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.GaussianMixtureSummary">[docs]</a><span class="k">class</span> <span class="nc">GaussianMixtureSummary</span><span class="p">(</span><span class="n">ClusteringSummary</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    Gaussian mixture clustering results for a given model.</span>
+
+<span class="sd">    .. versionadded:: 2.1.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.1.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">probabilityCol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Name for column of predicted probability of each cluster in `predictions`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;probabilityCol&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.1.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">probability</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        DataFrame of probabilities of each cluster for each training data point.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;probability&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.2.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">logLikelihood</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Total log-likelihood for this model on the given data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;logLikelihood&quot;</span><span class="p">)</span></div>
+
+
+<span class="k">class</span> <span class="nc">KMeansSummary</span><span class="p">(</span><span class="n">ClusteringSummary</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    Summary of KMeans.</span>
+
+<span class="sd">    .. versionadded:: 2.1.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">trainingCost</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        K-means cost (sum of squared distances to the nearest centroid for all points in the</span>
+<span class="sd">        training dataset). This is equivalent to sklearn&#39;s inertia.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;trainingCost&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="KMeansModel"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.KMeansModel">[docs]</a><span class="k">class</span> <span class="nc">KMeansModel</span><span class="p">(</span><span class="n">JavaModel</span><span class="p">,</span> <span class="n">JavaMLWritable</span><span class="p">,</span> <span class="n">JavaMLReadable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Model fitted by KMeans.</span>
+
+<span class="sd">    .. versionadded:: 1.5.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="KMeansModel.clusterCenters"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.KMeansModel.clusterCenters">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.5.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">clusterCenters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the cluster centers, represented as a list of NumPy arrays.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">toArray</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;clusterCenters&quot;</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="KMeansModel.computeCost"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.KMeansModel.computeCost">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">computeCost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the K-means cost (sum of squared distances of points to their nearest center)</span>
+<span class="sd">        for this model on the given data.</span>
+
+<span class="sd">        ..note:: Deprecated in 2.4.0. It will be removed in 3.0.0. Use ClusteringEvaluator instead.</span>
+<span class="sd">           You can also get the cost on the training dataset in the summary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Deprecated in 2.4.0. It will be removed in 3.0.0. Use ClusteringEvaluator &quot;</span>
+                      <span class="s2">&quot;instead. You can also get the cost on the training dataset in the summary.&quot;</span><span class="p">,</span>
+                      <span class="ne">DeprecationWarning</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;computeCost&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.1.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">hasSummary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Indicates whether a training summary exists for this model instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;hasSummary&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.1.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">summary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets summary (e.g. cluster assignments, cluster sizes) of the model trained on the</span>
+<span class="sd">        training set. An exception is thrown if no summary exists.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hasSummary</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">KMeansSummary</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;summary&quot;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No training summary available for this </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="KMeans"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.KMeans">[docs]</a><span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">KMeans</span><span class="p">(</span><span class="n">JavaEstimator</span><span class="p">,</span> <span class="n">HasDistanceMeasure</span><span class="p">,</span> <span class="n">HasFeaturesCol</span><span class="p">,</span> <span class="n">HasPredictionCol</span><span class="p">,</span> <span class="n">HasMaxIter</span><span class="p">,</span>
+             <span class="n">HasTol</span><span class="p">,</span> <span class="n">HasSeed</span><span class="p">,</span> <span class="n">JavaMLWritable</span><span class="p">,</span> <span class="n">JavaMLReadable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    K-means clustering with a k-means++ like initialization mode</span>
+<span class="sd">    (the k-means|| algorithm by Bahmani et al).</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyspark.ml.linalg import Vectors</span>
+<span class="sd">    &gt;&gt;&gt; data = [(Vectors.dense([0.0, 0.0]),), (Vectors.dense([1.0, 1.0]),),</span>
+<span class="sd">    ...         (Vectors.dense([9.0, 8.0]),), (Vectors.dense([8.0, 9.0]),)]</span>
+<span class="sd">    &gt;&gt;&gt; df = spark.createDataFrame(data, [&quot;features&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; kmeans = KMeans(k=2, seed=1)</span>
+<span class="sd">    &gt;&gt;&gt; model = kmeans.fit(df)</span>
+<span class="sd">    &gt;&gt;&gt; centers = model.clusterCenters()</span>
+<span class="sd">    &gt;&gt;&gt; len(centers)</span>
+<span class="sd">    2</span>
+<span class="sd">    &gt;&gt;&gt; model.computeCost(df)</span>
+<span class="sd">    2.000...</span>
+<span class="sd">    &gt;&gt;&gt; transformed = model.transform(df).select(&quot;features&quot;, &quot;prediction&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; rows = transformed.collect()</span>
+<span class="sd">    &gt;&gt;&gt; rows[0].prediction == rows[1].prediction</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; rows[2].prediction == rows[3].prediction</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; model.hasSummary</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; summary = model.summary</span>
+<span class="sd">    &gt;&gt;&gt; summary.k</span>
+<span class="sd">    2</span>
+<span class="sd">    &gt;&gt;&gt; summary.clusterSizes</span>
+<span class="sd">    [2, 2]</span>
+<span class="sd">    &gt;&gt;&gt; summary.trainingCost</span>
+<span class="sd">    2.000...</span>
+<span class="sd">    &gt;&gt;&gt; kmeans_path = temp_path + &quot;/kmeans&quot;</span>
+<span class="sd">    &gt;&gt;&gt; kmeans.save(kmeans_path)</span>
+<span class="sd">    &gt;&gt;&gt; kmeans2 = KMeans.load(kmeans_path)</span>
+<span class="sd">    &gt;&gt;&gt; kmeans2.getK()</span>
+<span class="sd">    2</span>
+<span class="sd">    &gt;&gt;&gt; model_path = temp_path + &quot;/kmeans_model&quot;</span>
+<span class="sd">    &gt;&gt;&gt; model.save(model_path)</span>
+<span class="sd">    &gt;&gt;&gt; model2 = KMeansModel.load(model_path)</span>
+<span class="sd">    &gt;&gt;&gt; model2.hasSummary</span>
+<span class="sd">    False</span>
+<span class="sd">    &gt;&gt;&gt; model.clusterCenters()[0] == model2.clusterCenters()[0]</span>
+<span class="sd">    array([ True,  True], dtype=bool)</span>
+<span class="sd">    &gt;&gt;&gt; model.clusterCenters()[1] == model2.clusterCenters()[1]</span>
+<span class="sd">    array([ True,  True], dtype=bool)</span>
+
+<span class="sd">    .. versionadded:: 1.5.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">k</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="s2">&quot;The number of clusters to create. Must be &gt; 1.&quot;</span><span class="p">,</span>
+              <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toInt</span><span class="p">)</span>
+    <span class="n">initMode</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;initMode&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;The initialization algorithm. This can be either </span><span class="se">\&quot;</span><span class="s2">random</span><span class="se">\&quot;</span><span class="s2"> to &quot;</span> <span class="o">+</span>
+                     <span class="s2">&quot;choose random points as initial cluster centers, or </span><span class="se">\&quot;</span><span class="s2">k-means||</span><span class="se">\&quot;</span><span class="s2"> &quot;</span> <span class="o">+</span>
+                     <span class="s2">&quot;to use a parallel variant of k-means++&quot;</span><span class="p">,</span>
+                     <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toString</span><span class="p">)</span>
+    <span class="n">initSteps</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;initSteps&quot;</span><span class="p">,</span> <span class="s2">&quot;The number of steps for k-means|| &quot;</span> <span class="o">+</span>
+                      <span class="s2">&quot;initialization mode. Must be &gt; 0.&quot;</span><span class="p">,</span> <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toInt</span><span class="p">)</span>
+
+    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">featuresCol</span><span class="o">=</span><span class="s2">&quot;features&quot;</span><span class="p">,</span> <span class="n">predictionCol</span><span class="o">=</span><span class="s2">&quot;prediction&quot;</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                 <span class="n">initMode</span><span class="o">=</span><span class="s2">&quot;k-means||&quot;</span><span class="p">,</span> <span class="n">initSteps</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">maxIter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">distanceMeasure</span><span class="o">=</span><span class="s2">&quot;euclidean&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        __init__(self, featuresCol=&quot;features&quot;, predictionCol=&quot;prediction&quot;, k=2, \</span>
+<span class="sd">                 initMode=&quot;k-means||&quot;, initSteps=2, tol=1e-4, maxIter=20, seed=None, \</span>
+<span class="sd">                 distanceMeasure=&quot;euclidean&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">KMeans</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_java_obj</span><span class="p">(</span><span class="s2">&quot;org.apache.spark.ml.clustering.KMeans&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setDefault</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">initMode</span><span class="o">=</span><span class="s2">&quot;k-means||&quot;</span><span class="p">,</span> <span class="n">initSteps</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">maxIter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                         <span class="n">distanceMeasure</span><span class="o">=</span><span class="s2">&quot;euclidean&quot;</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setParams</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">java_model</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">KMeansModel</span><span class="p">(</span><span class="n">java_model</span><span class="p">)</span>
+
+<div class="viewcode-block" id="KMeans.setParams"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.KMeans.setParams">[docs]</a>    <span class="nd">@keyword_only</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.5.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setParams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">featuresCol</span><span class="o">=</span><span class="s2">&quot;features&quot;</span><span class="p">,</span> <span class="n">predictionCol</span><span class="o">=</span><span class="s2">&quot;prediction&quot;</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                  <span class="n">initMode</span><span class="o">=</span><span class="s2">&quot;k-means||&quot;</span><span class="p">,</span> <span class="n">initSteps</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">maxIter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">distanceMeasure</span><span class="o">=</span><span class="s2">&quot;euclidean&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        setParams(self, featuresCol=&quot;features&quot;, predictionCol=&quot;prediction&quot;, k=2, \</span>
+<span class="sd">                  initMode=&quot;k-means||&quot;, initSteps=2, tol=1e-4, maxIter=20, seed=None, \</span>
+<span class="sd">                  distanceMeasure=&quot;euclidean&quot;)</span>
+
+<span class="sd">        Sets params for KMeans.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="KMeans.setK"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.KMeans.setK">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.5.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setK</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`k`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="KMeans.getK"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.KMeans.getK">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.5.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getK</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of `k`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="KMeans.setInitMode"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.KMeans.setInitMode">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.5.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setInitMode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`initMode`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">initMode</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="KMeans.getInitMode"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.KMeans.getInitMode">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.5.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getInitMode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of `initMode`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initMode</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="KMeans.setInitSteps"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.KMeans.setInitSteps">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.5.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setInitSteps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`initSteps`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">initSteps</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="KMeans.getInitSteps"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.KMeans.getInitSteps">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.5.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getInitSteps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of `initSteps`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initSteps</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="KMeans.setDistanceMeasure"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.KMeans.setDistanceMeasure">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setDistanceMeasure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`distanceMeasure`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">distanceMeasure</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="KMeans.getDistanceMeasure"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.KMeans.getDistanceMeasure">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getDistanceMeasure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of `distanceMeasure`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distanceMeasure</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="BisectingKMeansModel"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.BisectingKMeansModel">[docs]</a><span class="k">class</span> <span class="nc">BisectingKMeansModel</span><span class="p">(</span><span class="n">JavaModel</span><span class="p">,</span> <span class="n">JavaMLWritable</span><span class="p">,</span> <span class="n">JavaMLReadable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Model fitted by BisectingKMeans.</span>
+
+<span class="sd">    .. versionadded:: 2.0.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BisectingKMeansModel.clusterCenters"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.BisectingKMeansModel.clusterCenters">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">clusterCenters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the cluster centers, represented as a list of NumPy arrays.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">toArray</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;clusterCenters&quot;</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="BisectingKMeansModel.computeCost"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.BisectingKMeansModel.computeCost">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">computeCost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the sum of squared distances between the input points</span>
+<span class="sd">        and their corresponding cluster centers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;computeCost&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.1.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">hasSummary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Indicates whether a training summary exists for this model instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;hasSummary&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.1.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">summary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets summary (e.g. cluster assignments, cluster sizes) of the model trained on the</span>
+<span class="sd">        training set. An exception is thrown if no summary exists.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hasSummary</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">BisectingKMeansSummary</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;summary&quot;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No training summary available for this </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BisectingKMeans"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.BisectingKMeans">[docs]</a><span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">BisectingKMeans</span><span class="p">(</span><span class="n">JavaEstimator</span><span class="p">,</span> <span class="n">HasDistanceMeasure</span><span class="p">,</span> <span class="n">HasFeaturesCol</span><span class="p">,</span> <span class="n">HasPredictionCol</span><span class="p">,</span>
+                      <span class="n">HasMaxIter</span><span class="p">,</span> <span class="n">HasSeed</span><span class="p">,</span> <span class="n">JavaMLWritable</span><span class="p">,</span> <span class="n">JavaMLReadable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A bisecting k-means algorithm based on the paper &quot;A comparison of document clustering</span>
+<span class="sd">    techniques&quot; by Steinbach, Karypis, and Kumar, with modification to fit Spark.</span>
+<span class="sd">    The algorithm starts from a single cluster that contains all points.</span>
+<span class="sd">    Iteratively it finds divisible clusters on the bottom level and bisects each of them using</span>
+<span class="sd">    k-means, until there are `k` leaf clusters in total or no leaf clusters are divisible.</span>
+<span class="sd">    The bisecting steps of clusters on the same level are grouped together to increase parallelism.</span>
+<span class="sd">    If bisecting all divisible clusters on the bottom level would result more than `k` leaf</span>
+<span class="sd">    clusters, larger clusters get higher priority.</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyspark.ml.linalg import Vectors</span>
+<span class="sd">    &gt;&gt;&gt; data = [(Vectors.dense([0.0, 0.0]),), (Vectors.dense([1.0, 1.0]),),</span>
+<span class="sd">    ...         (Vectors.dense([9.0, 8.0]),), (Vectors.dense([8.0, 9.0]),)]</span>
+<span class="sd">    &gt;&gt;&gt; df = spark.createDataFrame(data, [&quot;features&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; bkm = BisectingKMeans(k=2, minDivisibleClusterSize=1.0)</span>
+<span class="sd">    &gt;&gt;&gt; model = bkm.fit(df)</span>
+<span class="sd">    &gt;&gt;&gt; centers = model.clusterCenters()</span>
+<span class="sd">    &gt;&gt;&gt; len(centers)</span>
+<span class="sd">    2</span>
+<span class="sd">    &gt;&gt;&gt; model.computeCost(df)</span>
+<span class="sd">    2.000...</span>
+<span class="sd">    &gt;&gt;&gt; model.hasSummary</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; summary = model.summary</span>
+<span class="sd">    &gt;&gt;&gt; summary.k</span>
+<span class="sd">    2</span>
+<span class="sd">    &gt;&gt;&gt; summary.clusterSizes</span>
+<span class="sd">    [2, 2]</span>
+<span class="sd">    &gt;&gt;&gt; transformed = model.transform(df).select(&quot;features&quot;, &quot;prediction&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; rows = transformed.collect()</span>
+<span class="sd">    &gt;&gt;&gt; rows[0].prediction == rows[1].prediction</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; rows[2].prediction == rows[3].prediction</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; bkm_path = temp_path + &quot;/bkm&quot;</span>
+<span class="sd">    &gt;&gt;&gt; bkm.save(bkm_path)</span>
+<span class="sd">    &gt;&gt;&gt; bkm2 = BisectingKMeans.load(bkm_path)</span>
+<span class="sd">    &gt;&gt;&gt; bkm2.getK()</span>
+<span class="sd">    2</span>
+<span class="sd">    &gt;&gt;&gt; bkm2.getDistanceMeasure()</span>
+<span class="sd">    &#39;euclidean&#39;</span>
+<span class="sd">    &gt;&gt;&gt; model_path = temp_path + &quot;/bkm_model&quot;</span>
+<span class="sd">    &gt;&gt;&gt; model.save(model_path)</span>
+<span class="sd">    &gt;&gt;&gt; model2 = BisectingKMeansModel.load(model_path)</span>
+<span class="sd">    &gt;&gt;&gt; model2.hasSummary</span>
+<span class="sd">    False</span>
+<span class="sd">    &gt;&gt;&gt; model.clusterCenters()[0] == model2.clusterCenters()[0]</span>
+<span class="sd">    array([ True,  True], dtype=bool)</span>
+<span class="sd">    &gt;&gt;&gt; model.clusterCenters()[1] == model2.clusterCenters()[1]</span>
+<span class="sd">    array([ True,  True], dtype=bool)</span>
+
+<span class="sd">    .. versionadded:: 2.0.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">k</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="s2">&quot;The desired number of leaf clusters. Must be &gt; 1.&quot;</span><span class="p">,</span>
+              <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toInt</span><span class="p">)</span>
+    <span class="n">minDivisibleClusterSize</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;minDivisibleClusterSize&quot;</span><span class="p">,</span>
+                                    <span class="s2">&quot;The minimum number of points (if &gt;= 1.0) or the minimum &quot;</span> <span class="o">+</span>
+                                    <span class="s2">&quot;proportion of points (if &lt; 1.0) of a divisible cluster.&quot;</span><span class="p">,</span>
+                                    <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toFloat</span><span class="p">)</span>
+
+    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">featuresCol</span><span class="o">=</span><span class="s2">&quot;features&quot;</span><span class="p">,</span> <span class="n">predictionCol</span><span class="o">=</span><span class="s2">&quot;prediction&quot;</span><span class="p">,</span> <span class="n">maxIter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                 <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">minDivisibleClusterSize</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">distanceMeasure</span><span class="o">=</span><span class="s2">&quot;euclidean&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        __init__(self, featuresCol=&quot;features&quot;, predictionCol=&quot;prediction&quot;, maxIter=20, \</span>
+<span class="sd">                 seed=None, k=4, minDivisibleClusterSize=1.0, distanceMeasure=&quot;euclidean&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BisectingKMeans</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_java_obj</span><span class="p">(</span><span class="s2">&quot;org.apache.spark.ml.clustering.BisectingKMeans&quot;</span><span class="p">,</span>
+                                            <span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setDefault</span><span class="p">(</span><span class="n">maxIter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">minDivisibleClusterSize</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setParams</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BisectingKMeans.setParams"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.BisectingKMeans.setParams">[docs]</a>    <span class="nd">@keyword_only</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setParams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">featuresCol</span><span class="o">=</span><span class="s2">&quot;features&quot;</span><span class="p">,</span> <span class="n">predictionCol</span><span class="o">=</span><span class="s2">&quot;prediction&quot;</span><span class="p">,</span> <span class="n">maxIter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+                  <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">minDivisibleClusterSize</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">distanceMeasure</span><span class="o">=</span><span class="s2">&quot;euclidean&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        setParams(self, featuresCol=&quot;features&quot;, predictionCol=&quot;prediction&quot;, maxIter=20, \</span>
+<span class="sd">                  seed=None, k=4, minDivisibleClusterSize=1.0, distanceMeasure=&quot;euclidean&quot;)</span>
+<span class="sd">        Sets params for BisectingKMeans.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BisectingKMeans.setK"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.BisectingKMeans.setK">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setK</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`k`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BisectingKMeans.getK"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.BisectingKMeans.getK">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getK</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of `k` or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BisectingKMeans.setMinDivisibleClusterSize"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.BisectingKMeans.setMinDivisibleClusterSize">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setMinDivisibleClusterSize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`minDivisibleClusterSize`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">minDivisibleClusterSize</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BisectingKMeans.getMinDivisibleClusterSize"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.BisectingKMeans.getMinDivisibleClusterSize">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getMinDivisibleClusterSize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of `minDivisibleClusterSize` or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minDivisibleClusterSize</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BisectingKMeans.setDistanceMeasure"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.BisectingKMeans.setDistanceMeasure">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setDistanceMeasure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`distanceMeasure`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">distanceMeasure</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BisectingKMeans.getDistanceMeasure"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.BisectingKMeans.getDistanceMeasure">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getDistanceMeasure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of `distanceMeasure` or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distanceMeasure</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_create_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">java_model</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">BisectingKMeansModel</span><span class="p">(</span><span class="n">java_model</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BisectingKMeansSummary"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.BisectingKMeansSummary">[docs]</a><span class="k">class</span> <span class="nc">BisectingKMeansSummary</span><span class="p">(</span><span class="n">ClusteringSummary</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    Bisecting KMeans clustering results for a given model.</span>
+
+<span class="sd">    .. versionadded:: 2.1.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="LDAModel"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDAModel">[docs]</a><span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">LDAModel</span><span class="p">(</span><span class="n">JavaModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Latent Dirichlet Allocation (LDA) model.</span>
+<span class="sd">    This abstraction permits for different underlying representations,</span>
+<span class="sd">    including local and distributed data structures.</span>
+
+<span class="sd">    .. versionadded:: 2.0.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LDAModel.isDistributed"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDAModel.isDistributed">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">isDistributed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Indicates whether this instance is of type DistributedLDAModel</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;isDistributed&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDAModel.vocabSize"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDAModel.vocabSize">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">vocabSize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Vocabulary size (number of terms or words in the vocabulary)&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;vocabSize&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDAModel.topicsMatrix"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDAModel.topicsMatrix">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">topicsMatrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Inferred topics, where each topic is represented by a distribution over terms.</span>
+<span class="sd">        This is a matrix of size vocabSize x k, where each column is a topic.</span>
+<span class="sd">        No guarantees are given about the ordering of the topics.</span>
+
+<span class="sd">        WARNING: If this model is actually a :py:class:`DistributedLDAModel` instance produced by</span>
+<span class="sd">        the Expectation-Maximization (&quot;em&quot;) `optimizer`, then this method could involve</span>
+<span class="sd">        collecting a large amount of data to the driver (on the order of vocabSize x k).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;topicsMatrix&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDAModel.logLikelihood"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDAModel.logLikelihood">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">logLikelihood</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculates a lower bound on the log likelihood of the entire corpus.</span>
+<span class="sd">        See Equation (16) in the Online LDA paper (Hoffman et al., 2010).</span>
+
+<span class="sd">        WARNING: If this model is an instance of :py:class:`DistributedLDAModel` (produced when</span>
+<span class="sd">        :py:attr:`optimizer` is set to &quot;em&quot;), this involves collecting a large</span>
+<span class="sd">        :py:func:`topicsMatrix` to the driver. This implementation may be changed in the future.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;logLikelihood&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDAModel.logPerplexity"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDAModel.logPerplexity">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">logPerplexity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate an upper bound on perplexity.  (Lower is better.)</span>
+<span class="sd">        See Equation (16) in the Online LDA paper (Hoffman et al., 2010).</span>
+
+<span class="sd">        WARNING: If this model is an instance of :py:class:`DistributedLDAModel` (produced when</span>
+<span class="sd">        :py:attr:`optimizer` is set to &quot;em&quot;), this involves collecting a large</span>
+<span class="sd">        :py:func:`topicsMatrix` to the driver. This implementation may be changed in the future.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;logPerplexity&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDAModel.describeTopics"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDAModel.describeTopics">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">describeTopics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maxTermsPerTopic</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the topics described by their top-weighted terms.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;describeTopics&quot;</span><span class="p">,</span> <span class="n">maxTermsPerTopic</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDAModel.estimatedDocConcentration"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDAModel.estimatedDocConcentration">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">estimatedDocConcentration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Value for :py:attr:`LDA.docConcentration` estimated from data.</span>
+<span class="sd">        If Online LDA was used and :py:attr:`LDA.optimizeDocConcentration` was set to false,</span>
+<span class="sd">        then this returns the fixed (given) value for the :py:attr:`LDA.docConcentration` parameter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;estimatedDocConcentration&quot;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="DistributedLDAModel"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.DistributedLDAModel">[docs]</a><span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">DistributedLDAModel</span><span class="p">(</span><span class="n">LDAModel</span><span class="p">,</span> <span class="n">JavaMLReadable</span><span class="p">,</span> <span class="n">JavaMLWritable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Distributed model fitted by :py:class:`LDA`.</span>
+<span class="sd">    This type of model is currently only produced by Expectation-Maximization (EM).</span>
+
+<span class="sd">    This model stores the inferred topics, the full training dataset, and the topic distribution</span>
+<span class="sd">    for each training document.</span>
+
+<span class="sd">    .. versionadded:: 2.0.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DistributedLDAModel.toLocal"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.DistributedLDAModel.toLocal">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">toLocal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert this distributed model to a local representation.  This discards info about the</span>
+<span class="sd">        training dataset.</span>
+
+<span class="sd">        WARNING: This involves collecting a large :py:func:`topicsMatrix` to the driver.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">LocalLDAModel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;toLocal&quot;</span><span class="p">))</span>
+
+        <span class="c1"># SPARK-10931: Temporary fix to be removed once LDAModel defines Params</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">_create_params_from_java</span><span class="p">()</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">_transfer_params_from_java</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">model</span></div>
+
+<div class="viewcode-block" id="DistributedLDAModel.trainingLogLikelihood"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.DistributedLDAModel.trainingLogLikelihood">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">trainingLogLikelihood</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Log likelihood of the observed tokens in the training set,</span>
+<span class="sd">        given the current parameter estimates:</span>
+<span class="sd">        log P(docs | topics, topic distributions for docs, Dirichlet hyperparameters)</span>
+
+<span class="sd">        Notes:</span>
+<span class="sd">          - This excludes the prior; for that, use :py:func:`logPrior`.</span>
+<span class="sd">          - Even with :py:func:`logPrior`, this is NOT the same as the data log likelihood given</span>
+<span class="sd">            the hyperparameters.</span>
+<span class="sd">          - This is computed from the topic distributions computed during training. If you call</span>
+<span class="sd">            :py:func:`logLikelihood` on the same training dataset, the topic distributions</span>
+<span class="sd">            will be computed again, possibly giving different results.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;trainingLogLikelihood&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DistributedLDAModel.logPrior"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.DistributedLDAModel.logPrior">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">logPrior</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Log probability of the current parameter estimate:</span>
+<span class="sd">        log P(topics, topic distributions for docs | alpha, eta)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;logPrior&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DistributedLDAModel.getCheckpointFiles"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.DistributedLDAModel.getCheckpointFiles">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getCheckpointFiles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If using checkpointing and :py:attr:`LDA.keepLastCheckpoint` is set to true, then there may</span>
+<span class="sd">        be saved checkpoint files.  This method is provided so that users can manage those files.</span>
+
+<span class="sd">        .. note:: Removing the checkpoints can cause failures if a partition is lost and is needed</span>
+<span class="sd">            by certain :py:class:`DistributedLDAModel` methods.  Reference counting will clean up</span>
+<span class="sd">            the checkpoints when this model and derivative data go out of scope.</span>
+
+<span class="sd">        :return  List of checkpoint files from training</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_java</span><span class="p">(</span><span class="s2">&quot;getCheckpointFiles&quot;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="LocalLDAModel"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LocalLDAModel">[docs]</a><span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">LocalLDAModel</span><span class="p">(</span><span class="n">LDAModel</span><span class="p">,</span> <span class="n">JavaMLReadable</span><span class="p">,</span> <span class="n">JavaMLWritable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Local (non-distributed) model fitted by :py:class:`LDA`.</span>
+<span class="sd">    This model stores the inferred topics only; it does not store info about the training dataset.</span>
+
+<span class="sd">    .. versionadded:: 2.0.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="LDA"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDA">[docs]</a><span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">LDA</span><span class="p">(</span><span class="n">JavaEstimator</span><span class="p">,</span> <span class="n">HasFeaturesCol</span><span class="p">,</span> <span class="n">HasMaxIter</span><span class="p">,</span> <span class="n">HasSeed</span><span class="p">,</span> <span class="n">HasCheckpointInterval</span><span class="p">,</span>
+          <span class="n">JavaMLReadable</span><span class="p">,</span> <span class="n">JavaMLWritable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Latent Dirichlet Allocation (LDA), a topic model designed for text documents.</span>
+
+<span class="sd">    Terminology:</span>
+
+<span class="sd">     - &quot;term&quot; = &quot;word&quot;: an element of the vocabulary</span>
+<span class="sd">     - &quot;token&quot;: instance of a term appearing in a document</span>
+<span class="sd">     - &quot;topic&quot;: multinomial distribution over terms representing some concept</span>
+<span class="sd">     - &quot;document&quot;: one piece of text, corresponding to one row in the input data</span>
+
+<span class="sd">    Original LDA paper (journal version):</span>
+<span class="sd">      Blei, Ng, and Jordan.  &quot;Latent Dirichlet Allocation.&quot;  JMLR, 2003.</span>
+
+<span class="sd">    Input data (featuresCol):</span>
+<span class="sd">    LDA is given a collection of documents as input data, via the featuresCol parameter.</span>
+<span class="sd">    Each document is specified as a :py:class:`Vector` of length vocabSize, where each entry is the</span>
+<span class="sd">    count for the corresponding term (word) in the document.  Feature transformers such as</span>
+<span class="sd">    :py:class:`pyspark.ml.feature.Tokenizer` and :py:class:`pyspark.ml.feature.CountVectorizer`</span>
+<span class="sd">    can be useful for converting text to word count vectors.</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyspark.ml.linalg import Vectors, SparseVector</span>
+<span class="sd">    &gt;&gt;&gt; from pyspark.ml.clustering import LDA</span>
+<span class="sd">    &gt;&gt;&gt; df = spark.createDataFrame([[1, Vectors.dense([0.0, 1.0])],</span>
+<span class="sd">    ...      [2, SparseVector(2, {0: 1.0})],], [&quot;id&quot;, &quot;features&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; lda = LDA(k=2, seed=1, optimizer=&quot;em&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; model = lda.fit(df)</span>
+<span class="sd">    &gt;&gt;&gt; model.isDistributed()</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; localModel = model.toLocal()</span>
+<span class="sd">    &gt;&gt;&gt; localModel.isDistributed()</span>
+<span class="sd">    False</span>
+<span class="sd">    &gt;&gt;&gt; model.vocabSize()</span>
+<span class="sd">    2</span>
+<span class="sd">    &gt;&gt;&gt; model.describeTopics().show()</span>
+<span class="sd">    +-----+-----------+--------------------+</span>
+<span class="sd">    |topic|termIndices|         termWeights|</span>
+<span class="sd">    +-----+-----------+--------------------+</span>
+<span class="sd">    |    0|     [1, 0]|[0.50401530077160...|</span>
+<span class="sd">    |    1|     [0, 1]|[0.50401530077160...|</span>
+<span class="sd">    +-----+-----------+--------------------+</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; model.topicsMatrix()</span>
+<span class="sd">    DenseMatrix(2, 2, [0.496, 0.504, 0.504, 0.496], 0)</span>
+<span class="sd">    &gt;&gt;&gt; lda_path = temp_path + &quot;/lda&quot;</span>
+<span class="sd">    &gt;&gt;&gt; lda.save(lda_path)</span>
+<span class="sd">    &gt;&gt;&gt; sameLDA = LDA.load(lda_path)</span>
+<span class="sd">    &gt;&gt;&gt; distributed_model_path = temp_path + &quot;/lda_distributed_model&quot;</span>
+<span class="sd">    &gt;&gt;&gt; model.save(distributed_model_path)</span>
+<span class="sd">    &gt;&gt;&gt; sameModel = DistributedLDAModel.load(distributed_model_path)</span>
+<span class="sd">    &gt;&gt;&gt; local_model_path = temp_path + &quot;/lda_local_model&quot;</span>
+<span class="sd">    &gt;&gt;&gt; localModel.save(local_model_path)</span>
+<span class="sd">    &gt;&gt;&gt; sameLocalModel = LocalLDAModel.load(local_model_path)</span>
+
+<span class="sd">    .. versionadded:: 2.0.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">k</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="s2">&quot;The number of topics (clusters) to infer. Must be &gt; 1.&quot;</span><span class="p">,</span>
+              <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toInt</span><span class="p">)</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;optimizer&quot;</span><span class="p">,</span>
+                      <span class="s2">&quot;Optimizer or inference algorithm used to estimate the LDA model.  &quot;</span>
+                      <span class="s2">&quot;Supported: online, em&quot;</span><span class="p">,</span> <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toString</span><span class="p">)</span>
+    <span class="n">learningOffset</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;learningOffset&quot;</span><span class="p">,</span>
+                           <span class="s2">&quot;A (positive) learning parameter that downweights early iterations.&quot;</span>
+                           <span class="s2">&quot; Larger values make early iterations count less&quot;</span><span class="p">,</span>
+                           <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toFloat</span><span class="p">)</span>
+    <span class="n">learningDecay</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;learningDecay&quot;</span><span class="p">,</span> <span class="s2">&quot;Learning rate, set as an&quot;</span>
+                          <span class="s2">&quot;exponential decay rate. This should be between (0.5, 1.0] to &quot;</span>
+                          <span class="s2">&quot;guarantee asymptotic convergence.&quot;</span><span class="p">,</span> <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toFloat</span><span class="p">)</span>
+    <span class="n">subsamplingRate</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;subsamplingRate&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;Fraction of the corpus to be sampled and used in each iteration &quot;</span>
+                            <span class="s2">&quot;of mini-batch gradient descent, in range (0, 1].&quot;</span><span class="p">,</span>
+                            <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toFloat</span><span class="p">)</span>
+    <span class="n">optimizeDocConcentration</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;optimizeDocConcentration&quot;</span><span class="p">,</span>
+                                     <span class="s2">&quot;Indicates whether the docConcentration (Dirichlet parameter &quot;</span>
+                                     <span class="s2">&quot;for document-topic distribution) will be optimized during &quot;</span>
+                                     <span class="s2">&quot;training.&quot;</span><span class="p">,</span> <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toBoolean</span><span class="p">)</span>
+    <span class="n">docConcentration</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;docConcentration&quot;</span><span class="p">,</span>
+                             <span class="s2">&quot;Concentration parameter (commonly named </span><span class="se">\&quot;</span><span class="s2">alpha</span><span class="se">\&quot;</span><span class="s2">) for the &quot;</span>
+                             <span class="s2">&quot;prior placed on documents&#39; distributions over topics (</span><span class="se">\&quot;</span><span class="s2">theta</span><span class="se">\&quot;</span><span class="s2">).&quot;</span><span class="p">,</span>
+                             <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toListFloat</span><span class="p">)</span>
+    <span class="n">topicConcentration</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;topicConcentration&quot;</span><span class="p">,</span>
+                               <span class="s2">&quot;Concentration parameter (commonly named </span><span class="se">\&quot;</span><span class="s2">beta</span><span class="se">\&quot;</span><span class="s2"> or </span><span class="se">\&quot;</span><span class="s2">eta</span><span class="se">\&quot;</span><span class="s2">) for &quot;</span>
+                               <span class="s2">&quot;the prior placed on topic&#39; distributions over terms.&quot;</span><span class="p">,</span>
+                               <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toFloat</span><span class="p">)</span>
+    <span class="n">topicDistributionCol</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;topicDistributionCol&quot;</span><span class="p">,</span>
+                                 <span class="s2">&quot;Output column with estimates of the topic mixture distribution &quot;</span>
+                                 <span class="s2">&quot;for each document (often called </span><span class="se">\&quot;</span><span class="s2">theta</span><span class="se">\&quot;</span><span class="s2"> in the literature). &quot;</span>
+                                 <span class="s2">&quot;Returns a vector of zeros for an empty document.&quot;</span><span class="p">,</span>
+                                 <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toString</span><span class="p">)</span>
+    <span class="n">keepLastCheckpoint</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;keepLastCheckpoint&quot;</span><span class="p">,</span>
+                               <span class="s2">&quot;(For EM optimizer) If using checkpointing, this indicates whether&quot;</span>
+                               <span class="s2">&quot; to keep the last checkpoint. If false, then the checkpoint will be&quot;</span>
+                               <span class="s2">&quot; deleted. Deleting the checkpoint can cause failures if a data&quot;</span>
+                               <span class="s2">&quot; partition is lost, so set this bit with care.&quot;</span><span class="p">,</span>
+                               <span class="n">TypeConverters</span><span class="o">.</span><span class="n">toBoolean</span><span class="p">)</span>
+
+    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">featuresCol</span><span class="o">=</span><span class="s2">&quot;features&quot;</span><span class="p">,</span> <span class="n">maxIter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">checkpointInterval</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                 <span class="n">k</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="s2">&quot;online&quot;</span><span class="p">,</span> <span class="n">learningOffset</span><span class="o">=</span><span class="mf">1024.0</span><span class="p">,</span> <span class="n">learningDecay</span><span class="o">=</span><span class="mf">0.51</span><span class="p">,</span>
+                 <span class="n">subsamplingRate</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">optimizeDocConcentration</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                 <span class="n">docConcentration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topicConcentration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">topicDistributionCol</span><span class="o">=</span><span class="s2">&quot;topicDistribution&quot;</span><span class="p">,</span> <span class="n">keepLastCheckpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        __init__(self, featuresCol=&quot;features&quot;, maxIter=20, seed=None, checkpointInterval=10,\</span>
+<span class="sd">                  k=10, optimizer=&quot;online&quot;, learningOffset=1024.0, learningDecay=0.51,\</span>
+<span class="sd">                  subsamplingRate=0.05, optimizeDocConcentration=True,\</span>
+<span class="sd">                  docConcentration=None, topicConcentration=None,\</span>
+<span class="sd">                  topicDistributionCol=&quot;topicDistribution&quot;, keepLastCheckpoint=True)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">LDA</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_java_obj</span><span class="p">(</span><span class="s2">&quot;org.apache.spark.ml.clustering.LDA&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setDefault</span><span class="p">(</span><span class="n">maxIter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">checkpointInterval</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                         <span class="n">k</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="s2">&quot;online&quot;</span><span class="p">,</span> <span class="n">learningOffset</span><span class="o">=</span><span class="mf">1024.0</span><span class="p">,</span> <span class="n">learningDecay</span><span class="o">=</span><span class="mf">0.51</span><span class="p">,</span>
+                         <span class="n">subsamplingRate</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">optimizeDocConcentration</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                         <span class="n">topicDistributionCol</span><span class="o">=</span><span class="s2">&quot;topicDistribution&quot;</span><span class="p">,</span> <span class="n">keepLastCheckpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setParams</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">java_model</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOptimizer</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;em&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">DistributedLDAModel</span><span class="p">(</span><span class="n">java_model</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">LocalLDAModel</span><span class="p">(</span><span class="n">java_model</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LDA.setParams"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDA.setParams">[docs]</a>    <span class="nd">@keyword_only</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setParams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">featuresCol</span><span class="o">=</span><span class="s2">&quot;features&quot;</span><span class="p">,</span> <span class="n">maxIter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">checkpointInterval</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                  <span class="n">k</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">optimizer</span><span class="o">=</span><span class="s2">&quot;online&quot;</span><span class="p">,</span> <span class="n">learningOffset</span><span class="o">=</span><span class="mf">1024.0</span><span class="p">,</span> <span class="n">learningDecay</span><span class="o">=</span><span class="mf">0.51</span><span class="p">,</span>
+                  <span class="n">subsamplingRate</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">optimizeDocConcentration</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                  <span class="n">docConcentration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">topicConcentration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                  <span class="n">topicDistributionCol</span><span class="o">=</span><span class="s2">&quot;topicDistribution&quot;</span><span class="p">,</span> <span class="n">keepLastCheckpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        setParams(self, featuresCol=&quot;features&quot;, maxIter=20, seed=None, checkpointInterval=10,\</span>
+<span class="sd">                  k=10, optimizer=&quot;online&quot;, learningOffset=1024.0, learningDecay=0.51,\</span>
+<span class="sd">                  subsamplingRate=0.05, optimizeDocConcentration=True,\</span>
+<span class="sd">                  docConcentration=None, topicConcentration=None,\</span>
+<span class="sd">                  topicDistributionCol=&quot;topicDistribution&quot;, keepLastCheckpoint=True)</span>
+
+<span class="sd">        Sets params for LDA.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDA.setK"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDA.setK">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setK</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`k`.</span>
+
+<span class="sd">        &gt;&gt;&gt; algo = LDA().setK(10)</span>
+<span class="sd">        &gt;&gt;&gt; algo.getK()</span>
+<span class="sd">        10</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDA.getK"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDA.getK">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getK</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of :py:attr:`k` or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDA.setOptimizer"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDA.setOptimizer">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setOptimizer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`optimizer`.</span>
+<span class="sd">        Currently only support &#39;em&#39; and &#39;online&#39;.</span>
+
+<span class="sd">        &gt;&gt;&gt; algo = LDA().setOptimizer(&quot;em&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; algo.getOptimizer()</span>
+<span class="sd">        &#39;em&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDA.getOptimizer"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDA.getOptimizer">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getOptimizer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of :py:attr:`optimizer` or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDA.setLearningOffset"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDA.setLearningOffset">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setLearningOffset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`learningOffset`.</span>
+
+<span class="sd">        &gt;&gt;&gt; algo = LDA().setLearningOffset(100)</span>
+<span class="sd">        &gt;&gt;&gt; algo.getLearningOffset()</span>
+<span class="sd">        100.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">learningOffset</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDA.getLearningOffset"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDA.getLearningOffset">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getLearningOffset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of :py:attr:`learningOffset` or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">learningOffset</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDA.setLearningDecay"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDA.setLearningDecay">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setLearningDecay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`learningDecay`.</span>
+
+<span class="sd">        &gt;&gt;&gt; algo = LDA().setLearningDecay(0.1)</span>
+<span class="sd">        &gt;&gt;&gt; algo.getLearningDecay()</span>
+<span class="sd">        0.1...</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">learningDecay</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDA.getLearningDecay"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDA.getLearningDecay">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getLearningDecay</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of :py:attr:`learningDecay` or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">learningDecay</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDA.setSubsamplingRate"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDA.setSubsamplingRate">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setSubsamplingRate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`subsamplingRate`.</span>
+
+<span class="sd">        &gt;&gt;&gt; algo = LDA().setSubsamplingRate(0.1)</span>
+<span class="sd">        &gt;&gt;&gt; algo.getSubsamplingRate()</span>
+<span class="sd">        0.1...</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">subsamplingRate</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDA.getSubsamplingRate"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDA.getSubsamplingRate">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getSubsamplingRate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of :py:attr:`subsamplingRate` or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">subsamplingRate</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDA.setOptimizeDocConcentration"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDA.setOptimizeDocConcentration">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setOptimizeDocConcentration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`optimizeDocConcentration`.</span>
+
+<span class="sd">        &gt;&gt;&gt; algo = LDA().setOptimizeDocConcentration(True)</span>
+<span class="sd">        &gt;&gt;&gt; algo.getOptimizeDocConcentration()</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">optimizeDocConcentration</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDA.getOptimizeDocConcentration"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDA.getOptimizeDocConcentration">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getOptimizeDocConcentration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of :py:attr:`optimizeDocConcentration` or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimizeDocConcentration</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDA.setDocConcentration"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDA.setDocConcentration">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setDocConcentration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`docConcentration`.</span>
+
+<span class="sd">        &gt;&gt;&gt; algo = LDA().setDocConcentration([0.1, 0.2])</span>
+<span class="sd">        &gt;&gt;&gt; algo.getDocConcentration()</span>
+<span class="sd">        [0.1..., 0.2...]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">docConcentration</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDA.getDocConcentration"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDA.getDocConcentration">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getDocConcentration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of :py:attr:`docConcentration` or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">docConcentration</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDA.setTopicConcentration"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDA.setTopicConcentration">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setTopicConcentration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`topicConcentration`.</span>
+
+<span class="sd">        &gt;&gt;&gt; algo = LDA().setTopicConcentration(0.5)</span>
+<span class="sd">        &gt;&gt;&gt; algo.getTopicConcentration()</span>
+<span class="sd">        0.5...</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">topicConcentration</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDA.getTopicConcentration"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDA.getTopicConcentration">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getTopicConcentration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of :py:attr:`topicConcentration` or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topicConcentration</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDA.setTopicDistributionCol"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDA.setTopicDistributionCol">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setTopicDistributionCol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`topicDistributionCol`.</span>
+
+<span class="sd">        &gt;&gt;&gt; algo = LDA().setTopicDistributionCol(&quot;topicDistributionCol&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; algo.getTopicDistributionCol()</span>
+<span class="sd">        &#39;topicDistributionCol&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">topicDistributionCol</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDA.getTopicDistributionCol"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDA.getTopicDistributionCol">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getTopicDistributionCol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of :py:attr:`topicDistributionCol` or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">topicDistributionCol</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDA.setKeepLastCheckpoint"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDA.setKeepLastCheckpoint">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setKeepLastCheckpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`keepLastCheckpoint`.</span>
+
+<span class="sd">        &gt;&gt;&gt; algo = LDA().setKeepLastCheckpoint(False)</span>
+<span class="sd">        &gt;&gt;&gt; algo.getKeepLastCheckpoint()</span>
+<span class="sd">        False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">keepLastCheckpoint</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LDA.getKeepLastCheckpoint"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.LDA.getKeepLastCheckpoint">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.0.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getKeepLastCheckpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of :py:attr:`keepLastCheckpoint` or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keepLastCheckpoint</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="PowerIterationClustering"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.PowerIterationClustering">[docs]</a><span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">PowerIterationClustering</span><span class="p">(</span><span class="n">HasMaxIter</span><span class="p">,</span> <span class="n">HasWeightCol</span><span class="p">,</span> <span class="n">JavaParams</span><span class="p">,</span> <span class="n">JavaMLReadable</span><span class="p">,</span>
+                               <span class="n">JavaMLWritable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    Power Iteration Clustering (PIC), a scalable graph clustering algorithm developed by</span>
+<span class="sd">    `Lin and Cohen &lt;http://www.icml2010.org/papers/387.pdf&gt;`_. From the abstract:</span>
+<span class="sd">    PIC finds a very low-dimensional embedding of a dataset using truncated power</span>
+<span class="sd">    iteration on a normalized pair-wise similarity matrix of the data.</span>
+
+<span class="sd">    This class is not yet an Estimator/Transformer, use :py:func:`assignClusters` method</span>
+<span class="sd">    to run the PowerIterationClustering algorithm.</span>
+
+<span class="sd">    .. seealso:: `Wikipedia on Spectral clustering</span>
+<span class="sd">        &lt;http://en.wikipedia.org/wiki/Spectral_clustering&gt;`_</span>
+
+<span class="sd">    &gt;&gt;&gt; data = [(1, 0, 0.5),</span>
+<span class="sd">    ...         (2, 0, 0.5), (2, 1, 0.7),</span>
+<span class="sd">    ...         (3, 0, 0.5), (3, 1, 0.7), (3, 2, 0.9),</span>
+<span class="sd">    ...         (4, 0, 0.5), (4, 1, 0.7), (4, 2, 0.9), (4, 3, 1.1),</span>
+<span class="sd">    ...         (5, 0, 0.5), (5, 1, 0.7), (5, 2, 0.9), (5, 3, 1.1), (5, 4, 1.3)]</span>
+<span class="sd">    &gt;&gt;&gt; df = spark.createDataFrame(data).toDF(&quot;src&quot;, &quot;dst&quot;, &quot;weight&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; pic = PowerIterationClustering(k=2, maxIter=40, weightCol=&quot;weight&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; assignments = pic.assignClusters(df)</span>
+<span class="sd">    &gt;&gt;&gt; assignments.sort(assignments.id).show(truncate=False)</span>
+<span class="sd">    +---+-------+</span>
+<span class="sd">    |id |cluster|</span>
+<span class="sd">    +---+-------+</span>
+<span class="sd">    |0  |1      |</span>
+<span class="sd">    |1  |1      |</span>
+<span class="sd">    |2  |1      |</span>
+<span class="sd">    |3  |1      |</span>
+<span class="sd">    |4  |1      |</span>
+<span class="sd">    |5  |0      |</span>
+<span class="sd">    +---+-------+</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; pic_path = temp_path + &quot;/pic&quot;</span>
+<span class="sd">    &gt;&gt;&gt; pic.save(pic_path)</span>
+<span class="sd">    &gt;&gt;&gt; pic2 = PowerIterationClustering.load(pic_path)</span>
+<span class="sd">    &gt;&gt;&gt; pic2.getK()</span>
+<span class="sd">    2</span>
+<span class="sd">    &gt;&gt;&gt; pic2.getMaxIter()</span>
+<span class="sd">    40</span>
+
+<span class="sd">    .. versionadded:: 2.4.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">k</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;k&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;The number of clusters to create. Must be &gt; 1.&quot;</span><span class="p">,</span>
+              <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toInt</span><span class="p">)</span>
+    <span class="n">initMode</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;initMode&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;The initialization algorithm. This can be either &quot;</span> <span class="o">+</span>
+                     <span class="s2">&quot;&#39;random&#39; to use a random vector as vertex properties, or &#39;degree&#39; to use &quot;</span> <span class="o">+</span>
+                     <span class="s2">&quot;a normalized sum of similarities with other vertices.  Supported options: &quot;</span> <span class="o">+</span>
+                     <span class="s2">&quot;&#39;random&#39; and &#39;degree&#39;.&quot;</span><span class="p">,</span>
+                     <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toString</span><span class="p">)</span>
+    <span class="n">srcCol</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;srcCol&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;Name of the input column for source vertex IDs.&quot;</span><span class="p">,</span>
+                   <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toString</span><span class="p">)</span>
+    <span class="n">dstCol</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;dstCol&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;Name of the input column for destination vertex IDs.&quot;</span><span class="p">,</span>
+                   <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toString</span><span class="p">)</span>
+
+    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">maxIter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">initMode</span><span class="o">=</span><span class="s2">&quot;random&quot;</span><span class="p">,</span> <span class="n">srcCol</span><span class="o">=</span><span class="s2">&quot;src&quot;</span><span class="p">,</span> <span class="n">dstCol</span><span class="o">=</span><span class="s2">&quot;dst&quot;</span><span class="p">,</span>
+                 <span class="n">weightCol</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        __init__(self, k=2, maxIter=20, initMode=&quot;random&quot;, srcCol=&quot;src&quot;, dstCol=&quot;dst&quot;,\</span>
+<span class="sd">                 weightCol=None)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PowerIterationClustering</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_java_obj</span><span class="p">(</span>
+            <span class="s2">&quot;org.apache.spark.ml.clustering.PowerIterationClustering&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setDefault</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">maxIter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">initMode</span><span class="o">=</span><span class="s2">&quot;random&quot;</span><span class="p">,</span> <span class="n">srcCol</span><span class="o">=</span><span class="s2">&quot;src&quot;</span><span class="p">,</span> <span class="n">dstCol</span><span class="o">=</span><span class="s2">&quot;dst&quot;</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setParams</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PowerIterationClustering.setParams"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.PowerIterationClustering.setParams">[docs]</a>    <span class="nd">@keyword_only</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setParams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">maxIter</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">initMode</span><span class="o">=</span><span class="s2">&quot;random&quot;</span><span class="p">,</span> <span class="n">srcCol</span><span class="o">=</span><span class="s2">&quot;src&quot;</span><span class="p">,</span> <span class="n">dstCol</span><span class="o">=</span><span class="s2">&quot;dst&quot;</span><span class="p">,</span>
+                  <span class="n">weightCol</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        setParams(self, k=2, maxIter=20, initMode=&quot;random&quot;, srcCol=&quot;src&quot;, dstCol=&quot;dst&quot;,\</span>
+<span class="sd">                  weightCol=None)</span>
+<span class="sd">        Sets params for PowerIterationClustering.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PowerIterationClustering.setK"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.PowerIterationClustering.setK">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setK</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`k`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PowerIterationClustering.getK"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.PowerIterationClustering.getK">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getK</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of :py:attr:`k` or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PowerIterationClustering.setInitMode"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.PowerIterationClustering.setInitMode">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setInitMode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`initMode`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">initMode</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PowerIterationClustering.getInitMode"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.PowerIterationClustering.getInitMode">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getInitMode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of :py:attr:`initMode` or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initMode</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PowerIterationClustering.setSrcCol"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.PowerIterationClustering.setSrcCol">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setSrcCol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`srcCol`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">srcCol</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PowerIterationClustering.getSrcCol"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.PowerIterationClustering.getSrcCol">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getSrcCol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of :py:attr:`srcCol` or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">srcCol</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PowerIterationClustering.setDstCol"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.PowerIterationClustering.setDstCol">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setDstCol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`dstCol`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">dstCol</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PowerIterationClustering.getDstCol"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.PowerIterationClustering.getDstCol">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getDstCol</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of :py:attr:`dstCol` or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dstCol</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PowerIterationClustering.assignClusters"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.clustering.PowerIterationClustering.assignClusters">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">assignClusters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run the PIC algorithm and returns a cluster assignment for each input vertex.</span>
+
+<span class="sd">        :param dataset:</span>
+<span class="sd">          A dataset with columns src, dst, weight representing the affinity matrix,</span>
+<span class="sd">          which is the matrix A in the PIC paper. Suppose the src column value is i,</span>
+<span class="sd">          the dst column value is j, the weight column value is similarity s,,ij,,</span>
+<span class="sd">          which must be nonnegative. This is a symmetric matrix and hence</span>
+<span class="sd">          s,,ij,, = s,,ji,,. For any (i, j) with nonzero similarity, there should be</span>
+<span class="sd">          either (i, j, s,,ij,,) or (j, i, s,,ji,,) in the input. Rows with i = j are</span>
+<span class="sd">          ignored, because we assume s,,ij,, = 0.0.</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">          A dataset that contains columns of vertex id and the corresponding cluster for</span>
+<span class="sd">          the id. The schema of it will be:</span>
+<span class="sd">          - id: Long</span>
+<span class="sd">          - cluster: Int</span>
+
+<span class="sd">        .. versionadded:: 2.4.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transfer_params_to_java</span><span class="p">()</span>
+        <span class="n">jdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span><span class="o">.</span><span class="n">assignClusters</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">_jdf</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DataFrame</span><span class="p">(</span><span class="n">jdf</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">sql_ctx</span><span class="p">)</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="kn">import</span> <span class="nn">numpy</span>
+    <span class="kn">import</span> <span class="nn">pyspark.ml.clustering</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">SparkSession</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Numpy 1.14+ changed it&#39;s string format.</span>
+        <span class="n">numpy</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">legacy</span><span class="o">=</span><span class="s1">&#39;1.13&#39;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="n">pyspark</span><span class="o">.</span><span class="n">ml</span><span class="o">.</span><span class="n">clustering</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="c1"># The small batch size here ensures that we see multiple batches,</span>
+    <span class="c1"># even in these small test examples:</span>
+    <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span>\
+        <span class="o">.</span><span class="n">master</span><span class="p">(</span><span class="s2">&quot;local[2]&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;ml.clustering tests&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">sparkContext</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;sc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sc</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;spark&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spark</span>
+    <span class="kn">import</span> <span class="nn">tempfile</span>
+    <span class="n">temp_path</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;temp_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp_path</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span> <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span><span class="p">)</span>
+        <span class="n">spark</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">shutil</span> <span class="k">import</span> <span class="n">rmtree</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">rmtree</span><span class="p">(</span><span class="n">temp_path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

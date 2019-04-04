@@ -1,0 +1,269 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Logistic Regression Model</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/languages/r.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</head><body>
+
+<table width="100%" summary="page for spark.logit {SparkR}"><tr><td>spark.logit {SparkR}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Logistic Regression Model</h2>
+
+<h3>Description</h3>
+
+<p>Fits an logistic regression model against a SparkDataFrame. It supports &quot;binomial&quot;: Binary
+logistic regression with pivoting; &quot;multinomial&quot;: Multinomial logistic (softmax) regression
+without pivoting, similar to glmnet. Users can print, make predictions on the produced model
+and save the model to the input path.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+spark.logit(data, formula, ...)
+
+## S4 method for signature 'SparkDataFrame,formula'
+spark.logit(data, formula,
+  regParam = 0, elasticNetParam = 0, maxIter = 100, tol = 1e-06,
+  family = "auto", standardization = TRUE, thresholds = 0.5,
+  weightCol = NULL, aggregationDepth = 2,
+  lowerBoundsOnCoefficients = NULL, upperBoundsOnCoefficients = NULL,
+  lowerBoundsOnIntercepts = NULL, upperBoundsOnIntercepts = NULL,
+  handleInvalid = c("error", "keep", "skip"))
+
+## S4 method for signature 'LogisticRegressionModel'
+summary(object)
+
+## S4 method for signature 'LogisticRegressionModel'
+predict(object, newData)
+
+## S4 method for signature 'LogisticRegressionModel,character'
+write.ml(object, path,
+  overwrite = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>SparkDataFrame for training.</p>
+</td></tr>
+<tr valign="top"><td><code>formula</code></td>
+<td>
+<p>A symbolic description of the model to be fitted. Currently only a few formula
+operators are supported, including '~', '.', ':', '+', and '-'.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional arguments passed to the method.</p>
+</td></tr>
+<tr valign="top"><td><code>regParam</code></td>
+<td>
+<p>the regularization parameter.</p>
+</td></tr>
+<tr valign="top"><td><code>elasticNetParam</code></td>
+<td>
+<p>the ElasticNet mixing parameter. For alpha = 0.0, the penalty is an L2
+penalty. For alpha = 1.0, it is an L1 penalty. For 0.0 &lt; alpha &lt; 1.0,
+the penalty is a combination of L1 and L2. Default is 0.0 which is an
+L2 penalty.</p>
+</td></tr>
+<tr valign="top"><td><code>maxIter</code></td>
+<td>
+<p>maximum iteration number.</p>
+</td></tr>
+<tr valign="top"><td><code>tol</code></td>
+<td>
+<p>convergence tolerance of iterations.</p>
+</td></tr>
+<tr valign="top"><td><code>family</code></td>
+<td>
+<p>the name of family which is a description of the label distribution to be used
+in the model.
+Supported options:
+</p>
+
+<ul>
+<li><p>&quot;auto&quot;: Automatically select the family based on the number of classes:
+If number of classes == 1 || number of classes == 2, set to &quot;binomial&quot;.
+Else, set to &quot;multinomial&quot;.
+</p>
+</li>
+<li><p>&quot;binomial&quot;: Binary logistic regression with pivoting.
+</p>
+</li>
+<li><p>&quot;multinomial&quot;: Multinomial logistic (softmax) regression without
+pivoting.
+</p>
+</li></ul>
+</td></tr>
+<tr valign="top"><td><code>standardization</code></td>
+<td>
+<p>whether to standardize the training features before fitting the model.
+The coefficients of models will be always returned on the original scale,
+so it will be transparent for users. Note that with/without
+standardization, the models should be always converged to the same
+solution when no regularization is applied. Default is TRUE, same as
+glmnet.</p>
+</td></tr>
+<tr valign="top"><td><code>thresholds</code></td>
+<td>
+<p>in binary classification, in range [0, 1]. If the estimated probability of
+class label 1 is &gt; threshold, then predict 1, else 0. A high threshold
+encourages the model to predict 0 more often; a low threshold encourages the
+model to predict 1 more often. Note: Setting this with threshold p is
+equivalent to setting thresholds c(1-p, p). In multiclass (or binary)
+classification to adjust the probability of predicting each class. Array must
+have length equal to the number of classes, with values &gt; 0, excepting that
+at most one value may be 0. The class with largest value p/t is predicted,
+where p is the original probability of that class and t is the class's
+threshold.</p>
+</td></tr>
+<tr valign="top"><td><code>weightCol</code></td>
+<td>
+<p>The weight column name.</p>
+</td></tr>
+<tr valign="top"><td><code>aggregationDepth</code></td>
+<td>
+<p>The depth for treeAggregate (greater than or equal to 2). If the
+dimensions of features or the number of partitions are large, this param
+could be adjusted to a larger size. This is an expert parameter. Default
+value should be good for most cases.</p>
+</td></tr>
+<tr valign="top"><td><code>lowerBoundsOnCoefficients</code></td>
+<td>
+<p>The lower bounds on coefficients if fitting under bound
+constrained optimization.
+The bound matrix must be compatible with the shape (1, number
+of features) for binomial regression, or (number of classes,
+number of features) for multinomial regression.
+It is a R matrix.</p>
+</td></tr>
+<tr valign="top"><td><code>upperBoundsOnCoefficients</code></td>
+<td>
+<p>The upper bounds on coefficients if fitting under bound
+constrained optimization.
+The bound matrix must be compatible with the shape (1, number
+of features) for binomial regression, or (number of classes,
+number of features) for multinomial regression.
+It is a R matrix.</p>
+</td></tr>
+<tr valign="top"><td><code>lowerBoundsOnIntercepts</code></td>
+<td>
+<p>The lower bounds on intercepts if fitting under bound constrained
+optimization.
+The bounds vector size must be equal to 1 for binomial regression,
+or the number
+of classes for multinomial regression.</p>
+</td></tr>
+<tr valign="top"><td><code>upperBoundsOnIntercepts</code></td>
+<td>
+<p>The upper bounds on intercepts if fitting under bound constrained
+optimization.
+The bound vector size must be equal to 1 for binomial regression,
+or the number of classes for multinomial regression.</p>
+</td></tr>
+<tr valign="top"><td><code>handleInvalid</code></td>
+<td>
+<p>How to handle invalid data (unseen labels or NULL values) in features and
+label column of string type.
+Supported options: &quot;skip&quot; (filter out rows with invalid data),
+&quot;error&quot; (throw an error), &quot;keep&quot; (put invalid data in
+a special additional bucket, at index numLabels). Default
+is &quot;error&quot;.</p>
+</td></tr>
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>an LogisticRegressionModel fitted by <code>spark.logit</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>newData</code></td>
+<td>
+<p>a SparkDataFrame for testing.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>The directory where the model is saved.</p>
+</td></tr>
+<tr valign="top"><td><code>overwrite</code></td>
+<td>
+<p>Overwrites or not if the output path already exists. Default is FALSE
+which means throw exception if the output path exists.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>spark.logit</code> returns a fitted logistic regression model.
+</p>
+<p><code>summary</code> returns summary information of the fitted model, which is a list.
+The list includes <code>coefficients</code> (coefficients matrix of the fitted model).
+</p>
+<p><code>predict</code> returns the predicted values based on an LogisticRegressionModel.
+</p>
+
+
+<h3>Note</h3>
+
+<p>spark.logit since 2.1.0
+</p>
+<p>summary(LogisticRegressionModel) since 2.1.0
+</p>
+<p>predict(LogisticRegressionModel) since 2.1.0
+</p>
+<p>write.ml(LogisticRegression, character) since 2.1.0
+</p>
+
+
+<h3>Examples</h3>
+
+<pre><code class="r">## Not run: 
+##D sparkR.session()
+##D # binary logistic regression
+##D t &lt;- as.data.frame(Titanic)
+##D training &lt;- createDataFrame(t)
+##D model &lt;- spark.logit(training, Survived ~ ., regParam = 0.5)
+##D summary &lt;- summary(model)
+##D 
+##D # fitted values on training data
+##D fitted &lt;- predict(model, training)
+##D 
+##D # save fitted model to input path
+##D path &lt;- &quot;path/to/model&quot;
+##D write.ml(model, path)
+##D 
+##D # can also read back the saved model and predict
+##D # Note that summary deos not work on loaded model
+##D savedModel &lt;- read.ml(path)
+##D summary(savedModel)
+##D 
+##D # binary logistic regression against two classes with
+##D # upperBoundsOnCoefficients and upperBoundsOnIntercepts
+##D ubc &lt;- matrix(c(1.0, 0.0, 1.0, 0.0), nrow = 1, ncol = 4)
+##D model &lt;- spark.logit(training, Species ~ .,
+##D                       upperBoundsOnCoefficients = ubc,
+##D                       upperBoundsOnIntercepts = 1.0)
+##D 
+##D # multinomial logistic regression
+##D model &lt;- spark.logit(training, Class ~ ., regParam = 0.5)
+##D summary &lt;- summary(model)
+##D 
+##D # multinomial logistic regression with
+##D # lowerBoundsOnCoefficients and lowerBoundsOnIntercepts
+##D lbc &lt;- matrix(c(0.0, -1.0, 0.0, -1.0, 0.0, -1.0, 0.0, -1.0), nrow = 2, ncol = 4)
+##D lbi &lt;- as.array(c(0.0, 0.0))
+##D model &lt;- spark.logit(training, Species ~ ., family = &quot;multinomial&quot;,
+##D                      lowerBoundsOnCoefficients = lbc,
+##D                      lowerBoundsOnIntercepts = lbi)
+## End(Not run)
+</code></pre>
+
+
+<hr /><div style="text-align: center;">[Package <em>SparkR</em> version 2.4.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

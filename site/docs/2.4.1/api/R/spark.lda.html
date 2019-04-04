@@ -1,0 +1,247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Latent Dirichlet Allocation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/languages/r.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</head><body>
+
+<table width="100%" summary="page for spark.lda {SparkR}"><tr><td>spark.lda {SparkR}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Latent Dirichlet Allocation</h2>
+
+<h3>Description</h3>
+
+<p><code>spark.lda</code> fits a Latent Dirichlet Allocation model on a SparkDataFrame. Users can call
+<code>summary</code> to get a summary of the fitted LDA model, <code>spark.posterior</code> to compute
+posterior probabilities on new data, <code>spark.perplexity</code> to compute log perplexity on new
+data and <code>write.ml</code>/<code>read.ml</code> to save/load fitted models.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+spark.lda(data, ...)
+
+spark.posterior(object, newData)
+
+spark.perplexity(object, data)
+
+## S4 method for signature 'SparkDataFrame'
+spark.lda(data, features = "features",
+  k = 10, maxIter = 20, optimizer = c("online", "em"),
+  subsamplingRate = 0.05, topicConcentration = -1,
+  docConcentration = -1, customizedStopWords = "",
+  maxVocabSize = bitwShiftL(1, 18))
+
+## S4 method for signature 'LDAModel'
+summary(object, maxTermsPerTopic)
+
+## S4 method for signature 'LDAModel,SparkDataFrame'
+spark.perplexity(object, data)
+
+## S4 method for signature 'LDAModel,SparkDataFrame'
+spark.posterior(object, newData)
+
+## S4 method for signature 'LDAModel,character'
+write.ml(object, path, overwrite = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>A SparkDataFrame for training.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional argument(s) passed to the method.</p>
+</td></tr>
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>A Latent Dirichlet Allocation model fitted by <code>spark.lda</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>newData</code></td>
+<td>
+<p>A SparkDataFrame for testing.</p>
+</td></tr>
+<tr valign="top"><td><code>features</code></td>
+<td>
+<p>Features column name. Either libSVM-format column or character-format column is
+valid.</p>
+</td></tr>
+<tr valign="top"><td><code>k</code></td>
+<td>
+<p>Number of topics.</p>
+</td></tr>
+<tr valign="top"><td><code>maxIter</code></td>
+<td>
+<p>Maximum iterations.</p>
+</td></tr>
+<tr valign="top"><td><code>optimizer</code></td>
+<td>
+<p>Optimizer to train an LDA model, &quot;online&quot; or &quot;em&quot;, default is &quot;online&quot;.</p>
+</td></tr>
+<tr valign="top"><td><code>subsamplingRate</code></td>
+<td>
+<p>(For online optimizer) Fraction of the corpus to be sampled and used in
+each iteration of mini-batch gradient descent, in range (0, 1].</p>
+</td></tr>
+<tr valign="top"><td><code>topicConcentration</code></td>
+<td>
+<p>concentration parameter (commonly named <code>beta</code> or <code>eta</code>) for
+the prior placed on topic distributions over terms, default -1 to set automatically on the
+Spark side. Use <code>summary</code> to retrieve the effective topicConcentration. Only 1-size
+numeric is accepted.</p>
+</td></tr>
+<tr valign="top"><td><code>docConcentration</code></td>
+<td>
+<p>concentration parameter (commonly named <code>alpha</code>) for the
+prior placed on documents distributions over topics (<code>theta</code>), default -1 to set
+automatically on the Spark side. Use <code>summary</code> to retrieve the effective
+docConcentration. Only 1-size or <code>k</code>-size numeric is accepted.</p>
+</td></tr>
+<tr valign="top"><td><code>customizedStopWords</code></td>
+<td>
+<p>stopwords that need to be removed from the given corpus. Ignore the
+parameter if libSVM-format column is used as the features column.</p>
+</td></tr>
+<tr valign="top"><td><code>maxVocabSize</code></td>
+<td>
+<p>maximum vocabulary size, default 1 &lt;&lt; 18</p>
+</td></tr>
+<tr valign="top"><td><code>maxTermsPerTopic</code></td>
+<td>
+<p>Maximum number of terms to collect for each topic. Default value of 10.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>The directory where the model is saved.</p>
+</td></tr>
+<tr valign="top"><td><code>overwrite</code></td>
+<td>
+<p>Overwrites or not if the output path already exists. Default is FALSE
+which means throw exception if the output path exists.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>spark.lda</code> returns a fitted Latent Dirichlet Allocation model.
+</p>
+<p><code>summary</code> returns summary information of the fitted model, which is a list.
+The list includes
+</p>
+<table summary="R valueblock">
+<tr valign="top"><td><code><code>docConcentration</code></code></td>
+<td>
+<p>concentration parameter commonly named <code>alpha</code> for
+the prior placed on documents distributions over topics <code>theta</code></p>
+</td></tr>
+<tr valign="top"><td><code><code>topicConcentration</code></code></td>
+<td>
+<p>concentration parameter commonly named <code>beta</code> or
+<code>eta</code> for the prior placed on topic distributions over terms</p>
+</td></tr>
+<tr valign="top"><td><code><code>logLikelihood</code></code></td>
+<td>
+<p>log likelihood of the entire corpus</p>
+</td></tr>
+<tr valign="top"><td><code><code>logPerplexity</code></code></td>
+<td>
+<p>log perplexity</p>
+</td></tr>
+<tr valign="top"><td><code><code>isDistributed</code></code></td>
+<td>
+<p>TRUE for distributed model while FALSE for local model</p>
+</td></tr>
+<tr valign="top"><td><code><code>vocabSize</code></code></td>
+<td>
+<p>number of terms in the corpus</p>
+</td></tr>
+<tr valign="top"><td><code><code>topics</code></code></td>
+<td>
+<p>top 10 terms and their weights of all topics</p>
+</td></tr>
+<tr valign="top"><td><code><code>vocabulary</code></code></td>
+<td>
+<p>whole terms of the training corpus, NULL if libsvm format file
+used as training set</p>
+</td></tr>
+<tr valign="top"><td><code><code>trainingLogLikelihood</code></code></td>
+<td>
+<p>Log likelihood of the observed tokens in the
+training set, given the current parameter estimates:
+log P(docs | topics, topic distributions for docs, Dirichlet hyperparameters)
+It is only for distributed LDA model (i.e., optimizer = &quot;em&quot;)</p>
+</td></tr>
+<tr valign="top"><td><code><code>logPrior</code></code></td>
+<td>
+<p>Log probability of the current parameter estimate:
+log P(topics, topic distributions for docs | Dirichlet hyperparameters)
+It is only for distributed LDA model (i.e., optimizer = &quot;em&quot;)</p>
+</td></tr>
+</table>
+<p><code>spark.perplexity</code> returns the log perplexity of given SparkDataFrame, or the log
+perplexity of the training data if missing argument &quot;data&quot;.
+</p>
+<p><code>spark.posterior</code> returns a SparkDataFrame containing posterior probabilities
+vectors named &quot;topicDistribution&quot;.
+</p>
+
+
+<h3>Note</h3>
+
+<p>spark.lda since 2.1.0
+</p>
+<p>summary(LDAModel) since 2.1.0
+</p>
+<p>spark.perplexity(LDAModel) since 2.1.0
+</p>
+<p>spark.posterior(LDAModel) since 2.1.0
+</p>
+<p>write.ml(LDAModel, character) since 2.1.0
+</p>
+
+
+<h3>See Also</h3>
+
+<p>topicmodels: <a href="https://cran.r-project.org/package=topicmodels">https://cran.r-project.org/package=topicmodels</a>
+</p>
+<p><a href="read.ml.html">read.ml</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre><code class="r">## Not run: 
+##D text &lt;- read.df(&quot;data/mllib/sample_lda_libsvm_data.txt&quot;, source = &quot;libsvm&quot;)
+##D model &lt;- spark.lda(data = text, optimizer = &quot;em&quot;)
+##D 
+##D # get a summary of the model
+##D summary(model)
+##D 
+##D # compute posterior probabilities
+##D posterior &lt;- spark.posterior(model, text)
+##D showDF(posterior)
+##D 
+##D # compute perplexity
+##D perplexity &lt;- spark.perplexity(model, text)
+##D 
+##D # save and load the model
+##D path &lt;- &quot;path/to/model&quot;
+##D write.ml(model, path)
+##D savedModel &lt;- read.ml(path)
+##D summary(savedModel)
+## End(Not run)
+</code></pre>
+
+
+<hr /><div style="text-align: center;">[Package <em>SparkR</em> version 2.4.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

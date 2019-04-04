@@ -1,0 +1,507 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.mllib.random &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.mllib.random</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Python package for random data generation.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">wraps</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="k">import</span> <span class="n">since</span>
+<span class="kn">from</span> <span class="nn">pyspark.mllib.common</span> <span class="k">import</span> <span class="n">callMLlibFunc</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;RandomRDDs&#39;</span><span class="p">,</span> <span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">toArray</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="n">rdd</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">rdd</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">vec</span><span class="p">:</span> <span class="n">vec</span><span class="o">.</span><span class="n">toArray</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">func</span>
+
+
+<div class="viewcode-block" id="RandomRDDs"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.random.RandomRDDs">[docs]</a><span class="k">class</span> <span class="nc">RandomRDDs</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generator methods for creating RDDs comprised of i.i.d samples from</span>
+<span class="sd">    some distribution.</span>
+
+<span class="sd">    .. versionadded:: 1.1.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="RandomRDDs.uniformRDD"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.random.RandomRDDs.uniformRDD">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.1.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">uniformRDD</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">numPartitions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates an RDD comprised of i.i.d. samples from the</span>
+<span class="sd">        uniform distribution U(0.0, 1.0).</span>
+
+<span class="sd">        To transform the distribution in the generated RDD from U(0.0, 1.0)</span>
+<span class="sd">        to U(a, b), use</span>
+<span class="sd">        C{RandomRDDs.uniformRDD(sc, n, p, seed)\</span>
+<span class="sd">          .map(lambda v: a + (b - a) * v)}</span>
+
+<span class="sd">        :param sc: SparkContext used to create the RDD.</span>
+<span class="sd">        :param size: Size of the RDD.</span>
+<span class="sd">        :param numPartitions: Number of partitions in the RDD (default: `sc.defaultParallelism`).</span>
+<span class="sd">        :param seed: Random seed (default: a random long integer).</span>
+<span class="sd">        :return: RDD of float comprised of i.i.d. samples ~ `U(0.0, 1.0)`.</span>
+
+<span class="sd">        &gt;&gt;&gt; x = RandomRDDs.uniformRDD(sc, 100).collect()</span>
+<span class="sd">        &gt;&gt;&gt; len(x)</span>
+<span class="sd">        100</span>
+<span class="sd">        &gt;&gt;&gt; max(x) &lt;= 1.0 and min(x) &gt;= 0.0</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; RandomRDDs.uniformRDD(sc, 100, 4).getNumPartitions()</span>
+<span class="sd">        4</span>
+<span class="sd">        &gt;&gt;&gt; parts = RandomRDDs.uniformRDD(sc, 100, seed=4).getNumPartitions()</span>
+<span class="sd">        &gt;&gt;&gt; parts == sc.defaultParallelism</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;uniformRDD&quot;</span><span class="p">,</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jsc</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">numPartitions</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RandomRDDs.normalRDD"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.random.RandomRDDs.normalRDD">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.1.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">normalRDD</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">numPartitions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates an RDD comprised of i.i.d. samples from the standard normal</span>
+<span class="sd">        distribution.</span>
+
+<span class="sd">        To transform the distribution in the generated RDD from standard normal</span>
+<span class="sd">        to some other normal N(mean, sigma^2), use</span>
+<span class="sd">        C{RandomRDDs.normal(sc, n, p, seed)\</span>
+<span class="sd">          .map(lambda v: mean + sigma * v)}</span>
+
+<span class="sd">        :param sc: SparkContext used to create the RDD.</span>
+<span class="sd">        :param size: Size of the RDD.</span>
+<span class="sd">        :param numPartitions: Number of partitions in the RDD (default: `sc.defaultParallelism`).</span>
+<span class="sd">        :param seed: Random seed (default: a random long integer).</span>
+<span class="sd">        :return: RDD of float comprised of i.i.d. samples ~ N(0.0, 1.0).</span>
+
+<span class="sd">        &gt;&gt;&gt; x = RandomRDDs.normalRDD(sc, 1000, seed=1)</span>
+<span class="sd">        &gt;&gt;&gt; stats = x.stats()</span>
+<span class="sd">        &gt;&gt;&gt; stats.count()</span>
+<span class="sd">        1000</span>
+<span class="sd">        &gt;&gt;&gt; abs(stats.mean() - 0.0) &lt; 0.1</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; abs(stats.stdev() - 1.0) &lt; 0.1</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;normalRDD&quot;</span><span class="p">,</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jsc</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">numPartitions</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RandomRDDs.logNormalRDD"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.random.RandomRDDs.logNormalRDD">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.3.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">logNormalRDD</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">numPartitions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates an RDD comprised of i.i.d. samples from the log normal</span>
+<span class="sd">        distribution with the input mean and standard distribution.</span>
+
+<span class="sd">        :param sc: SparkContext used to create the RDD.</span>
+<span class="sd">        :param mean: mean for the log Normal distribution</span>
+<span class="sd">        :param std: std for the log Normal distribution</span>
+<span class="sd">        :param size: Size of the RDD.</span>
+<span class="sd">        :param numPartitions: Number of partitions in the RDD (default: `sc.defaultParallelism`).</span>
+<span class="sd">        :param seed: Random seed (default: a random long integer).</span>
+<span class="sd">        :return: RDD of float comprised of i.i.d. samples ~ log N(mean, std).</span>
+
+<span class="sd">        &gt;&gt;&gt; from math import sqrt, exp</span>
+<span class="sd">        &gt;&gt;&gt; mean = 0.0</span>
+<span class="sd">        &gt;&gt;&gt; std = 1.0</span>
+<span class="sd">        &gt;&gt;&gt; expMean = exp(mean + 0.5 * std * std)</span>
+<span class="sd">        &gt;&gt;&gt; expStd = sqrt((exp(std * std) - 1.0) * exp(2.0 * mean + std * std))</span>
+<span class="sd">        &gt;&gt;&gt; x = RandomRDDs.logNormalRDD(sc, mean, std, 1000, seed=2)</span>
+<span class="sd">        &gt;&gt;&gt; stats = x.stats()</span>
+<span class="sd">        &gt;&gt;&gt; stats.count()</span>
+<span class="sd">        1000</span>
+<span class="sd">        &gt;&gt;&gt; abs(stats.mean() - expMean) &lt; 0.5</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; from math import sqrt</span>
+<span class="sd">        &gt;&gt;&gt; abs(stats.stdev() - expStd) &lt; 0.5</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;logNormalRDD&quot;</span><span class="p">,</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jsc</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">mean</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">std</span><span class="p">),</span>
+                             <span class="n">size</span><span class="p">,</span> <span class="n">numPartitions</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RandomRDDs.poissonRDD"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.random.RandomRDDs.poissonRDD">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.1.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">poissonRDD</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">numPartitions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates an RDD comprised of i.i.d. samples from the Poisson</span>
+<span class="sd">        distribution with the input mean.</span>
+
+<span class="sd">        :param sc: SparkContext used to create the RDD.</span>
+<span class="sd">        :param mean: Mean, or lambda, for the Poisson distribution.</span>
+<span class="sd">        :param size: Size of the RDD.</span>
+<span class="sd">        :param numPartitions: Number of partitions in the RDD (default: `sc.defaultParallelism`).</span>
+<span class="sd">        :param seed: Random seed (default: a random long integer).</span>
+<span class="sd">        :return: RDD of float comprised of i.i.d. samples ~ Pois(mean).</span>
+
+<span class="sd">        &gt;&gt;&gt; mean = 100.0</span>
+<span class="sd">        &gt;&gt;&gt; x = RandomRDDs.poissonRDD(sc, mean, 1000, seed=2)</span>
+<span class="sd">        &gt;&gt;&gt; stats = x.stats()</span>
+<span class="sd">        &gt;&gt;&gt; stats.count()</span>
+<span class="sd">        1000</span>
+<span class="sd">        &gt;&gt;&gt; abs(stats.mean() - mean) &lt; 0.5</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; from math import sqrt</span>
+<span class="sd">        &gt;&gt;&gt; abs(stats.stdev() - sqrt(mean)) &lt; 0.5</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;poissonRDD&quot;</span><span class="p">,</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jsc</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">mean</span><span class="p">),</span> <span class="n">size</span><span class="p">,</span> <span class="n">numPartitions</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RandomRDDs.exponentialRDD"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.random.RandomRDDs.exponentialRDD">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.3.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">exponentialRDD</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">numPartitions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates an RDD comprised of i.i.d. samples from the Exponential</span>
+<span class="sd">        distribution with the input mean.</span>
+
+<span class="sd">        :param sc: SparkContext used to create the RDD.</span>
+<span class="sd">        :param mean: Mean, or 1 / lambda, for the Exponential distribution.</span>
+<span class="sd">        :param size: Size of the RDD.</span>
+<span class="sd">        :param numPartitions: Number of partitions in the RDD (default: `sc.defaultParallelism`).</span>
+<span class="sd">        :param seed: Random seed (default: a random long integer).</span>
+<span class="sd">        :return: RDD of float comprised of i.i.d. samples ~ Exp(mean).</span>
+
+<span class="sd">        &gt;&gt;&gt; mean = 2.0</span>
+<span class="sd">        &gt;&gt;&gt; x = RandomRDDs.exponentialRDD(sc, mean, 1000, seed=2)</span>
+<span class="sd">        &gt;&gt;&gt; stats = x.stats()</span>
+<span class="sd">        &gt;&gt;&gt; stats.count()</span>
+<span class="sd">        1000</span>
+<span class="sd">        &gt;&gt;&gt; abs(stats.mean() - mean) &lt; 0.5</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; from math import sqrt</span>
+<span class="sd">        &gt;&gt;&gt; abs(stats.stdev() - sqrt(mean)) &lt; 0.5</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;exponentialRDD&quot;</span><span class="p">,</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jsc</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">mean</span><span class="p">),</span> <span class="n">size</span><span class="p">,</span> <span class="n">numPartitions</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RandomRDDs.gammaRDD"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.random.RandomRDDs.gammaRDD">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.3.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">gammaRDD</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">numPartitions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates an RDD comprised of i.i.d. samples from the Gamma</span>
+<span class="sd">        distribution with the input shape and scale.</span>
+
+<span class="sd">        :param sc: SparkContext used to create the RDD.</span>
+<span class="sd">        :param shape: shape (&gt; 0) parameter for the Gamma distribution</span>
+<span class="sd">        :param scale: scale (&gt; 0) parameter for the Gamma distribution</span>
+<span class="sd">        :param size: Size of the RDD.</span>
+<span class="sd">        :param numPartitions: Number of partitions in the RDD (default: `sc.defaultParallelism`).</span>
+<span class="sd">        :param seed: Random seed (default: a random long integer).</span>
+<span class="sd">        :return: RDD of float comprised of i.i.d. samples ~ Gamma(shape, scale).</span>
+
+<span class="sd">        &gt;&gt;&gt; from math import sqrt</span>
+<span class="sd">        &gt;&gt;&gt; shape = 1.0</span>
+<span class="sd">        &gt;&gt;&gt; scale = 2.0</span>
+<span class="sd">        &gt;&gt;&gt; expMean = shape * scale</span>
+<span class="sd">        &gt;&gt;&gt; expStd = sqrt(shape * scale * scale)</span>
+<span class="sd">        &gt;&gt;&gt; x = RandomRDDs.gammaRDD(sc, shape, scale, 1000, seed=2)</span>
+<span class="sd">        &gt;&gt;&gt; stats = x.stats()</span>
+<span class="sd">        &gt;&gt;&gt; stats.count()</span>
+<span class="sd">        1000</span>
+<span class="sd">        &gt;&gt;&gt; abs(stats.mean() - expMean) &lt; 0.5</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; abs(stats.stdev() - expStd) &lt; 0.5</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;gammaRDD&quot;</span><span class="p">,</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jsc</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">shape</span><span class="p">),</span>
+                             <span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">),</span> <span class="n">size</span><span class="p">,</span> <span class="n">numPartitions</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RandomRDDs.uniformVectorRDD"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.random.RandomRDDs.uniformVectorRDD">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@toArray</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.1.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">uniformVectorRDD</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">numRows</span><span class="p">,</span> <span class="n">numCols</span><span class="p">,</span> <span class="n">numPartitions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates an RDD comprised of vectors containing i.i.d. samples drawn</span>
+<span class="sd">        from the uniform distribution U(0.0, 1.0).</span>
+
+<span class="sd">        :param sc: SparkContext used to create the RDD.</span>
+<span class="sd">        :param numRows: Number of Vectors in the RDD.</span>
+<span class="sd">        :param numCols: Number of elements in each Vector.</span>
+<span class="sd">        :param numPartitions: Number of partitions in the RDD.</span>
+<span class="sd">        :param seed: Seed for the RNG that generates the seed for the generator in each partition.</span>
+<span class="sd">        :return: RDD of Vector with vectors containing i.i.d samples ~ `U(0.0, 1.0)`.</span>
+
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; mat = np.matrix(RandomRDDs.uniformVectorRDD(sc, 10, 10).collect())</span>
+<span class="sd">        &gt;&gt;&gt; mat.shape</span>
+<span class="sd">        (10, 10)</span>
+<span class="sd">        &gt;&gt;&gt; mat.max() &lt;= 1.0 and mat.min() &gt;= 0.0</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; RandomRDDs.uniformVectorRDD(sc, 10, 10, 4).getNumPartitions()</span>
+<span class="sd">        4</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;uniformVectorRDD&quot;</span><span class="p">,</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jsc</span><span class="p">,</span> <span class="n">numRows</span><span class="p">,</span> <span class="n">numCols</span><span class="p">,</span> <span class="n">numPartitions</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RandomRDDs.normalVectorRDD"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.random.RandomRDDs.normalVectorRDD">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@toArray</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.1.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">normalVectorRDD</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">numRows</span><span class="p">,</span> <span class="n">numCols</span><span class="p">,</span> <span class="n">numPartitions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates an RDD comprised of vectors containing i.i.d. samples drawn</span>
+<span class="sd">        from the standard normal distribution.</span>
+
+<span class="sd">        :param sc: SparkContext used to create the RDD.</span>
+<span class="sd">        :param numRows: Number of Vectors in the RDD.</span>
+<span class="sd">        :param numCols: Number of elements in each Vector.</span>
+<span class="sd">        :param numPartitions: Number of partitions in the RDD (default: `sc.defaultParallelism`).</span>
+<span class="sd">        :param seed: Random seed (default: a random long integer).</span>
+<span class="sd">        :return: RDD of Vector with vectors containing i.i.d. samples ~ `N(0.0, 1.0)`.</span>
+
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; mat = np.matrix(RandomRDDs.normalVectorRDD(sc, 100, 100, seed=1).collect())</span>
+<span class="sd">        &gt;&gt;&gt; mat.shape</span>
+<span class="sd">        (100, 100)</span>
+<span class="sd">        &gt;&gt;&gt; abs(mat.mean() - 0.0) &lt; 0.1</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; abs(mat.std() - 1.0) &lt; 0.1</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;normalVectorRDD&quot;</span><span class="p">,</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jsc</span><span class="p">,</span> <span class="n">numRows</span><span class="p">,</span> <span class="n">numCols</span><span class="p">,</span> <span class="n">numPartitions</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RandomRDDs.logNormalVectorRDD"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.random.RandomRDDs.logNormalVectorRDD">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@toArray</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.3.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">logNormalVectorRDD</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="p">,</span> <span class="n">numRows</span><span class="p">,</span> <span class="n">numCols</span><span class="p">,</span> <span class="n">numPartitions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates an RDD comprised of vectors containing i.i.d. samples drawn</span>
+<span class="sd">        from the log normal distribution.</span>
+
+<span class="sd">        :param sc: SparkContext used to create the RDD.</span>
+<span class="sd">        :param mean: Mean of the log normal distribution</span>
+<span class="sd">        :param std: Standard Deviation of the log normal distribution</span>
+<span class="sd">        :param numRows: Number of Vectors in the RDD.</span>
+<span class="sd">        :param numCols: Number of elements in each Vector.</span>
+<span class="sd">        :param numPartitions: Number of partitions in the RDD (default: `sc.defaultParallelism`).</span>
+<span class="sd">        :param seed: Random seed (default: a random long integer).</span>
+<span class="sd">        :return: RDD of Vector with vectors containing i.i.d. samples ~ log `N(mean, std)`.</span>
+
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; from math import sqrt, exp</span>
+<span class="sd">        &gt;&gt;&gt; mean = 0.0</span>
+<span class="sd">        &gt;&gt;&gt; std = 1.0</span>
+<span class="sd">        &gt;&gt;&gt; expMean = exp(mean + 0.5 * std * std)</span>
+<span class="sd">        &gt;&gt;&gt; expStd = sqrt((exp(std * std) - 1.0) * exp(2.0 * mean + std * std))</span>
+<span class="sd">        &gt;&gt;&gt; m = RandomRDDs.logNormalVectorRDD(sc, mean, std, 100, 100, seed=1).collect()</span>
+<span class="sd">        &gt;&gt;&gt; mat = np.matrix(m)</span>
+<span class="sd">        &gt;&gt;&gt; mat.shape</span>
+<span class="sd">        (100, 100)</span>
+<span class="sd">        &gt;&gt;&gt; abs(mat.mean() - expMean) &lt; 0.1</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; abs(mat.std() - expStd) &lt; 0.1</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;logNormalVectorRDD&quot;</span><span class="p">,</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jsc</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">mean</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">std</span><span class="p">),</span>
+                             <span class="n">numRows</span><span class="p">,</span> <span class="n">numCols</span><span class="p">,</span> <span class="n">numPartitions</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RandomRDDs.poissonVectorRDD"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.random.RandomRDDs.poissonVectorRDD">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@toArray</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.1.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">poissonVectorRDD</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">numRows</span><span class="p">,</span> <span class="n">numCols</span><span class="p">,</span> <span class="n">numPartitions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates an RDD comprised of vectors containing i.i.d. samples drawn</span>
+<span class="sd">        from the Poisson distribution with the input mean.</span>
+
+<span class="sd">        :param sc: SparkContext used to create the RDD.</span>
+<span class="sd">        :param mean: Mean, or lambda, for the Poisson distribution.</span>
+<span class="sd">        :param numRows: Number of Vectors in the RDD.</span>
+<span class="sd">        :param numCols: Number of elements in each Vector.</span>
+<span class="sd">        :param numPartitions: Number of partitions in the RDD (default: `sc.defaultParallelism`)</span>
+<span class="sd">        :param seed: Random seed (default: a random long integer).</span>
+<span class="sd">        :return: RDD of Vector with vectors containing i.i.d. samples ~ Pois(mean).</span>
+
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; mean = 100.0</span>
+<span class="sd">        &gt;&gt;&gt; rdd = RandomRDDs.poissonVectorRDD(sc, mean, 100, 100, seed=1)</span>
+<span class="sd">        &gt;&gt;&gt; mat = np.mat(rdd.collect())</span>
+<span class="sd">        &gt;&gt;&gt; mat.shape</span>
+<span class="sd">        (100, 100)</span>
+<span class="sd">        &gt;&gt;&gt; abs(mat.mean() - mean) &lt; 0.5</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; from math import sqrt</span>
+<span class="sd">        &gt;&gt;&gt; abs(mat.std() - sqrt(mean)) &lt; 0.5</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;poissonVectorRDD&quot;</span><span class="p">,</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jsc</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">mean</span><span class="p">),</span> <span class="n">numRows</span><span class="p">,</span> <span class="n">numCols</span><span class="p">,</span>
+                             <span class="n">numPartitions</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RandomRDDs.exponentialVectorRDD"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.random.RandomRDDs.exponentialVectorRDD">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@toArray</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.3.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">exponentialVectorRDD</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">numRows</span><span class="p">,</span> <span class="n">numCols</span><span class="p">,</span> <span class="n">numPartitions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates an RDD comprised of vectors containing i.i.d. samples drawn</span>
+<span class="sd">        from the Exponential distribution with the input mean.</span>
+
+<span class="sd">        :param sc: SparkContext used to create the RDD.</span>
+<span class="sd">        :param mean: Mean, or 1 / lambda, for the Exponential distribution.</span>
+<span class="sd">        :param numRows: Number of Vectors in the RDD.</span>
+<span class="sd">        :param numCols: Number of elements in each Vector.</span>
+<span class="sd">        :param numPartitions: Number of partitions in the RDD (default: `sc.defaultParallelism`)</span>
+<span class="sd">        :param seed: Random seed (default: a random long integer).</span>
+<span class="sd">        :return: RDD of Vector with vectors containing i.i.d. samples ~ Exp(mean).</span>
+
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; mean = 0.5</span>
+<span class="sd">        &gt;&gt;&gt; rdd = RandomRDDs.exponentialVectorRDD(sc, mean, 100, 100, seed=1)</span>
+<span class="sd">        &gt;&gt;&gt; mat = np.mat(rdd.collect())</span>
+<span class="sd">        &gt;&gt;&gt; mat.shape</span>
+<span class="sd">        (100, 100)</span>
+<span class="sd">        &gt;&gt;&gt; abs(mat.mean() - mean) &lt; 0.5</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; from math import sqrt</span>
+<span class="sd">        &gt;&gt;&gt; abs(mat.std() - sqrt(mean)) &lt; 0.5</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;exponentialVectorRDD&quot;</span><span class="p">,</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jsc</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">mean</span><span class="p">),</span> <span class="n">numRows</span><span class="p">,</span> <span class="n">numCols</span><span class="p">,</span>
+                             <span class="n">numPartitions</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RandomRDDs.gammaVectorRDD"><a class="viewcode-back" href="../../../pyspark.mllib.html#pyspark.mllib.random.RandomRDDs.gammaVectorRDD">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="nd">@toArray</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.3.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">gammaVectorRDD</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">shape</span><span class="p">,</span> <span class="n">scale</span><span class="p">,</span> <span class="n">numRows</span><span class="p">,</span> <span class="n">numCols</span><span class="p">,</span> <span class="n">numPartitions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates an RDD comprised of vectors containing i.i.d. samples drawn</span>
+<span class="sd">        from the Gamma distribution.</span>
+
+<span class="sd">        :param sc: SparkContext used to create the RDD.</span>
+<span class="sd">        :param shape: Shape (&gt; 0) of the Gamma distribution</span>
+<span class="sd">        :param scale: Scale (&gt; 0) of the Gamma distribution</span>
+<span class="sd">        :param numRows: Number of Vectors in the RDD.</span>
+<span class="sd">        :param numCols: Number of elements in each Vector.</span>
+<span class="sd">        :param numPartitions: Number of partitions in the RDD (default: `sc.defaultParallelism`).</span>
+<span class="sd">        :param seed: Random seed (default: a random long integer).</span>
+<span class="sd">        :return: RDD of Vector with vectors containing i.i.d. samples ~ Gamma(shape, scale).</span>
+
+<span class="sd">        &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">        &gt;&gt;&gt; from math import sqrt</span>
+<span class="sd">        &gt;&gt;&gt; shape = 1.0</span>
+<span class="sd">        &gt;&gt;&gt; scale = 2.0</span>
+<span class="sd">        &gt;&gt;&gt; expMean = shape * scale</span>
+<span class="sd">        &gt;&gt;&gt; expStd = sqrt(shape * scale * scale)</span>
+<span class="sd">        &gt;&gt;&gt; mat = np.matrix(RandomRDDs.gammaVectorRDD(sc, shape, scale, 100, 100, seed=1).collect())</span>
+<span class="sd">        &gt;&gt;&gt; mat.shape</span>
+<span class="sd">        (100, 100)</span>
+<span class="sd">        &gt;&gt;&gt; abs(mat.mean() - expMean) &lt; 0.1</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; abs(mat.std() - expStd) &lt; 0.1</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">callMLlibFunc</span><span class="p">(</span><span class="s2">&quot;gammaVectorRDD&quot;</span><span class="p">,</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jsc</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">shape</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">scale</span><span class="p">),</span>
+                             <span class="n">numRows</span><span class="p">,</span> <span class="n">numCols</span><span class="p">,</span> <span class="n">numPartitions</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_test</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">SparkSession</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="c1"># The small batch size here ensures that we see multiple batches,</span>
+    <span class="c1"># even in these small test examples:</span>
+    <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span>\
+        <span class="o">.</span><span class="n">master</span><span class="p">(</span><span class="s2">&quot;local[2]&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;mllib.random tests&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;sc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">sparkContext</span>
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span> <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span><span class="p">)</span>
+    <span class="n">spark</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">_test</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

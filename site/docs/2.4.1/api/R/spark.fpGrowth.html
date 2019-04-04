@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: FP-growth</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/languages/r.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</head><body>
+
+<table width="100%" summary="page for spark.fpGrowth {SparkR}"><tr><td>spark.fpGrowth {SparkR}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>FP-growth</h2>
+
+<h3>Description</h3>
+
+<p>A parallel FP-growth algorithm to mine frequent itemsets.
+<code>spark.fpGrowth</code> fits a FP-growth model on a SparkDataFrame. Users can
+<code>spark.freqItemsets</code> to get frequent itemsets, <code>spark.associationRules</code> to get
+association rules, <code>predict</code> to make predictions on new data based on generated association
+rules, and <code>write.ml</code>/<code>read.ml</code> to save/load fitted models.
+For more details, see
+<a href="https://spark.apache.org/docs/latest/mllib-frequent-pattern-mining.html#fp-growth">
+FP-growth</a>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+spark.fpGrowth(data, ...)
+
+spark.freqItemsets(object)
+
+spark.associationRules(object)
+
+## S4 method for signature 'SparkDataFrame'
+spark.fpGrowth(data, minSupport = 0.3,
+  minConfidence = 0.8, itemsCol = "items", numPartitions = NULL)
+
+## S4 method for signature 'FPGrowthModel'
+spark.freqItemsets(object)
+
+## S4 method for signature 'FPGrowthModel'
+spark.associationRules(object)
+
+## S4 method for signature 'FPGrowthModel'
+predict(object, newData)
+
+## S4 method for signature 'FPGrowthModel,character'
+write.ml(object, path,
+  overwrite = FALSE)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>data</code></td>
+<td>
+<p>A SparkDataFrame for training.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>additional argument(s) passed to the method.</p>
+</td></tr>
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>a fitted FPGrowth model.</p>
+</td></tr>
+<tr valign="top"><td><code>minSupport</code></td>
+<td>
+<p>Minimal support level.</p>
+</td></tr>
+<tr valign="top"><td><code>minConfidence</code></td>
+<td>
+<p>Minimal confidence level.</p>
+</td></tr>
+<tr valign="top"><td><code>itemsCol</code></td>
+<td>
+<p>Features column name.</p>
+</td></tr>
+<tr valign="top"><td><code>numPartitions</code></td>
+<td>
+<p>Number of partitions used for fitting.</p>
+</td></tr>
+<tr valign="top"><td><code>newData</code></td>
+<td>
+<p>a SparkDataFrame for testing.</p>
+</td></tr>
+<tr valign="top"><td><code>path</code></td>
+<td>
+<p>the directory where the model is saved.</p>
+</td></tr>
+<tr valign="top"><td><code>overwrite</code></td>
+<td>
+<p>logical value indicating whether to overwrite if the output path
+already exists. Default is FALSE which means throw exception
+if the output path exists.</p>
+</td></tr>
+</table>
+
+
+<h3>Value</h3>
+
+<p><code>spark.fpGrowth</code> returns a fitted FPGrowth model.
+</p>
+<p>A <code>SparkDataFrame</code> with frequent itemsets.
+The <code>SparkDataFrame</code> contains two columns:
+<code>items</code> (an array of the same type as the input column)
+and <code>freq</code> (frequency of the itemset).
+</p>
+<p>A <code>SparkDataFrame</code> with association rules.
+The <code>SparkDataFrame</code> contains four columns:
+<code>antecedent</code> (an array of the same type as the input column),
+<code>consequent</code> (an array of the same type as the input column),
+<code>condfidence</code> (confidence for the rule)
+and <code>lift</code> (lift for the rule)
+</p>
+<p><code>predict</code> returns a SparkDataFrame containing predicted values.
+</p>
+
+
+<h3>Note</h3>
+
+<p>spark.fpGrowth since 2.2.0
+</p>
+<p>spark.freqItemsets(FPGrowthModel) since 2.2.0
+</p>
+<p>spark.associationRules(FPGrowthModel) since 2.2.0
+</p>
+<p>predict(FPGrowthModel) since 2.2.0
+</p>
+<p>write.ml(FPGrowthModel, character) since 2.2.0
+</p>
+
+
+<h3>See Also</h3>
+
+<p><a href="read.ml.html">read.ml</a>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre><code class="r">## Not run: 
+##D raw_data &lt;- read.df(
+##D   &quot;data/mllib/sample_fpgrowth.txt&quot;,
+##D   source = &quot;csv&quot;,
+##D   schema = structType(structField(&quot;raw_items&quot;, &quot;string&quot;)))
+##D 
+##D data &lt;- selectExpr(raw_data, &quot;split(raw_items, &#39; &#39;) as items&quot;)
+##D model &lt;- spark.fpGrowth(data)
+##D 
+##D # Show frequent itemsets
+##D frequent_itemsets &lt;- spark.freqItemsets(model)
+##D showDF(frequent_itemsets)
+##D 
+##D # Show association rules
+##D association_rules &lt;- spark.associationRules(model)
+##D showDF(association_rules)
+##D 
+##D # Predict on new data
+##D new_itemsets &lt;- data.frame(items = c(&quot;t&quot;, &quot;t,s&quot;))
+##D new_data &lt;- selectExpr(createDataFrame(new_itemsets), &quot;split(items, &#39;,&#39;) as items&quot;)
+##D predict(model, new_data)
+##D 
+##D # Save and load model
+##D path &lt;- &quot;/path/to/model&quot;
+##D write.ml(model, path)
+##D read.ml(path)
+##D 
+##D # Optional arguments
+##D baskets_data &lt;- selectExpr(createDataFrame(itemsets), &quot;split(items, &#39;,&#39;) as baskets&quot;)
+##D another_model &lt;- spark.fpGrowth(data, minSupport = 0.1, minConfidence = 0.5,
+##D                                 itemsCol = &quot;baskets&quot;, numPartitions = 10)
+## End(Not run)
+</code></pre>
+
+
+<hr /><div style="text-align: center;">[Package <em>SparkR</em> version 2.4.1 <a href="00Index.html">Index</a>]</div>
+</body></html>

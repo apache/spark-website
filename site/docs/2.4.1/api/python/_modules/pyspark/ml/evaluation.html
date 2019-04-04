@@ -1,0 +1,528 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.ml.evaluation &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.ml.evaluation</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">abstractmethod</span><span class="p">,</span> <span class="n">ABCMeta</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="k">import</span> <span class="n">since</span><span class="p">,</span> <span class="n">keyword_only</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.wrapper</span> <span class="k">import</span> <span class="n">JavaParams</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.param</span> <span class="k">import</span> <span class="n">Param</span><span class="p">,</span> <span class="n">Params</span><span class="p">,</span> <span class="n">TypeConverters</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.param.shared</span> <span class="k">import</span> <span class="n">HasLabelCol</span><span class="p">,</span> <span class="n">HasPredictionCol</span><span class="p">,</span> <span class="n">HasRawPredictionCol</span><span class="p">,</span> \
+    <span class="n">HasFeaturesCol</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.common</span> <span class="k">import</span> <span class="n">inherit_doc</span>
+<span class="kn">from</span> <span class="nn">pyspark.ml.util</span> <span class="k">import</span> <span class="n">JavaMLReadable</span><span class="p">,</span> <span class="n">JavaMLWritable</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Evaluator&#39;</span><span class="p">,</span> <span class="s1">&#39;BinaryClassificationEvaluator&#39;</span><span class="p">,</span> <span class="s1">&#39;RegressionEvaluator&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;MulticlassClassificationEvaluator&#39;</span><span class="p">,</span> <span class="s1">&#39;ClusteringEvaluator&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="Evaluator"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.evaluation.Evaluator">[docs]</a><span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">Evaluator</span><span class="p">(</span><span class="n">Params</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for evaluators that compute metrics from predictions.</span>
+
+<span class="sd">    .. versionadded:: 1.4.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluates the output.</span>
+
+<span class="sd">        :param dataset: a dataset that contains labels/observations and</span>
+<span class="sd">               predictions</span>
+<span class="sd">        :return: metric</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Evaluator.evaluate"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.evaluation.Evaluator.evaluate">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluates the output with optional parameters.</span>
+
+<span class="sd">        :param dataset: a dataset that contains labels/observations and</span>
+<span class="sd">                        predictions</span>
+<span class="sd">        :param params: an optional param map that overrides embedded</span>
+<span class="sd">                       params</span>
+<span class="sd">        :return: metric</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">params</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Params must be a param map but got </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">params</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Evaluator.isLargerBetter"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.evaluation.Evaluator.isLargerBetter">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.5.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">isLargerBetter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Indicates whether the metric returned by :py:meth:`evaluate` should be maximized</span>
+<span class="sd">        (True, default) or minimized (False).</span>
+<span class="sd">        A given evaluator may support multiple metrics which may be maximized or minimized.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">True</span></div></div>
+
+
+<span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">JavaEvaluator</span><span class="p">(</span><span class="n">JavaParams</span><span class="p">,</span> <span class="n">Evaluator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for :py:class:`Evaluator`s that wrap Java/Scala</span>
+<span class="sd">    implementations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
+
+    <span class="k">def</span> <span class="nf">_evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluates the output.</span>
+<span class="sd">        :param dataset: a dataset that contains labels/observations and predictions.</span>
+<span class="sd">        :return: evaluation metric</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transfer_params_to_java</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">_jdf</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">isLargerBetter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transfer_params_to_java</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span><span class="o">.</span><span class="n">isLargerBetter</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="BinaryClassificationEvaluator"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.evaluation.BinaryClassificationEvaluator">[docs]</a><span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">BinaryClassificationEvaluator</span><span class="p">(</span><span class="n">JavaEvaluator</span><span class="p">,</span> <span class="n">HasLabelCol</span><span class="p">,</span> <span class="n">HasRawPredictionCol</span><span class="p">,</span>
+                                    <span class="n">JavaMLReadable</span><span class="p">,</span> <span class="n">JavaMLWritable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    Evaluator for binary classification, which expects two input columns: rawPrediction and label.</span>
+<span class="sd">    The rawPrediction column can be of type double (binary 0/1 prediction, or probability of label</span>
+<span class="sd">    1) or of type vector (length-2 vector of raw predictions, scores, or label probabilities).</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyspark.ml.linalg import Vectors</span>
+<span class="sd">    &gt;&gt;&gt; scoreAndLabels = map(lambda x: (Vectors.dense([1.0 - x[0], x[0]]), x[1]),</span>
+<span class="sd">    ...    [(0.1, 0.0), (0.1, 1.0), (0.4, 0.0), (0.6, 0.0), (0.6, 1.0), (0.6, 1.0), (0.8, 1.0)])</span>
+<span class="sd">    &gt;&gt;&gt; dataset = spark.createDataFrame(scoreAndLabels, [&quot;raw&quot;, &quot;label&quot;])</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; evaluator = BinaryClassificationEvaluator(rawPredictionCol=&quot;raw&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; evaluator.evaluate(dataset)</span>
+<span class="sd">    0.70...</span>
+<span class="sd">    &gt;&gt;&gt; evaluator.evaluate(dataset, {evaluator.metricName: &quot;areaUnderPR&quot;})</span>
+<span class="sd">    0.83...</span>
+<span class="sd">    &gt;&gt;&gt; bce_path = temp_path + &quot;/bce&quot;</span>
+<span class="sd">    &gt;&gt;&gt; evaluator.save(bce_path)</span>
+<span class="sd">    &gt;&gt;&gt; evaluator2 = BinaryClassificationEvaluator.load(bce_path)</span>
+<span class="sd">    &gt;&gt;&gt; str(evaluator2.getRawPredictionCol())</span>
+<span class="sd">    &#39;raw&#39;</span>
+
+<span class="sd">    .. versionadded:: 1.4.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">metricName</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;metricName&quot;</span><span class="p">,</span>
+                       <span class="s2">&quot;metric name in evaluation (areaUnderROC|areaUnderPR)&quot;</span><span class="p">,</span>
+                       <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toString</span><span class="p">)</span>
+
+    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rawPredictionCol</span><span class="o">=</span><span class="s2">&quot;rawPrediction&quot;</span><span class="p">,</span> <span class="n">labelCol</span><span class="o">=</span><span class="s2">&quot;label&quot;</span><span class="p">,</span>
+                 <span class="n">metricName</span><span class="o">=</span><span class="s2">&quot;areaUnderROC&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        __init__(self, rawPredictionCol=&quot;rawPrediction&quot;, labelCol=&quot;label&quot;, \</span>
+<span class="sd">                 metricName=&quot;areaUnderROC&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">BinaryClassificationEvaluator</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_java_obj</span><span class="p">(</span>
+            <span class="s2">&quot;org.apache.spark.ml.evaluation.BinaryClassificationEvaluator&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setDefault</span><span class="p">(</span><span class="n">metricName</span><span class="o">=</span><span class="s2">&quot;areaUnderROC&quot;</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BinaryClassificationEvaluator.setMetricName"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.evaluation.BinaryClassificationEvaluator.setMetricName">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setMetricName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`metricName`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">metricName</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BinaryClassificationEvaluator.getMetricName"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.evaluation.BinaryClassificationEvaluator.getMetricName">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getMetricName</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of metricName or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metricName</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BinaryClassificationEvaluator.setParams"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.evaluation.BinaryClassificationEvaluator.setParams">[docs]</a>    <span class="nd">@keyword_only</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setParams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rawPredictionCol</span><span class="o">=</span><span class="s2">&quot;rawPrediction&quot;</span><span class="p">,</span> <span class="n">labelCol</span><span class="o">=</span><span class="s2">&quot;label&quot;</span><span class="p">,</span>
+                  <span class="n">metricName</span><span class="o">=</span><span class="s2">&quot;areaUnderROC&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        setParams(self, rawPredictionCol=&quot;rawPrediction&quot;, labelCol=&quot;label&quot;, \</span>
+<span class="sd">                  metricName=&quot;areaUnderROC&quot;)</span>
+<span class="sd">        Sets params for binary classification evaluator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="RegressionEvaluator"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.evaluation.RegressionEvaluator">[docs]</a><span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">RegressionEvaluator</span><span class="p">(</span><span class="n">JavaEvaluator</span><span class="p">,</span> <span class="n">HasLabelCol</span><span class="p">,</span> <span class="n">HasPredictionCol</span><span class="p">,</span>
+                          <span class="n">JavaMLReadable</span><span class="p">,</span> <span class="n">JavaMLWritable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    Evaluator for Regression, which expects two input</span>
+<span class="sd">    columns: prediction and label.</span>
+
+<span class="sd">    &gt;&gt;&gt; scoreAndLabels = [(-28.98343821, -27.0), (20.21491975, 21.5),</span>
+<span class="sd">    ...   (-25.98418959, -22.0), (30.69731842, 33.0), (74.69283752, 71.0)]</span>
+<span class="sd">    &gt;&gt;&gt; dataset = spark.createDataFrame(scoreAndLabels, [&quot;raw&quot;, &quot;label&quot;])</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; evaluator = RegressionEvaluator(predictionCol=&quot;raw&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; evaluator.evaluate(dataset)</span>
+<span class="sd">    2.842...</span>
+<span class="sd">    &gt;&gt;&gt; evaluator.evaluate(dataset, {evaluator.metricName: &quot;r2&quot;})</span>
+<span class="sd">    0.993...</span>
+<span class="sd">    &gt;&gt;&gt; evaluator.evaluate(dataset, {evaluator.metricName: &quot;mae&quot;})</span>
+<span class="sd">    2.649...</span>
+<span class="sd">    &gt;&gt;&gt; re_path = temp_path + &quot;/re&quot;</span>
+<span class="sd">    &gt;&gt;&gt; evaluator.save(re_path)</span>
+<span class="sd">    &gt;&gt;&gt; evaluator2 = RegressionEvaluator.load(re_path)</span>
+<span class="sd">    &gt;&gt;&gt; str(evaluator2.getPredictionCol())</span>
+<span class="sd">    &#39;raw&#39;</span>
+
+<span class="sd">    .. versionadded:: 1.4.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">metricName</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;metricName&quot;</span><span class="p">,</span>
+                       <span class="sd">&quot;&quot;&quot;metric name in evaluation - one of:</span>
+<span class="sd">                       rmse - root mean squared error (default)</span>
+<span class="sd">                       mse - mean squared error</span>
+<span class="sd">                       r2 - r^2 metric</span>
+<span class="sd">                       mae - mean absolute error.&quot;&quot;&quot;</span><span class="p">,</span>
+                       <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toString</span><span class="p">)</span>
+
+    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">predictionCol</span><span class="o">=</span><span class="s2">&quot;prediction&quot;</span><span class="p">,</span> <span class="n">labelCol</span><span class="o">=</span><span class="s2">&quot;label&quot;</span><span class="p">,</span>
+                 <span class="n">metricName</span><span class="o">=</span><span class="s2">&quot;rmse&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        __init__(self, predictionCol=&quot;prediction&quot;, labelCol=&quot;label&quot;, \</span>
+<span class="sd">                 metricName=&quot;rmse&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RegressionEvaluator</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_java_obj</span><span class="p">(</span>
+            <span class="s2">&quot;org.apache.spark.ml.evaluation.RegressionEvaluator&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setDefault</span><span class="p">(</span><span class="n">metricName</span><span class="o">=</span><span class="s2">&quot;rmse&quot;</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RegressionEvaluator.setMetricName"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.evaluation.RegressionEvaluator.setMetricName">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setMetricName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`metricName`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">metricName</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RegressionEvaluator.getMetricName"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.evaluation.RegressionEvaluator.getMetricName">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getMetricName</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of metricName or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metricName</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="RegressionEvaluator.setParams"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.evaluation.RegressionEvaluator.setParams">[docs]</a>    <span class="nd">@keyword_only</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setParams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">predictionCol</span><span class="o">=</span><span class="s2">&quot;prediction&quot;</span><span class="p">,</span> <span class="n">labelCol</span><span class="o">=</span><span class="s2">&quot;label&quot;</span><span class="p">,</span>
+                  <span class="n">metricName</span><span class="o">=</span><span class="s2">&quot;rmse&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        setParams(self, predictionCol=&quot;prediction&quot;, labelCol=&quot;label&quot;, \</span>
+<span class="sd">                  metricName=&quot;rmse&quot;)</span>
+<span class="sd">        Sets params for regression evaluator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="MulticlassClassificationEvaluator"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.evaluation.MulticlassClassificationEvaluator">[docs]</a><span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">MulticlassClassificationEvaluator</span><span class="p">(</span><span class="n">JavaEvaluator</span><span class="p">,</span> <span class="n">HasLabelCol</span><span class="p">,</span> <span class="n">HasPredictionCol</span><span class="p">,</span>
+                                        <span class="n">JavaMLReadable</span><span class="p">,</span> <span class="n">JavaMLWritable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    Evaluator for Multiclass Classification, which expects two input</span>
+<span class="sd">    columns: prediction and label.</span>
+
+<span class="sd">    &gt;&gt;&gt; scoreAndLabels = [(0.0, 0.0), (0.0, 1.0), (0.0, 0.0),</span>
+<span class="sd">    ...     (1.0, 0.0), (1.0, 1.0), (1.0, 1.0), (1.0, 1.0), (2.0, 2.0), (2.0, 0.0)]</span>
+<span class="sd">    &gt;&gt;&gt; dataset = spark.createDataFrame(scoreAndLabels, [&quot;prediction&quot;, &quot;label&quot;])</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; evaluator = MulticlassClassificationEvaluator(predictionCol=&quot;prediction&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; evaluator.evaluate(dataset)</span>
+<span class="sd">    0.66...</span>
+<span class="sd">    &gt;&gt;&gt; evaluator.evaluate(dataset, {evaluator.metricName: &quot;accuracy&quot;})</span>
+<span class="sd">    0.66...</span>
+<span class="sd">    &gt;&gt;&gt; mce_path = temp_path + &quot;/mce&quot;</span>
+<span class="sd">    &gt;&gt;&gt; evaluator.save(mce_path)</span>
+<span class="sd">    &gt;&gt;&gt; evaluator2 = MulticlassClassificationEvaluator.load(mce_path)</span>
+<span class="sd">    &gt;&gt;&gt; str(evaluator2.getPredictionCol())</span>
+<span class="sd">    &#39;prediction&#39;</span>
+
+<span class="sd">    .. versionadded:: 1.5.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">metricName</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;metricName&quot;</span><span class="p">,</span>
+                       <span class="s2">&quot;metric name in evaluation &quot;</span>
+                       <span class="s2">&quot;(f1|weightedPrecision|weightedRecall|accuracy)&quot;</span><span class="p">,</span>
+                       <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toString</span><span class="p">)</span>
+
+    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">predictionCol</span><span class="o">=</span><span class="s2">&quot;prediction&quot;</span><span class="p">,</span> <span class="n">labelCol</span><span class="o">=</span><span class="s2">&quot;label&quot;</span><span class="p">,</span>
+                 <span class="n">metricName</span><span class="o">=</span><span class="s2">&quot;f1&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        __init__(self, predictionCol=&quot;prediction&quot;, labelCol=&quot;label&quot;, \</span>
+<span class="sd">                 metricName=&quot;f1&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MulticlassClassificationEvaluator</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_java_obj</span><span class="p">(</span>
+            <span class="s2">&quot;org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setDefault</span><span class="p">(</span><span class="n">metricName</span><span class="o">=</span><span class="s2">&quot;f1&quot;</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MulticlassClassificationEvaluator.setMetricName"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.evaluation.MulticlassClassificationEvaluator.setMetricName">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.5.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setMetricName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`metricName`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">metricName</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MulticlassClassificationEvaluator.getMetricName"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.evaluation.MulticlassClassificationEvaluator.getMetricName">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.5.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getMetricName</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of metricName or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metricName</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MulticlassClassificationEvaluator.setParams"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.evaluation.MulticlassClassificationEvaluator.setParams">[docs]</a>    <span class="nd">@keyword_only</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;1.5.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setParams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">predictionCol</span><span class="o">=</span><span class="s2">&quot;prediction&quot;</span><span class="p">,</span> <span class="n">labelCol</span><span class="o">=</span><span class="s2">&quot;label&quot;</span><span class="p">,</span>
+                  <span class="n">metricName</span><span class="o">=</span><span class="s2">&quot;f1&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        setParams(self, predictionCol=&quot;prediction&quot;, labelCol=&quot;label&quot;, \</span>
+<span class="sd">                  metricName=&quot;f1&quot;)</span>
+<span class="sd">        Sets params for multiclass classification evaluator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ClusteringEvaluator"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.evaluation.ClusteringEvaluator">[docs]</a><span class="nd">@inherit_doc</span>
+<span class="k">class</span> <span class="nc">ClusteringEvaluator</span><span class="p">(</span><span class="n">JavaEvaluator</span><span class="p">,</span> <span class="n">HasPredictionCol</span><span class="p">,</span> <span class="n">HasFeaturesCol</span><span class="p">,</span>
+                          <span class="n">JavaMLReadable</span><span class="p">,</span> <span class="n">JavaMLWritable</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: Experimental</span>
+
+<span class="sd">    Evaluator for Clustering results, which expects two input</span>
+<span class="sd">    columns: prediction and features. The metric computes the Silhouette</span>
+<span class="sd">    measure using the squared Euclidean distance.</span>
+
+<span class="sd">    The Silhouette is a measure for the validation of the consistency</span>
+<span class="sd">    within clusters. It ranges between 1 and -1, where a value close to</span>
+<span class="sd">    1 means that the points in a cluster are close to the other points</span>
+<span class="sd">    in the same cluster and far from the points of the other clusters.</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyspark.ml.linalg import Vectors</span>
+<span class="sd">    &gt;&gt;&gt; featureAndPredictions = map(lambda x: (Vectors.dense(x[0]), x[1]),</span>
+<span class="sd">    ...     [([0.0, 0.5], 0.0), ([0.5, 0.0], 0.0), ([10.0, 11.0], 1.0),</span>
+<span class="sd">    ...     ([10.5, 11.5], 1.0), ([1.0, 1.0], 0.0), ([8.0, 6.0], 1.0)])</span>
+<span class="sd">    &gt;&gt;&gt; dataset = spark.createDataFrame(featureAndPredictions, [&quot;features&quot;, &quot;prediction&quot;])</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; evaluator = ClusteringEvaluator(predictionCol=&quot;prediction&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; evaluator.evaluate(dataset)</span>
+<span class="sd">    0.9079...</span>
+<span class="sd">    &gt;&gt;&gt; ce_path = temp_path + &quot;/ce&quot;</span>
+<span class="sd">    &gt;&gt;&gt; evaluator.save(ce_path)</span>
+<span class="sd">    &gt;&gt;&gt; evaluator2 = ClusteringEvaluator.load(ce_path)</span>
+<span class="sd">    &gt;&gt;&gt; str(evaluator2.getPredictionCol())</span>
+<span class="sd">    &#39;prediction&#39;</span>
+
+<span class="sd">    .. versionadded:: 2.3.0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">metricName</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;metricName&quot;</span><span class="p">,</span>
+                       <span class="s2">&quot;metric name in evaluation (silhouette)&quot;</span><span class="p">,</span>
+                       <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toString</span><span class="p">)</span>
+    <span class="n">distanceMeasure</span> <span class="o">=</span> <span class="n">Param</span><span class="p">(</span><span class="n">Params</span><span class="o">.</span><span class="n">_dummy</span><span class="p">(),</span> <span class="s2">&quot;distanceMeasure&quot;</span><span class="p">,</span> <span class="s2">&quot;The distance measure. &quot;</span> <span class="o">+</span>
+                            <span class="s2">&quot;Supported options: &#39;squaredEuclidean&#39; and &#39;cosine&#39;.&quot;</span><span class="p">,</span>
+                            <span class="n">typeConverter</span><span class="o">=</span><span class="n">TypeConverters</span><span class="o">.</span><span class="n">toString</span><span class="p">)</span>
+
+    <span class="nd">@keyword_only</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">predictionCol</span><span class="o">=</span><span class="s2">&quot;prediction&quot;</span><span class="p">,</span> <span class="n">featuresCol</span><span class="o">=</span><span class="s2">&quot;features&quot;</span><span class="p">,</span>
+                 <span class="n">metricName</span><span class="o">=</span><span class="s2">&quot;silhouette&quot;</span><span class="p">,</span> <span class="n">distanceMeasure</span><span class="o">=</span><span class="s2">&quot;squaredEuclidean&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        __init__(self, predictionCol=&quot;prediction&quot;, featuresCol=&quot;features&quot;, \</span>
+<span class="sd">                 metricName=&quot;silhouette&quot;, distanceMeasure=&quot;squaredEuclidean&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ClusteringEvaluator</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_java_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_new_java_obj</span><span class="p">(</span>
+            <span class="s2">&quot;org.apache.spark.ml.evaluation.ClusteringEvaluator&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setDefault</span><span class="p">(</span><span class="n">metricName</span><span class="o">=</span><span class="s2">&quot;silhouette&quot;</span><span class="p">,</span> <span class="n">distanceMeasure</span><span class="o">=</span><span class="s2">&quot;squaredEuclidean&quot;</span><span class="p">)</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ClusteringEvaluator.setMetricName"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.evaluation.ClusteringEvaluator.setMetricName">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.3.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setMetricName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`metricName`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">metricName</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ClusteringEvaluator.getMetricName"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.evaluation.ClusteringEvaluator.getMetricName">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.3.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getMetricName</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of metricName or its default value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metricName</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ClusteringEvaluator.setParams"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.evaluation.ClusteringEvaluator.setParams">[docs]</a>    <span class="nd">@keyword_only</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.3.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setParams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">predictionCol</span><span class="o">=</span><span class="s2">&quot;prediction&quot;</span><span class="p">,</span> <span class="n">featuresCol</span><span class="o">=</span><span class="s2">&quot;features&quot;</span><span class="p">,</span>
+                  <span class="n">metricName</span><span class="o">=</span><span class="s2">&quot;silhouette&quot;</span><span class="p">,</span> <span class="n">distanceMeasure</span><span class="o">=</span><span class="s2">&quot;squaredEuclidean&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        setParams(self, predictionCol=&quot;prediction&quot;, featuresCol=&quot;features&quot;, \</span>
+<span class="sd">                  metricName=&quot;silhouette&quot;, distanceMeasure=&quot;squaredEuclidean&quot;)</span>
+<span class="sd">        Sets params for clustering evaluator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_input_kwargs</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ClusteringEvaluator.setDistanceMeasure"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.evaluation.ClusteringEvaluator.setDistanceMeasure">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">setDistanceMeasure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the value of :py:attr:`distanceMeasure`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set</span><span class="p">(</span><span class="n">distanceMeasure</span><span class="o">=</span><span class="n">value</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ClusteringEvaluator.getDistanceMeasure"><a class="viewcode-back" href="../../../pyspark.ml.html#pyspark.ml.evaluation.ClusteringEvaluator.getDistanceMeasure">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="s2">&quot;2.4.0&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">getDistanceMeasure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets the value of `distanceMeasure`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">getOrDefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distanceMeasure</span><span class="p">)</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="kn">import</span> <span class="nn">tempfile</span>
+    <span class="kn">import</span> <span class="nn">pyspark.ml.evaluation</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">SparkSession</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="n">pyspark</span><span class="o">.</span><span class="n">ml</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="c1"># The small batch size here ensures that we see multiple batches,</span>
+    <span class="c1"># even in these small test examples:</span>
+    <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span>\
+        <span class="o">.</span><span class="n">master</span><span class="p">(</span><span class="s2">&quot;local[2]&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;ml.evaluation tests&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;spark&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spark</span>
+    <span class="n">temp_path</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">()</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;temp_path&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp_path</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span> <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span><span class="p">)</span>
+        <span class="n">spark</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">shutil</span> <span class="k">import</span> <span class="n">rmtree</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">rmtree</span><span class="p">(</span><span class="n">temp_path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="k">pass</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

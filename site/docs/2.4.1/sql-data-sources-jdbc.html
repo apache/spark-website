@@ -1,0 +1,671 @@
+
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>JDBC To Other Databases - Spark 2.4.1 Documentation</title>
+        
+
+        
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 60px;
+                padding-bottom: 40px;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width">
+        <link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+
+        <link rel="stylesheet" href="css/pygments-default.css">
+
+        
+        <!-- Google analytics script -->
+        <script type="text/javascript">
+          var _gaq = _gaq || [];
+          _gaq.push(['_setAccount', 'UA-32518208-2']);
+          _gaq.push(['_trackPageview']);
+
+          (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+          })();
+        </script>
+        
+
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="chromeframe">You are using an outdated browser. <a href="https://browsehappy.com/">Upgrade your browser today</a> or <a href="http://www.google.com/chromeframe/?redirect=true">install Google Chrome Frame</a> to better experience this site.</p>
+        <![endif]-->
+
+        <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
+
+        <div class="navbar navbar-fixed-top" id="topbar">
+            <div class="navbar-inner">
+                <div class="container">
+                    <div class="brand"><a href="index.html">
+                      <img src="img/spark-logo-hd.png" style="height:50px;"/></a><span class="version">2.4.1</span>
+                    </div>
+                    <ul class="nav">
+                        <!--TODO(andyk): Add class="active" attribute to li some how.-->
+                        <li><a href="index.html">Overview</a></li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Programming Guides<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="quick-start.html">Quick Start</a></li>
+                                <li><a href="rdd-programming-guide.html">RDDs, Accumulators, Broadcasts Vars</a></li>
+                                <li><a href="sql-programming-guide.html">SQL, DataFrames, and Datasets</a></li>
+                                <li><a href="structured-streaming-programming-guide.html">Structured Streaming</a></li>
+                                <li><a href="streaming-programming-guide.html">Spark Streaming (DStreams)</a></li>
+                                <li><a href="ml-guide.html">MLlib (Machine Learning)</a></li>
+                                <li><a href="graphx-programming-guide.html">GraphX (Graph Processing)</a></li>
+                                <li><a href="sparkr.html">SparkR (R on Spark)</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">API Docs<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="api/scala/index.html#org.apache.spark.package">Scala</a></li>
+                                <li><a href="api/java/index.html">Java</a></li>
+                                <li><a href="api/python/index.html">Python</a></li>
+                                <li><a href="api/R/index.html">R</a></li>
+                                <li><a href="api/sql/index.html">SQL, Built-in Functions</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Deploying<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="cluster-overview.html">Overview</a></li>
+                                <li><a href="submitting-applications.html">Submitting Applications</a></li>
+                                <li class="divider"></li>
+                                <li><a href="spark-standalone.html">Spark Standalone</a></li>
+                                <li><a href="running-on-mesos.html">Mesos</a></li>
+                                <li><a href="running-on-yarn.html">YARN</a></li>
+                                <li><a href="running-on-kubernetes.html">Kubernetes</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="dropdown">
+                            <a href="api.html" class="dropdown-toggle" data-toggle="dropdown">More<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="configuration.html">Configuration</a></li>
+                                <li><a href="monitoring.html">Monitoring</a></li>
+                                <li><a href="tuning.html">Tuning Guide</a></li>
+                                <li><a href="job-scheduling.html">Job Scheduling</a></li>
+                                <li><a href="security.html">Security</a></li>
+                                <li><a href="hardware-provisioning.html">Hardware Provisioning</a></li>
+                                <li class="divider"></li>
+                                <li><a href="building-spark.html">Building Spark</a></li>
+                                <li><a href="https://spark.apache.org/contributing.html">Contributing to Spark</a></li>
+                                <li><a href="https://spark.apache.org/third-party-projects.html">Third Party Projects</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <!--<p class="navbar-text pull-right"><span class="version-text">v2.4.1</span></p>-->
+                </div>
+            </div>
+        </div>
+
+        <div class="container-wrapper">
+
+            
+                
+                    <div class="left-menu-wrapper">
+    <div class="left-menu">
+        <h3><a href="sql-programming-guide.html">Spark SQL Guide</a></h3>
+        
+<ul>
+
+    <li>
+        <a href="sql-getting-started.html">
+            
+                Getting Started
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-data-sources.html">
+            
+                Data Sources
+            
+        </a>
+    </li>
+    
+    
+        
+<ul>
+
+    <li>
+        <a href="sql-data-sources-load-save-functions.html">
+            
+                Generic Load/Save Functions
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-data-sources-parquet.html">
+            
+                Parquet Files
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-data-sources-orc.html">
+            
+                ORC Files
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-data-sources-json.html">
+            
+                JSON Files
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-data-sources-hive-tables.html">
+            
+                Hive Tables
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-data-sources-jdbc.html">
+            
+                <b>JDBC To Other Databases</b>
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-data-sources-avro.html">
+            
+                Avro Files
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-data-sources-troubleshooting.html">
+            
+                Troubleshooting
+            
+        </a>
+    </li>
+    
+    
+
+</ul>
+
+    
+
+    <li>
+        <a href="sql-performance-tuning.html">
+            
+                Performance Tuning
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-distributed-sql-engine.html">
+            
+                Distributed SQL Engine
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-pyspark-pandas-with-arrow.html">
+            
+                PySpark Usage Guide for Pandas with Apache Arrow
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-migration-guide.html">
+            
+                Migration Guide
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-reference.html">
+            
+                Reference
+            
+        </a>
+    </li>
+    
+    
+
+</ul>
+
+    </div>
+</div>
+                
+                <input id="nav-trigger" class="nav-trigger" checked type="checkbox">
+                <label for="nav-trigger"></label>
+                <div class="content-with-sidebar" id="content">
+                    
+                        <h1 class="title">JDBC To Other Databases</h1>
+                    
+
+                    
+<p>Spark SQL also includes a data source that can read data from other databases using JDBC. This
+functionality should be preferred over using <a href="api/scala/index.html#org.apache.spark.rdd.JdbcRDD">JdbcRDD</a>.
+This is because the results are returned
+as a DataFrame and they can easily be processed in Spark SQL or joined with other data sources.
+The JDBC data source is also easier to use from Java or Python as it does not require the user to
+provide a ClassTag.
+(Note that this is different than the Spark SQL JDBC server, which allows other applications to
+run queries using Spark SQL).</p>
+
+<p>To get started you will need to include the JDBC driver for your particular database on the
+spark classpath. For example, to connect to postgres from the Spark Shell you would run the
+following command:</p>
+
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash"><span></span>bin/spark-shell --driver-class-path postgresql-9.4.1207.jar --jars postgresql-9.4.1207.jar</code></pre></figure>
+
+<p>Tables from the remote database can be loaded as a DataFrame or Spark SQL temporary view using
+the Data Sources API. Users can specify the JDBC connection properties in the data source options.
+<code>user</code> and <code>password</code> are normally provided as connection properties for
+logging into the data sources. In addition to the connection properties, Spark also supports
+the following case-insensitive options:</p>
+
+<table class="table">
+  <tr><th>Property Name</th><th>Meaning</th></tr>
+  <tr>
+    <td><code>url</code></td>
+    <td>
+      The JDBC URL to connect to. The source-specific connection properties may be specified in the URL. e.g., <code>jdbc:postgresql://localhost/test?user=fred&amp;password=secret</code>
+    </td>
+  </tr>
+
+  <tr>
+    <td><code>dbtable</code></td>
+    <td>
+      The JDBC table that should be read from or written into. Note that when using it in the read
+      path anything that is valid in a <code>FROM</code> clause of a SQL query can be used.
+      For example, instead of a full table you could also use a subquery in parentheses. It is not
+      allowed to specify `dbtable` and `query` options at the same time.
+    </td>
+  </tr>
+  <tr>
+    <td><code>query</code></td>
+    <td>
+      A query that will be used to read data into Spark. The specified query will be parenthesized and used
+      as a subquery in the <code>FROM</code> clause. Spark will also assign an alias to the subquery clause.
+      As an example, spark will issue a query of the following form to the JDBC Source.<br /><br />
+      <code> SELECT &lt;columns&gt; FROM (&lt;user_specified_query&gt;) spark_gen_alias</code><br /><br />
+      Below are couple of restrictions while using this option.<br />
+      <ol>
+         <li> It is not allowed to specify `dbtable` and `query` options at the same time. </li>
+         <li> It is not allowed to specify `query` and `partitionColumn` options at the same time. When specifying
+            `partitionColumn` option is required, the subquery can be specified using `dbtable` option instead and
+            partition columns can be qualified using the subquery alias provided as part of `dbtable`. <br />
+            Example:<br />
+            <code>
+               spark.read.format("jdbc")<br />
+                 .option("url", jdbcUrl)<br />
+                 .option("query", "select c1, c2 from t1")<br />
+                 .load()
+            </code></li>
+      </ol>
+    </td>
+  </tr>
+
+  <tr>
+    <td><code>driver</code></td>
+    <td>
+      The class name of the JDBC driver to use to connect to this URL.
+    </td>
+  </tr>
+
+  <tr>
+    <td><code>partitionColumn, lowerBound, upperBound</code></td>
+    <td>
+      These options must all be specified if any of them is specified. In addition,
+      <code>numPartitions</code> must be specified. They describe how to partition the table when
+      reading in parallel from multiple workers.
+      <code>partitionColumn</code> must be a numeric, date, or timestamp column from the table in question.
+      Notice that <code>lowerBound</code> and <code>upperBound</code> are just used to decide the
+      partition stride, not for filtering the rows in table. So all rows in the table will be
+      partitioned and returned. This option applies only to reading.
+    </td>
+  </tr>
+
+  <tr>
+     <td><code>numPartitions</code></td>
+     <td>
+       The maximum number of partitions that can be used for parallelism in table reading and
+       writing. This also determines the maximum number of concurrent JDBC connections.
+       If the number of partitions to write exceeds this limit, we decrease it to this limit by
+       calling <code>coalesce(numPartitions)</code> before writing.
+     </td>
+  </tr>
+
+  <tr>
+    <td><code>queryTimeout</code></td>
+    <td>
+      The number of seconds the driver will wait for a Statement object to execute to the given
+      number of seconds. Zero means there is no limit. In the write path, this option depends on
+      how JDBC drivers implement the API <code>setQueryTimeout</code>, e.g., the h2 JDBC driver
+      checks the timeout of each query instead of an entire JDBC batch.
+      It defaults to <code>0</code>.
+    </td>
+  </tr>
+
+  <tr>
+    <td><code>fetchsize</code></td>
+    <td>
+      The JDBC fetch size, which determines how many rows to fetch per round trip. This can help performance on JDBC drivers which default to low fetch size (eg. Oracle with 10 rows). This option applies only to reading.
+    </td>
+  </tr>
+
+  <tr>
+     <td><code>batchsize</code></td>
+     <td>
+       The JDBC batch size, which determines how many rows to insert per round trip. This can help performance on JDBC drivers. This option applies only to writing. It defaults to <code>1000</code>.
+     </td>
+  </tr>
+
+  <tr>
+     <td><code>isolationLevel</code></td>
+     <td>
+       The transaction isolation level, which applies to current connection. It can be one of <code>NONE</code>, <code>READ_COMMITTED</code>, <code>READ_UNCOMMITTED</code>, <code>REPEATABLE_READ</code>, or <code>SERIALIZABLE</code>, corresponding to standard transaction isolation levels defined by JDBC's Connection object, with default of <code>READ_UNCOMMITTED</code>. This option applies only to writing. Please refer the documentation in <code>java.sql.Connection</code>.
+     </td>
+   </tr>
+
+  <tr>
+     <td><code>sessionInitStatement</code></td>
+     <td>
+       After each database session is opened to the remote DB and before starting to read data, this option executes a custom SQL statement (or a PL/SQL block). Use this to implement session initialization code. Example: <code>option("sessionInitStatement", """BEGIN execute immediate 'alter session set "_serial_direct_read"=true'; END;""")</code>
+     </td>
+  </tr>
+
+  <tr>
+    <td><code>truncate</code></td>
+    <td>
+     This is a JDBC writer related option. When <code>SaveMode.Overwrite</code> is enabled, this option causes Spark to truncate an existing table instead of dropping and recreating it. This can be more efficient, and prevents the table metadata (e.g., indices) from being removed. However, it will not work in some cases, such as when the new data has a different schema. It defaults to <code>false</code>. This option applies only to writing.
+   </td>
+  </tr>
+  
+  <tr>
+    <td><code>cascadeTruncate</code></td>
+    <td>
+        This is a JDBC writer related option. If enabled and supported by the JDBC database (PostgreSQL and Oracle at the moment), this options allows execution of a <code>TRUNCATE TABLE t CASCADE</code> (in the case of PostgreSQL a <code>TRUNCATE TABLE ONLY t CASCADE</code> is executed to prevent inadvertently truncating descendant tables). This will affect other tables, and thus should be used with care. This option applies only to writing. It defaults to the default cascading truncate behaviour of the JDBC database in question, specified in the <code>isCascadeTruncate</code> in each JDBCDialect.
+    </td>
+  </tr>
+
+  <tr>
+    <td><code>createTableOptions</code></td>
+    <td>
+     This is a JDBC writer related option. If specified, this option allows setting of database-specific table and partition options when creating a table (e.g., <code>CREATE TABLE t (name string) ENGINE=InnoDB.</code>). This option applies only to writing.
+   </td>
+  </tr>
+
+  <tr>
+    <td><code>createTableColumnTypes</code></td>
+    <td>
+     The database column data types to use instead of the defaults, when creating the table. Data type information should be specified in the same format as CREATE TABLE columns syntax (e.g: <code>"name CHAR(64), comments VARCHAR(1024)")</code>. The specified types should be valid spark sql data types. This option applies only to writing.
+    </td>
+  </tr>
+
+  <tr>
+    <td><code>customSchema</code></td>
+    <td>
+     The custom schema to use for reading data from JDBC connectors. For example, <code>"id DECIMAL(38, 0), name STRING"</code>. You can also specify partial fields, and the others use the default type mapping. For example, <code>"id DECIMAL(38, 0)"</code>. The column names should be identical to the corresponding column names of JDBC table. Users can specify the corresponding data types of Spark SQL instead of using the defaults. This option applies only to reading.
+    </td>
+  </tr>
+
+  <tr>
+    <td><code>pushDownPredicate</code></td>
+    <td>
+     The option to enable or disable predicate push-down into the JDBC data source. The default value is true, in which case Spark will push down filters to the JDBC data source as much as possible. Otherwise, if set to false, no filter will be pushed down to the JDBC data source and thus all filters will be handled by Spark. Predicate push-down is usually turned off when the predicate filtering is performed faster by Spark than by the JDBC data source.
+    </td>
+  </tr>
+</table>
+
+<div class="codetabs">
+
+<div data-lang="scala">
+    <div class="highlight"><pre><span></span><span class="c1">// Note: JDBC loading and saving can be achieved via either the load/save or jdbc methods</span>
+<span class="c1">// Loading data from a JDBC source</span>
+<span class="k">val</span> <span class="n">jdbcDF</span> <span class="k">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span>
+  <span class="o">.</span><span class="n">format</span><span class="o">(</span><span class="s">&quot;jdbc&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">option</span><span class="o">(</span><span class="s">&quot;url&quot;</span><span class="o">,</span> <span class="s">&quot;jdbc:postgresql:dbserver&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">option</span><span class="o">(</span><span class="s">&quot;dbtable&quot;</span><span class="o">,</span> <span class="s">&quot;schema.tablename&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">option</span><span class="o">(</span><span class="s">&quot;user&quot;</span><span class="o">,</span> <span class="s">&quot;username&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">option</span><span class="o">(</span><span class="s">&quot;password&quot;</span><span class="o">,</span> <span class="s">&quot;password&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">load</span><span class="o">()</span>
+
+<span class="k">val</span> <span class="n">connectionProperties</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">Properties</span><span class="o">()</span>
+<span class="n">connectionProperties</span><span class="o">.</span><span class="n">put</span><span class="o">(</span><span class="s">&quot;user&quot;</span><span class="o">,</span> <span class="s">&quot;username&quot;</span><span class="o">)</span>
+<span class="n">connectionProperties</span><span class="o">.</span><span class="n">put</span><span class="o">(</span><span class="s">&quot;password&quot;</span><span class="o">,</span> <span class="s">&quot;password&quot;</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">jdbcDF2</span> <span class="k">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span>
+  <span class="o">.</span><span class="n">jdbc</span><span class="o">(</span><span class="s">&quot;jdbc:postgresql:dbserver&quot;</span><span class="o">,</span> <span class="s">&quot;schema.tablename&quot;</span><span class="o">,</span> <span class="n">connectionProperties</span><span class="o">)</span>
+<span class="c1">// Specifying the custom data types of the read schema</span>
+<span class="n">connectionProperties</span><span class="o">.</span><span class="n">put</span><span class="o">(</span><span class="s">&quot;customSchema&quot;</span><span class="o">,</span> <span class="s">&quot;id DECIMAL(38, 0), name STRING&quot;</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">jdbcDF3</span> <span class="k">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span>
+  <span class="o">.</span><span class="n">jdbc</span><span class="o">(</span><span class="s">&quot;jdbc:postgresql:dbserver&quot;</span><span class="o">,</span> <span class="s">&quot;schema.tablename&quot;</span><span class="o">,</span> <span class="n">connectionProperties</span><span class="o">)</span>
+
+<span class="c1">// Saving data to a JDBC source</span>
+<span class="n">jdbcDF</span><span class="o">.</span><span class="n">write</span>
+  <span class="o">.</span><span class="n">format</span><span class="o">(</span><span class="s">&quot;jdbc&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">option</span><span class="o">(</span><span class="s">&quot;url&quot;</span><span class="o">,</span> <span class="s">&quot;jdbc:postgresql:dbserver&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">option</span><span class="o">(</span><span class="s">&quot;dbtable&quot;</span><span class="o">,</span> <span class="s">&quot;schema.tablename&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">option</span><span class="o">(</span><span class="s">&quot;user&quot;</span><span class="o">,</span> <span class="s">&quot;username&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">option</span><span class="o">(</span><span class="s">&quot;password&quot;</span><span class="o">,</span> <span class="s">&quot;password&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">save</span><span class="o">()</span>
+
+<span class="n">jdbcDF2</span><span class="o">.</span><span class="n">write</span>
+  <span class="o">.</span><span class="n">jdbc</span><span class="o">(</span><span class="s">&quot;jdbc:postgresql:dbserver&quot;</span><span class="o">,</span> <span class="s">&quot;schema.tablename&quot;</span><span class="o">,</span> <span class="n">connectionProperties</span><span class="o">)</span>
+
+<span class="c1">// Specifying create table column data types on write</span>
+<span class="n">jdbcDF</span><span class="o">.</span><span class="n">write</span>
+  <span class="o">.</span><span class="n">option</span><span class="o">(</span><span class="s">&quot;createTableColumnTypes&quot;</span><span class="o">,</span> <span class="s">&quot;name CHAR(64), comments VARCHAR(1024)&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="n">jdbc</span><span class="o">(</span><span class="s">&quot;jdbc:postgresql:dbserver&quot;</span><span class="o">,</span> <span class="s">&quot;schema.tablename&quot;</span><span class="o">,</span> <span class="n">connectionProperties</span><span class="o">)</span>
+</pre></div>
+    <div><small>Find full example code at "examples/src/main/scala/org/apache/spark/examples/sql/SQLDataSourceExample.scala" in the Spark repo.</small></div>
+  </div>
+
+<div data-lang="java">
+    <div class="highlight"><pre><span></span><span class="c1">// Note: JDBC loading and saving can be achieved via either the load/save or jdbc methods</span>
+<span class="c1">// Loading data from a JDBC source</span>
+<span class="n">Dataset</span><span class="o">&lt;</span><span class="n">Row</span><span class="o">&gt;</span> <span class="n">jdbcDF</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="na">read</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;jdbc&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">&quot;url&quot;</span><span class="o">,</span> <span class="s">&quot;jdbc:postgresql:dbserver&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">&quot;dbtable&quot;</span><span class="o">,</span> <span class="s">&quot;schema.tablename&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">&quot;user&quot;</span><span class="o">,</span> <span class="s">&quot;username&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">&quot;password&quot;</span><span class="o">,</span> <span class="s">&quot;password&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">load</span><span class="o">();</span>
+
+<span class="n">Properties</span> <span class="n">connectionProperties</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Properties</span><span class="o">();</span>
+<span class="n">connectionProperties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;user&quot;</span><span class="o">,</span> <span class="s">&quot;username&quot;</span><span class="o">);</span>
+<span class="n">connectionProperties</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">&quot;password&quot;</span><span class="o">,</span> <span class="s">&quot;password&quot;</span><span class="o">);</span>
+<span class="n">Dataset</span><span class="o">&lt;</span><span class="n">Row</span><span class="o">&gt;</span> <span class="n">jdbcDF2</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="na">read</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">jdbc</span><span class="o">(</span><span class="s">&quot;jdbc:postgresql:dbserver&quot;</span><span class="o">,</span> <span class="s">&quot;schema.tablename&quot;</span><span class="o">,</span> <span class="n">connectionProperties</span><span class="o">);</span>
+
+<span class="c1">// Saving data to a JDBC source</span>
+<span class="n">jdbcDF</span><span class="o">.</span><span class="na">write</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;jdbc&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">&quot;url&quot;</span><span class="o">,</span> <span class="s">&quot;jdbc:postgresql:dbserver&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">&quot;dbtable&quot;</span><span class="o">,</span> <span class="s">&quot;schema.tablename&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">&quot;user&quot;</span><span class="o">,</span> <span class="s">&quot;username&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">&quot;password&quot;</span><span class="o">,</span> <span class="s">&quot;password&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">save</span><span class="o">();</span>
+
+<span class="n">jdbcDF2</span><span class="o">.</span><span class="na">write</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">jdbc</span><span class="o">(</span><span class="s">&quot;jdbc:postgresql:dbserver&quot;</span><span class="o">,</span> <span class="s">&quot;schema.tablename&quot;</span><span class="o">,</span> <span class="n">connectionProperties</span><span class="o">);</span>
+
+<span class="c1">// Specifying create table column data types on write</span>
+<span class="n">jdbcDF</span><span class="o">.</span><span class="na">write</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">&quot;createTableColumnTypes&quot;</span><span class="o">,</span> <span class="s">&quot;name CHAR(64), comments VARCHAR(1024)&quot;</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">jdbc</span><span class="o">(</span><span class="s">&quot;jdbc:postgresql:dbserver&quot;</span><span class="o">,</span> <span class="s">&quot;schema.tablename&quot;</span><span class="o">,</span> <span class="n">connectionProperties</span><span class="o">);</span>
+</pre></div>
+    <div><small>Find full example code at "examples/src/main/java/org/apache/spark/examples/sql/JavaSQLDataSourceExample.java" in the Spark repo.</small></div>
+  </div>
+
+<div data-lang="python">
+    <div class="highlight"><pre><span></span><span class="c1"># Note: JDBC loading and saving can be achieved via either the load/save or jdbc methods</span>
+<span class="c1"># Loading data from a JDBC source</span>
+<span class="n">jdbcDF</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span> \
+    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;jdbc&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;url&quot;</span><span class="p">,</span> <span class="s2">&quot;jdbc:postgresql:dbserver&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;dbtable&quot;</span><span class="p">,</span> <span class="s2">&quot;schema.tablename&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;username&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;password&quot;</span><span class="p">,</span> <span class="s2">&quot;password&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">load</span><span class="p">()</span>
+
+<span class="n">jdbcDF2</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span> \
+    <span class="o">.</span><span class="n">jdbc</span><span class="p">(</span><span class="s2">&quot;jdbc:postgresql:dbserver&quot;</span><span class="p">,</span> <span class="s2">&quot;schema.tablename&quot;</span><span class="p">,</span>
+          <span class="n">properties</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;username&quot;</span><span class="p">,</span> <span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="s2">&quot;password&quot;</span><span class="p">})</span>
+
+<span class="c1"># Specifying dataframe column data types on read</span>
+<span class="n">jdbcDF3</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span> \
+    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;jdbc&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;url&quot;</span><span class="p">,</span> <span class="s2">&quot;jdbc:postgresql:dbserver&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;dbtable&quot;</span><span class="p">,</span> <span class="s2">&quot;schema.tablename&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;username&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;password&quot;</span><span class="p">,</span> <span class="s2">&quot;password&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;customSchema&quot;</span><span class="p">,</span> <span class="s2">&quot;id DECIMAL(38, 0), name STRING&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">load</span><span class="p">()</span>
+
+<span class="c1"># Saving data to a JDBC source</span>
+<span class="n">jdbcDF</span><span class="o">.</span><span class="n">write</span> \
+    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;jdbc&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;url&quot;</span><span class="p">,</span> <span class="s2">&quot;jdbc:postgresql:dbserver&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;dbtable&quot;</span><span class="p">,</span> <span class="s2">&quot;schema.tablename&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;username&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;password&quot;</span><span class="p">,</span> <span class="s2">&quot;password&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<span class="n">jdbcDF2</span><span class="o">.</span><span class="n">write</span> \
+    <span class="o">.</span><span class="n">jdbc</span><span class="p">(</span><span class="s2">&quot;jdbc:postgresql:dbserver&quot;</span><span class="p">,</span> <span class="s2">&quot;schema.tablename&quot;</span><span class="p">,</span>
+          <span class="n">properties</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;username&quot;</span><span class="p">,</span> <span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="s2">&quot;password&quot;</span><span class="p">})</span>
+
+<span class="c1"># Specifying create table column data types on write</span>
+<span class="n">jdbcDF</span><span class="o">.</span><span class="n">write</span> \
+    <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;createTableColumnTypes&quot;</span><span class="p">,</span> <span class="s2">&quot;name CHAR(64), comments VARCHAR(1024)&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">jdbc</span><span class="p">(</span><span class="s2">&quot;jdbc:postgresql:dbserver&quot;</span><span class="p">,</span> <span class="s2">&quot;schema.tablename&quot;</span><span class="p">,</span>
+          <span class="n">properties</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;username&quot;</span><span class="p">,</span> <span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="s2">&quot;password&quot;</span><span class="p">})</span>
+</pre></div>
+    <div><small>Find full example code at "examples/src/main/python/sql/datasource.py" in the Spark repo.</small></div>
+  </div>
+
+<div data-lang="r">
+    <div class="highlight"><pre><span></span><span class="c1"># Loading data from a JDBC source</span>
+df <span class="o">&lt;-</span> read.jdbc<span class="p">(</span><span class="s">&quot;jdbc:postgresql:dbserver&quot;</span><span class="p">,</span> <span class="s">&quot;schema.tablename&quot;</span><span class="p">,</span> user <span class="o">=</span> <span class="s">&quot;username&quot;</span><span class="p">,</span> password <span class="o">=</span> <span class="s">&quot;password&quot;</span><span class="p">)</span>
+
+<span class="c1"># Saving data to a JDBC source</span>
+write.jdbc<span class="p">(</span>df<span class="p">,</span> <span class="s">&quot;jdbc:postgresql:dbserver&quot;</span><span class="p">,</span> <span class="s">&quot;schema.tablename&quot;</span><span class="p">,</span> user <span class="o">=</span> <span class="s">&quot;username&quot;</span><span class="p">,</span> password <span class="o">=</span> <span class="s">&quot;password&quot;</span><span class="p">)</span>
+</pre></div>
+    <div><small>Find full example code at "examples/src/main/r/RSparkSQLExample.R" in the Spark repo.</small></div>
+  </div>
+
+<div data-lang="sql">
+
+    <figure class="highlight"><pre><code class="language-sql" data-lang="sql"><span></span><span class="k">CREATE</span> <span class="k">TEMPORARY</span> <span class="k">VIEW</span> <span class="n">jdbcTable</span>
+<span class="k">USING</span> <span class="n">org</span><span class="p">.</span><span class="n">apache</span><span class="p">.</span><span class="n">spark</span><span class="p">.</span><span class="k">sql</span><span class="p">.</span><span class="n">jdbc</span>
+<span class="k">OPTIONS</span> <span class="p">(</span>
+  <span class="n">url</span> <span class="ss">&quot;jdbc:postgresql:dbserver&quot;</span><span class="p">,</span>
+  <span class="n">dbtable</span> <span class="ss">&quot;schema.tablename&quot;</span><span class="p">,</span>
+  <span class="k">user</span> <span class="s1">&#39;username&#39;</span><span class="p">,</span>
+  <span class="n">password</span> <span class="s1">&#39;password&#39;</span>
+<span class="p">)</span>
+
+<span class="k">INSERT</span> <span class="k">INTO</span> <span class="k">TABLE</span> <span class="n">jdbcTable</span>
+<span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">resultTable</span></code></pre></figure>
+
+  </div>
+</div>
+
+
+                </div>
+            
+             <!-- /container -->
+        </div>
+
+        <script src="js/vendor/jquery-1.8.0.min.js"></script>
+        <script src="js/vendor/bootstrap.min.js"></script>
+        <script src="js/vendor/anchor.min.js"></script>
+        <script src="js/main.js"></script>
+
+        <!-- MathJax Section -->
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({
+                TeX: { equationNumbers: { autoNumber: "AMS" } }
+            });
+        </script>
+        <script>
+            // Note that we load MathJax this way to work with local file (file://), HTTP and HTTPS.
+            // We could use "//cdn.mathjax...", but that won't support "file://".
+            (function(d, script) {
+                script = d.createElement('script');
+                script.type = 'text/javascript';
+                script.async = true;
+                script.onload = function(){
+                    MathJax.Hub.Config({
+                        tex2jax: {
+                            inlineMath: [ ["$", "$"], ["\\\\(","\\\\)"] ],
+                            displayMath: [ ["$$","$$"], ["\\[", "\\]"] ],
+                            processEscapes: true,
+                            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+                        }
+                    });
+                };
+                script.src = ('https:' == document.location.protocol ? 'https://' : 'http://') +
+                    'cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js' +
+                    '?config=TeX-AMS-MML_HTMLorMML';
+                d.getElementsByTagName('head')[0].appendChild(script);
+            }(document));
+        </script>
+    </body>
+</html>

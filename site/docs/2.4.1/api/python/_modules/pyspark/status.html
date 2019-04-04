@@ -1,0 +1,174 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.status &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.status</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;SparkJobInfo&quot;</span><span class="p">,</span> <span class="s2">&quot;SparkStageInfo&quot;</span><span class="p">,</span> <span class="s2">&quot;StatusTracker&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="SparkJobInfo"><a class="viewcode-back" href="../../pyspark.html#pyspark.SparkJobInfo">[docs]</a><span class="k">class</span> <span class="nc">SparkJobInfo</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;SparkJobInfo&quot;</span><span class="p">,</span> <span class="s2">&quot;jobId stageIds status&quot;</span><span class="p">)):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exposes information about Spark Jobs.</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="SparkStageInfo"><a class="viewcode-back" href="../../pyspark.html#pyspark.SparkStageInfo">[docs]</a><span class="k">class</span> <span class="nc">SparkStageInfo</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;SparkStageInfo&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;stageId currentAttemptId name numTasks numActiveTasks &quot;</span>
+                                <span class="s2">&quot;numCompletedTasks numFailedTasks&quot;</span><span class="p">)):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Exposes information about Spark Stages.</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="StatusTracker"><a class="viewcode-back" href="../../pyspark.html#pyspark.StatusTracker">[docs]</a><span class="k">class</span> <span class="nc">StatusTracker</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Low-level status reporting APIs for monitoring job and stage progress.</span>
+
+<span class="sd">    These APIs intentionally provide very weak consistency semantics;</span>
+<span class="sd">    consumers of these APIs should be prepared to handle empty / missing</span>
+<span class="sd">    information. For example, a job&#39;s stage ids may be known but the status</span>
+<span class="sd">    API may not have any information about the details of those stages, so</span>
+<span class="sd">    `getStageInfo` could potentially return `None` for a valid stage id.</span>
+
+<span class="sd">    To limit memory usage, these APIs only provide information on recent</span>
+<span class="sd">    jobs / stages.  These APIs will provide information for the last</span>
+<span class="sd">    `spark.ui.retainedStages` stages and `spark.ui.retainedJobs` jobs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jtracker</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jtracker</span> <span class="o">=</span> <span class="n">jtracker</span>
+
+<div class="viewcode-block" id="StatusTracker.getJobIdsForGroup"><a class="viewcode-back" href="../../pyspark.html#pyspark.StatusTracker.getJobIdsForGroup">[docs]</a>    <span class="k">def</span> <span class="nf">getJobIdsForGroup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jobGroup</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a list of all known jobs in a particular job group.  If</span>
+<span class="sd">        `jobGroup` is None, then returns all known jobs that are not</span>
+<span class="sd">        associated with a job group.</span>
+
+<span class="sd">        The returned list may contain running, failed, and completed jobs,</span>
+<span class="sd">        and may vary across invocations of this method. This method does</span>
+<span class="sd">        not guarantee the order of the elements in its result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jtracker</span><span class="o">.</span><span class="n">getJobIdsForGroup</span><span class="p">(</span><span class="n">jobGroup</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="StatusTracker.getActiveStageIds"><a class="viewcode-back" href="../../pyspark.html#pyspark.StatusTracker.getActiveStageIds">[docs]</a>    <span class="k">def</span> <span class="nf">getActiveStageIds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an array containing the ids of all active stages.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jtracker</span><span class="o">.</span><span class="n">getActiveStageIds</span><span class="p">()))</span></div>
+
+<div class="viewcode-block" id="StatusTracker.getActiveJobsIds"><a class="viewcode-back" href="../../pyspark.html#pyspark.StatusTracker.getActiveJobsIds">[docs]</a>    <span class="k">def</span> <span class="nf">getActiveJobsIds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an array containing the ids of all active jobs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">((</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jtracker</span><span class="o">.</span><span class="n">getActiveJobIds</span><span class="p">())))</span></div>
+
+<div class="viewcode-block" id="StatusTracker.getJobInfo"><a class="viewcode-back" href="../../pyspark.html#pyspark.StatusTracker.getJobInfo">[docs]</a>    <span class="k">def</span> <span class="nf">getJobInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jobId</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a :class:`SparkJobInfo` object, or None if the job info</span>
+<span class="sd">        could not be found or was garbage collected.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">job</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jtracker</span><span class="o">.</span><span class="n">getJobInfo</span><span class="p">(</span><span class="n">jobId</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">job</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">SparkJobInfo</span><span class="p">(</span><span class="n">jobId</span><span class="p">,</span> <span class="n">job</span><span class="o">.</span><span class="n">stageIds</span><span class="p">(),</span> <span class="nb">str</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">status</span><span class="p">()))</span></div>
+
+<div class="viewcode-block" id="StatusTracker.getStageInfo"><a class="viewcode-back" href="../../pyspark.html#pyspark.StatusTracker.getStageInfo">[docs]</a>    <span class="k">def</span> <span class="nf">getStageInfo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stageId</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a :class:`SparkStageInfo` object, or None if the stage</span>
+<span class="sd">        info could not be found or was garbage collected.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jtracker</span><span class="o">.</span><span class="n">getStageInfo</span><span class="p">(</span><span class="n">stageId</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">stage</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># TODO: fetch them in batch for better performance</span>
+            <span class="n">attrs</span> <span class="o">=</span> <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">stage</span><span class="p">,</span> <span class="n">f</span><span class="p">)()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">SparkStageInfo</span><span class="o">.</span><span class="n">_fields</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+            <span class="k">return</span> <span class="n">SparkStageInfo</span><span class="p">(</span><span class="n">stageId</span><span class="p">,</span> <span class="o">*</span><span class="n">attrs</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,1099 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.sql.readwriter &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.sql.readwriter</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version</span> <span class="o">&gt;=</span> <span class="s1">&#39;3&#39;</span><span class="p">:</span>
+    <span class="n">basestring</span> <span class="o">=</span> <span class="n">unicode</span> <span class="o">=</span> <span class="nb">str</span>
+
+<span class="kn">from</span> <span class="nn">py4j.java_gateway</span> <span class="k">import</span> <span class="n">JavaClass</span>
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="k">import</span> <span class="n">RDD</span><span class="p">,</span> <span class="n">since</span>
+<span class="kn">from</span> <span class="nn">pyspark.rdd</span> <span class="k">import</span> <span class="n">ignore_unicode_prefix</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.column</span> <span class="k">import</span> <span class="n">_to_seq</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">utils</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;DataFrameReader&quot;</span><span class="p">,</span> <span class="s2">&quot;DataFrameWriter&quot;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">to_str</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A wrapper over str(), but converts bool values to lower case strings.</span>
+<span class="sd">    If None is given, just returns None, instead of converting it to string &quot;None&quot;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">value</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">OptionUtils</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">_set_opts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set named options (filter out those the value is None)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="DataFrameReader"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameReader">[docs]</a><span class="k">class</span> <span class="nc">DataFrameReader</span><span class="p">(</span><span class="n">OptionUtils</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interface used to load a :class:`DataFrame` from external storage systems</span>
+<span class="sd">    (e.g. file systems, key-value stores, etc). Use :func:`spark.read`</span>
+<span class="sd">    to access this.</span>
+
+<span class="sd">    .. versionadded:: 1.4</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spark</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">_ssql_ctx</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_spark</span> <span class="o">=</span> <span class="n">spark</span>
+
+    <span class="k">def</span> <span class="nf">_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jdf</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">pyspark.sql.dataframe</span> <span class="k">import</span> <span class="n">DataFrame</span>
+        <span class="k">return</span> <span class="n">DataFrame</span><span class="p">(</span><span class="n">jdf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spark</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DataFrameReader.format"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameReader.format">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Specifies the input data source format.</span>
+
+<span class="sd">        :param source: string, name of the data source, e.g. &#39;json&#39;, &#39;parquet&#39;.</span>
+
+<span class="sd">        &gt;&gt;&gt; df = spark.read.format(&#39;json&#39;).load(&#39;python/test_support/sql/people.json&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; df.dtypes</span>
+<span class="sd">        [(&#39;age&#39;, &#39;bigint&#39;), (&#39;name&#39;, &#39;string&#39;)]</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="DataFrameReader.schema"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameReader.schema">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">schema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schema</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Specifies the input schema.</span>
+
+<span class="sd">        Some data sources (e.g. JSON) can infer the input schema automatically from data.</span>
+<span class="sd">        By specifying the schema here, the underlying data source can skip the schema</span>
+<span class="sd">        inference step, and thus speed up data loading.</span>
+
+<span class="sd">        :param schema: a :class:`pyspark.sql.types.StructType` object or a DDL-formatted string</span>
+<span class="sd">                       (For example ``col0 INT, col1 DOUBLE``).</span>
+
+<span class="sd">        &gt;&gt;&gt; s = spark.read.schema(&quot;col0 INT, col1 DOUBLE&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">SparkSession</span>
+        <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">StructType</span><span class="p">):</span>
+            <span class="n">jschema</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">_jsparkSession</span><span class="o">.</span><span class="n">parseDataType</span><span class="p">(</span><span class="n">schema</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span><span class="o">.</span><span class="n">schema</span><span class="p">(</span><span class="n">jschema</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">schema</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span><span class="o">.</span><span class="n">schema</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;schema should be StructType or string&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="DataFrameReader.option"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameReader.option">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Adds an input option for the underlying data source.</span>
+
+<span class="sd">        You can set the following option(s) for reading files:</span>
+<span class="sd">            * ``timeZone``: sets the string that indicates a timezone to be used to parse timestamps</span>
+<span class="sd">                in the JSON/CSV datasources or partition values.</span>
+<span class="sd">                If it isn&#39;t set, it uses the default value, session local timezone.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">to_str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="DataFrameReader.options"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameReader.options">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Adds input options for the underlying data source.</span>
+
+<span class="sd">        You can set the following option(s) for reading files:</span>
+<span class="sd">            * ``timeZone``: sets the string that indicates a timezone to be used to parse timestamps</span>
+<span class="sd">                in the JSON/CSV datasources or partition values.</span>
+<span class="sd">                If it isn&#39;t set, it uses the default value, session local timezone.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">options</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">to_str</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="DataFrameReader.load"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameReader.load">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Loads data from a data source and returns it as a :class`DataFrame`.</span>
+
+<span class="sd">        :param path: optional string or a list of string for file-system backed data sources.</span>
+<span class="sd">        :param format: optional string for format of the data source. Default to &#39;parquet&#39;.</span>
+<span class="sd">        :param schema: optional :class:`pyspark.sql.types.StructType` for the input schema</span>
+<span class="sd">                       or a DDL-formatted string (For example ``col0 INT, col1 DOUBLE``).</span>
+<span class="sd">        :param options: all other string options</span>
+
+<span class="sd">        &gt;&gt;&gt; df = spark.read.format(&quot;parquet&quot;).load(&#39;python/test_support/sql/parquet_partitioned&#39;,</span>
+<span class="sd">        ...     opt1=True, opt2=1, opt3=&#39;str&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; df.dtypes</span>
+<span class="sd">        [(&#39;name&#39;, &#39;string&#39;), (&#39;year&#39;, &#39;int&#39;), (&#39;month&#39;, &#39;int&#39;), (&#39;day&#39;, &#39;int&#39;)]</span>
+
+<span class="sd">        &gt;&gt;&gt; df = spark.read.format(&#39;json&#39;).load([&#39;python/test_support/sql/people.json&#39;,</span>
+<span class="sd">        ...     &#39;python/test_support/sql/people1.json&#39;])</span>
+<span class="sd">        &gt;&gt;&gt; df.dtypes</span>
+<span class="sd">        [(&#39;age&#39;, &#39;bigint&#39;), (&#39;aka&#39;, &#39;string&#39;), (&#39;name&#39;, &#39;string&#39;)]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">format</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">format</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="o">**</span><span class="n">options</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span><span class="p">]</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_spark</span><span class="o">.</span><span class="n">_sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">PythonUtils</span><span class="o">.</span><span class="n">toSeq</span><span class="p">(</span><span class="n">path</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span><span class="o">.</span><span class="n">load</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="DataFrameReader.json"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameReader.json">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">primitivesAsString</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prefersDecimal</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">allowComments</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">allowUnquotedFieldNames</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">allowSingleQuotes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">allowNumericLeadingZero</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">allowBackslashEscapingAnyCharacter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">columnNameOfCorruptRecord</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dateFormat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timestampFormat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">multiLine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">allowUnquotedControlChars</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lineSep</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">samplingRatio</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">dropFieldIfAllNull</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads JSON files and returns the results as a :class:`DataFrame`.</span>
+
+<span class="sd">        `JSON Lines &lt;http://jsonlines.org/&gt;`_ (newline-delimited JSON) is supported by default.</span>
+<span class="sd">        For JSON (one record per file), set the ``multiLine`` parameter to ``true``.</span>
+
+<span class="sd">        If the ``schema`` parameter is not specified, this function goes</span>
+<span class="sd">        through the input once to determine the input schema.</span>
+
+<span class="sd">        :param path: string represents path to the JSON dataset, or a list of paths,</span>
+<span class="sd">                     or RDD of Strings storing JSON objects.</span>
+<span class="sd">        :param schema: an optional :class:`pyspark.sql.types.StructType` for the input schema or</span>
+<span class="sd">                       a DDL-formatted string (For example ``col0 INT, col1 DOUBLE``).</span>
+<span class="sd">        :param primitivesAsString: infers all primitive values as a string type. If None is set,</span>
+<span class="sd">                                   it uses the default value, ``false``.</span>
+<span class="sd">        :param prefersDecimal: infers all floating-point values as a decimal type. If the values</span>
+<span class="sd">                               do not fit in decimal, then it infers them as doubles. If None is</span>
+<span class="sd">                               set, it uses the default value, ``false``.</span>
+<span class="sd">        :param allowComments: ignores Java/C++ style comment in JSON records. If None is set,</span>
+<span class="sd">                              it uses the default value, ``false``.</span>
+<span class="sd">        :param allowUnquotedFieldNames: allows unquoted JSON field names. If None is set,</span>
+<span class="sd">                                        it uses the default value, ``false``.</span>
+<span class="sd">        :param allowSingleQuotes: allows single quotes in addition to double quotes. If None is</span>
+<span class="sd">                                        set, it uses the default value, ``true``.</span>
+<span class="sd">        :param allowNumericLeadingZero: allows leading zeros in numbers (e.g. 00012). If None is</span>
+<span class="sd">                                        set, it uses the default value, ``false``.</span>
+<span class="sd">        :param allowBackslashEscapingAnyCharacter: allows accepting quoting of all character</span>
+<span class="sd">                                                   using backslash quoting mechanism. If None is</span>
+<span class="sd">                                                   set, it uses the default value, ``false``.</span>
+<span class="sd">        :param mode: allows a mode for dealing with corrupt records during parsing. If None is</span>
+<span class="sd">                     set, it uses the default value, ``PERMISSIVE``.</span>
+
+<span class="sd">                * ``PERMISSIVE`` : when it meets a corrupted record, puts the malformed string \</span>
+<span class="sd">                  into a field configured by ``columnNameOfCorruptRecord``, and sets other \</span>
+<span class="sd">                  fields to ``null``. To keep corrupt records, an user can set a string type \</span>
+<span class="sd">                  field named ``columnNameOfCorruptRecord`` in an user-defined schema. If a \</span>
+<span class="sd">                  schema does not have the field, it drops corrupt records during parsing. \</span>
+<span class="sd">                  When inferring a schema, it implicitly adds a ``columnNameOfCorruptRecord`` \</span>
+<span class="sd">                  field in an output schema.</span>
+<span class="sd">                *  ``DROPMALFORMED`` : ignores the whole corrupted records.</span>
+<span class="sd">                *  ``FAILFAST`` : throws an exception when it meets corrupted records.</span>
+
+<span class="sd">        :param columnNameOfCorruptRecord: allows renaming the new field having malformed string</span>
+<span class="sd">                                          created by ``PERMISSIVE`` mode. This overrides</span>
+<span class="sd">                                          ``spark.sql.columnNameOfCorruptRecord``. If None is set,</span>
+<span class="sd">                                          it uses the value specified in</span>
+<span class="sd">                                          ``spark.sql.columnNameOfCorruptRecord``.</span>
+<span class="sd">        :param dateFormat: sets the string that indicates a date format. Custom date formats</span>
+<span class="sd">                           follow the formats at ``java.text.SimpleDateFormat``. This</span>
+<span class="sd">                           applies to date type. If None is set, it uses the</span>
+<span class="sd">                           default value, ``yyyy-MM-dd``.</span>
+<span class="sd">        :param timestampFormat: sets the string that indicates a timestamp format. Custom date</span>
+<span class="sd">                                formats follow the formats at ``java.text.SimpleDateFormat``.</span>
+<span class="sd">                                This applies to timestamp type. If None is set, it uses the</span>
+<span class="sd">                                default value, ``yyyy-MM-dd&#39;T&#39;HH:mm:ss.SSSXXX``.</span>
+<span class="sd">        :param multiLine: parse one record, which may span multiple lines, per file. If None is</span>
+<span class="sd">                          set, it uses the default value, ``false``.</span>
+<span class="sd">        :param allowUnquotedControlChars: allows JSON Strings to contain unquoted control</span>
+<span class="sd">                                          characters (ASCII characters with value less than 32,</span>
+<span class="sd">                                          including tab and line feed characters) or not.</span>
+<span class="sd">        :param encoding: allows to forcibly set one of standard basic or extended encoding for</span>
+<span class="sd">                         the JSON files. For example UTF-16BE, UTF-32LE. If None is set,</span>
+<span class="sd">                         the encoding of input JSON will be detected automatically</span>
+<span class="sd">                         when the multiLine option is set to ``true``.</span>
+<span class="sd">        :param lineSep: defines the line separator that should be used for parsing. If None is</span>
+<span class="sd">                        set, it covers all ``\\r``, ``\\r\\n`` and ``\\n``.</span>
+<span class="sd">        :param samplingRatio: defines fraction of input JSON objects used for schema inferring.</span>
+<span class="sd">                              If None is set, it uses the default value, ``1.0``.</span>
+<span class="sd">        :param dropFieldIfAllNull: whether to ignore column of all null values or empty</span>
+<span class="sd">                                   array/struct during schema inference. If None is set, it</span>
+<span class="sd">                                   uses the default value, ``false``.</span>
+
+<span class="sd">        &gt;&gt;&gt; df1 = spark.read.json(&#39;python/test_support/sql/people.json&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; df1.dtypes</span>
+<span class="sd">        [(&#39;age&#39;, &#39;bigint&#39;), (&#39;name&#39;, &#39;string&#39;)]</span>
+<span class="sd">        &gt;&gt;&gt; rdd = sc.textFile(&#39;python/test_support/sql/people.json&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; df2 = spark.read.json(rdd)</span>
+<span class="sd">        &gt;&gt;&gt; df2.dtypes</span>
+<span class="sd">        [(&#39;age&#39;, &#39;bigint&#39;), (&#39;name&#39;, &#39;string&#39;)]</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_opts</span><span class="p">(</span>
+            <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">primitivesAsString</span><span class="o">=</span><span class="n">primitivesAsString</span><span class="p">,</span> <span class="n">prefersDecimal</span><span class="o">=</span><span class="n">prefersDecimal</span><span class="p">,</span>
+            <span class="n">allowComments</span><span class="o">=</span><span class="n">allowComments</span><span class="p">,</span> <span class="n">allowUnquotedFieldNames</span><span class="o">=</span><span class="n">allowUnquotedFieldNames</span><span class="p">,</span>
+            <span class="n">allowSingleQuotes</span><span class="o">=</span><span class="n">allowSingleQuotes</span><span class="p">,</span> <span class="n">allowNumericLeadingZero</span><span class="o">=</span><span class="n">allowNumericLeadingZero</span><span class="p">,</span>
+            <span class="n">allowBackslashEscapingAnyCharacter</span><span class="o">=</span><span class="n">allowBackslashEscapingAnyCharacter</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">columnNameOfCorruptRecord</span><span class="o">=</span><span class="n">columnNameOfCorruptRecord</span><span class="p">,</span> <span class="n">dateFormat</span><span class="o">=</span><span class="n">dateFormat</span><span class="p">,</span>
+            <span class="n">timestampFormat</span><span class="o">=</span><span class="n">timestampFormat</span><span class="p">,</span> <span class="n">multiLine</span><span class="o">=</span><span class="n">multiLine</span><span class="p">,</span>
+            <span class="n">allowUnquotedControlChars</span><span class="o">=</span><span class="n">allowUnquotedControlChars</span><span class="p">,</span> <span class="n">lineSep</span><span class="o">=</span><span class="n">lineSep</span><span class="p">,</span>
+            <span class="n">samplingRatio</span><span class="o">=</span><span class="n">samplingRatio</span><span class="p">,</span> <span class="n">dropFieldIfAllNull</span><span class="o">=</span><span class="n">dropFieldIfAllNull</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_spark</span><span class="o">.</span><span class="n">_sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">PythonUtils</span><span class="o">.</span><span class="n">toSeq</span><span class="p">(</span><span class="n">path</span><span class="p">)))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">RDD</span><span class="p">):</span>
+            <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">iterator</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">iterator</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+                        <span class="n">x</span> <span class="o">=</span> <span class="n">unicode</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">unicode</span><span class="p">):</span>
+                        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+                    <span class="k">yield</span> <span class="n">x</span>
+            <span class="n">keyed</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">mapPartitions</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+            <span class="n">keyed</span><span class="o">.</span><span class="n">_bypass_serializer</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">jrdd</span> <span class="o">=</span> <span class="n">keyed</span><span class="o">.</span><span class="n">_jrdd</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_spark</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">BytesToString</span><span class="p">())</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="n">jrdd</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;path can be only string, list or RDD&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataFrameReader.table"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameReader.table">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tableName</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the specified table as a :class:`DataFrame`.</span>
+
+<span class="sd">        :param tableName: string, name of the table.</span>
+
+<span class="sd">        &gt;&gt;&gt; df = spark.read.parquet(&#39;python/test_support/sql/parquet_partitioned&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; df.createOrReplaceTempView(&#39;tmpTable&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; spark.read.table(&#39;tmpTable&#39;).dtypes</span>
+<span class="sd">        [(&#39;name&#39;, &#39;string&#39;), (&#39;year&#39;, &#39;int&#39;), (&#39;month&#39;, &#39;int&#39;), (&#39;day&#39;, &#39;int&#39;)]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">tableName</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="DataFrameReader.parquet"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameReader.parquet">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">parquet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">paths</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Loads Parquet files, returning the result as a :class:`DataFrame`.</span>
+
+<span class="sd">        You can set the following Parquet-specific option(s) for reading Parquet files:</span>
+<span class="sd">            * ``mergeSchema``: sets whether we should merge schemas collected from all \</span>
+<span class="sd">                Parquet part-files. This will override ``spark.sql.parquet.mergeSchema``. \</span>
+<span class="sd">                The default value is specified in ``spark.sql.parquet.mergeSchema``.</span>
+
+<span class="sd">        &gt;&gt;&gt; df = spark.read.parquet(&#39;python/test_support/sql/parquet_partitioned&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; df.dtypes</span>
+<span class="sd">        [(&#39;name&#39;, &#39;string&#39;), (&#39;year&#39;, &#39;int&#39;), (&#39;month&#39;, &#39;int&#39;), (&#39;day&#39;, &#39;int&#39;)]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span><span class="o">.</span><span class="n">parquet</span><span class="p">(</span><span class="n">_to_seq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_spark</span><span class="o">.</span><span class="n">_sc</span><span class="p">,</span> <span class="n">paths</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="DataFrameReader.text"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameReader.text">[docs]</a>    <span class="nd">@ignore_unicode_prefix</span>
+    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.6</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">paths</span><span class="p">,</span> <span class="n">wholetext</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">lineSep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads text files and returns a :class:`DataFrame` whose schema starts with a</span>
+<span class="sd">        string column named &quot;value&quot;, and followed by partitioned columns if there</span>
+<span class="sd">        are any.</span>
+
+<span class="sd">        By default, each line in the text file is a new row in the resulting DataFrame.</span>
+
+<span class="sd">        :param paths: string, or list of strings, for input path(s).</span>
+<span class="sd">        :param wholetext: if true, read each file from input path(s) as a single row.</span>
+<span class="sd">        :param lineSep: defines the line separator that should be used for parsing. If None is</span>
+<span class="sd">                        set, it covers all ``\\r``, ``\\r\\n`` and ``\\n``.</span>
+
+<span class="sd">        &gt;&gt;&gt; df = spark.read.text(&#39;python/test_support/sql/text-test.txt&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; df.collect()</span>
+<span class="sd">        [Row(value=u&#39;hello&#39;), Row(value=u&#39;this&#39;)]</span>
+<span class="sd">        &gt;&gt;&gt; df = spark.read.text(&#39;python/test_support/sql/text-test.txt&#39;, wholetext=True)</span>
+<span class="sd">        &gt;&gt;&gt; df.collect()</span>
+<span class="sd">        [Row(value=u&#39;hello\\nthis&#39;)]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_opts</span><span class="p">(</span><span class="n">wholetext</span><span class="o">=</span><span class="n">wholetext</span><span class="p">,</span> <span class="n">lineSep</span><span class="o">=</span><span class="n">lineSep</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">paths</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">paths</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_spark</span><span class="o">.</span><span class="n">_sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">PythonUtils</span><span class="o">.</span><span class="n">toSeq</span><span class="p">(</span><span class="n">paths</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="DataFrameReader.csv"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameReader.csv">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">quote</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">escape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">comment</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inferSchema</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ignoreLeadingWhiteSpace</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">ignoreTrailingWhiteSpace</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nullValue</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nanValue</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">positiveInf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">negativeInf</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dateFormat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timestampFormat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maxColumns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">maxCharsPerColumn</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maxMalformedLogPerPartition</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">columnNameOfCorruptRecord</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">multiLine</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">charToEscapeQuoteEscaping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">samplingRatio</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">enforceSchema</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">emptyValue</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Loads a CSV file and returns the result as a  :class:`DataFrame`.</span>
+
+<span class="sd">        This function will go through the input once to determine the input schema if</span>
+<span class="sd">        ``inferSchema`` is enabled. To avoid going through the entire data once, disable</span>
+<span class="sd">        ``inferSchema`` option or specify the schema explicitly using ``schema``.</span>
+
+<span class="sd">        :param path: string, or list of strings, for input path(s),</span>
+<span class="sd">                     or RDD of Strings storing CSV rows.</span>
+<span class="sd">        :param schema: an optional :class:`pyspark.sql.types.StructType` for the input schema</span>
+<span class="sd">                       or a DDL-formatted string (For example ``col0 INT, col1 DOUBLE``).</span>
+<span class="sd">        :param sep: sets a single character as a separator for each field and value.</span>
+<span class="sd">                    If None is set, it uses the default value, ``,``.</span>
+<span class="sd">        :param encoding: decodes the CSV files by the given encoding type. If None is set,</span>
+<span class="sd">                         it uses the default value, ``UTF-8``.</span>
+<span class="sd">        :param quote: sets a single character used for escaping quoted values where the</span>
+<span class="sd">                      separator can be part of the value. If None is set, it uses the default</span>
+<span class="sd">                      value, ``&quot;``. If you would like to turn off quotations, you need to set an</span>
+<span class="sd">                      empty string.</span>
+<span class="sd">        :param escape: sets a single character used for escaping quotes inside an already</span>
+<span class="sd">                       quoted value. If None is set, it uses the default value, ``\``.</span>
+<span class="sd">        :param comment: sets a single character used for skipping lines beginning with this</span>
+<span class="sd">                        character. By default (None), it is disabled.</span>
+<span class="sd">        :param header: uses the first line as names of columns. If None is set, it uses the</span>
+<span class="sd">                       default value, ``false``.</span>
+<span class="sd">        :param inferSchema: infers the input schema automatically from data. It requires one extra</span>
+<span class="sd">                       pass over the data. If None is set, it uses the default value, ``false``.</span>
+<span class="sd">        :param enforceSchema: If it is set to ``true``, the specified or inferred schema will be</span>
+<span class="sd">                              forcibly applied to datasource files, and headers in CSV files will be</span>
+<span class="sd">                              ignored. If the option is set to ``false``, the schema will be</span>
+<span class="sd">                              validated against all headers in CSV files or the first header in RDD</span>
+<span class="sd">                              if the ``header`` option is set to ``true``. Field names in the schema</span>
+<span class="sd">                              and column names in CSV headers are checked by their positions</span>
+<span class="sd">                              taking into account ``spark.sql.caseSensitive``. If None is set,</span>
+<span class="sd">                              ``true`` is used by default. Though the default value is ``true``,</span>
+<span class="sd">                              it is recommended to disable the ``enforceSchema`` option</span>
+<span class="sd">                              to avoid incorrect results.</span>
+<span class="sd">        :param ignoreLeadingWhiteSpace: A flag indicating whether or not leading whitespaces from</span>
+<span class="sd">                                        values being read should be skipped. If None is set, it</span>
+<span class="sd">                                        uses the default value, ``false``.</span>
+<span class="sd">        :param ignoreTrailingWhiteSpace: A flag indicating whether or not trailing whitespaces from</span>
+<span class="sd">                                         values being read should be skipped. If None is set, it</span>
+<span class="sd">                                         uses the default value, ``false``.</span>
+<span class="sd">        :param nullValue: sets the string representation of a null value. If None is set, it uses</span>
+<span class="sd">                          the default value, empty string. Since 2.0.1, this ``nullValue`` param</span>
+<span class="sd">                          applies to all supported types including the string type.</span>
+<span class="sd">        :param nanValue: sets the string representation of a non-number value. If None is set, it</span>
+<span class="sd">                         uses the default value, ``NaN``.</span>
+<span class="sd">        :param positiveInf: sets the string representation of a positive infinity value. If None</span>
+<span class="sd">                            is set, it uses the default value, ``Inf``.</span>
+<span class="sd">        :param negativeInf: sets the string representation of a negative infinity value. If None</span>
+<span class="sd">                            is set, it uses the default value, ``Inf``.</span>
+<span class="sd">        :param dateFormat: sets the string that indicates a date format. Custom date formats</span>
+<span class="sd">                           follow the formats at ``java.text.SimpleDateFormat``. This</span>
+<span class="sd">                           applies to date type. If None is set, it uses the</span>
+<span class="sd">                           default value, ``yyyy-MM-dd``.</span>
+<span class="sd">        :param timestampFormat: sets the string that indicates a timestamp format. Custom date</span>
+<span class="sd">                                formats follow the formats at ``java.text.SimpleDateFormat``.</span>
+<span class="sd">                                This applies to timestamp type. If None is set, it uses the</span>
+<span class="sd">                                default value, ``yyyy-MM-dd&#39;T&#39;HH:mm:ss.SSSXXX``.</span>
+<span class="sd">        :param maxColumns: defines a hard limit of how many columns a record can have. If None is</span>
+<span class="sd">                           set, it uses the default value, ``20480``.</span>
+<span class="sd">        :param maxCharsPerColumn: defines the maximum number of characters allowed for any given</span>
+<span class="sd">                                  value being read. If None is set, it uses the default value,</span>
+<span class="sd">                                  ``-1`` meaning unlimited length.</span>
+<span class="sd">        :param maxMalformedLogPerPartition: this parameter is no longer used since Spark 2.2.0.</span>
+<span class="sd">                                            If specified, it is ignored.</span>
+<span class="sd">        :param mode: allows a mode for dealing with corrupt records during parsing. If None is</span>
+<span class="sd">                     set, it uses the default value, ``PERMISSIVE``.</span>
+
+<span class="sd">                * ``PERMISSIVE`` : when it meets a corrupted record, puts the malformed string \</span>
+<span class="sd">                  into a field configured by ``columnNameOfCorruptRecord``, and sets other \</span>
+<span class="sd">                  fields to ``null``. To keep corrupt records, an user can set a string type \</span>
+<span class="sd">                  field named ``columnNameOfCorruptRecord`` in an user-defined schema. If a \</span>
+<span class="sd">                  schema does not have the field, it drops corrupt records during parsing. \</span>
+<span class="sd">                  A record with less/more tokens than schema is not a corrupted record to CSV. \</span>
+<span class="sd">                  When it meets a record having fewer tokens than the length of the schema, \</span>
+<span class="sd">                  sets ``null`` to extra fields. When the record has more tokens than the \</span>
+<span class="sd">                  length of the schema, it drops extra tokens.</span>
+<span class="sd">                * ``DROPMALFORMED`` : ignores the whole corrupted records.</span>
+<span class="sd">                * ``FAILFAST`` : throws an exception when it meets corrupted records.</span>
+
+<span class="sd">        :param columnNameOfCorruptRecord: allows renaming the new field having malformed string</span>
+<span class="sd">                                          created by ``PERMISSIVE`` mode. This overrides</span>
+<span class="sd">                                          ``spark.sql.columnNameOfCorruptRecord``. If None is set,</span>
+<span class="sd">                                          it uses the value specified in</span>
+<span class="sd">                                          ``spark.sql.columnNameOfCorruptRecord``.</span>
+<span class="sd">        :param multiLine: parse records, which may span multiple lines. If None is</span>
+<span class="sd">                          set, it uses the default value, ``false``.</span>
+<span class="sd">        :param charToEscapeQuoteEscaping: sets a single character used for escaping the escape for</span>
+<span class="sd">                                          the quote character. If None is set, the default value is</span>
+<span class="sd">                                          escape character when escape and quote characters are</span>
+<span class="sd">                                          different, ``\0`` otherwise.</span>
+<span class="sd">        :param samplingRatio: defines fraction of rows used for schema inferring.</span>
+<span class="sd">                              If None is set, it uses the default value, ``1.0``.</span>
+<span class="sd">        :param emptyValue: sets the string representation of an empty value. If None is set, it uses</span>
+<span class="sd">                           the default value, empty string.</span>
+
+<span class="sd">        &gt;&gt;&gt; df = spark.read.csv(&#39;python/test_support/sql/ages.csv&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; df.dtypes</span>
+<span class="sd">        [(&#39;_c0&#39;, &#39;string&#39;), (&#39;_c1&#39;, &#39;string&#39;)]</span>
+<span class="sd">        &gt;&gt;&gt; rdd = sc.textFile(&#39;python/test_support/sql/ages.csv&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; df2 = spark.read.csv(rdd)</span>
+<span class="sd">        &gt;&gt;&gt; df2.dtypes</span>
+<span class="sd">        [(&#39;_c0&#39;, &#39;string&#39;), (&#39;_c1&#39;, &#39;string&#39;)]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_opts</span><span class="p">(</span>
+            <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="n">quote</span><span class="o">=</span><span class="n">quote</span><span class="p">,</span> <span class="n">escape</span><span class="o">=</span><span class="n">escape</span><span class="p">,</span> <span class="n">comment</span><span class="o">=</span><span class="n">comment</span><span class="p">,</span>
+            <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span> <span class="n">inferSchema</span><span class="o">=</span><span class="n">inferSchema</span><span class="p">,</span> <span class="n">ignoreLeadingWhiteSpace</span><span class="o">=</span><span class="n">ignoreLeadingWhiteSpace</span><span class="p">,</span>
+            <span class="n">ignoreTrailingWhiteSpace</span><span class="o">=</span><span class="n">ignoreTrailingWhiteSpace</span><span class="p">,</span> <span class="n">nullValue</span><span class="o">=</span><span class="n">nullValue</span><span class="p">,</span>
+            <span class="n">nanValue</span><span class="o">=</span><span class="n">nanValue</span><span class="p">,</span> <span class="n">positiveInf</span><span class="o">=</span><span class="n">positiveInf</span><span class="p">,</span> <span class="n">negativeInf</span><span class="o">=</span><span class="n">negativeInf</span><span class="p">,</span>
+            <span class="n">dateFormat</span><span class="o">=</span><span class="n">dateFormat</span><span class="p">,</span> <span class="n">timestampFormat</span><span class="o">=</span><span class="n">timestampFormat</span><span class="p">,</span> <span class="n">maxColumns</span><span class="o">=</span><span class="n">maxColumns</span><span class="p">,</span>
+            <span class="n">maxCharsPerColumn</span><span class="o">=</span><span class="n">maxCharsPerColumn</span><span class="p">,</span>
+            <span class="n">maxMalformedLogPerPartition</span><span class="o">=</span><span class="n">maxMalformedLogPerPartition</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
+            <span class="n">columnNameOfCorruptRecord</span><span class="o">=</span><span class="n">columnNameOfCorruptRecord</span><span class="p">,</span> <span class="n">multiLine</span><span class="o">=</span><span class="n">multiLine</span><span class="p">,</span>
+            <span class="n">charToEscapeQuoteEscaping</span><span class="o">=</span><span class="n">charToEscapeQuoteEscaping</span><span class="p">,</span> <span class="n">samplingRatio</span><span class="o">=</span><span class="n">samplingRatio</span><span class="p">,</span>
+            <span class="n">enforceSchema</span><span class="o">=</span><span class="n">enforceSchema</span><span class="p">,</span> <span class="n">emptyValue</span><span class="o">=</span><span class="n">emptyValue</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span><span class="o">.</span><span class="n">csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_spark</span><span class="o">.</span><span class="n">_sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">PythonUtils</span><span class="o">.</span><span class="n">toSeq</span><span class="p">(</span><span class="n">path</span><span class="p">)))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">RDD</span><span class="p">):</span>
+            <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">iterator</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">iterator</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+                        <span class="n">x</span> <span class="o">=</span> <span class="n">unicode</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">unicode</span><span class="p">):</span>
+                        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+                    <span class="k">yield</span> <span class="n">x</span>
+            <span class="n">keyed</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">mapPartitions</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+            <span class="n">keyed</span><span class="o">.</span><span class="n">_bypass_serializer</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">jrdd</span> <span class="o">=</span> <span class="n">keyed</span><span class="o">.</span><span class="n">_jrdd</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_spark</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">BytesToString</span><span class="p">())</span>
+            <span class="c1"># see SPARK-22112</span>
+            <span class="c1"># There aren&#39;t any jvm api for creating a dataframe from rdd storing csv.</span>
+            <span class="c1"># We can do it through creating a jvm dataset firstly and using the jvm api</span>
+            <span class="c1"># for creating a dataframe from dataset storing csv.</span>
+            <span class="n">jdataset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spark</span><span class="o">.</span><span class="n">_ssql_ctx</span><span class="o">.</span><span class="n">createDataset</span><span class="p">(</span>
+                <span class="n">jrdd</span><span class="o">.</span><span class="n">rdd</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_spark</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">Encoders</span><span class="o">.</span><span class="n">STRING</span><span class="p">())</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span><span class="o">.</span><span class="n">csv</span><span class="p">(</span><span class="n">jdataset</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;path can be only string, list or RDD&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataFrameReader.orc"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameReader.orc">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">orc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Loads ORC files, returning the result as a :class:`DataFrame`.</span>
+
+<span class="sd">        .. note:: Currently ORC support is only available together with Hive support.</span>
+
+<span class="sd">        &gt;&gt;&gt; df = spark.read.orc(&#39;python/test_support/sql/orc_partitioned&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; df.dtypes</span>
+<span class="sd">        [(&#39;a&#39;, &#39;bigint&#39;), (&#39;b&#39;, &#39;int&#39;), (&#39;c&#39;, &#39;int&#39;)]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">basestring</span><span class="p">):</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="p">[</span><span class="n">path</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span><span class="o">.</span><span class="n">orc</span><span class="p">(</span><span class="n">_to_seq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_spark</span><span class="o">.</span><span class="n">_sc</span><span class="p">,</span> <span class="n">path</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="DataFrameReader.jdbc"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameReader.jdbc">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">jdbc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lowerBound</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">upperBound</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">numPartitions</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">predicates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct a :class:`DataFrame` representing the database table named ``table``</span>
+<span class="sd">        accessible via JDBC URL ``url`` and connection ``properties``.</span>
+
+<span class="sd">        Partitions of the table will be retrieved in parallel if either ``column`` or</span>
+<span class="sd">        ``predicates`` is specified. ``lowerBound`, ``upperBound`` and ``numPartitions``</span>
+<span class="sd">        is needed when ``column`` is specified.</span>
+
+<span class="sd">        If both ``column`` and ``predicates`` are specified, ``column`` will be used.</span>
+
+<span class="sd">        .. note:: Don&#39;t create too many partitions in parallel on a large cluster;</span>
+<span class="sd">            otherwise Spark might crash your external database systems.</span>
+
+<span class="sd">        :param url: a JDBC URL of the form ``jdbc:subprotocol:subname``</span>
+<span class="sd">        :param table: the name of the table</span>
+<span class="sd">        :param column: the name of an integer column that will be used for partitioning;</span>
+<span class="sd">                       if this parameter is specified, then ``numPartitions``, ``lowerBound``</span>
+<span class="sd">                       (inclusive), and ``upperBound`` (exclusive) will form partition strides</span>
+<span class="sd">                       for generated WHERE clause expressions used to split the column</span>
+<span class="sd">                       ``column`` evenly</span>
+<span class="sd">        :param lowerBound: the minimum value of ``column`` used to decide partition stride</span>
+<span class="sd">        :param upperBound: the maximum value of ``column`` used to decide partition stride</span>
+<span class="sd">        :param numPartitions: the number of partitions</span>
+<span class="sd">        :param predicates: a list of expressions suitable for inclusion in WHERE clauses;</span>
+<span class="sd">                           each one defines one partition of the :class:`DataFrame`</span>
+<span class="sd">        :param properties: a dictionary of JDBC database connection arguments. Normally at</span>
+<span class="sd">                           least properties &quot;user&quot; and &quot;password&quot; with their corresponding values.</span>
+<span class="sd">                           For example { &#39;user&#39; : &#39;SYSTEM&#39;, &#39;password&#39; : &#39;mypassword&#39; }</span>
+<span class="sd">        :return: a DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">properties</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">properties</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">jprop</span> <span class="o">=</span> <span class="n">JavaClass</span><span class="p">(</span><span class="s2">&quot;java.util.Properties&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spark</span><span class="o">.</span><span class="n">_sc</span><span class="o">.</span><span class="n">_gateway</span><span class="o">.</span><span class="n">_gateway_client</span><span class="p">)()</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">:</span>
+            <span class="n">jprop</span><span class="o">.</span><span class="n">setProperty</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">properties</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">column</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">lowerBound</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;lowerBound can not be None when ``column`` is specified&quot;</span>
+            <span class="k">assert</span> <span class="n">upperBound</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;upperBound can not be None when ``column`` is specified&quot;</span>
+            <span class="k">assert</span> <span class="n">numPartitions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> \
+                <span class="s2">&quot;numPartitions can not be None when ``column`` is specified&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span><span class="o">.</span><span class="n">jdbc</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">lowerBound</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">upperBound</span><span class="p">),</span>
+                                               <span class="nb">int</span><span class="p">(</span><span class="n">numPartitions</span><span class="p">),</span> <span class="n">jprop</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">predicates</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">gateway</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spark</span><span class="o">.</span><span class="n">_sc</span><span class="o">.</span><span class="n">_gateway</span>
+            <span class="n">jpredicates</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">toJArray</span><span class="p">(</span><span class="n">gateway</span><span class="p">,</span> <span class="n">gateway</span><span class="o">.</span><span class="n">jvm</span><span class="o">.</span><span class="n">java</span><span class="o">.</span><span class="n">lang</span><span class="o">.</span><span class="n">String</span><span class="p">,</span> <span class="n">predicates</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span><span class="o">.</span><span class="n">jdbc</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">jpredicates</span><span class="p">,</span> <span class="n">jprop</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_df</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jreader</span><span class="o">.</span><span class="n">jdbc</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">jprop</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="DataFrameWriter"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameWriter">[docs]</a><span class="k">class</span> <span class="nc">DataFrameWriter</span><span class="p">(</span><span class="n">OptionUtils</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interface used to write a :class:`DataFrame` to external storage systems</span>
+<span class="sd">    (e.g. file systems, key-value stores, etc). Use :func:`DataFrame.write`</span>
+<span class="sd">    to access this.</span>
+
+<span class="sd">    .. versionadded:: 1.4</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_df</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_spark</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sql_ctx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">_jdf</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_sq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jsq</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">pyspark.sql.streaming</span> <span class="k">import</span> <span class="n">StreamingQuery</span>
+        <span class="k">return</span> <span class="n">StreamingQuery</span><span class="p">(</span><span class="n">jsq</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DataFrameWriter.mode"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameWriter.mode">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">saveMode</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Specifies the behavior when data or table already exists.</span>
+
+<span class="sd">        Options include:</span>
+
+<span class="sd">        * `append`: Append contents of this :class:`DataFrame` to existing data.</span>
+<span class="sd">        * `overwrite`: Overwrite existing data.</span>
+<span class="sd">        * `error` or `errorifexists`: Throw an exception if data already exists.</span>
+<span class="sd">        * `ignore`: Silently ignore this operation if data already exists.</span>
+
+<span class="sd">        &gt;&gt;&gt; df.write.mode(&#39;append&#39;).parquet(os.path.join(tempfile.mkdtemp(), &#39;data&#39;))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># At the JVM side, the default value of mode is already set to &quot;error&quot;.</span>
+        <span class="c1"># So, if the given saveMode is None, we will not call JVM-side&#39;s mode method.</span>
+        <span class="k">if</span> <span class="n">saveMode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="n">saveMode</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="DataFrameWriter.format"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameWriter.format">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Specifies the underlying output data source.</span>
+
+<span class="sd">        :param source: string, name of the data source, e.g. &#39;json&#39;, &#39;parquet&#39;.</span>
+
+<span class="sd">        &gt;&gt;&gt; df.write.format(&#39;json&#39;).save(os.path.join(tempfile.mkdtemp(), &#39;data&#39;))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="DataFrameWriter.option"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameWriter.option">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Adds an output option for the underlying data source.</span>
+
+<span class="sd">        You can set the following option(s) for writing files:</span>
+<span class="sd">            * ``timeZone``: sets the string that indicates a timezone to be used to format</span>
+<span class="sd">                timestamps in the JSON/CSV datasources or partition values.</span>
+<span class="sd">                If it isn&#39;t set, it uses the default value, session local timezone.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">to_str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="DataFrameWriter.options"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameWriter.options">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Adds output options for the underlying data source.</span>
+
+<span class="sd">        You can set the following option(s) for writing files:</span>
+<span class="sd">            * ``timeZone``: sets the string that indicates a timezone to be used to format</span>
+<span class="sd">                timestamps in the JSON/CSV datasources or partition values.</span>
+<span class="sd">                If it isn&#39;t set, it uses the default value, session local timezone.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">options</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">to_str</span><span class="p">(</span><span class="n">options</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="DataFrameWriter.partitionBy"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameWriter.partitionBy">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">partitionBy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Partitions the output by the given columns on the file system.</span>
+
+<span class="sd">        If specified, the output is laid out on the file system similar</span>
+<span class="sd">        to Hive&#39;s partitioning scheme.</span>
+
+<span class="sd">        :param cols: name of columns</span>
+
+<span class="sd">        &gt;&gt;&gt; df.write.partitionBy(&#39;year&#39;, &#39;month&#39;).parquet(os.path.join(tempfile.mkdtemp(), &#39;data&#39;))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span><span class="o">.</span><span class="n">partitionBy</span><span class="p">(</span><span class="n">_to_seq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_spark</span><span class="o">.</span><span class="n">_sc</span><span class="p">,</span> <span class="n">cols</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="DataFrameWriter.bucketBy"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameWriter.bucketBy">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.3</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">bucketBy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numBuckets</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Buckets the output by the given columns.If specified,</span>
+<span class="sd">        the output is laid out on the file system similar to Hive&#39;s bucketing scheme.</span>
+
+<span class="sd">        :param numBuckets: the number of buckets to save</span>
+<span class="sd">        :param col: a name of a column, or a list of names.</span>
+<span class="sd">        :param cols: additional names (optional). If `col` is a list it should be empty.</span>
+
+<span class="sd">        .. note:: Applicable for file-based data sources in combination with</span>
+<span class="sd">                  :py:meth:`DataFrameWriter.saveAsTable`.</span>
+
+<span class="sd">        &gt;&gt;&gt; (df.write.format(&#39;parquet&#39;)  # doctest: +SKIP</span>
+<span class="sd">        ...     .bucketBy(100, &#39;year&#39;, &#39;month&#39;)</span>
+<span class="sd">        ...     .mode(&quot;overwrite&quot;)</span>
+<span class="sd">        ...     .saveAsTable(&#39;bucketed_table&#39;))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">numBuckets</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;numBuckets should be an int, got </span><span class="si">{0}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">numBuckets</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">cols</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;col is a </span><span class="si">{0}</span><span class="s2"> but cols are not empty&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">col</span><span class="p">)))</span>
+
+            <span class="n">col</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">col</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">col</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">basestring</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">basestring</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;all names should be `str`&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span><span class="o">.</span><span class="n">bucketBy</span><span class="p">(</span><span class="n">numBuckets</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">_to_seq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_spark</span><span class="o">.</span><span class="n">_sc</span><span class="p">,</span> <span class="n">cols</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="DataFrameWriter.sortBy"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameWriter.sortBy">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.3</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">sortBy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="o">*</span><span class="n">cols</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sorts the output in each bucket by the given columns on the file system.</span>
+
+<span class="sd">        :param col: a name of a column, or a list of names.</span>
+<span class="sd">        :param cols: additional names (optional). If `col` is a list it should be empty.</span>
+
+<span class="sd">        &gt;&gt;&gt; (df.write.format(&#39;parquet&#39;)  # doctest: +SKIP</span>
+<span class="sd">        ...     .bucketBy(100, &#39;year&#39;, &#39;month&#39;)</span>
+<span class="sd">        ...     .sortBy(&#39;day&#39;)</span>
+<span class="sd">        ...     .mode(&quot;overwrite&quot;)</span>
+<span class="sd">        ...     .saveAsTable(&#39;sorted_bucketed_table&#39;))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">cols</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;col is a </span><span class="si">{0}</span><span class="s2"> but cols are not empty&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">col</span><span class="p">)))</span>
+
+            <span class="n">col</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="n">col</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">col</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">basestring</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">basestring</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;all names should be `str`&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span><span class="o">.</span><span class="n">sortBy</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">_to_seq</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_spark</span><span class="o">.</span><span class="n">_sc</span><span class="p">,</span> <span class="n">cols</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="DataFrameWriter.save"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameWriter.save">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">partitionBy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Saves the contents of the :class:`DataFrame` to a data source.</span>
+
+<span class="sd">        The data source is specified by the ``format`` and a set of ``options``.</span>
+<span class="sd">        If ``format`` is not specified, the default data source configured by</span>
+<span class="sd">        ``spark.sql.sources.default`` will be used.</span>
+
+<span class="sd">        :param path: the path in a Hadoop supported file system</span>
+<span class="sd">        :param format: the format used to save</span>
+<span class="sd">        :param mode: specifies the behavior of the save operation when data already exists.</span>
+
+<span class="sd">            * ``append``: Append contents of this :class:`DataFrame` to existing data.</span>
+<span class="sd">            * ``overwrite``: Overwrite existing data.</span>
+<span class="sd">            * ``ignore``: Silently ignore this operation if data already exists.</span>
+<span class="sd">            * ``error`` or ``errorifexists`` (default case): Throw an exception if data already \</span>
+<span class="sd">                exists.</span>
+<span class="sd">        :param partitionBy: names of partitioning columns</span>
+<span class="sd">        :param options: all other string options</span>
+
+<span class="sd">        &gt;&gt;&gt; df.write.mode(&#39;append&#39;).parquet(os.path.join(tempfile.mkdtemp(), &#39;data&#39;))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="o">**</span><span class="n">options</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">partitionBy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">partitionBy</span><span class="p">(</span><span class="n">partitionBy</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">format</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">format</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataFrameWriter.insertInto"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameWriter.insertInto">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">insertInto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tableName</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Inserts the content of the :class:`DataFrame` to the specified table.</span>
+
+<span class="sd">        It requires that the schema of the class:`DataFrame` is the same as the</span>
+<span class="sd">        schema of the table.</span>
+
+<span class="sd">        Optionally overwriting any existing data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="s2">&quot;overwrite&quot;</span> <span class="k">if</span> <span class="n">overwrite</span> <span class="k">else</span> <span class="s2">&quot;append&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">insertInto</span><span class="p">(</span><span class="n">tableName</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataFrameWriter.saveAsTable"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameWriter.saveAsTable">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">saveAsTable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">partitionBy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">options</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Saves the content of the :class:`DataFrame` as the specified table.</span>
+
+<span class="sd">        In the case the table already exists, behavior of this function depends on the</span>
+<span class="sd">        save mode, specified by the `mode` function (default to throwing an exception).</span>
+<span class="sd">        When `mode` is `Overwrite`, the schema of the :class:`DataFrame` does not need to be</span>
+<span class="sd">        the same as that of the existing table.</span>
+
+<span class="sd">        * `append`: Append contents of this :class:`DataFrame` to existing data.</span>
+<span class="sd">        * `overwrite`: Overwrite existing data.</span>
+<span class="sd">        * `error` or `errorifexists`: Throw an exception if data already exists.</span>
+<span class="sd">        * `ignore`: Silently ignore this operation if data already exists.</span>
+
+<span class="sd">        :param name: the table name</span>
+<span class="sd">        :param format: the format used to save</span>
+<span class="sd">        :param mode: one of `append`, `overwrite`, `error`, `errorifexists`, `ignore` \</span>
+<span class="sd">                     (default: error)</span>
+<span class="sd">        :param partitionBy: names of partitioning columns</span>
+<span class="sd">        :param options: all other string options</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="o">**</span><span class="n">options</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">partitionBy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">partitionBy</span><span class="p">(</span><span class="n">partitionBy</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">format</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">format</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span><span class="o">.</span><span class="n">saveAsTable</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataFrameWriter.json"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameWriter.json">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dateFormat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timestampFormat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">lineSep</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Saves the content of the :class:`DataFrame` in JSON format</span>
+<span class="sd">        (`JSON Lines text format or newline-delimited JSON &lt;http://jsonlines.org/&gt;`_) at the</span>
+<span class="sd">        specified path.</span>
+
+<span class="sd">        :param path: the path in any Hadoop supported file system</span>
+<span class="sd">        :param mode: specifies the behavior of the save operation when data already exists.</span>
+
+<span class="sd">            * ``append``: Append contents of this :class:`DataFrame` to existing data.</span>
+<span class="sd">            * ``overwrite``: Overwrite existing data.</span>
+<span class="sd">            * ``ignore``: Silently ignore this operation if data already exists.</span>
+<span class="sd">            * ``error`` or ``errorifexists`` (default case): Throw an exception if data already \</span>
+<span class="sd">                exists.</span>
+<span class="sd">        :param compression: compression codec to use when saving to file. This can be one of the</span>
+<span class="sd">                            known case-insensitive shorten names (none, bzip2, gzip, lz4,</span>
+<span class="sd">                            snappy and deflate).</span>
+<span class="sd">        :param dateFormat: sets the string that indicates a date format. Custom date formats</span>
+<span class="sd">                           follow the formats at ``java.text.SimpleDateFormat``. This</span>
+<span class="sd">                           applies to date type. If None is set, it uses the</span>
+<span class="sd">                           default value, ``yyyy-MM-dd``.</span>
+<span class="sd">        :param timestampFormat: sets the string that indicates a timestamp format. Custom date</span>
+<span class="sd">                                formats follow the formats at ``java.text.SimpleDateFormat``.</span>
+<span class="sd">                                This applies to timestamp type. If None is set, it uses the</span>
+<span class="sd">                                default value, ``yyyy-MM-dd&#39;T&#39;HH:mm:ss.SSSXXX``.</span>
+<span class="sd">        :param encoding: specifies encoding (charset) of saved json files. If None is set,</span>
+<span class="sd">                        the default UTF-8 charset will be used.</span>
+<span class="sd">        :param lineSep: defines the line separator that should be used for writing. If None is</span>
+<span class="sd">                        set, it uses the default value, ``\\n``.</span>
+
+<span class="sd">        &gt;&gt;&gt; df.write.json(os.path.join(tempfile.mkdtemp(), &#39;data&#39;))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_opts</span><span class="p">(</span>
+            <span class="n">compression</span><span class="o">=</span><span class="n">compression</span><span class="p">,</span> <span class="n">dateFormat</span><span class="o">=</span><span class="n">dateFormat</span><span class="p">,</span> <span class="n">timestampFormat</span><span class="o">=</span><span class="n">timestampFormat</span><span class="p">,</span>
+            <span class="n">lineSep</span><span class="o">=</span><span class="n">lineSep</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataFrameWriter.parquet"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameWriter.parquet">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">parquet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">partitionBy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Saves the content of the :class:`DataFrame` in Parquet format at the specified path.</span>
+
+<span class="sd">        :param path: the path in any Hadoop supported file system</span>
+<span class="sd">        :param mode: specifies the behavior of the save operation when data already exists.</span>
+
+<span class="sd">            * ``append``: Append contents of this :class:`DataFrame` to existing data.</span>
+<span class="sd">            * ``overwrite``: Overwrite existing data.</span>
+<span class="sd">            * ``ignore``: Silently ignore this operation if data already exists.</span>
+<span class="sd">            * ``error`` or ``errorifexists`` (default case): Throw an exception if data already \</span>
+<span class="sd">                exists.</span>
+<span class="sd">        :param partitionBy: names of partitioning columns</span>
+<span class="sd">        :param compression: compression codec to use when saving to file. This can be one of the</span>
+<span class="sd">                            known case-insensitive shorten names (none, uncompressed, snappy, gzip,</span>
+<span class="sd">                            lzo, brotli, lz4, and zstd). This will override</span>
+<span class="sd">                            ``spark.sql.parquet.compression.codec``. If None is set, it uses the</span>
+<span class="sd">                            value specified in ``spark.sql.parquet.compression.codec``.</span>
+
+<span class="sd">        &gt;&gt;&gt; df.write.parquet(os.path.join(tempfile.mkdtemp(), &#39;data&#39;))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">partitionBy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">partitionBy</span><span class="p">(</span><span class="n">partitionBy</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_opts</span><span class="p">(</span><span class="n">compression</span><span class="o">=</span><span class="n">compression</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span><span class="o">.</span><span class="n">parquet</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataFrameWriter.text"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameWriter.text">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.6</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lineSep</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Saves the content of the DataFrame in a text file at the specified path.</span>
+
+<span class="sd">        :param path: the path in any Hadoop supported file system</span>
+<span class="sd">        :param compression: compression codec to use when saving to file. This can be one of the</span>
+<span class="sd">                            known case-insensitive shorten names (none, bzip2, gzip, lz4,</span>
+<span class="sd">                            snappy and deflate).</span>
+<span class="sd">        :param lineSep: defines the line separator that should be used for writing. If None is</span>
+<span class="sd">                        set, it uses the default value, ``\\n``.</span>
+
+<span class="sd">        The DataFrame must have only one column that is of string type.</span>
+<span class="sd">        Each row becomes a new line in the output file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_opts</span><span class="p">(</span><span class="n">compression</span><span class="o">=</span><span class="n">compression</span><span class="p">,</span> <span class="n">lineSep</span><span class="o">=</span><span class="n">lineSep</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataFrameWriter.csv"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameWriter.csv">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">quote</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">escape</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nullValue</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">escapeQuotes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">quoteAll</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dateFormat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">timestampFormat</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ignoreLeadingWhiteSpace</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ignoreTrailingWhiteSpace</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">charToEscapeQuoteEscaping</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">emptyValue</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Saves the content of the :class:`DataFrame` in CSV format at the specified path.</span>
+
+<span class="sd">        :param path: the path in any Hadoop supported file system</span>
+<span class="sd">        :param mode: specifies the behavior of the save operation when data already exists.</span>
+
+<span class="sd">            * ``append``: Append contents of this :class:`DataFrame` to existing data.</span>
+<span class="sd">            * ``overwrite``: Overwrite existing data.</span>
+<span class="sd">            * ``ignore``: Silently ignore this operation if data already exists.</span>
+<span class="sd">            * ``error`` or ``errorifexists`` (default case): Throw an exception if data already \</span>
+<span class="sd">                exists.</span>
+
+<span class="sd">        :param compression: compression codec to use when saving to file. This can be one of the</span>
+<span class="sd">                            known case-insensitive shorten names (none, bzip2, gzip, lz4,</span>
+<span class="sd">                            snappy and deflate).</span>
+<span class="sd">        :param sep: sets a single character as a separator for each field and value. If None is</span>
+<span class="sd">                    set, it uses the default value, ``,``.</span>
+<span class="sd">        :param quote: sets a single character used for escaping quoted values where the</span>
+<span class="sd">                      separator can be part of the value. If None is set, it uses the default</span>
+<span class="sd">                      value, ``&quot;``. If an empty string is set, it uses ``u0000`` (null character).</span>
+<span class="sd">        :param escape: sets a single character used for escaping quotes inside an already</span>
+<span class="sd">                       quoted value. If None is set, it uses the default value, ``\``</span>
+<span class="sd">        :param escapeQuotes: a flag indicating whether values containing quotes should always</span>
+<span class="sd">                             be enclosed in quotes. If None is set, it uses the default value</span>
+<span class="sd">                             ``true``, escaping all values containing a quote character.</span>
+<span class="sd">        :param quoteAll: a flag indicating whether all values should always be enclosed in</span>
+<span class="sd">                          quotes. If None is set, it uses the default value ``false``,</span>
+<span class="sd">                          only escaping values containing a quote character.</span>
+<span class="sd">        :param header: writes the names of columns as the first line. If None is set, it uses</span>
+<span class="sd">                       the default value, ``false``.</span>
+<span class="sd">        :param nullValue: sets the string representation of a null value. If None is set, it uses</span>
+<span class="sd">                          the default value, empty string.</span>
+<span class="sd">        :param dateFormat: sets the string that indicates a date format. Custom date formats</span>
+<span class="sd">                           follow the formats at ``java.text.SimpleDateFormat``. This</span>
+<span class="sd">                           applies to date type. If None is set, it uses the</span>
+<span class="sd">                           default value, ``yyyy-MM-dd``.</span>
+<span class="sd">        :param timestampFormat: sets the string that indicates a timestamp format. Custom date</span>
+<span class="sd">                                formats follow the formats at ``java.text.SimpleDateFormat``.</span>
+<span class="sd">                                This applies to timestamp type. If None is set, it uses the</span>
+<span class="sd">                                default value, ``yyyy-MM-dd&#39;T&#39;HH:mm:ss.SSSXXX``.</span>
+<span class="sd">        :param ignoreLeadingWhiteSpace: a flag indicating whether or not leading whitespaces from</span>
+<span class="sd">                                        values being written should be skipped. If None is set, it</span>
+<span class="sd">                                        uses the default value, ``true``.</span>
+<span class="sd">        :param ignoreTrailingWhiteSpace: a flag indicating whether or not trailing whitespaces from</span>
+<span class="sd">                                         values being written should be skipped. If None is set, it</span>
+<span class="sd">                                         uses the default value, ``true``.</span>
+<span class="sd">        :param charToEscapeQuoteEscaping: sets a single character used for escaping the escape for</span>
+<span class="sd">                                          the quote character. If None is set, the default value is</span>
+<span class="sd">                                          escape character when escape and quote characters are</span>
+<span class="sd">                                          different, ``\0`` otherwise..</span>
+<span class="sd">        :param encoding: sets the encoding (charset) of saved csv files. If None is set,</span>
+<span class="sd">                         the default UTF-8 charset will be used.</span>
+<span class="sd">        :param emptyValue: sets the string representation of an empty value. If None is set, it uses</span>
+<span class="sd">                           the default value, ``&quot;&quot;``.</span>
+
+<span class="sd">        &gt;&gt;&gt; df.write.csv(os.path.join(tempfile.mkdtemp(), &#39;data&#39;))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_opts</span><span class="p">(</span><span class="n">compression</span><span class="o">=</span><span class="n">compression</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">,</span> <span class="n">quote</span><span class="o">=</span><span class="n">quote</span><span class="p">,</span> <span class="n">escape</span><span class="o">=</span><span class="n">escape</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span>
+                       <span class="n">nullValue</span><span class="o">=</span><span class="n">nullValue</span><span class="p">,</span> <span class="n">escapeQuotes</span><span class="o">=</span><span class="n">escapeQuotes</span><span class="p">,</span> <span class="n">quoteAll</span><span class="o">=</span><span class="n">quoteAll</span><span class="p">,</span>
+                       <span class="n">dateFormat</span><span class="o">=</span><span class="n">dateFormat</span><span class="p">,</span> <span class="n">timestampFormat</span><span class="o">=</span><span class="n">timestampFormat</span><span class="p">,</span>
+                       <span class="n">ignoreLeadingWhiteSpace</span><span class="o">=</span><span class="n">ignoreLeadingWhiteSpace</span><span class="p">,</span>
+                       <span class="n">ignoreTrailingWhiteSpace</span><span class="o">=</span><span class="n">ignoreTrailingWhiteSpace</span><span class="p">,</span>
+                       <span class="n">charToEscapeQuoteEscaping</span><span class="o">=</span><span class="n">charToEscapeQuoteEscaping</span><span class="p">,</span>
+                       <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span> <span class="n">emptyValue</span><span class="o">=</span><span class="n">emptyValue</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span><span class="o">.</span><span class="n">csv</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataFrameWriter.orc"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameWriter.orc">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">orc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">partitionBy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">compression</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Saves the content of the :class:`DataFrame` in ORC format at the specified path.</span>
+
+<span class="sd">        .. note:: Currently ORC support is only available together with Hive support.</span>
+
+<span class="sd">        :param path: the path in any Hadoop supported file system</span>
+<span class="sd">        :param mode: specifies the behavior of the save operation when data already exists.</span>
+
+<span class="sd">            * ``append``: Append contents of this :class:`DataFrame` to existing data.</span>
+<span class="sd">            * ``overwrite``: Overwrite existing data.</span>
+<span class="sd">            * ``ignore``: Silently ignore this operation if data already exists.</span>
+<span class="sd">            * ``error`` or ``errorifexists`` (default case): Throw an exception if data already \</span>
+<span class="sd">                exists.</span>
+<span class="sd">        :param partitionBy: names of partitioning columns</span>
+<span class="sd">        :param compression: compression codec to use when saving to file. This can be one of the</span>
+<span class="sd">                            known case-insensitive shorten names (none, snappy, zlib, and lzo).</span>
+<span class="sd">                            This will override ``orc.compress`` and</span>
+<span class="sd">                            ``spark.sql.orc.compression.codec``. If None is set, it uses the value</span>
+<span class="sd">                            specified in ``spark.sql.orc.compression.codec``.</span>
+
+<span class="sd">        &gt;&gt;&gt; orc_df = spark.read.orc(&#39;python/test_support/sql/orc_partitioned&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; orc_df.write.orc(os.path.join(tempfile.mkdtemp(), &#39;data&#39;))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">partitionBy</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">partitionBy</span><span class="p">(</span><span class="n">partitionBy</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_opts</span><span class="p">(</span><span class="n">compression</span><span class="o">=</span><span class="n">compression</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_jwrite</span><span class="o">.</span><span class="n">orc</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DataFrameWriter.jdbc"><a class="viewcode-back" href="../../../pyspark.sql.html#pyspark.sql.DataFrameWriter.jdbc">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">1.4</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">jdbc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Saves the content of the :class:`DataFrame` to an external database table via JDBC.</span>
+
+<span class="sd">        .. note:: Don&#39;t create too many partitions in parallel on a large cluster;</span>
+<span class="sd">            otherwise Spark might crash your external database systems.</span>
+
+<span class="sd">        :param url: a JDBC URL of the form ``jdbc:subprotocol:subname``</span>
+<span class="sd">        :param table: Name of the table in the external database.</span>
+<span class="sd">        :param mode: specifies the behavior of the save operation when data already exists.</span>
+
+<span class="sd">            * ``append``: Append contents of this :class:`DataFrame` to existing data.</span>
+<span class="sd">            * ``overwrite``: Overwrite existing data.</span>
+<span class="sd">            * ``ignore``: Silently ignore this operation if data already exists.</span>
+<span class="sd">            * ``error`` or ``errorifexists`` (default case): Throw an exception if data already \</span>
+<span class="sd">                exists.</span>
+<span class="sd">        :param properties: a dictionary of JDBC database connection arguments. Normally at</span>
+<span class="sd">                           least properties &quot;user&quot; and &quot;password&quot; with their corresponding values.</span>
+<span class="sd">                           For example { &#39;user&#39; : &#39;SYSTEM&#39;, &#39;password&#39; : &#39;mypassword&#39; }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">properties</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">properties</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">jprop</span> <span class="o">=</span> <span class="n">JavaClass</span><span class="p">(</span><span class="s2">&quot;java.util.Properties&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spark</span><span class="o">.</span><span class="n">_sc</span><span class="o">.</span><span class="n">_gateway</span><span class="o">.</span><span class="n">_gateway_client</span><span class="p">)()</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">:</span>
+            <span class="n">jprop</span><span class="o">.</span><span class="n">setProperty</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">properties</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span><span class="o">.</span><span class="n">_jwrite</span><span class="o">.</span><span class="n">jdbc</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">table</span><span class="p">,</span> <span class="n">jprop</span><span class="p">)</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_test</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="kn">import</span> <span class="nn">tempfile</span>
+    <span class="kn">import</span> <span class="nn">py4j</span>
+    <span class="kn">from</span> <span class="nn">pyspark.context</span> <span class="k">import</span> <span class="n">SparkContext</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="k">import</span> <span class="n">SparkSession</span><span class="p">,</span> <span class="n">Row</span>
+    <span class="kn">import</span> <span class="nn">pyspark.sql.readwriter</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;SPARK_HOME&quot;</span><span class="p">])</span>
+
+    <span class="n">globs</span> <span class="o">=</span> <span class="n">pyspark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">readwriter</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="p">(</span><span class="s1">&#39;local[4]&#39;</span><span class="p">,</span> <span class="s1">&#39;PythonTest&#39;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">py4j</span><span class="o">.</span><span class="n">protocol</span><span class="o">.</span><span class="n">Py4JError</span><span class="p">:</span>
+        <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="p">(</span><span class="n">sc</span><span class="p">)</span>
+
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;tempfile&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tempfile</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;os&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;sc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sc</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;spark&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spark</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;df&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">parquet</span><span class="p">(</span><span class="s1">&#39;python/test_support/sql/parquet_partitioned&#39;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span>
+        <span class="n">pyspark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">readwriter</span><span class="p">,</span> <span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span>
+        <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span> <span class="o">|</span> <span class="n">doctest</span><span class="o">.</span><span class="n">NORMALIZE_WHITESPACE</span> <span class="o">|</span> <span class="n">doctest</span><span class="o">.</span><span class="n">REPORT_NDIFF</span><span class="p">)</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">_test</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

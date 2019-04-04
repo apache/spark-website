@@ -1,0 +1,255 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pyspark.profiler &#8212; PySpark 2.4.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pyspark.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.profiler</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="kn">import</span> <span class="nn">cProfile</span>
+<span class="kn">import</span> <span class="nn">pstats</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">atexit</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">pyspark.accumulators</span> <span class="k">import</span> <span class="n">AccumulatorParam</span>
+
+
+<span class="k">class</span> <span class="nc">ProfilerCollector</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class keeps track of different profilers on a per</span>
+<span class="sd">    stage basis. Also this is used to create new profilers for</span>
+<span class="sd">    the different stages.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">profiler_cls</span><span class="p">,</span> <span class="n">dump_path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">profiler_cls</span> <span class="o">=</span> <span class="n">profiler_cls</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">profile_dump_path</span> <span class="o">=</span> <span class="n">dump_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">profilers</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">new_profiler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create a new profiler using class `profiler_cls` &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">profiler_cls</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">add_profiler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">profiler</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Add a profiler for RDD `id` &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">profilers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile_dump_path</span><span class="p">:</span>
+                <span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dump_profiles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">profile_dump_path</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">show_profiles</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">profilers</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="nb">id</span><span class="p">,</span> <span class="n">profiler</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">dump_profiles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Dump the profile stats into directory `path` &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">profiler</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">profilers</span><span class="p">:</span>
+            <span class="n">profiler</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">profilers</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">show_profiles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Print the profile stats to stdout &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">profiler</span><span class="p">,</span> <span class="n">showed</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">profilers</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">showed</span> <span class="ow">and</span> <span class="n">profiler</span><span class="p">:</span>
+                <span class="n">profiler</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+                <span class="c1"># mark it as showed</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">profilers</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+
+<div class="viewcode-block" id="Profiler"><a class="viewcode-back" href="../../pyspark.html#pyspark.Profiler">[docs]</a><span class="k">class</span> <span class="nc">Profiler</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    .. note:: DeveloperApi</span>
+
+<span class="sd">    PySpark supports custom profilers, this is to allow for different profilers to</span>
+<span class="sd">    be used as well as outputting to different formats than what is provided in the</span>
+<span class="sd">    BasicProfiler.</span>
+
+<span class="sd">    A custom profiler has to define or inherit the following methods:</span>
+<span class="sd">        profile - will produce a system profile of some sort.</span>
+<span class="sd">        stats - return the collected stats.</span>
+<span class="sd">        dump - dumps the profiles to a path</span>
+<span class="sd">        add - adds a profile to the existing accumulated profile</span>
+
+<span class="sd">    The profiler class is chosen when creating a SparkContext</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyspark import SparkConf, SparkContext</span>
+<span class="sd">    &gt;&gt;&gt; from pyspark import BasicProfiler</span>
+<span class="sd">    &gt;&gt;&gt; class MyCustomProfiler(BasicProfiler):</span>
+<span class="sd">    ...     def show(self, id):</span>
+<span class="sd">    ...         print(&quot;My custom profiles for RDD:%s&quot; % id)</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; conf = SparkConf().set(&quot;spark.python.profile&quot;, &quot;true&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; sc = SparkContext(&#39;local&#39;, &#39;test&#39;, conf=conf, profiler_cls=MyCustomProfiler)</span>
+<span class="sd">    &gt;&gt;&gt; sc.parallelize(range(1000)).map(lambda x: 2 * x).take(10)</span>
+<span class="sd">    [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]</span>
+<span class="sd">    &gt;&gt;&gt; sc.parallelize(range(1000)).count()</span>
+<span class="sd">    1000</span>
+<span class="sd">    &gt;&gt;&gt; sc.show_profiles()</span>
+<span class="sd">    My custom profiles for RDD:1</span>
+<span class="sd">    My custom profiles for RDD:3</span>
+<span class="sd">    &gt;&gt;&gt; sc.stop()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="Profiler.profile"><a class="viewcode-back" href="../../pyspark.html#pyspark.Profiler.profile">[docs]</a>    <span class="k">def</span> <span class="nf">profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Do profiling on the function `func`&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="bp">NotImplemented</span></div>
+
+<div class="viewcode-block" id="Profiler.stats"><a class="viewcode-back" href="../../pyspark.html#pyspark.Profiler.stats">[docs]</a>    <span class="k">def</span> <span class="nf">stats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return the collected profiling stats (pstats.Stats)&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="bp">NotImplemented</span></div>
+
+<div class="viewcode-block" id="Profiler.show"><a class="viewcode-back" href="../../pyspark.html#pyspark.Profiler.show">[docs]</a>    <span class="k">def</span> <span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Print the profile stats to stdout, id is the RDD id &quot;&quot;&quot;</span>
+        <span class="n">stats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">stats</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Profile of RDD&lt;id=</span><span class="si">%d</span><span class="s2">&gt;&quot;</span> <span class="o">%</span> <span class="nb">id</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+            <span class="n">stats</span><span class="o">.</span><span class="n">sort_stats</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;cumulative&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">print_stats</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Profiler.dump"><a class="viewcode-back" href="../../pyspark.html#pyspark.Profiler.dump">[docs]</a>    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Dump the profile into path, id is the RDD id &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">stats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stats</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">stats</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;rdd_</span><span class="si">%d</span><span class="s2">.pstats&quot;</span> <span class="o">%</span> <span class="nb">id</span><span class="p">)</span>
+            <span class="n">stats</span><span class="o">.</span><span class="n">dump_stats</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">PStatsParam</span><span class="p">(</span><span class="n">AccumulatorParam</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;PStatsParam is used to merge pstats.Stats&quot;&quot;&quot;</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">zero</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">addInPlace</span><span class="p">(</span><span class="n">value1</span><span class="p">,</span> <span class="n">value2</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value1</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">value2</span>
+        <span class="n">value1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">value2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value1</span>
+
+
+<div class="viewcode-block" id="BasicProfiler"><a class="viewcode-back" href="../../pyspark.html#pyspark.BasicProfiler">[docs]</a><span class="k">class</span> <span class="nc">BasicProfiler</span><span class="p">(</span><span class="n">Profiler</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    BasicProfiler is the default profiler, which is implemented based on</span>
+<span class="sd">    cProfile and Accumulator</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
+        <span class="n">Profiler</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">)</span>
+        <span class="c1"># Creates a new accumulator for combining the profiles of different</span>
+        <span class="c1"># partitions of a stage</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_accumulator</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">accumulator</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">PStatsParam</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BasicProfiler.profile"><a class="viewcode-back" href="../../pyspark.html#pyspark.BasicProfiler.profile">[docs]</a>    <span class="k">def</span> <span class="nf">profile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Runs and profiles the method to_profile passed in. A profile object is returned. &quot;&quot;&quot;</span>
+        <span class="n">pr</span> <span class="o">=</span> <span class="n">cProfile</span><span class="o">.</span><span class="n">Profile</span><span class="p">()</span>
+        <span class="n">pr</span><span class="o">.</span><span class="n">runcall</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="n">st</span> <span class="o">=</span> <span class="n">pstats</span><span class="o">.</span><span class="n">Stats</span><span class="p">(</span><span class="n">pr</span><span class="p">)</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">stream</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># make it picklable</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">strip_dirs</span><span class="p">()</span>
+
+        <span class="c1"># Adds a new profile to the existing accumulated value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_accumulator</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">st</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BasicProfiler.stats"><a class="viewcode-back" href="../../pyspark.html#pyspark.BasicProfiler.stats">[docs]</a>    <span class="k">def</span> <span class="nf">stats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accumulator</span><span class="o">.</span><span class="n">value</span></div></div>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../index.html">PySpark 2.4.1 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>
