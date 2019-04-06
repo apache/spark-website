@@ -40,7 +40,7 @@ navigation:
 |Shane Knapp|UC Berkeley|
 |Cody Koeninger|Nexstar Digital|
 |Andy Konwinski|Databricks|
-|Hyukjin Kwon|Hortonworks|
+|Hyukjin Kwon|Databricks|
 |Ryan LeCompte|Quantifind|
 |Haoyuan Li|Alluxio|
 |Xiao Li|Databricks|
