@@ -47,7 +47,6 @@ initially launched Spark
 - <a href="http://alluxio.com/">Alluxio</a>
   - Alluxio, formerly Tachyon, is the world's first system that unifies disparate storage systems
   at memory speed. 
-- <a href="http://alpinenow.com/">Alpine Data Labs</a>
 - <a href="http://amazon.com">Amazon</a>
 - <a href="http://www.art.com/">Art.com</a>
   - Trending analytics and personalization
@@ -55,8 +54,6 @@ initially launched Spark
   - We are using Spark Core, Streaming, MLlib and Graphx. We leverage Spark and Hadoop ecosystem 
   to build cost effective data center solution for our customer in telco industry as well as 
   other industrial sectors.
-- <a href="http://www.atigeo.com">Atigeo</a> – integrated Spark in xPatterns, our big data 
-analytics platform, as a replacement for Hadoop MR
 - <a href="https://atp.io">atp</a>
   - Predictive models and learning algorithms to improve the relevance of programmatic marketing.
   - Components used: Spark SQL, MLLib.
@@ -67,9 +64,6 @@ exploration of large datasets
 - <a href="http://www.bigindustries.be/">Big Industries</a> - using Spark Streaming: The 
 Big Content Platform is a business-to-business content asset management service providing a 
 searchable, aggregated source of live news feeds, public domain media and archives of content.
-- <a href="http://www.bizo.com">Bizo</a>
-  - Check out our talk on <a href="http://www.meetup.com/spark-users/events/139804022/">Spark at Bizo</a> 
-  at Spark user meetup
 - <a href="http://www.celtra.com">Celtra</a>
 - <a href="http://www.clearstorydata.com">ClearStory Data</a> – ClearStory's platform and 
 integrated Data Intelligence application leverages Spark to speed analysis across internal 
@@ -95,7 +89,6 @@ and external data sources, driving holistic and actionable insights.
     to run Spark and ML applications on Amazon Web Services and Azure, as well as a comprehensive
     <a href="https://databricks.com/training">training program</a>.
 - <a href="http://dianping.com">Dianping.com</a>
-- <a href="http://www.digby.com">Digby</a>
 - <a href="http://www.drawbrid.ge/">Drawbridge</a>
 - <a href="http://www.ebay.com/">eBay Inc.</a>
   - Using Spark core for log transaction aggregation and analytics
@@ -116,11 +109,10 @@ and external data sources, driving holistic and actionable insights.
   - We are using Spark for analyzing and visualizing patterns in large-scale recordings of brain 
   activity in real time
 - <a href="http://www.fundacionctic.org">Fundacion CTIC</a>
-- <a href="http://graphflow.com">GraphFlow, Inc.</a>
 - <a href="https://www.groupon.com">Groupon</a>
 - <a href="http://www.guavus.com/">Guavus</a>
   - Stream processing of network machine data
-- <a href="http://www.hitachi-solutions.com/">Hitachi Solutions</a>
+- <a href="http://us.hitachi-solutions.com">Hitachi Solutions</a>
 - <a href="http://hivedata.com/">The Hive</a>
 - <a href="http://www.research.ibm.com/labs/almaden/index.shtml">IBM Almaden</a>
 - <a href="http://www.infoobjects.com">InfoObjects</a>
@@ -137,7 +129,6 @@ and external data sources, driving holistic and actionable insights.
   - Batch, real-time, and predictive analytics driving our mobile app analytics and marketing 
   automation product.
   - Components used: Spark, Spark Streaming, MLLib.
-- <a href="http://magine.com">Magine TV</a>
 - <a href="http://mediacrossing.com">MediaCrossing</a> – Digital Media Trading Experts in the 
 New York and Boston areas
   - We are using Spark as a drop-in replacement for Hadoop Map/Reduce to get the right answer 
@@ -148,7 +139,6 @@ New York and Boston areas
   - Using Spark to build different recommendation systems for recipes and foods.
 - <a href="http://deepspace.jpl.nasa.gov/">NASA JPL - Deep Space Network</a>
 - <a href="http://www.163.com/">Netease</a>
-- <a href="http://www.nflabs.com">NFLabs</a>
 - <a href="http://nsn.com">Nokia Solutions and Networks</a>
 - <a href="http://www.nttdata.com/global/en/">NTT DATA</a>
 - <a href="http://www.nubetech.co">Nube Technologies</a>
@@ -170,9 +160,8 @@ across all screens
   - PanTera is a tool for exploring large datasets. It uses Spark to create XY and geographic 
   scatterplots from millions to billions of datapoints.
   - Components we are using: Spark Core (Scala API), Spark SQL, and GraphX
-- <a href="http://www.peerialism.com">Peerialism</a>
 - <a href="http://www.planbmedia.com">PlanBMedia</a>
-- <a href="http://prediction.io/">PredicitionIo</a>
+- <a href="http://predictionio.apache.org/index.html/">Apache PredicitionIo</a>
   - PredictionIO currently offers two engine 
 templates for Apache Spark MLlib for recommendation (MLlib ALS) and classification (MLlib Naive 
 Bayes). With these templates, you can create a custom predictive engine for production deployment 
@@ -194,12 +183,11 @@ efficiently.
   and personalization.
 - <a href="http://www.sisa.samsung.com/">Samsung Research America</a>
 - <a href="http://www.shopify.com/">Shopify</a>
-- <a href="http://www.simba.com/">Simba Technologies</a>
+- <a href="https://www.simba.com/">Simba Technologies</a>
   - BI/reporting/ETL for Spark and beyond
 - <a href="http://www.sinnia.com">Sinnia</a>
-- <a href="http://www.sktelecom.com/en/main/index.do">SK Telecom</a>
+- <a href="https://www.sktelecom.com/index_en.html">SK Telecom</a>
   - SK Telecom analyses mobile usage patterns of customer with Spark and Shark.
-- <a href="http://socialmetrix.com/">Socialmetrix</a>
 - <a href="http://www.sohu.com">Sohu</a>
 - <a href="https://dawn.cs.stanford.edu">Stanford DAWN</a>
   - Research lab on infrastructure for usable machine learning, with multiple research projects that run over or
@@ -207,15 +195,10 @@ efficiently.
 - <a href="http://www.stratio.com/">Stratio</a>
   - Offers an open-source Big Data platform centered around Apache Spark.
 - <a href="https://www.taboola.com/">Taboola</a> – Powering 'Content You May Like' around the web
-- <a href="http://www.techbase.com.tr">Techbase</a>
 - <a href="http://tencent.com/">Tencent</a>
 - <a href="http://www.tetraconcepts.com/">Tetra Concepts</a>
 - <a href="http://www.trendmicro.com/us/index.html">TrendMicro</a>
 - <a href="http://engineering.tripadvisor.com/using-apache-spark-for-massively-parallel-nlp/">TripAdvisor</a>
-- <a href="http://truedash.io">truedash</a>
-  - Automatic pulling of all your data in to Spark for enterprise visualisation, predictive 
-  analytics and data exploration at a low cost.
-- <a href="http://www.trueffect.com">TruEffect Inc</a>
 - <a href="http://www.ucsc.edu">UC Santa Cruz</a>
 - <a href="http://missouri.edu/">University of Missouri Data Analytics and Discover Lab</a>
 - <a href="http://videoamp.com/">VideoAmp</a>

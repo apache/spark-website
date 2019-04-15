@@ -60,7 +60,7 @@ svn ci --username $ASF_USERNAME --password "$ASF_PASSWORD" -m"Update KEYS"
 
 The scripts to create release candidates are run through docker. You need to install docker before running
 these scripts. Please make sure that you can run docker as non-root users. See
-<a href="https://docs.docker.com/install/linux/linux-postinstall">https://docs.docker.com/install/linux/linux-postinstall</a>
+<a href="https://docs.docker.com/install/linux/linux-postinstall/">https://docs.docker.com/install/linux/linux-postinstall</a>
 for more details.
 
 <h2>Preparing Spark for Release</h2>
@@ -159,7 +159,7 @@ You'll need the credentials for the `spark-upload` account, which can be found i
 <a href="https://lists.apache.org/thread.html/2789e448cd8a95361a3164b48f3f8b73a6d9d82aeb228bae2bc4dc7f@%3Cprivate.spark.apache.org%3E">this message</a>
 (only visible to PMC members).
 
-The artifacts can be uploaded using <a href="https://pypi.python.org/pypi/twine">twine</a>. Just run:
+The artifacts can be uploaded using <a href="https://pypi.org/project/twine/">twine</a>. Just run:
 
 ```
 twine upload --repository-url https://upload.pypi.org/legacy/ pyspark-{version}.tar.gz pyspark-{version}.tar.gz.asc

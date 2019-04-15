@@ -32,12 +32,11 @@ for details)
 - <a href="http://mlbase.org/">MLbase</a> - Machine Learning research project on top of Spark
 - <a href="https://mesos.apache.org/">Apache Mesos</a> - Cluster management system that supports 
 running Spark
-- <a href="http://alluxio.org/">Alluxio</a> (née Tachyon) - Memory speed virtual distributed 
+- <a href="https://www.alluxio.org/">Alluxio</a> (née Tachyon) - Memory speed virtual distributed 
 storage system that supports running Spark    
 - <a href="https://github.com/filodb/FiloDB">FiloDB</a> - a Spark integrated analytical/columnar 
 database, with in-memory option capable of sub-second concurrent queries
-- <a href="http://www.elasticsearch.org/guide/en/elasticsearch/hadoop/master/spark.html#spark-sql">ElasticSearch - 
-Spark SQL</a> Integration
+- <a href="https://www.elastic.co/guide/en/elasticsearch/hadoop/7.x/spark.html
 - <a href="http://zeppelin-project.org/">Zeppelin</a> - Multi-purpose notebook which supports 20+ language backends,
 including Apache Spark
 - <a href="https://github.com/EclairJS/eclairjs-node">EclairJS</a> - enables Node.js developers to code
