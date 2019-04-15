@@ -397,6 +397,18 @@ Other tips:
 - "Rebuild Project" can fail the first time the project is compiled, because generate source files 
 are not automatically generated. Try clicking the "Generate Sources and Update Folders For All 
 Projects" button in the "Maven Projects" tool window to manually generate these sources.
+- Maven bundled in IntelliJ may not meet the minimum version requirement of the Spark. If that happens,
+the action "Generate Sources and Update Folders For All Projects" could fail silently. If you saw error like
+``` 
+2019-04-14 16:05:24,796 [ 314609]   INFO -      #org.jetbrains.idea.maven - [WARNING] Rule 0: org.apache.maven.plugins.enforcer.RequireMavenVersion failed with message:
+Detected Maven Version: 3.3.9 is not in the allowed range 3.6.0.
+2019-04-14 16:05:24,813 [ 314626]   INFO -      #org.jetbrains.idea.maven - org.apache.maven.lifecycle.LifecycleExecutionException: Failed to execute goal org.apache.maven.plugins:maven-enforcer-plugin:3.0.0-M2:enforce (enforce-versions) on project spark-parent_2.12: Some Enforcer rules have failed. Look above for specific messages explaining why the rule failed.
+java.lang.RuntimeException: org.apache.maven.lifecycle.LifecycleExecutionException: Failed to execute goal org.apache.maven.plugins:maven-enforcer-plugin:3.0.0-M2:enforce (enforce-versions) on project spark-parent_2.12: Some Enforcer rules have failed. Look above for specific messages explaining why the rule failed.
+``` 
+in IntelliJ log file (`Help -> Show Log in Finder/Explorer`), you should reset the maven home directory 
+(`Preference -> Build, Execution, Deployment -> Maven -> Maven home directory`) of your project to the 
+maven meeting the minimum version requirement.
+
 - Some of the modules have pluggable source directories based on Maven profiles (i.e. to support 
 both Scala 2.11 and 2.10 or to allow cross building against different versions of Hive). In some 
 cases IntelliJ's does not correctly detect use of the maven-build-plugin to add source directories. 
