@@ -110,7 +110,7 @@ If you'd prefer, you can run all of these commands on the command line (but this
 $ build/sbt "core/testOnly *DAGSchedulerSuite -- -z SPARK-12345"
 ```
 
-For more about how to run individual tests with sbt, see the [sbt documentation](http://www.scala-sbt.org/0.13/docs/Testing.html).
+For more about how to run individual tests with sbt, see the [sbt documentation](https://www.scala-sbt.org/0.13/docs/Testing.html).
 
 <h4>Testing with Maven</h4>
 
@@ -463,16 +463,7 @@ in the Eclipse install directory. Increase the following setting as needed:
 <a name="nightly-builds"></a>
 <h3>Nightly Builds</h3>
 
-Packages are built regularly off of Spark's master branch and release branches. These provide 
-Spark developers access to the bleeding-edge of Spark master or the most recent fixes not yet 
-incorporated into a maintenance release. These should only be used by Spark developers, as they 
-may have bugs and have not undergone the same level of testing as releases. Spark nightly packages 
-are available at:
-
-- Latest master build: <a href="https://people.apache.org/~pwendell/spark-nightly/spark-master-bin/latest">https://people.apache.org/~pwendell/spark-nightly/spark-master-bin/latest</a>
-- All nightly builds: <a href="https://people.apache.org/~pwendell/spark-nightly/">https://people.apache.org/~pwendell/spark-nightly/</a>
-
-Spark also publishes SNAPSHOT releases of its Maven artifacts for both master and maintenance 
+Spark publishes SNAPSHOT releases of its Maven artifacts for both master and maintenance 
 branches on a nightly basis. To link to a SNAPSHOT you need to add the ASF snapshot 
 repository to your build. Note that SNAPSHOT artifacts are ephemeral and may change or
 be removed. To use these you must add the ASF snapshot repository at 
@@ -480,8 +471,8 @@ be removed. To use these you must add the ASF snapshot repository at
 
 ```
 groupId: org.apache.spark
-artifactId: spark-core_2.10
-version: 1.5.0-SNAPSHOT
+artifactId: spark-core_2.12
+version: 3.0.0-SNAPSHOT
 ```
 
 <a name="profiling"></a>

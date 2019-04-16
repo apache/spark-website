@@ -16,7 +16,7 @@ In the RDD API,
 there are two types of operations: <em>transformations</em>, which define a new dataset based on previous ones,
 and <em>actions</em>, which kick off a job to execute on a cluster.
 On top of Spark’s RDD API, high level APIs are provided, e.g.
-[DataFrame API](https://spark.apache.org/docs/latest/sql-programming-guide.html#dataframes) and
+[DataFrame API](https://spark.apache.org/docs/latest/sql-programming-guide.html#datasets-and-dataframes) and
 [Machine Learning API](https://spark.apache.org/docs/latest/mllib-guide.html).
 These high level APIs provide a concise way to conduct certain data operations.
 In this page, we will show examples using RDD API as well as examples using high level APIs.
