@@ -161,7 +161,7 @@ across all screens
   scatterplots from millions to billions of datapoints.
   - Components we are using: Spark Core (Scala API), Spark SQL, and GraphX
 - <a href="http://www.planbmedia.com">PlanBMedia</a>
-- <a href="http://predictionio.apache.org/index.html/">Apache PredicitionIo</a>
+- <a href="http://predictionio.apache.org/index.html/">Apache PredicitionIO</a>
   - PredictionIO currently offers two engine 
 templates for Apache Spark MLlib for recommendation (MLlib ALS) and classification (MLlib Naive 
 Bayes). With these templates, you can create a custom predictive engine for production deployment 
