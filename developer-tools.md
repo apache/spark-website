@@ -401,9 +401,9 @@ Projects" button in the "Maven Projects" tool window to manually generate these 
 the action "Generate Sources and Update Folders For All Projects" could fail silently. 
 Please remember to reset the Maven home directory 
 (`Preference -> Build, Execution, Deployment -> Maven -> Maven home directory`) of your project to 
-point to a newer installation of Maven. You may also build Spark with script `build/mvn` first.
-If the script cannot locate a new enough Maven installation, it will download and install a proper 
-Maven to folder `build/apache-maven-<version>/`. 
+point to a newer installation of Maven. You may also build Spark with the script `build/mvn` first.
+If the script cannot locate a new enough Maven installation, it will download and install a recent 
+version of Maven to folder `build/apache-maven-<version>/`.
 - Some of the modules have pluggable source directories based on Maven profiles (i.e. to support 
 both Scala 2.11 and 2.10 or to allow cross building against different versions of Hive). In some 
 cases IntelliJ's does not correctly detect use of the maven-build-plugin to add source directories. 
