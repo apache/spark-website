@@ -15,14 +15,14 @@ var sources = {pretty: "Source Code", tag: "sources"};
 var hadoopFree = {pretty: "Pre-build with user-provided Apache Hadoop", tag: "without-hadoop"};
 var hadoop2p6 = {pretty: "Pre-built for Apache Hadoop 2.6", tag: "hadoop2.6"};
 var hadoop2p7 = {pretty: "Pre-built for Apache Hadoop 2.7 and later", tag: "hadoop2.7"};
-var scala2p12_hadoopFree = {pretty: "Pre-build with Scala 2.12 and user-provided Apache Hadoop", tag: "without-hadoop-scala-2.12"};
+var scala2p11_hadoopFree = {pretty: "Pre-build with Scala 2.11 and user-provided Apache Hadoop", tag: "without-hadoop-scala-2.11"};
 
 // 2.2.0+
 var packagesV8 = [hadoop2p7, hadoop2p6, hadoopFree, sources];
-// 2.4.0+
-var packagesV9 = [hadoop2p7, hadoop2p6, hadoopFree, scala2p12_hadoopFree, sources];
+// 2.4.2+
+var packagesV9 = [hadoop2p7, hadoop2p6, hadoopFree, scala2p11_hadoopFree, sources];
 
-addRelease("2.4.1", new Date("03/31/2019"), packagesV9, true);
+addRelease("2.4.2", new Date("04/23/2019"), packagesV9, true);
 addRelease("2.3.3", new Date("02/15/2019"), packagesV8, true);
 
 function append(el, contents) {
