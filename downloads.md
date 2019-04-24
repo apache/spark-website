@@ -26,12 +26,14 @@ $(document).ready(function() {
 
 4. Verify this release using the <span id="sparkDownloadVerify"></span> and [project release KEYS](https://www.apache.org/dist/spark/KEYS).
 
+Note that, Spark 2.3 is pre-built with Scala 2.11, Spark 2.4 is pre-built with Scala 2.12.
+
 ### Link with Spark
 Spark artifacts are [hosted in Maven Central](https://search.maven.org/search?q=g:org.apache.spark). You can add a Maven dependency with the following coordinates:
 
     groupId: org.apache.spark
     artifactId: spark-core_2.11
-    version: 2.4.1
+    version: 2.4.2
 
 ### Installing with PyPi
 <a href="https://pypi.org/project/pyspark/">PySpark</a> is now available in pypi. To install just run `pip install pyspark`.
