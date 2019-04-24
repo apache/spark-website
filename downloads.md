@@ -26,7 +26,7 @@ $(document).ready(function() {
 
 4. Verify this release using the <span id="sparkDownloadVerify"></span> and [project release KEYS](https://www.apache.org/dist/spark/KEYS).
 
-Note that, Spark 2.3 is pre-built with Scala 2.11, Spark 2.4 is pre-built with Scala 2.12.
+Note that, Spark is pre-built with Scala 2.12 since version 2.4.2. Previous versions are pre-built with Scala 2.11.
 
 ### Link with Spark
 Spark artifacts are [hosted in Maven Central](https://search.maven.org/search?q=g:org.apache.spark). You can add a Maven dependency with the following coordinates:
