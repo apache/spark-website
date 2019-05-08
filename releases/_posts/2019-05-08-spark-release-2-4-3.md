@@ -17,7 +17,7 @@ Note that 2.4.3 switched the default Scala version from Scala 2.12 to Scala 2.11
 Spark is still cross-published for 2.11 and 2.12 in Maven Central, and can be built for 2.12 from source.
 
 ### Notable changes
-  - [[SPARK-27494]](https://issues.apache.org/jira/browse/SPARK-27494): It fixes a correctness bug in Kafka source v2, when processing NULL is the key value.
+  - [[SPARK-27494]](https://issues.apache.org/jira/browse/SPARK-27494): It fixes a correctness bug in Kafka source v2, when processing NULL in the key value.
 
 You can consult JIRA for the [detailed changes](https://s.apache.org/spark-2.4.3).
 
