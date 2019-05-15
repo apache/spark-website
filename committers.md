@@ -59,7 +59,7 @@ navigation:
 |Anirudh Ramanathan|Google|
 |Imran Rashid|Cloudera|
 |Charles Reiss|University of Virginia|
-|Josh Rosen|Databricks|
+|Josh Rosen|Stripe|
 |Sandy Ryza|Remix|
 |Kousuke Saruta|NTT Data|
 |Saisai Shao|Tencent|
