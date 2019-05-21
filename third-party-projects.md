@@ -36,7 +36,6 @@ running Spark
 storage system that supports running Spark    
 - <a href="https://github.com/filodb/FiloDB">FiloDB</a> - a Spark integrated analytical/columnar 
 database, with in-memory option capable of sub-second concurrent queries
-- <a href="https://www.elastic.co/guide/en/elasticsearch/hadoop/7.x/spark.html
 - <a href="http://zeppelin-project.org/">Zeppelin</a> - Multi-purpose notebook which supports 20+ language backends,
 including Apache Spark
 - <a href="https://github.com/EclairJS/eclairjs-node">EclairJS</a> - enables Node.js developers to code
@@ -44,6 +43,9 @@ against Spark, and data scientists to use Javascript in Jupyter notebooks.
 - <a href="https://github.com/Hydrospheredata/mist">Mist</a> - Serverless proxy for Spark cluster (spark middleware)
 - <a href="https://github.com/GoogleCloudPlatform/spark-on-k8s-operator">K8S Operator for Apache Spark</a> - Kubernetes operator for specifying and managing the lifecycle of Apache Spark applications on Kubernetes.
 - <a href="https://developer.ibm.com/storage/products/ibm-spectrum-conductor-spark/">IBM Spectrum Conductor</a> - Cluster management software that integrates with Spark and modern computing frameworks.
+- <a href="https://delta.io">Delta Lake</a> - Storage layer that provides ACID transactions and scalable metadata handling for Apache Spark workloads.
+- <a href="https://mlflow.org">MLflow</a> - Open source platform to manage the machine learning lifecycle, including deploying models from diverse machine learning libraries on Apache Spark.
+- <a href="https://github.com/databricks/koalas">Koalas</a> - Data frame API on Apache Spark that more closely follows Python's pandas.
 
 <h2>Applications Using Spark</h2>
 
