@@ -67,7 +67,7 @@ Apache Kafka for real-time large scale machine learning
 transforming, and analyzing genomic data using Apache Spark
 - <a href="https://github.com/salesforce/TransmogrifAI">TransmogrifAI</a> - AutoML library for building modular, reusable, strongly typed machine learning workflows on Spark with minimal hand tuning
 - <a href="https://github.com/JohnSnowLabs/spark-nlp">Natural Language Processing for Apache Spark</a> - A library to provide simple, performant, and accurate NLP annotations for machine learning pipelines
-- <a href="http://rumbledb.org">Rumble</a> - A JSONiq engine to query, with a functional language, large, nested, and heterogeneous JSON datasets that do not fit in dataframes.
+- <a href="http://rumbledb.org">Rumble for Apache Spark</a> - A JSONiq engine to query, with a functional language, large, nested, and heterogeneous JSON datasets that do not fit in dataframes.
 
 <h2>Performance, Monitoring, and Debugging Tools for Spark</h2>
 - <a href="https://github.com/g1thubhub/phil_stopwatch">Performance and debugging library</a> - A library to analyze Spark and PySpark applications for improving performance and finding the cause of failures
