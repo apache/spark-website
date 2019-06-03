@@ -22,7 +22,7 @@ well. The current plan is as follows:
 * In the next major release in 2019, we will deprecate Python 2 support.
   PySpark users will see a deprecation warning if Python 2 is used.
   We will publish a migration guide for PySpark users to migrate to Python 3.
-* We will drop Python 2 support in a future release in 2020, after Python 2 EOL on 2020/01/01.
-  PySpark users will see an error if Python 2 is used.
+* We will drop Python 2 support in a future release (excluding patch release) in 2020,
+  after Python 2 EOL on 2020/01/01. PySpark users will see an error if Python 2 is used.
 * For releases that support Python 2, e.g., Spark 2.4, their patch releases will continue supporting
   Python 2. However, after Python 2 EOL, we might not take patches that are specific to Python 2.
