@@ -12,10 +12,10 @@ function addRelease(version, releaseDate, packages, mirrored) {
 }
 
 var sources = {pretty: "Source Code", tag: "sources"};
-var hadoopFree = {pretty: "Pre-build with user-provided Apache Hadoop", tag: "without-hadoop"};
+var hadoopFree = {pretty: "Pre-built with user-provided Apache Hadoop", tag: "without-hadoop"};
 var hadoop2p6 = {pretty: "Pre-built for Apache Hadoop 2.6", tag: "hadoop2.6"};
 var hadoop2p7 = {pretty: "Pre-built for Apache Hadoop 2.7 and later", tag: "hadoop2.7"};
-var scala2p12_hadoopFree = {pretty: "Pre-build with Scala 2.12 and user-provided Apache Hadoop", tag: "without-hadoop-scala-2.12"};
+var scala2p12_hadoopFree = {pretty: "Pre-built with Scala 2.12 and user-provided Apache Hadoop", tag: "without-hadoop-scala-2.12"};
 
 // 2.2.0+
 var packagesV8 = [hadoop2p7, hadoop2p6, hadoopFree, sources];
@@ -86,10 +86,10 @@ function onVersionSelect() {
   }
 
   // Populate releases
-  updateDownloadLink(releases[version].mirrored);
+  updateDownloadLink();
 }
 
-function updateDownloadLink(isMirrored) {
+function updateDownloadLink() {
   var versionSelect = document.getElementById("sparkVersionSelect");
   var packageSelect = document.getElementById("sparkPackageSelect");
   var downloadLink = document.getElementById("spanDownloadLink");
@@ -102,10 +102,10 @@ function updateDownloadLink(isMirrored) {
   var pkg = getSelectedValue(packageSelect);
 
   var artifactName = "spark-" + version + "-bin-" + pkg + ".tgz"
-    .replace(/-bin-sources/, ""); // special case for source packages
+  artifactName = artifactName.replace(/-bin-sources/, ""); // special case for source packages
 
   var downloadHref = "";
-  if (isMirrored) {
+  if (releases[version].mirrored) {
     downloadHref = "https://www.apache.org/dyn/closer.lua/spark/spark-" + version + "/" + artifactName;
   } else {
     downloadHref = "https://archive.apache.org/dist/spark/spark-" + version + "/" + artifactName;
