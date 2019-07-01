@@ -1,6 +1,6 @@
 ## Generating the website HTML
 
-In this directory you will find text files formatted using Markdown, with an `.md` suffix.
+In this directory you will find text files formatted using Markdown, with an `.md` suffix
 
 Building the site requires [Jekyll](http://jekyllrb.com/docs) 3.3.0 or newer. 
 The easiest way to install jekyll is via a Ruby Gem. This will create a directory called `site` 
