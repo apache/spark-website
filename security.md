@@ -36,7 +36,6 @@ Prior to Spark 2.3.3, in certain situations Spark would write user data to local
 Mitigation:
 
 - 1.x, 2.0.x, 2.1.x, 2.2.x, 2.3.x  users should upgrade to 2.3.3 or newer
-- 2.3.x users should upgrade to 2.3.3 or newer.
 
 Credit:
 
