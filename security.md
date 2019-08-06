@@ -18,6 +18,30 @@ non-public list that will reach the Apache Security team, as well as the Spark P
 
 <h2>Known Security Issues</h2>
 
+<h3 id="CVE-2019-10099">CVE-2019-10099: Apache Spark unencrypted data on local disk</h3>
+
+Severity: Important
+
+Vendor: The Apache Software Foundation
+
+Versions affected:
+- All Spark 1.x, Spark 2.0.x, Spark 2.1.x, and 2.2.x versions
+- Spark 2.3.0 to 2.3.2
+
+Description:
+
+Prior to Spark 2.3.3, in certain situations Spark would write user data to local disk unencrypted, even if `spark.io.encryption.enabled=true`.  This includes cached blocks that are fetched to disk (controlled by `spark.maxRemoteBlockSizeFetchToMem`); in SparkR, using parallelize; in Pyspark, using broadcast and parallelize; and use of python udfs.
+
+
+Mitigation:
+
+- 1.x, 2.0.x, 2.1.x, 2.2.x, 2.3.x  users should upgrade to 2.3.3 or newer, including 2.4.x
+
+Credit:
+
+- This issue was reported by Thomas Graves of NVIDIA.
+
+
 <h3 id="CVE-2018-11760">CVE-2018-11760: Apache Spark local privilege escalation vulnerability</h3>
 
 Severity: Important
