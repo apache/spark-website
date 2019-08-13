@@ -397,9 +397,9 @@ lines can be up to 100 characters in length, not 79.
 <a href="https://google.github.io/styleguide/Rguide.xml">Google's R Style Guide</a> with three exceptions:
 lines can be up to 100 characters in length, not 80, there is no limit on function name but it has a initial
 lower case latter and S4 objects/methods are allowed.
-- For Java code, Apache Spark follows 
-<a href="http://www.oracle.com/technetwork/java/codeconvtoc-136057.html">Oracle's Java code conventions</a>. 
-Many Scala guidelines below also apply to Java.
+- For Java code, Apache Spark follows
+<a href="http://www.oracle.com/technetwork/java/codeconvtoc-136057.html">Oracle's Java code conventions</a> and
+Scala guidelines below. The latter is preferred.
 - For Scala code, Apache Spark follows the official 
 <a href="http://docs.scala-lang.org/style/">Scala style guide</a> and
 <a href="https://github.com/databricks/scala-style-guide">Databricks Scala guide</a>. The latter is preferred. To format Scala code, run ./dev/scalafmt prior to submitting a PR.
