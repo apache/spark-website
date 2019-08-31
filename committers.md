@@ -71,6 +71,7 @@ navigation:
 |Takuya Ueshin|Databricks|
 |Marcelo Vanzin|Cloudera|
 |Shivaram Venkataraman|University of Wisconsin, Madison|
+|Yuming Wang|eBay|
 |Zhenhua Wang|Huawei|
 |Patrick Wendell|Databricks|
 |Andrew Xia|Alibaba|
