@@ -255,6 +255,7 @@ your pull request to change testing behavior. This includes:
 - `[test-maven]` - signals to test the pull request using maven
 - `[test-hadoop2.7]` - signals to test using Spark's Hadoop 2.7 profile
 - `[test-hadoop3.2]` - signals to test using Spark's Hadoop 3.2 profile
+- `[test-hadoop3.2][test-java11]` - signals to test with JDK 11
 
 <h3>Binary compatibility</h3>
 
