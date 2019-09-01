@@ -48,16 +48,16 @@ navigation:
 |Yinan Li|Google|
 |Davies Liu|Juicedata|
 |Cheng Lian|Databricks|
-|Yanbo Liang|Hortonworks|
+|Yanbo Liang|Facebook|
 |Sean McNamara|Oracle|
 |Xiangrui Meng|Databricks|
-|Mridul Muralidharam|Hortonworks|
+|Mridul Muralidharam|Google|
 |Andrew Or|Princeton University|
 |Kay Ousterhout|LightStep|
 |Sean Owen|Databricks|
 |Tejas Patil|Facebook|
 |Nick Pentreath|IBM|
-|Anirudh Ramanathan|Google|
+|Anirudh Ramanathan|Rockset|
 |Imran Rashid|Cloudera|
 |Charles Reiss|University of Virginia|
 |Josh Rosen|Stripe|
