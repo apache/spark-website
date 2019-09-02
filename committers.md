@@ -23,7 +23,7 @@ navigation:
 |Aaron Davidson|Databricks|
 |Thomas Dudziak|Facebook|
 |Erik Erlandson|Red Hat|
-|Robert Evans|Oath|
+|Robert Evans|NVIDIA|
 |Wenchen Fan|Databricks|
 |Joseph Gonzalez|UC Berkeley|
 |Thomas Graves|NVIDIA|
@@ -37,7 +37,7 @@ navigation:
 |Dongjoon Hyun|Apple|
 |Kazuaki Ishizaki|IBM|
 |Xingbo Jiang|Databricks|
-|Holden Karau|Google|
+|Holden Karau|Apple|
 |Shane Knapp|UC Berkeley|
 |Cody Koeninger|Nexstar Digital|
 |Andy Konwinski|Databricks|
@@ -48,16 +48,16 @@ navigation:
 |Yinan Li|Google|
 |Davies Liu|Juicedata|
 |Cheng Lian|Databricks|
-|Yanbo Liang|Hortonworks|
+|Yanbo Liang|Facebook|
 |Sean McNamara|Oracle|
 |Xiangrui Meng|Databricks|
-|Mridul Muralidharam|Hortonworks|
+|Mridul Muralidharam|Google|
 |Andrew Or|Princeton University|
 |Kay Ousterhout|LightStep|
 |Sean Owen|Databricks|
 |Tejas Patil|Facebook|
 |Nick Pentreath|IBM|
-|Anirudh Ramanathan|Google|
+|Anirudh Ramanathan|Rockset|
 |Imran Rashid|Cloudera|
 |Charles Reiss|University of Virginia|
 |Josh Rosen|Stripe|
