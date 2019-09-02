@@ -23,7 +23,7 @@ navigation:
 |Aaron Davidson|Databricks|
 |Thomas Dudziak|Facebook|
 |Erik Erlandson|Red Hat|
-|Robert Evans|Oath|
+|Robert Evans|NVIDIA|
 |Wenchen Fan|Databricks|
 |Joseph Gonzalez|UC Berkeley|
 |Thomas Graves|NVIDIA|
@@ -37,7 +37,7 @@ navigation:
 |Dongjoon Hyun|Apple|
 |Kazuaki Ishizaki|IBM|
 |Xingbo Jiang|Databricks|
-|Holden Karau|Google|
+|Holden Karau|Apple|
 |Shane Knapp|UC Berkeley|
 |Cody Koeninger|Nexstar Digital|
 |Andy Konwinski|Databricks|
