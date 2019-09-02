@@ -78,7 +78,7 @@ navigation:
 |Takeshi Yamamuro|NTT|
 |Burak Yavuz|Databricks|
 |Matei Zaharia|Databricks, Stanford|
-|Ruifeng Zheng|JD.COM|
+|Ruifeng Zheng|JD.com|
 |Shixiong Zhu|Databricks|
 
 <h3>Becoming a Committer</h3>
