@@ -23,7 +23,7 @@ var packagesV8 = [hadoop2p7, hadoop2p6, hadoopFree, sources];
 var packagesV9 = [hadoop2p7, hadoop2p6, hadoopFree, scala2p12_hadoopFree, sources];
 
 addRelease("2.4.4", new Date("08/30/2019"), packagesV9, true);
-addRelease("2.3.4", new Date("09/09/2019"), packagesV8, true);
+addRelease("2.3.4", new Date("08/29/2019"), packagesV8, true);
 
 function append(el, contents) {
   el.innerHTML += contents;
