@@ -78,6 +78,7 @@ navigation:
 |Patrick Wendell|Databricks|
 |Andrew Xia|Alibaba|
 |Reynold Xin|Databricks|
+|Weichen Xu|Databricks|
 |Takeshi Yamamuro|NTT|
 |Burak Yavuz|Databricks|
 |Matei Zaharia|Databricks, Stanford|
