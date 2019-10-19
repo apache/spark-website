@@ -68,8 +68,8 @@ in between feature releases. Major releases do not happen according to a fixed s
 <h2>Maintenance Releases and EOL</h2>
 
 Feature release branches will, generally, be maintained with bug fix releases for a period of 18 months. 
-For example, branch 2.2.x is no longer considered maintained as of January 2019, 18 months after the release
-of 2.2.0 in July 2017. No more 2.2.x releases should be expected after that point, even for bug fixes.
+For example, branch 2.3.x is no longer considered maintained as of September 2019, 18 months after the release
+of 2.3.0 in February 2018. No more 2.3.x releases should be expected after that point, even for bug fixes.
 
 The last minor release within a major a release will typically be maintained for longer as an "LTS" release.
 For example, 2.4.0 was released in November 2018, but will likely see releases for more than 18 months,
