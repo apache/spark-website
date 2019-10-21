@@ -189,8 +189,11 @@ that maintainability, consistency, and code quality come first. New algorithms s
 <h3>Code Review Criteria</h3>
 
 Before considering how to contribute code, it's useful to understand how code is reviewed, 
-and why changes may be rejected. Simply put, changes that have many or large positives, and 
-few negative effects or risks, are much more likely to be merged, and merged quickly. 
+and why changes may be rejected. See the 
+<a href="https://google.github.io/eng-practices/review/">detailed guide for code reviewers</a> 
+from Google's Engineering Practices documentation. 
+Simply put, changes that have many or large 
+positives, and few negative effects or risks, are much more likely to be merged, and merged quickly. 
 Risky and less valuable changes are very unlikely to be merged, and may be rejected outright 
 rather than receive iterations of review.
 
