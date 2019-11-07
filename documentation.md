@@ -58,7 +58,6 @@ navigation:
 
 <ul>
   <li><a href="{{site.baseurl}}/docs/2.0.0-preview/">Spark 2.0.0 preview</a></li>
-  <li><a href="{{site.baseurl}}/docs/3.0.0-preview/">Spark 3.0.0 preview</a></li>
 </ul>
 -->
 
