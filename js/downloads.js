@@ -14,14 +14,18 @@ function addRelease(version, releaseDate, packages, mirrored) {
 var sources = {pretty: "Source Code", tag: "sources"};
 var hadoopFree = {pretty: "Pre-built with user-provided Apache Hadoop", tag: "without-hadoop"};
 var hadoop2p6 = {pretty: "Pre-built for Apache Hadoop 2.6", tag: "hadoop2.6"};
-var hadoop2p7 = {pretty: "Pre-built for Apache Hadoop 2.7 and later", tag: "hadoop2.7"};
+var hadoop2p7 = {pretty: "Pre-built for Apache Hadoop 2.7", tag: "hadoop2.7"};
+var hadoop3p2 = {pretty: "Pre-built for Apache Hadoop 3.2 and later", tag: "hadoop3.2"}
 var scala2p12_hadoopFree = {pretty: "Pre-built with Scala 2.12 and user-provided Apache Hadoop", tag: "without-hadoop-scala-2.12"};
 
 // 2.2.0+
 var packagesV8 = [hadoop2p7, hadoop2p6, hadoopFree, sources];
 // 2.4.0+
 var packagesV9 = [hadoop2p7, hadoop2p6, hadoopFree, scala2p12_hadoopFree, sources];
+// 3.0.0+
+var packagesV10 = [hadoop2p7, hadoop3p2, hadoopFree, sources];
 
+addRelease("3.0.0-preview", new Date("11/06/2019"), packagesV10, true);
 addRelease("2.4.4", new Date("08/30/2019"), packagesV9, true);
 addRelease("2.3.4", new Date("08/29/2019"), packagesV8, true);
 

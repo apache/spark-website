@@ -53,13 +53,12 @@ navigation:
   <li><a href="{{site.baseurl}}/docs/0.6.2/">Spark 0.6.2</a></li>
 </ul>
 
-<!--
 <p>Documentation for preview releases:</p>
 
 <ul>
   <li><a href="{{site.baseurl}}/docs/2.0.0-preview/">Spark 2.0.0 preview</a></li>
+  <li><a href="{{site.baseurl}}/docs/3.0.0-preview/">Spark 3.0.0 preview</a></li>
 </ul>
--->
 
 <p>The documentation linked to above covers getting started with Spark, as well the built-in components <a href="{{site.baseurl}}/docs/latest/mllib-guide.html">MLlib</a>,
 <a href="{{site.baseurl}}/docs/latest/streaming-programming-guide.html">Spark Streaming</a>, and <a href="{{site.baseurl}}/docs/latest/graphx-guide.html">GraphX</a>.</p>
