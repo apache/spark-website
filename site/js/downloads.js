@@ -18,8 +18,6 @@ var hadoop2p7 = {pretty: "Pre-built for Apache Hadoop 2.7", tag: "hadoop2.7"};
 var hadoop3p2 = {pretty: "Pre-built for Apache Hadoop 3.2 and later", tag: "hadoop3.2"};
 var scala2p12_hadoopFree = {pretty: "Pre-built with Scala 2.12 and user-provided Apache Hadoop", tag: "without-hadoop-scala-2.12"};
 
-// 2.2.0+
-var packagesV8 = [hadoop2p7, hadoop2p6, hadoopFree, sources];
 // 2.4.0+
 var packagesV9 = [hadoop2p7, hadoop2p6, hadoopFree, scala2p12_hadoopFree, sources];
 // 3.0.0+
@@ -27,7 +25,6 @@ var packagesV10 = [hadoop2p7, hadoop3p2, hadoopFree, sources];
 
 addRelease("3.0.0-preview", new Date("11/06/2019"), packagesV10, true);
 addRelease("2.4.4", new Date("08/30/2019"), packagesV9, true);
-addRelease("2.3.4", new Date("08/29/2019"), packagesV8, true);
 
 function append(el, contents) {
   el.innerHTML += contents;
@@ -46,13 +43,11 @@ function versionShort(version) { return version.replace(/-incubating/, ""); }
 function initDownloads() {
   var versionSelect = document.getElementById("sparkVersionSelect");
 
-  append(versionSelect, "<optgroup label=\"Stable\">");
   for (var version in releases) {
     var releaseDate = releases[version].released;
     var title = versionShort(version) + " (" + releaseDate.toDateString().slice(4) + ")";
     append(versionSelect, "<option value=\"" + version + "\">" + title + "</option>");
   }
-  append(versionSelect, "</optgroup>");
 
   onVersionSelect();
 }
