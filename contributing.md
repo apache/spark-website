@@ -304,6 +304,12 @@ Example: `Fix typos in Foo scaladoc`
 1. Clone your fork, create a new branch, push commits to the branch.
 1. Consider whether documentation or tests need to be added or updated as part of the change, 
 and add them as needed.
+      1. When you add tests, make sure the tests are self-descriptive.
+      1. Also, you should consider adding a JIRA ID as a prefix of the tests when your PR targets
+      to fix a specific issue. In practice, usually it is added when a JIRA type is a bug
+      or a PR adds a couple of tests to an existing test class.
+      1. The JIRA prefix in the test name usually conforms to JIRA ID with a trailing colon, for example,
+      "SPARK-XXXXX: test name".
 1. Run all tests with `./dev/run-tests` to verify that the code still compiles, passes tests, and 
 passes style checks. If style checks fail, review the Code Style Guide below.
 1. <a href="https://help.github.com/articles/using-pull-requests/">Open a pull request</a> against 
