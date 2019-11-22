@@ -6,8 +6,7 @@ Building the site requires [Jekyll](http://jekyllrb.com/docs) 3.3.0 or newer.
 The easiest way to install jekyll is via a Ruby Gem. This will create a directory called `site` 
 containing `index.html` as well as the rest of the compiled directories and files.
 
-To install Jekyll and its required dependencies, execute `sudo gem install jekyll pygments.rb` 
-and `sudo pip install Pygments`.
+To install Jekyll and its required dependencies, execute `sudo gem install jekyll rogue`.
 See also https://github.com/apache/spark/blob/master/docs/README.md
 
 You can generate the html website by running `jekyll build` in this directory. Use the `--watch` 
@@ -17,7 +16,7 @@ In addition to generating the site as HTML from the markdown files, jekyll can s
 a web server. To build the site and run a web server use the command `jekyll serve` which runs 
 the web server on port 4000, then visit the site at http://localhost:4000.
 
-Please make sure you always run `jekyll build` after testing your changes with `jekyll server`,
+Please make sure you always run `jekyll build` after testing your changes with `jekyll serve`,
 otherwise you end up with broken links in a few places.
 
 ## Docs sub-dir
