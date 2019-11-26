@@ -6,7 +6,7 @@ Building the site requires [Jekyll](http://jekyllrb.com/docs) 3.3.0 or newer.
 The easiest way to install jekyll is via a Ruby Gem. This will create a directory called `site` 
 containing `index.html` as well as the rest of the compiled directories and files.
 
-To install Jekyll and its required dependencies, execute `sudo gem install jekyll rogue`.
+To install Jekyll and its required dependencies, execute `sudo gem install jekyll rouge`.
 See also https://github.com/apache/spark/blob/master/docs/README.md
 
 You can generate the html website by running `jekyll build` in this directory. Use the `--watch` 
