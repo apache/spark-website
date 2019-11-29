@@ -61,7 +61,9 @@ function initReleaseNotes() {
       .replace(/\$verUrl/, verShort.replace(/\./g, "-"))
       .replace(/\$ver/, verShort)
       .replace(/\$date/, releaseDate.toDateString().slice(4));
-    append(releaseNotes, contents);
+    if (!version.endsWith("preview")) {
+      append(releaseNotes, contents);
+    }
   }
 }
 
