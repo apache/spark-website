@@ -110,6 +110,8 @@ and external data sources, driving holistic and actionable insights.
   activity in real time
 - <a href="http://www.fundacionctic.org">Fundacion CTIC</a>
 - <a href="https://www.groupon.com">Groupon</a>
+- <a href="https://www.godatadriven.com">GoDataDriven</a>
+  - Amsterdam based consultancy company helping companies to be successful with Spark
 - <a href="http://www.guavus.com/">Guavus</a>
   - Stream processing of network machine data
 - <a href="http://us.hitachi-solutions.com">Hitachi Solutions</a>
