@@ -136,7 +136,7 @@ Spark Meetups are grass-roots events organized and hosted by individuals in the 
     <a href="https://www.meetup.com/Spark-Barcelona/">Barcelona Spark Meetup</a>
   </li>
   <li>
-    <a href="https://www.meetup.com/Spark_big_data_analytics/">Bangalore Spark Meetup</a>
+    <a href="https://www.meetup.com/SanKir-Big-Data-Group/">Bangalore Spark Meetup</a>
   </li>
   <li>
     <a href="https://www.meetup.com/Boston-Apache-Spark-User-Group/">Boston Spark Meetup</a>
