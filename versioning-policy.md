@@ -74,3 +74,10 @@ of 2.3.0 in February 2018. No more 2.3.x releases should be expected after that 
 The last minor release within a major a release will typically be maintained for longer as an "LTS" release.
 For example, 2.4.0 was released in November 2018, but will likely see releases for more than 18 months,
 beyond May 2020.
+
+<h3>Spark 2.4 LTS Release Window</h3>
+
+| Date     | Event         |
+| -------- | ------------- |
+| Jan 2020 | Release 2.4.5 |
+| Jul 2020 | Release 2.4.6 |
