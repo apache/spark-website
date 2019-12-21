@@ -84,7 +84,7 @@ This release has few known issues which will be addressed in Spark 1.4.1
 
  * Python sortBy()/sortByKey() can hang if a single partition is larger than worker memory [SPARK-8202](https://issues.apache.org/jira/browse/SPARK-8202)
  * Unintended behavior change of JSON schema inference [SPARK-8093](https://issues.apache.org/jira/browse/SPARK-8093)
- * Some ML pipleline components do not correctly implement copy [SPARK-8151](https://issues.apache.org/jira/browse/SPARK-8151)
+ * Some ML pipeline components do not correctly implement copy [SPARK-8151](https://issues.apache.org/jira/browse/SPARK-8151)
  * Spark-ec2 branch pointer is wrong [SPARK-8310](https://issues.apache.org/jira/browse/SPARK-8310)
 
 ### Credits
