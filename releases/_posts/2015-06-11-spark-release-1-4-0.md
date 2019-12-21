@@ -25,7 +25,7 @@ SparkR.
 
 ### Spark Core
 
-Spark core adds a variety of improvements focused on operations, performance, and compatiblity:
+Spark core adds a variety of improvements focused on operations, performance, and compatibility:
 
  * [SPARK-6942](https://issues.apache.org/jira/browse/SPARK-6942): Visualization for Spark DAGs and operational monitoring
  * [SPARK-4897](https://issues.apache.org/jira/browse/SPARK-4897): Python 3 support

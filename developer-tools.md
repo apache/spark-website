@@ -104,7 +104,7 @@ If you'd like to run just a single test in the `DAGSchedulerSuite`, e.g., a test
 > testOnly *DAGSchedulerSuite -- -z "SPARK-12345"
 ```
 
-If you'd prefer, you can run all of these commands on the command line (but this will be slower than running tests using an open cosole).  To do this, you need to surround `testOnly` and the following arguments in quotes:
+If you'd prefer, you can run all of these commands on the command line (but this will be slower than running tests using an open console).  To do this, you need to surround `testOnly` and the following arguments in quotes:
 
 ```
 $ build/sbt "core/testOnly *DAGSchedulerSuite -- -z SPARK-12345"
