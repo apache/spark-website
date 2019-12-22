@@ -69,7 +69,7 @@ This release adds several performance optimizations:
 * Haidar Hadi -- documentation fix
 * Nathan Howell -- bug fix relating to YARN
 * Holden Karau -- Java version of `mapPartitionsWithIndex`
-* Du Li -- bug fix in make-distrubion.sh
+* Du Li -- bug fix in make-distribution.sh
 * Raymond Liu -- work on YARN 2.2 build
 * Xi Liu -- bug fix and code clean-up
 * David McCauley -- bug fix in standalone mode JSON output

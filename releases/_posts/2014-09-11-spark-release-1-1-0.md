@@ -90,7 +90,7 @@ Spark 1.1.0 is backwards compatible with Spark 1.0.X. Some configuration option 
  * Clement Mathieu -- doc fix
  * Colin McCabe -- build fix
  * Daehan Kim -- example fix
- * Daneil Darabos -- bug fixes and UI enhancements
+ * Daniel Darabos -- bug fixes and UI enhancements
  * Daoyuan Wang -- SQL fixes
  * David Lemieux -- bug fix
  * Davies Liu -- PySpark fixes and spilling 

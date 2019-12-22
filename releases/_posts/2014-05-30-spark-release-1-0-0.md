@@ -99,7 +99,7 @@ The following developers contributed to this release:
  * Evan Chan -- automatic clean-up of application data
  * Evan Sparks -- MLlib optimizations and doc improvement
  * Frank Dai -- code clean-up in MLlib
- * Guoquiang Li -- build improvements and several bug fixes
+ * Guoqiang Li -- build improvements and several bug fixes
  * Ghidireac -- bug fix
  * Haoyuan Li -- Tachyon storage level for RDD’s
  * Harvey Feng -- spark-ec2 update

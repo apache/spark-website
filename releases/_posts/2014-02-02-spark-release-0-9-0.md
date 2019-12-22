@@ -143,7 +143,7 @@ The following developers contributed to this release:
  * Mike -- bug fixes
  * Fabrizio (Misto) Milo -- bug fix
  * Mridul Muralidharan -- speculation improvements, several bug fixes
- * Tor Myklebust -- Python mllib bindings, instrumentation for task serailization
+ * Tor Myklebust -- Python mllib bindings, instrumentation for task serialization
  * Sundeep Narravula -- bug fix
  * Binh Nguyen -- Java API improvements and version upgrades
  * Adam Novak -- bug fix

@@ -38,7 +38,7 @@ Spark 1.0.1 contains stability fixes in several components. Some of the more imp
 #### MLlib
  - Added compatibility for numpy 1.4 ([SPARK-2091](https://issues.apache.org/jira/browse/SPARK-2091))
  - Concurrency issue in random sampler ([SPARK-2251](https://issues.apache.org/jira/browse/SPARK-2251))
- - NotSerailizable exception in ALS ([SPARK-1977](https://issues.apache.org/jira/browse/SPARK-1977))
+ - NotSerializable exception in ALS ([SPARK-1977](https://issues.apache.org/jira/browse/SPARK-1977))
 
 #### Streaming
  - Key not found when slow receiver starts ([SPARK-2009](https://issues.apache.org/jira/browse/SPARK-2009))
@@ -71,7 +71,7 @@ The following developers contributed to this release:
  * Chen Chao -- comment fix and bug fix
  * Cheng Hao -- SQL features
  * Cheng Lian -- SQL features
- * Christian Tzolov -- build improvmenet
+ * Christian Tzolov -- build improvement
  * Clément MATHIEU -- doc updates 
  * CodingCat -- doc updates and bug fix 
  * Colin McCabe -- bug fix
