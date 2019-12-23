@@ -35,7 +35,7 @@ Spark 1.0.2 contains bug fixes in several components. Some of the more important
 - Multiple instances of an InMemoryRelation in a single plan results in recaching ([SPARK-2405](https://issues.apache.org/jira/browse/SPARK-2405))
 
 #### PySpark
-- Make hash of None consistant cross machines ([SPARK-2494](https://issues.apache.org/jira/browse/SPARK-2494))
+- Make hash of None consistent cross machines ([SPARK-2494](https://issues.apache.org/jira/browse/SPARK-2494))
 
 #### MLlib
  - mutable.BitSet in ALS not serializable with KryoSerializer ([SPARK-1977](https://issues.apache.org/jira/browse/SPARK-1977))

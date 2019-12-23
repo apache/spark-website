@@ -121,7 +121,7 @@ Look at past voting threads to see how this proceeds. The email should follow
 - Make sure the email is in text format and the links are correct
 
 Once the vote is done, you should also send out a summary email with the totals, with a subject
-that looks something like `[RESULT] [VOTE]...`.
+that looks something like `[VOTE][RESULT] ...`.
 
 <h3>Finalize the Release</h3>
 
@@ -136,7 +136,7 @@ After the vote passes, to upload the binaries to Apache mirrors, you move the bi
 # Move the sub-directory in "dev" to the
 # corresponding directory in "release"
 $ export SVN_EDITOR=vim
-$ svn mv https://dist.apache.org/repos/dist/dev/spark/spark-1.1.1-rc2 https://dist.apache.org/repos/dist/release/spark/spark-1.1.1
+$ svn mv https://dist.apache.org/repos/dist/dev/spark/v1.1.1-rc2-bin https://dist.apache.org/repos/dist/release/spark/spark-1.1.1
 
 # If you've added your signing key to the KEYS file, also update the release copy.
 svn co --depth=files "https://dist.apache.org/repos/dist/release/spark" svn-spark

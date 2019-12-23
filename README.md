@@ -26,9 +26,10 @@ of Spark from the Spark source repository and then copied to the website under t
 directory. See the instructions for building those in the readme in the Spark 
 project's `/docs` directory.
 
-## Pygments
+## Rouge and Pygments
 
-We also use [pygments](http://pygments.org) for syntax highlighting in documentation markdown pages.
+We also use [rouge](https://github.com/rouge-ruby/rouge) for syntax highlighting in documentation markdown pages.
+Its HTML output is compatible with CSS files designed for [Pygments](https://pygments.org/).
 
 To mark a block of code in your markdown to be syntax highlighted by `jekyll` during the 
 compile phase, use the following syntax:
@@ -38,8 +39,8 @@ compile phase, use the following syntax:
     // supported languages too.
     {% endhighlight %}
 
- You probably don't need to install that unless you want to regenerate the pygments CSS file. 
- It requires Python, and can be installed by running `sudo easy_install Pygments`.
+You probably don't need to install that unless you want to regenerate the Pygments CSS file.
+It requires Python, and can be installed by running `sudo easy_install Pygments`.
 
 ## Merge PR
 
