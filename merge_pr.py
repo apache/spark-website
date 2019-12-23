@@ -28,10 +28,15 @@ import json
 import os
 import subprocess
 import sys
-import urllib2
-
 if sys.version < '3':
     input = raw_input  # noqa
+    from urllib2 import urlopen
+    from urllib2 import Request
+    from urllib2 import HTTPError
+else:
+    from urllib.request import urlopen
+    from urllib.request import Request
+    from urllib.error import HTTPError
 
 
 # Remote name which points to the Github site
@@ -53,11 +58,11 @@ BRANCH_PREFIX = "PR_TOOL"
 
 def get_json(url):
     try:
-        request = urllib2.Request(url)
+        request = Request(url)
         if GITHUB_OAUTH_KEY:
             request.add_header('Authorization', 'token %s' % GITHUB_OAUTH_KEY)
-        return json.load(urllib2.urlopen(request))
-    except urllib2.HTTPError as e:
+        return json.load(urlopen(request))
+    except HTTPError as e:
         if "X-RateLimit-Remaining" in e.headers and e.headers["X-RateLimit-Remaining"] == '0':
             print("Exceeded the GitHub API rate limit; see the instructions in " +
                   "dev/merge_pr.py to configure an OAuth token for making authenticated " +
@@ -76,9 +81,9 @@ def fail(msg):
 def run_cmd(cmd):
     print(cmd)
     if isinstance(cmd, list):
-        return subprocess.check_output(cmd)
+        return subprocess.check_output(cmd).decode('utf-8')
     else:
-        return subprocess.check_output(cmd.split(" "))
+        return subprocess.check_output(cmd.split(" ")).decode('utf-8')
 
 
 def continue_maybe(prompt):
@@ -94,7 +99,7 @@ def clean_up():
 
         branches = run_cmd("git branch").replace(" ", "").split("\n")
 
-        for branch in filter(lambda x: x.startswith(BRANCH_PREFIX), branches):
+        for branch in list(filter(lambda x: x.startswith(BRANCH_PREFIX), branches)):
             print("Deleting local branch %s" % branch)
             run_cmd("git branch -D %s" % branch)
 
@@ -211,7 +216,7 @@ def fix_version_from_branch(branch, versions):
         return versions[0]
     else:
         branch_ver = branch.replace("branch-", "")
-        return filter(lambda x: x.name.startswith(branch_ver), versions)[-1]
+        return list(filter(lambda x: x.name.startswith(branch_ver), versions))[-1]
 
 
 def get_current_ref():
