@@ -61,9 +61,9 @@ in between feature releases. Major releases do not happen according to a fixed s
 | Date  | Event |
 | ----- | ----- |
 | Late Oct 2019 | Preview release |
-| Early Dec 2019 | Code freeze. Release branch cut.|
-| Late Dec 2019 | QA period. Focus on bug fixes, tests, stability and docs. Generally, no new features merged.|
-| Jan 2020 | Release candidates (RC), voting, etc. until final release passes|
+| 01/31/2020 | Code freeze. Release branch cut.|
+| Early Feb 2020 | QA period. Focus on bug fixes, tests, stability and docs. Generally, no new features merged.|
+| Mid Feb 2020 | Release candidates (RC), voting, etc. until final release passes|
 
 <h2>Maintenance Releases and EOL</h2>
 
