@@ -256,6 +256,8 @@ your pull request to change testing behavior. This includes:
 - `[test-hadoop2.7]` - signals to test using Spark's Hadoop 2.7 profile
 - `[test-hadoop3.2]` - signals to test using Spark's Hadoop 3.2 profile
 - `[test-hadoop3.2][test-java11]` - signals to test using Spark's Hadoop 3.2 profile with JDK 11
+- `[test-hive1.2]` - signals to test using Spark's Hive 1.2 profile
+- `[test-hive2.3]` - signals to test using Spark's Hive 2.3 profile
 
 <h3>Binary compatibility</h3>
 
