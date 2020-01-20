@@ -134,6 +134,10 @@ To run individual PySpark tests, you can use `run-tests` script under `python` d
 Note that, if you add some changes into Scala or Python side in Apache Spark, you need to manually build Apache Spark again before running PySpark tests in order to apply the changes.
 Running PySpark testing script does not automatically build it.
 
+Also, note that there is an ongoing issue to use PySpark on macOS High Serria+. `OBJC_DISABLE_INITIALIZE_FORK_SAFETY`
+should be set to `YES` in order to run some of tests.
+See [PySpark issue](https://issues.apache.org/jira/browse/SPARK-25473) and [Python issue](https://bugs.python.org/issue33725) for more details.
+
 To run test cases in a specific module:
 
 ```
