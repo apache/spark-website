@@ -48,7 +48,8 @@ Anyone can view and comment on active changes here.
 Reviewing others' changes is a good way to learn how the change process works and gain exposure 
 to activity in various parts of the code. You can help by reviewing the changes and asking 
 questions or pointing out issues -- as simple as typos or small issues of style.
-See also https://spark-prs.appspot.com/ for a convenient way to view and filter open PRs.
+See also <a href="https://spark-prs.appspot.com/">https://spark-prs.appspot.com/</a> for a
+convenient way to view and filter open PRs.
 
 <h2>Contributing Documentation Changes</h2>
 
