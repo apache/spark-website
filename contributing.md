@@ -268,7 +268,7 @@ Example: `Fix typos in Foo scaladoc`
         Blockers. JIRA tends to unfortunately conflate "size" and "importance" in its 
         Priority field values. Their meaning is roughly:
              1. Blocker: pointless to release without this change as the release would be unusable 
-             to a large minority of users. Correctness and data loss issues should be considered Blockers.
+             to a large minority of users. Correctness and data loss issues should be considered Blockers for their target versions.
              1. Critical: a large minority of users are missing important functionality without 
              this, and/or a workaround is difficult
              1. Major: a small minority of users are missing important functionality without this, 
