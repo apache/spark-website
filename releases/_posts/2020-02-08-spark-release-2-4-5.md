@@ -28,9 +28,9 @@ Spark 2.4.5 is a maintenance release containing stability fixes. This release is
   - [[SPARK-29918]](https://issues.apache.org/jira/browse/SPARK-29918): RecordBinaryComparator should check endianness when compared by long
   - [[SPARK-30065]](https://issues.apache.org/jira/browse/SPARK-30065): Fix DataFrameNaFunctions.drop to handle duplicate columns
   - [[SPARK-30082]](https://issues.apache.org/jira/browse/SPARK-30082): Do not replace Zeros when replacing NaNs
+  - [[SPARK-30274]](https://issues.apache.org/jira/browse/SPARK-30274): Avoid BytesToBytesMap lookup hang forever when holding keys reaching max capacity
   - [[SPARK-30312]](https://issues.apache.org/jira/browse/SPARK-30312): Preserve path permission and acl when truncate table
   - [[SPARK-30447]](https://issues.apache.org/jira/browse/SPARK-30447): Fix constant propagation nullability issue
-  - [[SPARK-30274]](https://issues.apache.org/jira/browse/SPARK-30274): Avoid BytesToBytesMap lookup hang forever when holding keys reaching max capacity
 
 ### Known issues
   - [[SPARK-26021]](https://issues.apache.org/jira/browse/SPARK-26021): -0.0 and 0.0 not treated consistently, doesn't match Hive
