@@ -435,9 +435,8 @@ Error:(147, 9) value q is not a member of StringContext
         q"""
         ^ 
 ```
-<h4>Debug Spark with SBT and IntelliJ</h4>
-Debug Spark directly inside IntelliJ is somehow difficult. But with remote debug functionality which provided by IntelliJ,
-we can easily debug test in SBT. This part will show you how to set up debug mode for Spark with SBT and IntelliJ.
+<h4>Remote Debug Unit Test</h4>
+This part will show you how to debug unit test in SBT with the help of remote debug functionality which provided by IntelliJ.
 
 <h5>Set up Remote Debug Configuration</h5>
 Follow <i>Run > Edit Configurations > + > Remote</i> to open a default Remote Configuration template:
@@ -465,7 +464,7 @@ Set javaOptions by copy pasting the following:
 ```
 sbt > set javaOptions in Test += "-agentlib:jdwp=transport=dt_socket,server=n,suspend=n,address=localhost:5005"
 ```
-Set breakpoints and run the test, e.g.:
+Set breakpoints with IntelliJ and run the test with SBT, e.g.:
 ```
 sbt > testOnly *SparkContextSuite -- -t "Only one SparkContext may be active at a time"
 ```
@@ -473,6 +472,9 @@ sbt > testOnly *SparkContextSuite -- -t "Only one SparkContext may be active at 
 It should be successfully connected to IntelliJ when you see "Connected to the target VM, 
 address: 'localhost:5005', transport: 'socket'" in IntelliJ console. And then, you can start
 debug in IntelliJ as usual.
+ 
+To exit remote debug mode (so that you don't have to keep starting the remote debugger),
+type "session clear" in SBT console - while you're in a project.
 
 <h4>Eclipse</h4>
 
