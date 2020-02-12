@@ -612,6 +612,50 @@ Error:(147, 9) value q is not a member of StringContext
 </code></pre></div>    </div>
   </li>
 </ul>
+<h4>Debug Spark Remotely</h4>
+<p>This part will show you how to debug Spark remotely with IntelliJ.</p>
+
+<h5>Set up Remote Debug Configuration</h5>
+<p>Follow <i>Run &gt; Edit Configurations &gt; + &gt; Remote</i> to open a default Remote Configuration template:
+<img src="/images/intellij_remote_debug_configuration.png" style="width: 75%; max-width: 660px;" /></p>
+
+<p>Normally, the default values should be good enough to use. Make sure that you choose <b>Listen to remote JVM</b>
+as <i>Debugger mode</i> and select the right JDK version to generate proper <i>Command line arguments for remote JVM</i>.</p>
+
+<p>Once you finish configuration and save it. You can follow <i>Run &gt; Run &gt; Your_Remote_Debug_Name &gt; Debug</i> to start remote debug
+process and wait for SBT console to connect:</p>
+
+<p><img src="/images/intellij_start_remote_debug.png" style="width: 75%; max-width: 660px;" /></p>
+
+<h5>Trigger the remote debugging</h5>
+
+<p>In general, there are 2 steps:</p>
+<ol>
+  <li>Set JVM options using the <i>Command line arguments for remote JVM</i> generated in the last step.</li>
+  <li>Start the Spark execution (SBT test, pyspark test, spark-shell, etc.)</li>
+</ol>
+
+<p>The following is an example of how to trigger the remote debugging using SBT unit tests.</p>
+
+<p>Enter in SBT console</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./build/sbt
+</code></pre></div></div>
+<p>Switch to project where the target test locates, e.g.:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sbt &gt; project core
+</code></pre></div></div>
+<p>Copy pasting the <i>Command line arguments for remote JVM</i></p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sbt &gt; set javaOptions in Test += "-agentlib:jdwp=transport=dt_socket,server=n,suspend=n,address=localhost:5005"
+</code></pre></div></div>
+<p>Set breakpoints with IntelliJ and run the test with SBT, e.g.:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sbt &gt; testOnly *SparkContextSuite -- -t "Only one SparkContext may be active at a time"
+</code></pre></div></div>
+
+<p>It should be successfully connected to IntelliJ when you see &#8220;Connected to the target VM, 
+address: &#8216;localhost:5005&#8217;, transport: &#8216;socket&#8217;&#8221; in IntelliJ console. And then, you can start
+debug in IntelliJ as usual.</p>
+
+<p>To exit remote debug mode (so that you don&#8217;t have to keep starting the remote debugger),
+type &#8220;session clear&#8221; in SBT console while you&#8217;re in a project.</p>
 
 <h4>Eclipse</h4>
 

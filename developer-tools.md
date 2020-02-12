@@ -435,6 +435,52 @@ Error:(147, 9) value q is not a member of StringContext
         q"""
         ^ 
 ```
+<h4>Debug Spark Remotely</h4>
+This part will show you how to debug Spark remotely with IntelliJ.
+
+<h5>Set up Remote Debug Configuration</h5>
+Follow <i>Run > Edit Configurations > + > Remote</i> to open a default Remote Configuration template:
+<img src="/images/intellij_remote_debug_configuration.png" style="width: 75%; max-width: 660px;" />
+
+Normally, the default values should be good enough to use. Make sure that you choose <b>Listen to remote JVM</b>
+as <i>Debugger mode</i> and select the right JDK version to generate proper <i>Command line arguments for remote JVM</i>.
+
+Once you finish configuration and save it. You can follow <i>Run > Run > Your_Remote_Debug_Name > Debug</i> to start remote debug
+process and wait for SBT console to connect:
+
+<img src="/images/intellij_start_remote_debug.png" style="width: 75%; max-width: 660px;" />
+
+<h5>Trigger the remote debugging</h5>
+
+In general, there are 2 steps:
+1. Set JVM options using the <i>Command line arguments for remote JVM</i> generated in the last step.
+2. Start the Spark execution (SBT test, pyspark test, spark-shell, etc.)
+
+The following is an example of how to trigger the remote debugging using SBT unit tests.
+
+Enter in SBT console
+```
+./build/sbt
+```
+Switch to project where the target test locates, e.g.:
+```
+sbt > project core
+```
+Copy pasting the <i>Command line arguments for remote JVM</i>
+```
+sbt > set javaOptions in Test += "-agentlib:jdwp=transport=dt_socket,server=n,suspend=n,address=localhost:5005"
+```
+Set breakpoints with IntelliJ and run the test with SBT, e.g.:
+```
+sbt > testOnly *SparkContextSuite -- -t "Only one SparkContext may be active at a time"
+```
+
+It should be successfully connected to IntelliJ when you see "Connected to the target VM, 
+address: 'localhost:5005', transport: 'socket'" in IntelliJ console. And then, you can start
+debug in IntelliJ as usual.
+ 
+To exit remote debug mode (so that you don't have to keep starting the remote debugger),
+type "session clear" in SBT console while you're in a project.
 
 <h4>Eclipse</h4>
 
