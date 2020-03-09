@@ -24,7 +24,7 @@ $(document).ready(function() {
 
 3. Download Spark: <span id="spanDownloadLink"></span>
 
-4. Verify this release using the <span id="sparkDownloadVerify"></span> and [project release KEYS](https://www.apache.org/dist/spark/KEYS).
+4. Verify this release using the <span id="sparkDownloadVerify"></span> and [project release KEYS](https://downloads.apache.org/spark/KEYS).
 
 Note that, Spark is pre-built with Scala 2.11 except version 2.4.2, which is pre-built with Scala 2.12.
 

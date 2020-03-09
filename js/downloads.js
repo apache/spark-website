@@ -117,8 +117,8 @@ function updateDownloadLink() {
   var contents = "<a href=\"" + downloadHref + "\" onClick=\"" + onClick + "\">" + text + "</a>";
   append(downloadLink, contents);
 
-  var sigHref = "https://www.apache.org/dist/spark/spark-" + version + "/" + artifactName + ".asc";
-  var checksumHref = "https://www.apache.org/dist/spark/spark-" + version + "/" + artifactName + ".sha512";
+  var sigHref = "https://downloads.apache.org/spark/spark-" + version + "/" + artifactName + ".asc";
+  var checksumHref = "https://downloads.apache.org/spark/spark-" + version + "/" + artifactName + ".sha512";
   var verifyLinks = versionShort(version) + " <a href=\"" + sigHref + "\">signatures</a>, <a href=\"" +
     checksumHref + "\">checksums</a>";
   append(verifyLink, verifyLinks);
