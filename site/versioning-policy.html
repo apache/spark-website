@@ -245,6 +245,83 @@ maximum compatibility. Code should not be merged into the project as &#8220;expe
 a plan to change the API later, because users expect the maximum compatibility from all 
 available APIs.</p>
 
+<h3>Considerations When Breaking APIs</h3>
+
+<p>The Spark project strives to avoid breaking APIs or silently changing behavior, even at major versions. While this is not always possible, the balance of the following factors should be considered before choosing to break an API.</p>
+
+<h4>Cost of Breaking an API</h4>
+
+<p>Breaking an API almost always has a non-trivial cost to the users of Spark. A broken API means that Spark programs need to be rewritten before they can be upgraded. However, there are a few considerations when thinking about what the cost will be:</p>
+
+<ul>
+  <li><strong>Usage</strong> - an API that is actively used in many different places, is always very costly to break. While it is hard to know usage for sure, there are a bunch of ways that we can estimate:
+    <ul>
+      <li>
+        <p>How long has the API been in Spark?</p>
+      </li>
+      <li>
+        <p>Is the API common even for basic programs?</p>
+      </li>
+      <li>
+        <p>How often do we see recent questions in JIRA or mailing lists?</p>
+      </li>
+      <li>
+        <p>How often does it appear in StackOverflow or blogs?</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Behavior after the break</strong> - How will a program that works today, work after the break? The following are listed roughly in order of increasing severity:</p>
+
+    <ul>
+      <li>
+        <p>Will there be a compiler or linker error?</p>
+      </li>
+      <li>
+        <p>Will there be a runtime exception?</p>
+      </li>
+      <li>
+        <p>Will that exception happen after significant processing has been done?</p>
+      </li>
+      <li>
+        <p>Will we silently return different answers? (very hard to debug, might not even notice!)</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4>Cost of Maintaining an API</h4>
+
+<p>Of course, the above does not mean that we will <strong>never</strong> break <strong>any</strong> APIs. We must also consider the cost both to the project and to our users of keeping the API in question.</p>
+
+<ul>
+  <li>
+    <p><strong>Project Costs</strong> - Every API we have needs to be tested and needs to keep working as other parts of the project changes. These costs are significantly exacerbated when external dependencies change (the JVM, Scala, etc). In some cases, while not completely technically infeasible, the cost of maintaining a particular API can become too high.</p>
+  </li>
+  <li>
+    <p><strong>User Costs</strong> - APIs also have a cognitive cost to users learning Spark or trying to understand Spark programs. This cost becomes even higher when the API in question has confusing or undefined semantics.</p>
+  </li>
+</ul>
+
+<h4>Alternatives to Breaking an API</h4>
+
+<p>In cases where there is a &#8220;Bad API&#8221;, but where the cost of removal is also high, there are alternatives that should be considered that do not hurt existing users but do address some of the maintenance costs.</p>
+
+<ul>
+  <li>
+    <p><strong>Avoid Bad APIs</strong> - While this is a bit obvious, it is an important point. Anytime we are adding a new interface to Spark we should consider that we might be stuck with this API forever. Think deeply about how new APIs relate to existing ones, as well as how you expect them to evolve over time.</p>
+  </li>
+  <li>
+    <p><strong>Deprecation Warnings</strong> - All deprecation warnings should point to a clear alternative and should never just say that an API is deprecated.</p>
+  </li>
+  <li>
+    <p><strong>Updated Docs</strong> - Documentation should point to the &#8220;best&#8221; recommended way of performing a given task. In the cases where we maintain legacy documentation, we should clearly point to newer APIs and suggest to users the &#8220;right&#8221; way.</p>
+  </li>
+  <li>
+    <p><strong>Community Work</strong> - Many people learn Spark by reading blogs and other sites such as StackOverflow. However, many of these resources are out of date. Update them, to reduce the cost of eventually removing deprecated APIs.</p>
+  </li>
+</ul>
+
 <h2>Release Cadence</h2>
 
 <p>In general, feature (&#8220;minor&#8221;) releases occur about every 6 months. Hence, Spark 2.3.0 would
