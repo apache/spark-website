@@ -43,7 +43,7 @@ feedback on any performance or correctness issues found in the newer release.
 <h2>Contributing by Reviewing Changes</h2>
 
 Changes to Spark source code are proposed, reviewed and committed via 
-<a href="https://github.com/apache/spark/pulls">Github pull requests</a> (described later). 
+<a href="https://github.com/apache/spark/pulls">GitHub pull requests</a> (described later). 
 Anyone can view and comment on active changes here. 
 Reviewing others' changes is a good way to learn how the change process works and gain exposure 
 to activity in various parts of the code. You can help by reviewing the changes and asking 
@@ -243,7 +243,7 @@ Once you've downloaded Spark, you can find instructions for installing and build
 <h3>JIRA</h3>
 
 Generally, Spark uses JIRA to track logical issues, including bugs and improvements, and uses 
-Github pull requests to manage the review and merge of specific code changes. That is, JIRAs are 
+GitHub pull requests to manage the review and merge of specific code changes. That is, JIRAs are 
 used to describe _what_ should be fixed or changed, and high-level approaches, and pull requests 
 describe _how_ to implement that change in the project's source code. For example, major design 
 decisions are discussed in JIRA.
@@ -300,7 +300,7 @@ Example: `Fix typos in Foo scaladoc`
 
 <h3>Pull Request</h3>
 
-1. <a href="https://help.github.com/articles/fork-a-repo/">Fork</a> the Github repository at 
+1. <a href="https://help.github.com/articles/fork-a-repo/">Fork</a> the GitHub repository at 
 <a href="https://github.com/apache/spark">https://github.com/apache/spark</a> if you haven't already
 1. Clone your fork, create a new branch, push commits to the branch.
 1. Consider whether documentation or tests need to be added or updated as part of the change, 
@@ -341,9 +341,9 @@ the `master` branch of `apache/spark`. (Only in special cases would the PR be op
      <a href="https://spark-prs.appspot.com/">spark-prs.appspot.com</a> and 
      Title may be the JIRA's title or a more specific title describing the PR itself.
      1. If the pull request is still a work in progress, and so is not ready to be merged, 
-     but needs to be pushed to Github to facilitate review, then add `[WIP]` after the component.
+     but needs to be pushed to GitHub to facilitate review, then add `[WIP]` after the component.
      1. Consider identifying committers or other contributors who have worked on the code being 
-     changed. Find the file(s) in Github and click "Blame" to see a line-by-line annotation of 
+     changed. Find the file(s) in GitHub and click "Blame" to see a line-by-line annotation of 
      who changed the code last. You can add `@username` in the PR description to ping them 
      immediately.
      1. Please state that the contribution is your original work and that you license the work 

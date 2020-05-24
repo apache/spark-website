@@ -264,7 +264,7 @@ pick the release version from the list, then click on "Release Notes". Copy this
 Then run `jekyll build` to update the `site` directory.
 
 After merging the change into the `asf-site` branch, you may need to create a follow-up empty
-commit to force synchronization between ASF's git and the web site, and also the github mirror.
+commit to force synchronization between ASF's git and the web site, and also the GitHub mirror.
 For some reason synchronization seems to not be reliable for this repository.
 
 On a related note, make sure the version is marked as released on JIRA. Go find the release page as above, eg.,
@@ -278,7 +278,7 @@ releasing Spark 1.2.0, set the current tag to v1.2.0-rc2 and the previous tag to
 Once you have generated the initial contributors list, it is highly likely that there will be
 warnings about author names not being properly translated. To fix this, run
 <a href="https://github.com/apache/spark/blob/branch-1.1/dev/create-release/translate-contributors.py">this other script</a>,
-which fetches potential replacements from Github and JIRA. For instance:
+which fetches potential replacements from GitHub and JIRA. For instance:
 
 ```
 $ cd release-spark/dev/create-release
