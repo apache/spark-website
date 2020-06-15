@@ -46,6 +46,7 @@ against Spark, and data scientists to use Javascript in Jupyter notebooks.
 - <a href="https://delta.io">Delta Lake</a> - Storage layer that provides ACID transactions and scalable metadata handling for Apache Spark workloads.
 - <a href="https://mlflow.org">MLflow</a> - Open source platform to manage the machine learning lifecycle, including deploying models from diverse machine learning libraries on Apache Spark.
 - <a href="https://github.com/databricks/koalas">Koalas</a> - Data frame API on Apache Spark that more closely follows Python's pandas.
+- <a href="https://datafu.apache.org/docs/spark/getting-started.html">Apache DataFu</a> - A collection of utils and user-defined-functions for working with large scale data in Apache Spark, as well as making Scala-Python interoperability easier.
 
 <h2>Applications Using Spark</h2>
 
