@@ -1,0 +1,220 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>pyspark.sql.avro.functions &#8212; PySpark 3.0.0 documentation</title>
+    <link rel="stylesheet" href="../../../../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/pyspark.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../../../_static/copybutton.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="../../../../_static/pyspark.js"></script>
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">PySpark 3.0.0 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyspark.sql.avro.functions</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># Licensed to the Apache Software Foundation (ASF) under one or more</span>
+<span class="c1"># contributor license agreements.  See the NOTICE file distributed with</span>
+<span class="c1"># this work for additional information regarding copyright ownership.</span>
+<span class="c1"># The ASF licenses this file to You under the Apache License, Version 2.0</span>
+<span class="c1"># (the &quot;License&quot;); you may not use this file except in compliance with</span>
+<span class="c1"># the License.  You may obtain a copy of the License at</span>
+<span class="c1">#</span>
+<span class="c1">#    http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c1">#</span>
+<span class="c1"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c1"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c1"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c1"># See the License for the specific language governing permissions and</span>
+<span class="c1"># limitations under the License.</span>
+<span class="c1">#</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">A collections of builtin avro functions</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="kn">import</span> <span class="n">since</span><span class="p">,</span> <span class="n">SparkContext</span>
+<span class="kn">from</span> <span class="nn">pyspark.rdd</span> <span class="kn">import</span> <span class="n">ignore_unicode_prefix</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.column</span> <span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">_to_java_column</span>
+<span class="kn">from</span> <span class="nn">pyspark.util</span> <span class="kn">import</span> <span class="n">_print_missing_jar</span>
+
+
+<div class="viewcode-block" id="from_avro"><a class="viewcode-back" href="../../../../pyspark.sql.html#pyspark.sql.avro.functions.from_avro">[docs]</a><span class="nd">@ignore_unicode_prefix</span>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">3.0</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">from_avro</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">jsonFormatSchema</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{}):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a binary column of Avro format into its corresponding catalyst value.</span>
+<span class="sd">    The specified schema must match the read data, otherwise the behavior is undefined:</span>
+<span class="sd">    it may fail or return arbitrary result.</span>
+<span class="sd">    To deserialize the data with a compatible and evolved schema, the expected Avro schema can be</span>
+<span class="sd">    set via the option avroSchema.</span>
+
+<span class="sd">    Note: Avro is built-in but external data source module since Spark 2.4. Please deploy the</span>
+<span class="sd">    application as per the deployment section of &quot;Apache Avro Data Source Guide&quot;.</span>
+
+<span class="sd">    :param data: the binary column.</span>
+<span class="sd">    :param jsonFormatSchema: the avro schema in JSON string format.</span>
+<span class="sd">    :param options: options to control how the Avro record is parsed.</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyspark.sql import Row</span>
+<span class="sd">    &gt;&gt;&gt; from pyspark.sql.avro.functions import from_avro, to_avro</span>
+<span class="sd">    &gt;&gt;&gt; data = [(1, Row(name=&#39;Alice&#39;, age=2))]</span>
+<span class="sd">    &gt;&gt;&gt; df = spark.createDataFrame(data, (&quot;key&quot;, &quot;value&quot;))</span>
+<span class="sd">    &gt;&gt;&gt; avroDf = df.select(to_avro(df.value).alias(&quot;avro&quot;))</span>
+<span class="sd">    &gt;&gt;&gt; avroDf.collect()</span>
+<span class="sd">    [Row(avro=bytearray(b&#39;\\x00\\x00\\x04\\x00\\nAlice&#39;))]</span>
+<span class="sd">    &gt;&gt;&gt; jsonFormatSchema = &#39;&#39;&#39;{&quot;type&quot;:&quot;record&quot;,&quot;name&quot;:&quot;topLevelRecord&quot;,&quot;fields&quot;:</span>
+<span class="sd">    ...     [{&quot;name&quot;:&quot;avro&quot;,&quot;type&quot;:[{&quot;type&quot;:&quot;record&quot;,&quot;name&quot;:&quot;value&quot;,&quot;namespace&quot;:&quot;topLevelRecord&quot;,</span>
+<span class="sd">    ...     &quot;fields&quot;:[{&quot;name&quot;:&quot;age&quot;,&quot;type&quot;:[&quot;long&quot;,&quot;null&quot;]},</span>
+<span class="sd">    ...     {&quot;name&quot;:&quot;name&quot;,&quot;type&quot;:[&quot;string&quot;,&quot;null&quot;]}]},&quot;null&quot;]}]}&#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; avroDf.select(from_avro(avroDf.avro, jsonFormatSchema).alias(&quot;value&quot;)).collect()</span>
+<span class="sd">    [Row(value=Row(avro=Row(age=2, name=u&#39;Alice&#39;)))]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">avro</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">from_avro</span><span class="p">(</span>
+            <span class="n">_to_java_column</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">jsonFormatSchema</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;&#39;JavaPackage&#39; object is not callable&quot;</span><span class="p">:</span>
+            <span class="n">_print_missing_jar</span><span class="p">(</span><span class="s2">&quot;Avro&quot;</span><span class="p">,</span> <span class="s2">&quot;avro&quot;</span><span class="p">,</span> <span class="s2">&quot;avro&quot;</span><span class="p">,</span> <span class="n">sc</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+        <span class="k">raise</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="to_avro"><a class="viewcode-back" href="../../../../pyspark.sql.html#pyspark.sql.avro.functions.to_avro">[docs]</a><span class="nd">@ignore_unicode_prefix</span>
+<span class="nd">@since</span><span class="p">(</span><span class="mf">3.0</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">to_avro</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">jsonFormatSchema</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a column into binary of avro format.</span>
+
+<span class="sd">    Note: Avro is built-in but external data source module since Spark 2.4. Please deploy the</span>
+<span class="sd">    application as per the deployment section of &quot;Apache Avro Data Source Guide&quot;.</span>
+
+<span class="sd">    :param data: the data column.</span>
+<span class="sd">    :param jsonFormatSchema: user-specified output avro schema in JSON string format.</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyspark.sql import Row</span>
+<span class="sd">    &gt;&gt;&gt; from pyspark.sql.avro.functions import to_avro</span>
+<span class="sd">    &gt;&gt;&gt; data = [&#39;SPADES&#39;]</span>
+<span class="sd">    &gt;&gt;&gt; df = spark.createDataFrame(data, &quot;string&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; df.select(to_avro(df.value).alias(&quot;suite&quot;)).collect()</span>
+<span class="sd">    [Row(suite=bytearray(b&#39;\\x00\\x0cSPADES&#39;))]</span>
+<span class="sd">    &gt;&gt;&gt; jsonFormatSchema = &#39;&#39;&#39;[&quot;null&quot;, {&quot;type&quot;: &quot;enum&quot;, &quot;name&quot;: &quot;value&quot;,</span>
+<span class="sd">    ...     &quot;symbols&quot;: [&quot;SPADES&quot;, &quot;HEARTS&quot;, &quot;DIAMONDS&quot;, &quot;CLUBS&quot;]}]&#39;&#39;&#39;</span>
+<span class="sd">    &gt;&gt;&gt; df.select(to_avro(df.value, jsonFormatSchema).alias(&quot;suite&quot;)).collect()</span>
+<span class="sd">    [Row(suite=bytearray(b&#39;\\x02\\x00&#39;))]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">jsonFormatSchema</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">avro</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">to_avro</span><span class="p">(</span><span class="n">_to_java_column</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">jc</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">avro</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="n">to_avro</span><span class="p">(</span>
+                <span class="n">_to_java_column</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">jsonFormatSchema</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;&#39;JavaPackage&#39; object is not callable&quot;</span><span class="p">:</span>
+            <span class="n">_print_missing_jar</span><span class="p">(</span><span class="s2">&quot;Avro&quot;</span><span class="p">,</span> <span class="s2">&quot;avro&quot;</span><span class="p">,</span> <span class="s2">&quot;avro&quot;</span><span class="p">,</span> <span class="n">sc</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+        <span class="k">raise</span>
+    <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_test</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">os</span>
+    <span class="kn">import</span> <span class="nn">sys</span>
+    <span class="kn">from</span> <span class="nn">pyspark.testing.utils</span> <span class="kn">import</span> <span class="n">search_jar</span>
+    <span class="n">avro_jar</span> <span class="o">=</span> <span class="n">search_jar</span><span class="p">(</span><span class="s2">&quot;external/avro&quot;</span><span class="p">,</span> <span class="s2">&quot;spark-avro&quot;</span><span class="p">,</span> <span class="s2">&quot;spark-avro&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">avro_jar</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="s2">&quot;Skipping all Avro Python tests as the optional Avro project was &quot;</span>
+            <span class="s2">&quot;not compiled into a JAR. To run these tests, &quot;</span>
+            <span class="s2">&quot;you need to build Spark with &#39;build/sbt -Pavro package&#39; or &quot;</span>
+            <span class="s2">&quot;&#39;build/mvn -Pavro package&#39; before running this test.&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">existing_args</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PYSPARK_SUBMIT_ARGS&quot;</span><span class="p">,</span> <span class="s2">&quot;pyspark-shell&quot;</span><span class="p">)</span>
+        <span class="n">jars_args</span> <span class="o">=</span> <span class="s2">&quot;--jars </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">avro_jar</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;PYSPARK_SUBMIT_ARGS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">jars_args</span><span class="p">,</span> <span class="n">existing_args</span><span class="p">])</span>
+
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">Row</span><span class="p">,</span> <span class="n">SparkSession</span>
+    <span class="kn">import</span> <span class="nn">pyspark.sql.avro.functions</span>
+    <span class="n">globs</span> <span class="o">=</span> <span class="n">pyspark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">avro</span><span class="o">.</span><span class="n">functions</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span>\
+        <span class="o">.</span><span class="n">master</span><span class="p">(</span><span class="s2">&quot;local[4]&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;sql.avro.functions tests&quot;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s1">&#39;spark&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spark</span>
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span>
+        <span class="n">pyspark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">avro</span><span class="o">.</span><span class="n">functions</span><span class="p">,</span> <span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span>
+        <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span> <span class="o">|</span> <span class="n">doctest</span><span class="o">.</span><span class="n">NORMALIZE_WHITESPACE</span><span class="p">)</span>
+    <span class="n">spark</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">_test</span><span class="p">()</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../../index.html">
+              <img class="logo" src="../../../../_static/spark-logo-hd.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+    
+        <li class="nav-item nav-item-0"><a href="../../../../index.html">PySpark 3.0.0 documentation</a> &#187;</li>
+
+          <li class="nav-item nav-item-1"><a href="../../../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright .
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.3.1.
+    </div>
+  </body>
+</html>
