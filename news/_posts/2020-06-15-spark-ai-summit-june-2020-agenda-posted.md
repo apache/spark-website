@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Spark+AI Summit (June 22-25th, 2020, San Francisco) agenda posted
+title: Spark+AI Summit (June 22-25th, 2020, VIRTUAL) agenda posted
 categories:
 - News
 tags: []
