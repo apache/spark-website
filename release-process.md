@@ -259,7 +259,8 @@ Then, create the release notes. Go to the
 <a href="https://issues.apache.org/jira/projects/SPARK?selectedItem=com.atlassian.jira.jira-projects-plugin:release-page">release page in JIRA</a>,
 pick the release version from the list, then click on "Release Notes". Copy this URL and then make a short URL on
 <a href="https://s.apache.org/">s.apache.org</a>, sign in to your Apache account, and pick the ID as something like
-`spark-2.1.2`. Create a new release post under `releases/_posts` to include this short URL.
+`spark-2.1.2`. Create a new release post under `releases/_posts` to include this short URL. The date of the post should
+be the date you create it.
 
 Then run `jekyll build` to update the `site` directory.
 
