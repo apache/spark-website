@@ -35,7 +35,6 @@ to satisfy the legal requirements of Apache Software Foundation's release policy
 Preview releases are not meant to be functional, i.e. they can and highly likely will contain
 critical bugs or documentation errors.
 The latest preview release is Spark 3.0.0-preview2, published on Dec 23, 2019.
-You can select and download it above.
 
 ### Link with Spark
 Spark artifacts are [hosted in Maven Central](https://search.maven.org/search?q=g:org.apache.spark). You can add a Maven dependency with the following coordinates:
