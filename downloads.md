@@ -26,7 +26,7 @@ $(document).ready(function() {
 
 4. Verify this release using the <span id="sparkDownloadVerify"></span> and [project release KEYS](https://downloads.apache.org/spark/KEYS).
 
-Note that, Spark is pre-built with Scala 2.11 except version 2.4.2, which is pre-built with Scala 2.12.
+Note that, Spark 2.x is pre-built with Scala 2.11 except version 2.4.2, which is pre-built with Scala 2.12. Spark 3.0+ is pre-built with Scala 2.12.
 
 ### Latest Preview Release
 Preview releases, as the name suggests, are releases for previewing upcoming features.
@@ -42,7 +42,7 @@ Spark artifacts are [hosted in Maven Central](https://search.maven.org/search?q=
 
     groupId: org.apache.spark
     artifactId: spark-core_2.11
-    version: 2.4.6
+    version: 3.0.0
 
 ### Installing with PyPi
 <a href="https://pypi.org/project/pyspark/">PySpark</a> is now available in pypi. To install just run `pip install pyspark`.

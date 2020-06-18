@@ -23,7 +23,7 @@ var packagesV9 = [hadoop2p7, hadoop2p6, hadoopFree, scala2p12_hadoopFree, source
 // 3.0.0+
 var packagesV10 = [hadoop2p7, hadoop3p2, hadoopFree, sources];
 
-addRelease("3.0.0-preview2", new Date("12/23/2019"), packagesV10, true);
+addRelease("3.0.0", new Date("06/10/2020"), packagesV10, true);
 addRelease("2.4.6", new Date("06/05/2020"), packagesV9, true);
 
 function append(el, contents) {
