@@ -11,7 +11,7 @@ meta:
   _wpas_done_all: '1'
 ---
 
-Apache Spark 3.0.0 is the first release of the 3.x line. Apache Spark 3.0 builds on many of the innovations from Spark 2.x, bringing new ideas as well as continuing long-term projects that have been in development. With the help of tremendous contributions from the open-source community, this release resolved more than 3400 tickets as the result of contributions from over 440 contributors.
+Apache Spark 3.0.0 is the first release of the 3.x line. The vote passed on the 10th of June, 2020. This release is based on git tag `v3.0.0` which includes all commits up to June 10. Apache Spark 3.0 builds on many of the innovations from Spark 2.x, bringing new ideas as well as continuing long-term projects that have been in development. With the help of tremendous contributions from the open-source community, this release resolved more than 3400 tickets as the result of contributions from over 440 contributors.
 
 This year is Spark's 10-year anniversary as an open source project. Since its initial release in 2010, Spark has grown to be one of the most active open source projects. Nowadays, Spark is the de facto unified engine for big data processing, data science, machine learning and data analytics workloads.
 
