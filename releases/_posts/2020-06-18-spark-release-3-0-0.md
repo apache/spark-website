@@ -315,8 +315,8 @@ Please read the [migration guide](https://spark.apache.org/docs/3.0.0/sparkr-mig
 
 ### Known Issues
 
-  - Streaming queries with `dropDuplicates` operator may not be able to restart with the checkpoint written by Spark 2.x. ([SPARK-31990](https://issues.apache.org/jira/browse/SPARK-31990))
-  - In Web UI, the job list page may hang for more than 40 seconds. ([SPARK-31967](https://issues.apache.org/jira/browse/SPARK-31967))
+  - Streaming queries with `dropDuplicates` operator may not be able to restart with the checkpoint written by Spark 2.x. This will be fixed in Spark 3.0.1. ([SPARK-31990](https://issues.apache.org/jira/browse/SPARK-31990))
+  - In Web UI, the job list page may hang for more than 40 seconds. This will be fixed in Spark 3.0.1. ([SPARK-31967](https://issues.apache.org/jira/browse/SPARK-31967))
   - Set `io.netty.tryReflectionSetAccessible` for Arrow on JDK9+ ([SPARK-29923](https://issues.apache.org/jira/browse/SPARK-29923))
   - With AWS SDK upgrade to 1.11.655, we strongly encourage the users that use S3N file system (open-source NativeS3FileSystem that is based on jets3t library) on Hadoop 2.7.3 to upgrade to use AWS Signature V4 and set the bucket endpoint or migrate to S3A (“s3a://” prefix) - jets3t library uses AWS v2 by default and s3.amazonaws.com as an endpoint. Otherwise, the 403 Forbidden error may be thrown in the following cases:
     - If a user accesses an S3 path that contains “+” characters and uses the legacy S3N file system, e.g. s3n://bucket/path/+file.
@@ -324,9 +324,9 @@ Please read the [migration guide](https://spark.apache.org/docs/3.0.0/sparkr-mig
 
     Note that if you use S3AFileSystem, e.g. (“s3a://bucket/path”) to access S3 in S3Select or SQS connectors, then everything will work as expected. ([SPARK-30968](https://issues.apache.org/jira/browse/SPARK-30968))
 
-  - Parsing day of year using pattern letter 'D' returns the wrong result if the year field is missing. This can happen in SQL functions like `to_timestamp` which parses datetime string to datetime values using a pattern string. ([SPARK-31939](https://issues.apache.org/jira/browse/SPARK-31939))
-  - Join/Window/Aggregate inside subqueries may lead to wrong results if the keys have values -0.0 and 0.0. ([SPARK-31958](https://issues.apache.org/jira/browse/SPARK-31958))
-  - A window query may fail with ambiguous self-join error unexpectedly. ([SPARK-31956](https://issues.apache.org/jira/browse/SPARK-31956))
+  - Parsing day of year using pattern letter 'D' returns the wrong result if the year field is missing. This can happen in SQL functions like `to_timestamp` which parses datetime string to datetime values using a pattern string. This will be fixed in Spark 3.0.1. ([SPARK-31939](https://issues.apache.org/jira/browse/SPARK-31939))
+  - Join/Window/Aggregate inside subqueries may lead to wrong results if the keys have values -0.0 and 0.0. This will be fixed in Spark 3.0.1. ([SPARK-31958](https://issues.apache.org/jira/browse/SPARK-31958))
+  - A window query may fail with ambiguous self-join error unexpectedly. This will be fixed in Spark 3.0.1. ([SPARK-31956](https://issues.apache.org/jira/browse/SPARK-31956))
 
 
 ### Credits
