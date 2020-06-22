@@ -18,6 +18,39 @@ non-public list that will reach the Apache Security team, as well as the Spark P
 
 <h2>Known Security Issues</h2>
 
+<h3 id="CVE-2020-9480">CVE-2020-9480: Apache Spark RCE vulnerability in auth-enabled standalone master</h3>
+
+Severity: Important
+
+Vendor: The Apache Software Foundation
+
+Versions Affected:
+
+- Apache Spark 2.4.5 and earlier
+
+Description:
+
+In Apache Spark 2.4.5 and earlier, a standalone resource manager's master may
+be configured to require authentication (`spark.authenticate`) via a
+shared secret. When enabled, however, a specially-crafted RPC to the
+master can succeed in starting an application's resources on the Spark
+cluster, even without the shared key. This can be leveraged to execute
+shell commands on the host machine.
+
+This does not affect Spark clusters using other resource managers
+(YARN, Mesos, etc).
+
+
+Mitigation:
+
+- Users should update to Spark 2.4.6 or 3.0.0.
+- Where possible, network access to the cluster machines should be restricted to trusted hosts only.
+
+Credit:
+
+- Ayoub Elaassal
+
+
 <h3 id="CVE-2019-10099">CVE-2019-10099: Apache Spark unencrypted data on local disk</h3>
 
 Severity: Important
