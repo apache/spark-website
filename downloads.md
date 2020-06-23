@@ -40,7 +40,7 @@ The latest preview release is Spark 3.0.0-preview2, published on Dec 23, 2019.
 Spark artifacts are [hosted in Maven Central](https://search.maven.org/search?q=g:org.apache.spark). You can add a Maven dependency with the following coordinates:
 
     groupId: org.apache.spark
-    artifactId: spark-core_2.11
+    artifactId: spark-core_2.12
     version: 3.0.0
 
 ### Installing with PyPi
