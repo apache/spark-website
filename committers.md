@@ -50,6 +50,7 @@ navigation:
 |Davies Liu|Juicedata|
 |Cheng Lian|Databricks|
 |Yanbo Liang|Facebook|
+|Jungtaek Lim|Cloudera|
 |Sean McNamara|Oracle|
 |Xiangrui Meng|Databricks|
 |Mridul Muralidharam|Google|
