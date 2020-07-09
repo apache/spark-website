@@ -12,6 +12,7 @@ navigation:
 |----|------------|
 |Sameer Agarwal|Facebook|
 |Michael Armbrust|Databricks|
+|Dilip Biswal|Adobe|
 |Ryan Blue|Netflix|
 |Joseph Bradley|Databricks|
 |Matthew Cheah|Palantir|
