@@ -435,6 +435,44 @@ Error:(147, 9) value q is not a member of StringContext
         q"""
         ^ 
 ```
+
+<h4>Debugging Spark unit tests with Intellj and Maven</h4>
+This part will show how to debug spark locally with maven.
+
+- Once the spark project in imported as a maven project install spark using the following command.
+    ```
+    $ ./build/mvn -DskipTests clean install
+    ``` 
+    Then open the maven tab in Intellij(usually present in the top right corner) and reload all maven projects.
+    Now, open any unit test and right click on the play button for debugging options. A good way to test 
+    your changes or understand some part of the code is to write a dummy unit test, add a few breakpoints
+    to the part of the code that you are interested in and run the debugger. You could right click on a test Suite
+    and debug/run all tests in that Suite
+
+- To keep your development spark from polluting your .m2 cache you can specify a custom maven repository location
+during install.
+    ```
+    $ ./build/mvn -DskipTests clean install -Dmaven.repo.local=/Users/dummyuser/repos/Jiras/SPARK-xyz/.m2
+    ```
+    Accordingly Intellij has to be configured to point to this custom location of m2 cache. To do this
+
+    Go to Preferences> search for maven > Local Repository > Click the override button> update the new location 
+
+-  It is sometimes necessary to stop only a specific thread at a break point. For example, you might want to see the 
+Spark UI at particular break point during your debugging session. In that case right click on the break point and select
+"Thread" option. This will cause the execution in the current thread to pause and will let the other threads continue.   
+
+- When running unit tests for the whole project or a module you might run something like this in a terminal
+    ```
+    $ ./build/mvn -pl sql/hive clean test
+    ``` 
+    You can run the same in Intellij instead of terminal. 
+    Go to Maven Tab > Click on the 'm'(execute maven goal) icon and paste your maven command.
+    The advantage of running there maven command here instead of the terminal is that you get a clickable stacktrace 
+    when there are test failures. This helps in navigating the code easily. You might want to increase the size limit
+    of your console output so that the logs will not be swallowed. Typically, setting it to 10MB is good enough. 
+      
+
 <h4>Debug Spark Remotely</h4>
 This part will show you how to debug Spark remotely with IntelliJ.
 
