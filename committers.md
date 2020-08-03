@@ -55,7 +55,7 @@ navigation:
 |Jungtaek Lim|Cloudera|
 |Sean McNamara|Oracle|
 |Xiangrui Meng|Databricks|
-|Mridul Muralidharam|Google|
+|Mridul Muralidharan|LinkedIn|
 |Andrew Or|Princeton University|
 |Kay Ousterhout|LightStep|
 |Sean Owen|Databricks|
