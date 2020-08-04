@@ -52,6 +52,9 @@ Spark artifacts are [hosted in Maven Central](https://search.maven.org/search?q=
 
 ### Archived Releases
 
-As new Spark releases come out for each development stream, previous ones will be archived, but they are still available at [Spark release archives](https://archive.apache.org/dist/spark/).
+As new Spark releases come out for each development stream, previous ones will be archived,
+but they are still available at [Spark release archives](https://archive.apache.org/dist/spark/).
 
-
+**NOTE**: Previous releases of Spark may be affected by security issues. Please consult the
+[Security](security.html) page for a list of known issues that may affect the version you download
+before deciding to use it.
