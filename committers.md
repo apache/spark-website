@@ -139,7 +139,7 @@ PRs shall not be merged during active, on-topic discussion unless they address i
 Lazy consensus requires giving time for discussion to settle while understanding that people may not be working on Spark as their full-time job and may take holidays. It is believed that by doing this, we can limit how often people feel the need to exercise their veto.
 
 
-All -1s with justification merit discussion.  A -1 from a non-committer can be overridden only with input from multiple committers, and suitable time must be offered for any committer to raise concerns. A -1 from a committer who cannot be reached requires a consensus vote of the PMC under ASF voting rules to determine the next steps within the ASF guidelines for code vetoes ( https://www.apache.org/foundation/voting.html ).
+All -1s with justification merit discussion.  A -1 from a non-committer can be overridden only with input from multiple committers, and suitable time must be offered for any committer to raise concerns. A -1 from a committer who cannot be reached requires a consensus vote of the PMC under ASF voting rules to determine the next steps within the [ASF guidelines for code vetoes](https://www.apache.org/foundation/voting.html).
 
 
 These policies serve to reiterate the core principle that code must not be merged with a pending veto or before a consensus has been reached (lazy or otherwise).
