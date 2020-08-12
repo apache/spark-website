@@ -132,6 +132,27 @@ In particular, if you are working on an area of the codebase you are unfamiliar 
 Git history for that code to see who reviewed patches before. You can do this using 
 `git log --format=full <filename>`, by examining the "Commit" field to see who committed each patch.
 
+<h3>When to commit/merge a pull request</h3>
+
+PRs shall not be merged during active, on-topic discussion unless they address issues such as critical security fixes of a public vulnerability. Under extenuating circumstances, PRs may be merged during active, off-topic discussion and the discussion directed to a more appropriate venue. Time should be given prior to merging for those involved with the conversation to explain if they believe they are on-topic.
+
+Lazy consensus requires giving time for discussion to settle while understanding that people may not be working on Spark as their full-time job and may take holidays. It is believed that by doing this, we can limit how often people feel the need to exercise their veto.
+
+
+All -1s with justification merit discussion.  A -1 from a non-committer can be overridden only with input from multiple committers, and suitable time must be offered for any committer to raise concerns. A -1 from a committer who cannot be reached requires a consensus vote of the PMC under ASF voting rules to determine the next steps within the ASF guidelines for code vetoes ( https://www.apache.org/foundation/voting.html ).
+
+
+These policies serve to reiterate the core principle that code must not be merged with a pending veto or before a consensus has been reached (lazy or otherwise).
+
+
+It is the PMC’s hope that vetoes continue to be infrequent, and when they occur, that all parties will take the time to build consensus prior to additional feature work.
+
+
+Being a committer means exercising your judgement while working in a community of people with diverse views. There is nothing wrong in getting a second (or third or fourth) opinion when you are uncertain. Thank you for your dedication to the Spark project; it is appreciated by the developers and users of Spark.
+
+
+It is hoped that these guidelines do not slow down development; rather, by removing some of the uncertainty, the goal is to make it easier for us to reach consensus. If you have ideas on how to improve these guidelines or other Spark project operating procedures, you should reach out on the dev@ list to start the discussion.
+
 <h3>How to Merge a Pull Request</h3>
 
 Changes pushed to the master branch on Apache cannot be removed; that is, we can't force-push to 
