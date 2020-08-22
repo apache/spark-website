@@ -231,13 +231,13 @@ Kubernetes, and more importantly, minikube have rapid release cycles, and point 
 <h3>Running tests in your forked repository using GitHub Actions</h3>
 
 GitHub Actions is a functionality within GitHub that enables continuous integration and a wide range of automation.
-We have already started using some action scripts and one of them is to run tests for Pull Requests.
-If you are planning to create a new Pull Request, it is important to check if tests can pass on your branch before creating a Pull Request.
-This is because our GitHub Acrions script automatically runs tests for your Pull Request/following commits and
+We already have started using some action scripts and one of them is to run tests for [pull requests](https://spark.apache.org/contributing.html).
+If you are planning to create a new pull request, it is important to check if tests can pass on your branch before creating a pull request.
+This is because our GitHub Acrions script automatically runs tests for your pull request/following commits and
 this can burden our limited resources of GitHub Actions.
 
 Our script enables you to run tests for a branch in your forked repository.
-Let's say that you have a branch named "your_branch" for a Pull Request.
+Let's say that you have a branch named "your_branch" for a pull request.
 To run tests on "your_branch" and check test results:
 
 - Clicks a "Actions" tab in your forked repository.
