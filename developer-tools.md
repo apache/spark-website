@@ -228,6 +228,25 @@ Getting logs from the pods and containers directly is an exercise left to the re
 
 Kubernetes, and more importantly, minikube have rapid release cycles, and point releases have been found to be buggy and/or break older and existing functionality.  If you are having trouble getting tests to pass on Jenkins, but locally things work, don't hesitate to file a Jira issue.
 
+<h3>Running tests in your forked repository using GitHub Actions</h3>
+
+GitHub Actions is a functionality within GitHub that enables continuous integration and a wide range of automation.
+We already have started using some action scripts and one of them is to run tests for [pull requests](https://spark.apache.org/contributing.html).
+If you are planning to create a new pull request, it is important to check if tests can pass on your branch before creating a pull request.
+This is because our GitHub Acrions script automatically runs tests for your pull request/following commits and
+this can burden our limited resources of GitHub Actions.
+
+Our script enables you to run tests for a branch in your forked repository.
+Let's say that you have a branch named "your_branch" for a pull request.
+To run tests on "your_branch" and check test results:
+
+- Clicks a "Actions" tab in your forked repository.
+- Selects a "Build and test" workflow in a "All workflows" list.
+- Pushes a "Run workflow" button and enters "your_branch" in a "Target branch to run" field.
+- When a "Build and test" workflow finished, clicks a "Report test results" workflow to check test results.
+
+<img src="/images/running-tests-using-github-actions.png" style="width: 100%; max-width: 800px;" />
+
 <h3>ScalaTest Issues</h3>
 
 If the following error occurs when running ScalaTest
