@@ -90,3 +90,7 @@ transforming, and analyzing genomic data using Apache Spark
 <h3>Julia</h3>
 
 - <a href="https://github.com/dfdx/Spark.jl">Spark.jl</a>
+
+<h3>Kotlin</h3>
+
+- <a href="https://github.com/JetBrains/kotlin-spark-api">Kotlin for Apache Spark</a>
