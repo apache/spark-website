@@ -43,8 +43,8 @@ After generating the gpg key, you need to upload your key to a public key server
 <a href="https://www.apache.org/dev/openpgp.html#generate-key">https://www.apache.org/dev/openpgp.html#generate-key</a>
 for details.
 
-If you want to do the release on another machine, you can transfer your gpg key to that machine
-via the `gpg --export` and `gpg --import` commands.
+If you want to do the release on another machine, you can transfer your secret key to that machine
+via the `gpg --export-secret-keys` and `gpg --import` commands.
 
 The last step is to update the KEYS file with your code signing key
 <a href="https://www.apache.org/dev/openpgp.html#export-public-key">https://www.apache.org/dev/openpgp.html#export-public-key</a>
