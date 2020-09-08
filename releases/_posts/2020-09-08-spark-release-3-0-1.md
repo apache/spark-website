@@ -22,6 +22,7 @@ Spark 3.0.1 is a maintenance release containing stability fixes. This release is
   - [[SPARK-31935]](https://issues.apache.org/jira/browse/SPARK-31935): Hadoop file system config should be effective in data source options 
   - [[SPARK-31968]](https://issues.apache.org/jira/browse/SPARK-31968): write.partitionBy() creates duplicate subdirectories when user provides duplicate columns
   - [[SPARK-31983]](https://issues.apache.org/jira/browse/SPARK-31983): Tables of structured streaming tab show wrong result for duration column
+  - [[SPARK-31990]](https://issues.apache.org/jira/browse/SPARK-31990): Streaming's state store compatibility is broken
   - [[SPARK-32003]](https://issues.apache.org/jira/browse/SPARK-32003): Shuffle files for lost executor are not unregistered if fetch failure occurs after executor is lost
   - [[SPARK-32038]](https://issues.apache.org/jira/browse/SPARK-32038): Regression in handling NaN values in COUNT(DISTINCT)
   - [[SPARK-32073]](https://issues.apache.org/jira/browse/SPARK-32073): Drop R < 3.5 support
@@ -36,6 +37,7 @@ Spark 3.0.1 is a maintenance release containing stability fixes. This release is
   - [[SPARK-32456]](https://issues.apache.org/jira/browse/SPARK-32456): Check the Distinct by assuming it as Aggregate for Structured Streaming
   - [[SPARK-32608]](https://issues.apache.org/jira/browse/SPARK-32608): Script Transform DELIMIT value should be formatted
   - [[SPARK-32646]](https://issues.apache.org/jira/browse/SPARK-32646): ORC predicate pushdown should work with case-insensitive analysis
+  - [[SPARK-32658]](https://issues.apache.org/jira/browse/SPARK-32658): Partition length number overflow in PartitionWriterStream
   - [[SPARK-32676]](https://issues.apache.org/jira/browse/SPARK-32676): Fix double caching in KMeans/BiKMeans
 
 
