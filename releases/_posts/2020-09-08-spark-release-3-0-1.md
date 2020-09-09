@@ -42,10 +42,10 @@ Spark 3.0.1 is a maintenance release containing stability fixes. This release is
 
 
 ### Known issues
-  - [[SPARK-31511]](https://issues.apache.org/jira/browse/SPARK-31511): Make BytesToBytesMap iterator() thread-safe
-  - [[SPARK-32779]](https://issues.apache.org/jira/browse/SPARK-32779): Spark/Hive3 interaction potentially causes deadlock
-  - [[SPARK-32788]](https://issues.apache.org/jira/browse/SPARK-32788): non-partitioned table scan should not have partition filter
-  - [[SPARK-32810]](https://issues.apache.org/jira/browse/SPARK-32810): CSV/JSON data sources should avoid globbing paths when inferring schema
+  - [[SPARK-31511]](https://issues.apache.org/jira/browse/SPARK-31511): Make BytesToBytesMap iterator() thread-safe. This will be fixed in Spark 3.0.2.
+  - [[SPARK-32779]](https://issues.apache.org/jira/browse/SPARK-32779): Spark/Hive3 interaction potentially causes deadlock. This will be fixed in Spark 3.0.2.
+  - [[SPARK-32788]](https://issues.apache.org/jira/browse/SPARK-32788): non-partitioned table scan should not have partition filter. This will be fixed in Spark 3.0.2.
+  - [[SPARK-32810]](https://issues.apache.org/jira/browse/SPARK-32810): CSV/JSON data sources should avoid globbing paths when inferring schema. This will be fixed in Spark 3.0.2.
 
 You can consult JIRA for the [detailed changes](https://s.apache.org/spark-3.0.1).
 
