@@ -34,7 +34,7 @@ navigation:
 |Mark Hamstra|ClearStory Data|
 |Seth Hendrickson|Cloudera|
 |Herman van Hovell|Databricks|
-|Liang-Chi Hsieh|Uber|
+|Liang-Chi Hsieh|Apple|
 |Yin Huai|Databricks|
 |Shane Huang|Intel|
 |Dongjoon Hyun|Apple|
