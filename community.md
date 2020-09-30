@@ -189,6 +189,9 @@ Spark Meetups are grass-roots events organized and hosted by individuals in the 
   <li>
     <a href="https://www.meetup.com/Washington-DC-Area-Spark-Interactive/">Washington DC Area Spark Meetup</a>
   </li>
+  <li>
+    <a href="https://www.meetup.com/es/Apache-Spark-Bogota/">Bogotá Spark Meetup</a>
+  </li>
 </ul>
 
 <p>If you'd like your meetup or conference added, please email <a href="mailto:user@spark.apache.org">user@spark.apache.org</a>.</p>
