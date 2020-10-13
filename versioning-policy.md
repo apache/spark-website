@@ -109,7 +109,7 @@ in between feature releases. Major releases do not happen according to a fixed s
 | ----- | ----- |
 | Early Dec 2020 | Code freeze. Release branch cut.|
 | Mid Dec 2020 | QA period. Focus on bug fixes, tests, stability and docs. Generally, no new features merged.|
-| Early Jan 2020 | Release candidates (RC), voting, etc. until final release passes|
+| Early Jan 2021 | Release candidates (RC), voting, etc. until final release passes|
 
 <h2>Maintenance Releases and EOL</h2>
 
