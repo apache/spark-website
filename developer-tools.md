@@ -267,7 +267,7 @@ it's due to a classpath issue (some classes were probably not compiled). To fix 
 sufficient to run a test from the command line:
 
 ```
-build/sbt "test-only org.apache.spark.rdd.SortingSuite"
+build/sbt "testOnly org.apache.spark.rdd.SortingSuite"
 ```
 
 <h3>Running Different Test Permutations on Jenkins</h3>
