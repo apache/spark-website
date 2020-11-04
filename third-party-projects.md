@@ -82,6 +82,7 @@ transforming, and analyzing genomic data using Apache Spark
 <h3>Clojure</h3>
 
 - <a href="https://github.com/TheClimateCorporation/clj-spark">clj-spark</a>
+- <a href="https://github.com/zero-one-group/geni">Geni</a>: a Clojure dataframe library that runs on Apache Spark.
 
 <h3>Groovy</h3>
 
