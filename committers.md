@@ -16,7 +16,7 @@ navigation:
 |Ryan Blue|Netflix|
 |Joseph Bradley|Databricks|
 |Matthew Cheah|Palantir|
-|Felix Cheung|Uber|
+|Felix Cheung|SafeGraph|
 |Mosharaf Chowdhury|University of Michigan, Ann Arbor|
 |Bryan Cutler|IBM|
 |Jason Dai|Intel|
