@@ -88,6 +88,12 @@ and external data sources, driving holistic and actionable insights.
   - We provided a <a href="https://www.databricks.com/product">cloud-optimized platform</a>
     to run Spark and ML applications on Amazon Web Services and Azure, as well as a comprehensive
     <a href="https://databricks.com/training">training program</a>.
+- <a href="https://www.datamechanics.co">Data Mechanics</a>
+  - Data Mechanics is a cloud-native Spark platform that can be deployed on a Kubernetes cluster
+    inside its customers AWS, GCP, or Azure cloud environments.
+  - Our focus is to make Spark easy-to-use and cost-effective for data engineering workloads.
+    We also develop the free, cross-platform, and partially open-source Spark monitoring tool 
+    <a href="https://www.datamechanics.co/delight">Data Mechanics Delight.</a>  
 - <a href="https://datapipelines.com">Data Pipelines</a>
   - Build and schedule ETL pipelines step-by-step via a simple no-code UI.
 - <a href="http://dianping.com">Dianping.com</a>
