@@ -71,7 +71,9 @@ transforming, and analyzing genomic data using Apache Spark
 - <a href="http://rumbledb.org">Rumble for Apache Spark</a> - A JSONiq engine to query, with a functional language, large, nested, and heterogeneous JSON datasets that do not fit in dataframes.
 
 <h2>Performance, Monitoring, and Debugging Tools for Spark</h2>
+
 - <a href="https://github.com/g1thubhub/phil_stopwatch">Performance and debugging library</a> - A library to analyze Spark and PySpark applications for improving performance and finding the cause of failures
+- <a href="https://www.datamechanics.co/delight">Data Mechanics Delight</a> - Delight is a free, hosted, cross-platform Spark UI alternative backed by an open-source Spark agent. It features new metrics and visualizations to simplify Spark monitoring and performance tuning.
 
 <h2>Additional Language Bindings</h2>
 
