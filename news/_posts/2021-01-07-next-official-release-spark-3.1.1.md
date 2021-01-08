@@ -12,7 +12,7 @@ meta:
   _wpas_done_all: '1'
 ---
 The next official Spark release is Spark 3.1.1 instead of Spark 3.1.0.
-There was an accident during Spark 3.1.0 RC1 preparation,
+There was a technical issue during Spark 3.1.0 RC1 preparation,
 see [[VOTE] Release Spark 3.1.0 (RC1)](https://www.mail-archive.com/dev@spark.apache.org/msg27133.html) in the Spark dev mailing list.
 
 In short, Spark 3.1.0 RC1 was [unexpectedly published into Maven as Spark 3.1.0](https://repo1.maven.org/maven2/org/apache/spark/spark-core_2.12/3.1.0/)
