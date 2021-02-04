@@ -26,9 +26,7 @@ Apache Spark. You can add a package as long as you have a GitHub repository.
 <h2>Infrastructure Projects</h2>
 
 - <a href="https://github.com/spark-jobserver/spark-jobserver">REST Job Server for Apache Spark</a> - 
-REST interface for managing and submitting Spark jobs on the same cluster 
-(see <a href="http://engineering.ooyala.com/blog/open-sourcing-our-spark-job-server">blog post</a> 
-for details)
+REST interface for managing and submitting Spark jobs on the same cluster.
 - <a href="http://mlbase.org/">MLbase</a> - Machine Learning research project on top of Spark
 - <a href="https://mesos.apache.org/">Apache Mesos</a> - Cluster management system that supports 
 running Spark
