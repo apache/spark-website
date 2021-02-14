@@ -229,7 +229,7 @@ spark-website directly, otherwise you need to re-build the docs.
 # Build the latest docs
 $ git checkout v1.1.1
 $ cd docs
-$ PRODUCTION=1 jekyll build
+$ PRODUCTION=1 bundle exec jekyll build
 
 # Copy the new documentation to Apache
 $ git clone https://github.com/apache/spark-website
@@ -262,7 +262,7 @@ pick the release version from the list, then click on "Release Notes". Copy this
 `spark-2.1.2`. Create a new release post under `releases/_posts` to include this short URL. The date of the post should
 be the date you create it.
 
-Then run `jekyll build` to update the `site` directory.
+Then run `bundle exec jekyll build` to update the `site` directory.
 
 After merging the change into the `asf-site` branch, you may need to create a follow-up empty
 commit to force synchronization between ASF's git and the web site, and also the GitHub mirror.
@@ -330,6 +330,6 @@ when the branch is no longer maintained. "2.3.2" will become "2.3.3" when "2.3.3
 
 Once everything is working (website docs, website changes) create an announcement on the website
 and then send an e-mail to the mailing list. To create an announcement, create a post under
-`news/_posts` and then run `jekyll build`.
+`news/_posts` and then run `bundle exec jekyll build`.
 
 Enjoy an adult beverage of your choice, and congratulations on making a Spark release.

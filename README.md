@@ -2,10 +2,10 @@
 
 In this directory you will find text files formatted using Markdown, with an `.md` suffix.
 
-Building the site requires [Jekyll](http://jekyllrb.com/docs) 3.6.3 and
-[Rouge](https://github.com/rouge-ruby/rouge) 2.2.1 which is specified in the `Gemfile`.
-The easiest way to install the right version of these tools is running `bundle install`
-in this directory.
+Building the site requires [Jekyll](http://jekyllrb.com/docs)
+[Rouge](https://github.com/rouge-ruby/rouge).
+The easiest way to install the right version of these tools is using the
+[Bundler](https://bundler.io/) and running `bundle install` in this directory.
 
 See also https://github.com/apache/spark/blob/master/docs/README.md
 
@@ -20,6 +20,14 @@ the web server on port 4000, then visit the site at http://localhost:4000.
 
 Please make sure you always run `bundle exec jekyll build` after testing your changes with
 `bundle exec jekyll serve`, otherwise you end up with broken links in a few places.
+
+## Updating Jekyll version
+
+To update `Jekyll` or any other gem please follow these steps:
+
+1. Update the version in the `Gemfile`
+1. Run `bundle update` which updates the `Gemfile.lock`
+1. Commit both files
 
 ## Docs sub-dir
 
