@@ -194,10 +194,12 @@ Once you have minikube properly set up, and have successfully completed the [qui
 ```
 export DATE=`date "+%Y%m%d"`
 export REVISION=`git rev-parse --short HEAD`
-export ZINC_PORT=$(python -S -c "import random; print random.randrange(3030,4030)")
+export ZINC_PORT=$(python -S -c "import random; print(random.randrange(3030,4030))")
+export HADOOP_PROFILE=hadoop-2.7
 
 ./dev/make-distribution.sh --name ${DATE}-${REVISION} --pip --tgz -DzincPort=${ZINC_PORT} \
-     -Phadoop-2.7 -Pkubernetes -Pkinesis-asl -Phive -Phive-thriftserver
+     -P$HADOOP_PROFILE -Pkubernetes -Pkinesis-asl -Phive -Phive-thriftserver
+export TARBALL_TO_TEST=($(pwd)/spark-*${DATE}-${REVISION}.tgz)
 ```
 
 2) Use that tarball and run the K8S integration tests:
@@ -208,23 +210,22 @@ export PVC_TESTS_HOST_PATH=$PVC_TMP_DIR
 export PVC_TESTS_VM_PATH=$PVC_TMP_DIR
 
 minikube --vm-driver=<YOUR VM DRIVER HERE> start --memory 6000 --cpus 8
+minikube config set kubernetes-version v1.13.3
 
-minikube mount ${PVC_TESTS_HOST_PATH}:${PVC_TESTS_VM_PATH} --9p-version=9p2000.L --gid=0 --uid=185 &
-
-MOUNT_PID=$(jobs -rp)
+minikube mount ${PVC_TESTS_HOST_PATH}:${PVC_TESTS_VM_PATH} --9p-version=9p2000.L --gid=0 --uid=185 &; MOUNT_PID=$!
 
 kubectl create clusterrolebinding serviceaccounts-cluster-admin --clusterrole=cluster-admin --group=system:serviceaccounts || true
 
 ./resource-managers/kubernetes/integration-tests/dev/dev-run-integration-tests.sh \
-    --spark-tgz ${WORKSPACE}/spark-*.tgz
+    --spark-tgz $TARBALL_TO_TEST --hadoop-profile $HADOOP_PROFILE
 
 kill -9 $MOUNT_PID
 minikube stop
 ```
 
-After the run is completed, the integration test logs are saved here:  `./resource-managers/kubernetes/integration-tests/target/integration-tests.log`
+After the run is completed, the integration test logs are saved here: `./resource-managers/kubernetes/integration-tests/target/integration-tests.log`.
 
-Getting logs from the pods and containers directly is an exercise left to the reader.
+In case of a failure the POD logs (driver and executors) can be found at the end of the failed test (within `integration-tests.log`) in the `EXTRA LOGS FOR THE FAILED TEST` section.
 
 Kubernetes, and more importantly, minikube have rapid release cycles, and point releases have been found to be buggy and/or break older and existing functionality.  If you are having trouble getting tests to pass on Jenkins, but locally things work, don't hesitate to file a Jira issue.
 
