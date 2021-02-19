@@ -1,0 +1,96 @@
+<div class="codehilite"><pre><span></span><code><span class="c1">-- from_json</span>
+<span class="k">SELECT</span> <span class="n">from_json</span><span class="p">(</span><span class="s1">&#39;{&quot;a&quot;:1, &quot;b&quot;:0.8}&#39;</span><span class="p">,</span> <span class="s1">&#39;a INT, b DOUBLE&#39;</span><span class="p">);</span>
+<span class="o">+</span><span class="c1">---------------------------+</span>
+<span class="o">|</span><span class="n">from_json</span><span class="p">(</span><span class="err">{</span><span class="ss">&quot;a&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="ss">&quot;b&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">.</span><span class="mi">8</span><span class="err">}</span><span class="p">)</span><span class="o">|</span>
+<span class="o">+</span><span class="c1">---------------------------+</span>
+<span class="o">|</span>                   <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">8</span><span class="p">]</span><span class="o">|</span>
+<span class="o">+</span><span class="c1">---------------------------+</span>
+
+<span class="k">SELECT</span> <span class="n">from_json</span><span class="p">(</span><span class="s1">&#39;{&quot;time&quot;:&quot;26/08/2015&quot;}&#39;</span><span class="p">,</span> <span class="s1">&#39;time Timestamp&#39;</span><span class="p">,</span> <span class="k">map</span><span class="p">(</span><span class="s1">&#39;timestampFormat&#39;</span><span class="p">,</span> <span class="s1">&#39;dd/MM/yyyy&#39;</span><span class="p">));</span>
+<span class="o">+</span><span class="c1">--------------------------------+</span>
+<span class="o">|</span><span class="n">from_json</span><span class="p">(</span><span class="err">{</span><span class="ss">&quot;time&quot;</span><span class="p">:</span><span class="ss">&quot;26/08/2015&quot;</span><span class="err">}</span><span class="p">)</span><span class="o">|</span>
+<span class="o">+</span><span class="c1">--------------------------------+</span>
+<span class="o">|</span>            <span class="p">[</span><span class="mi">2015</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">26</span> <span class="mi">00</span><span class="p">:</span><span class="mi">00</span><span class="p">...</span><span class="o">|</span>
+<span class="o">+</span><span class="c1">--------------------------------+</span>
+
+<span class="c1">-- get_json_object</span>
+<span class="k">SELECT</span> <span class="n">get_json_object</span><span class="p">(</span><span class="s1">&#39;{&quot;a&quot;:&quot;b&quot;}&#39;</span><span class="p">,</span> <span class="s1">&#39;$.a&#39;</span><span class="p">);</span>
+<span class="o">+</span><span class="c1">-------------------------------+</span>
+<span class="o">|</span><span class="n">get_json_object</span><span class="p">(</span><span class="err">{</span><span class="ss">&quot;a&quot;</span><span class="p">:</span><span class="ss">&quot;b&quot;</span><span class="err">}</span><span class="p">,</span> <span class="err">$</span><span class="p">.</span><span class="n">a</span><span class="p">)</span><span class="o">|</span>
+<span class="o">+</span><span class="c1">-------------------------------+</span>
+<span class="o">|</span>                              <span class="n">b</span><span class="o">|</span>
+<span class="o">+</span><span class="c1">-------------------------------+</span>
+
+<span class="c1">-- json_tuple</span>
+<span class="k">SELECT</span> <span class="n">json_tuple</span><span class="p">(</span><span class="s1">&#39;{&quot;a&quot;:1, &quot;b&quot;:2}&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">);</span>
+<span class="o">+</span><span class="c1">---+---+</span>
+<span class="o">|</span> <span class="n">c0</span><span class="o">|</span> <span class="n">c1</span><span class="o">|</span>
+<span class="o">+</span><span class="c1">---+---+</span>
+<span class="o">|</span>  <span class="mi">1</span><span class="o">|</span>  <span class="mi">2</span><span class="o">|</span>
+<span class="o">+</span><span class="c1">---+---+</span>
+
+<span class="c1">-- schema_of_json</span>
+<span class="k">SELECT</span> <span class="n">schema_of_json</span><span class="p">(</span><span class="s1">&#39;[{&quot;col&quot;:0}]&#39;</span><span class="p">);</span>
+<span class="o">+</span><span class="c1">---------------------------+</span>
+<span class="o">|</span><span class="n">schema_of_json</span><span class="p">([</span><span class="err">{</span><span class="ss">&quot;col&quot;</span><span class="p">:</span><span class="mi">0</span><span class="err">}</span><span class="p">])</span><span class="o">|</span>
+<span class="o">+</span><span class="c1">---------------------------+</span>
+<span class="o">|</span>       <span class="nb">array</span><span class="o">&lt;</span><span class="n">struct</span><span class="o">&lt;</span><span class="n">col</span><span class="p">:...</span><span class="o">|</span>
+<span class="o">+</span><span class="c1">---------------------------+</span>
+
+<span class="k">SELECT</span> <span class="n">schema_of_json</span><span class="p">(</span><span class="s1">&#39;[{&quot;col&quot;:01}]&#39;</span><span class="p">,</span> <span class="k">map</span><span class="p">(</span><span class="s1">&#39;allowNumericLeadingZeros&#39;</span><span class="p">,</span> <span class="s1">&#39;true&#39;</span><span class="p">));</span>
+<span class="o">+</span><span class="c1">----------------------------+</span>
+<span class="o">|</span><span class="n">schema_of_json</span><span class="p">([</span><span class="err">{</span><span class="ss">&quot;col&quot;</span><span class="p">:</span><span class="mi">01</span><span class="err">}</span><span class="p">])</span><span class="o">|</span>
+<span class="o">+</span><span class="c1">----------------------------+</span>
+<span class="o">|</span>        <span class="nb">array</span><span class="o">&lt;</span><span class="n">struct</span><span class="o">&lt;</span><span class="n">col</span><span class="p">:...</span><span class="o">|</span>
+<span class="o">+</span><span class="c1">----------------------------+</span>
+
+<span class="c1">-- to_json</span>
+<span class="k">SELECT</span> <span class="n">to_json</span><span class="p">(</span><span class="n">named_struct</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">));</span>
+<span class="o">+</span><span class="c1">---------------------------------+</span>
+<span class="o">|</span><span class="n">to_json</span><span class="p">(</span><span class="n">named_struct</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="o">|</span>
+<span class="o">+</span><span class="c1">---------------------------------+</span>
+<span class="o">|</span>                    <span class="err">{</span><span class="ss">&quot;a&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="ss">&quot;b&quot;</span><span class="p">:</span><span class="mi">2</span><span class="err">}</span><span class="o">|</span>
+<span class="o">+</span><span class="c1">---------------------------------+</span>
+
+<span class="k">SELECT</span> <span class="n">to_json</span><span class="p">(</span><span class="n">named_struct</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">to_timestamp</span><span class="p">(</span><span class="s1">&#39;2015-08-26&#39;</span><span class="p">,</span> <span class="s1">&#39;yyyy-MM-dd&#39;</span><span class="p">)),</span> <span class="k">map</span><span class="p">(</span><span class="s1">&#39;timestampFormat&#39;</span><span class="p">,</span> <span class="s1">&#39;dd/MM/yyyy&#39;</span><span class="p">));</span>
+<span class="o">+</span><span class="c1">---------------------------------------------------------------------+</span>
+<span class="o">|</span><span class="n">to_json</span><span class="p">(</span><span class="n">named_struct</span><span class="p">(</span><span class="k">time</span><span class="p">,</span> <span class="n">to_timestamp</span><span class="p">(</span><span class="s1">&#39;2015-08-26&#39;</span><span class="p">,</span> <span class="s1">&#39;yyyy-MM-dd&#39;</span><span class="p">)))</span><span class="o">|</span>
+<span class="o">+</span><span class="c1">---------------------------------------------------------------------+</span>
+<span class="o">|</span>                                                 <span class="err">{</span><span class="ss">&quot;time&quot;</span><span class="p">:</span><span class="ss">&quot;26/08/20...|</span>
+<span class="ss">+---------------------------------------------------------------------+</span>
+
+<span class="ss">SELECT to_json(array(named_struct(&#39;a&#39;, 1, &#39;b&#39;, 2)));</span>
+<span class="ss">+----------------------------------------+</span>
+<span class="ss">|to_json(array(named_struct(a, 1, b, 2)))|</span>
+<span class="ss">+----------------------------------------+</span>
+<span class="ss">|                         [{&quot;</span><span class="n">a</span><span class="ss">&quot;:1,&quot;</span><span class="n">b</span><span class="ss">&quot;:2}]|</span>
+<span class="ss">+----------------------------------------+</span>
+
+<span class="ss">SELECT to_json(map(&#39;a&#39;, named_struct(&#39;b&#39;, 1)));</span>
+<span class="ss">+-----------------------------------+</span>
+<span class="ss">|to_json(map(a, named_struct(b, 1)))|</span>
+<span class="ss">+-----------------------------------+</span>
+<span class="ss">|                      {&quot;</span><span class="n">a</span><span class="ss">&quot;:{&quot;</span><span class="n">b</span><span class="ss">&quot;:1}}|</span>
+<span class="ss">+-----------------------------------+</span>
+
+<span class="ss">SELECT to_json(map(named_struct(&#39;a&#39;, 1),named_struct(&#39;b&#39;, 2)));</span>
+<span class="ss">+----------------------------------------------------+</span>
+<span class="ss">|to_json(map(named_struct(a, 1), named_struct(b, 2)))|</span>
+<span class="ss">+----------------------------------------------------+</span>
+<span class="ss">|                                     {&quot;</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="ss">&quot;:{&quot;</span><span class="n">b</span><span class="ss">&quot;:2}}|</span>
+<span class="ss">+----------------------------------------------------+</span>
+
+<span class="ss">SELECT to_json(map(&#39;a&#39;, 1));</span>
+<span class="ss">+------------------+</span>
+<span class="ss">|to_json(map(a, 1))|</span>
+<span class="ss">+------------------+</span>
+<span class="ss">|           {&quot;</span><span class="n">a</span><span class="ss">&quot;:1}|</span>
+<span class="ss">+------------------+</span>
+
+<span class="ss">SELECT to_json(array((map(&#39;a&#39;, 1))));</span>
+<span class="ss">+-------------------------+</span>
+<span class="ss">|to_json(array(map(a, 1)))|</span>
+<span class="ss">+-------------------------+</span>
+<span class="ss">|                [{&quot;</span><span class="n">a</span><span class="err">&quot;</span><span class="p">:</span><span class="mi">1</span><span class="err">}</span><span class="p">]</span><span class="o">|</span>
+<span class="o">+</span><span class="c1">-------------------------+</span>
+</code></pre></div>
