@@ -1,0 +1,39 @@
+name: Check document generation
+
+on:
+  push:
+    branches:
+    - asf-site
+  pull_request:
+    branches:
+    - asf-site
+
+jobs:
+  lint:
+    name: check wether all documentation was generated with the right Jekyll version
+    runs-on: ubuntu-20.04
+    container:
+      image: dongjoon/apache-spark-github-action-image:20201025
+    steps:
+    - name: Checkout Spark Website repository
+      uses: actions/checkout@v2
+    - name: Install dependencies for documentation generation
+      run: |
+        apt-get update -y
+        apt-get install -y ruby ruby-dev
+        gem install bundler --version 1.17.2
+        bundle install
+    - name: Run documentation build
+      run: |
+        export LC_ALL=C.UTF-8
+        export LANG=C.UTF-8
+        bundle exec jekyll build
+        CHANGED_FILE=( $(git ls-files --modified --other --exclude-standard --directory | grep -v sitemap.xml) )
+        if [ ${#CHANGED_FILE[@]} -ne 0 ]; then
+          echo "Not all documentation was generated and/or not the right Jekyll version was used! Modified / untracked files (excluding sitemap.xml):"
+          echo ${CHANGED_FILE[*]}
+          echo "Git diff (excluding sitemap.xml):"
+          git diff -- . ':(exclude)site/sitemap.xml'
+          exit 1
+        fi
+      shell: /bin/bash {0}
