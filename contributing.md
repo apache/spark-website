@@ -157,8 +157,7 @@ lists first, rather than consider filing a JIRA or proposing a change. When in d
 `user@spark.apache.org` first about the possible change
 - Search the `user@spark.apache.org` and `dev@spark.apache.org` mailing list 
 <a href="{{site.baseurl}}/community.html#mailing-lists">archives</a> for 
-related discussions. Use <a href="http://search-hadoop.com/?q=&fc_project=Spark">search-hadoop.com</a> 
-or similar search tools. 
+related discussions.
 Often, the problem has been discussed before, with a resolution that doesn't require a code 
 change, or recording what kinds of changes will not be accepted as a resolution.
 - Search JIRA for existing issues: 
