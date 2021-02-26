@@ -34,20 +34,6 @@ $ ./bin/spark-shell
 $ build/sbt ~compile
 ```
 
-<h4>Maven: Speeding up Compilation with Zinc</h4>
-
-[Zinc](https://github.com/typesafehub/zinc) is a long-running server version of SBT's incremental
-compiler. When run locally as a background process, it speeds up builds of Scala-based projects
-like Spark. Developers who regularly recompile Spark with Maven will be the most interested in
-Zinc. The project site gives instructions for building and running `zinc`; OS X users can
-install it using `brew install zinc`.
-
-If using the `build/mvn` package `zinc` will automatically be downloaded and leveraged for all
-builds. This process will auto-start after the first time `build/mvn` is called and bind to port
-3030 unless the `ZINC_PORT` environment variable is set. The `zinc` process can subsequently be
-shut down at any time by running `build/zinc-<version>/bin/zinc -shutdown` and will automatically
-restart whenever `build/mvn` is called.
-
 <h3>Building submodules individually</h3>
 
 For instance, you can build the Spark Core module using:
