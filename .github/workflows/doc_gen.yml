@@ -27,7 +27,15 @@ jobs:
       run: |
         export LC_ALL=C.UTF-8
         export LANG=C.UTF-8
-        bundle exec jekyll build
+        OLD_IFS=$IFS
+        IFS=
+        GEN_ERRORS=$(bundle exec jekyll build 3>&2 2>&1 1>&3)
+        if [ $(echo $GEN_ERRORS| grep -v -e '^$'| grep -c -v "rubygems_integration") -ne 0 ]; then
+          echo "Error during document generation:"
+          echo $GEN_ERRORS
+          exit 1
+        fi
+        IFS=$OLD_IFS
         CHANGED_FILE=( $(git ls-files --modified --other --exclude-standard --directory | grep -v sitemap.xml) )
         if [ ${#CHANGED_FILE[@]} -ne 0 ]; then
           echo "Not all documentation was generated and/or not the right Jekyll version was used! Modified / untracked files (excluding sitemap.xml):"
