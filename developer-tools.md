@@ -374,7 +374,7 @@ $ git checkout origin/pr/112 -b new-branch
 
 ```
 $ # sbt
-$ build/sbt dependency-tree
+$ build/sbt dependencyTree
  
 $ # Maven
 $ build/mvn -DskipTests install
