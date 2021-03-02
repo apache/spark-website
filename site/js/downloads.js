@@ -23,6 +23,8 @@ var packagesV9 = [hadoop2p7, hadoop2p6, hadoopFree, scala2p12_hadoopFree, source
 // 3.0.0+
 var packagesV10 = [hadoop2p7, hadoop3p2, hadoopFree, sources];
 
+
+addRelease("3.1.1", new Date("03/02/2021"), packagesV10, true);
 addRelease("3.0.2", new Date("02/19/2021"), packagesV10, true);
 addRelease("2.4.7", new Date("09/12/2020"), packagesV9, true);
 
