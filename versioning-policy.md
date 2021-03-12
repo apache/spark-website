@@ -103,13 +103,13 @@ In general, feature ("minor") releases occur about every 6 months. Hence, Spark 
 generally be released about 6 months after 2.2.0. Maintenance releases happen as needed
 in between feature releases. Major releases do not happen according to a fixed schedule.
 
-<h3>Spark 3.1 Release Window</h3>
+<h3>Spark 3.2 Release Window</h3>
 
 | Date  | Event |
 | ----- | ----- |
-| Early Dec 2020 | Code freeze. Release branch cut.|
-| Mid Dec 2020 | QA period. Focus on bug fixes, tests, stability and docs. Generally, no new features merged.|
-| Early Jan 2021 | Release candidates (RC), voting, etc. until final release passes|
+| June 1st 2021 | Code freeze. Release branch cut.|
+| Mid June 2021 | QA period. Focus on bug fixes, tests, stability and docs. Generally, no new features merged.|
+| July 2021 | Release candidates (RC), voting, etc. until final release passes|
 
 <h2>Maintenance Releases and EOL</h2>
 
@@ -118,12 +118,11 @@ For example, branch 2.3.x is no longer considered maintained as of September 201
 of 2.3.0 in February 2018. No more 2.3.x releases should be expected after that point, even for bug fixes.
 
 The last minor release within a major a release will typically be maintained for longer as an "LTS" release.
-For example, 2.4.0 was released in November 2018, but will likely see releases for more than 18 months,
-beyond May 2020.
+For example, 2.4.0 was released in November 2nd 2018 and has been maintained for 29 months as of March 2021. 2.4.8 will be the last release and no more 2.4.x releases should be expected after that, even for bug fixes.
+
 
 <h3>Spark 2.4 LTS Release Window</h3>
 
 | Date     | Event         |
 | -------- | ------------- |
-| Jan 2020 | Release 2.4.5 |
-| Jul 2020 | Release 2.4.6 |
+| Mar 2021 | Release 2.4.8 |
