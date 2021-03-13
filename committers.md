@@ -69,6 +69,7 @@ navigation:
 |Kousuke Saruta|NTT Data|
 |Saisai Shao|Tencent|
 |Prashant Sharma|IBM|
+|Gabor Somogyi|Cloudera|
 |Ram Sriharsha|Databricks|
 |Jose Torres|Databricks|
 |DB Tsai|Apple|
