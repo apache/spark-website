@@ -53,6 +53,7 @@ navigation:
 |Cheng Lian|Databricks|
 |Yanbo Liang|Facebook|
 |Jungtaek Lim|Cloudera|
+|Gabor Somogyi|Cloudera|
 |Sean McNamara|Oracle|
 |Xiangrui Meng|Databricks|
 |Mridul Muralidharan|LinkedIn|
