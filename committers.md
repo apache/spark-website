@@ -53,7 +53,6 @@ navigation:
 |Cheng Lian|Databricks|
 |Yanbo Liang|Facebook|
 |Jungtaek Lim|Cloudera|
-|Gabor Somogyi|Cloudera|
 |Sean McNamara|Oracle|
 |Xiangrui Meng|Databricks|
 |Mridul Muralidharan|LinkedIn|
@@ -70,6 +69,7 @@ navigation:
 |Kousuke Saruta|NTT Data|
 |Saisai Shao|Tencent|
 |Prashant Sharma|IBM|
+|Gabor Somogyi|Cloudera|
 |Ram Sriharsha|Databricks|
 |Jose Torres|Databricks|
 |DB Tsai|Apple|
