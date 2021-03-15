@@ -28,6 +28,7 @@ navigation:
 |Robert Evans|NVIDIA|
 |Wenchen Fan|Databricks|
 |Huaxin Gao|IBM|
+|Max Gekk|Databricks|
 |Joseph Gonzalez|UC Berkeley|
 |Thomas Graves|NVIDIA|
 |Stephen Haberman|LinkedIn|
