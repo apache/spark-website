@@ -172,6 +172,7 @@ If you have made changes to the K8S bindings in Apache Spark, it would behoove y
 - minikube version v1.7.3 (or greater)
 - You must use a VM driver!  Running minikube with the `--vm-driver=none` option requires that the user launching minikube/k8s have root access.  Our Jenkins workers use the [kvm2](https://minikube.sigs.k8s.io/docs/drivers/kvm2/) drivers.  More details [here](https://minikube.sigs.k8s.io/docs/drivers/).
 - kubernetes version v1.17.3 (can be set by executing `minikube config set kubernetes-version v1.17.3`)
+- the current kubernetes context must be minikube's default context (called 'minikube'). This can be selected by `minikube kubectl -- config use-context minikube`. This is only needed when after minikube is started another kubernetes context is selected.
 
 Once you have minikube properly set up, and have successfully completed the [quick start](https://minikube.sigs.k8s.io/docs/start/), you can test your changes locally.  All subsequent commands should be run from your root spark/ repo directory:
 
