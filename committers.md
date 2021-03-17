@@ -82,6 +82,7 @@ navigation:
 |Yuming Wang|eBay|
 |Zhenhua Wang|Huawei|
 |Patrick Wendell|Databricks|
+|Yi Wu|Databricks|
 |Andrew Xia|Alibaba|
 |Reynold Xin|Databricks|
 |Weichen Xu|Databricks|
