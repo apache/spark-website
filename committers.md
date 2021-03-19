@@ -170,20 +170,21 @@ To use the `merge_spark_pr.py` script described below, you
 will need to add a git remote called `apache` at `https://github.com/apache/spark`, 
 as well as one called `apache-github` at `git://github.com/apache/spark`.
 
-You will likely also have a remote `origin` pointing to your fork of Spark, and
-`upstream` pointing to the `apache/spark` GitHub repo. 
+The `apache` (the default value of `PUSH_REMOTE_NAME` environment variable) is the remote used for pushing the squashed commits
+and `apache-github` (default value of `PR_REMOTE_NAME`) is the remote used for pulling the changes.
+By using two separate remotes for these two actions the result of the `merge_spark_pr.py` can be tested without pushing it
+into the official Spark repo just by specifying your fork in the `PUSH_REMOTE_NAME` variable.
 
-If correct, your `git remote -v` should look like:
+After cloning your fork of Spark you already have a remote `origin` pointing there. So if correct, your `git remote -v`
+contains at least these lines:
 
 ```
-apache	https://github.com/apache/spark.git (fetch)
-apache	https://github.com/apache/spark.git (push)
-apache-github	git://github.com/apache/spark (fetch)
-apache-github	git://github.com/apache/spark (push)
-origin	https://github.com/[your username]/spark.git (fetch)
-origin	https://github.com/[your username]/spark.git (push)
-upstream	https://github.com/apache/spark.git (fetch)
-upstream	https://github.com/apache/spark.git (push)
+apache	git@github.com:apache/spark-website.git (fetch)
+apache	git@github.com:apache/spark-website.git (push)
+apache-github	git@github.com:apache/spark-website.git (fetch)
+apache-github	git@github.com:apache/spark-website.git (push)
+origin	git@github.com:[your username]/spark-website.git (fetch)
+origin	git@github.com:[your username]/spark-website.git (push)
 ```
 
 For the `apache` repo, you will need to set up command-line authentication to GitHub. This may
@@ -191,6 +192,8 @@ include setting up an SSH key and/or personal access token. See:
 
 - https://help.github.com/articles/connecting-to-github-with-ssh/
 - https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/
+
+To check whether the necessary write access are already granted please visit [GitBox](https://gitbox.apache.org/setup/).
 
 Ask `dev@spark.apache.org` if you have trouble with these steps, or want help doing your first merge.
 
