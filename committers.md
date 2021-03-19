@@ -62,6 +62,7 @@ navigation:
 |Sean Owen|Databricks|
 |Tejas Patil|Facebook|
 |Nick Pentreath|IBM|
+|Attila Zsolt Piros|Cloudera|
 |Anirudh Ramanathan|Rockset|
 |Imran Rashid|Cloudera|
 |Charles Reiss|University of Virginia|
