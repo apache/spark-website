@@ -42,6 +42,7 @@ navigation:
 |Kazuaki Ishizaki|IBM|
 |Xingbo Jiang|Databricks|
 |Holden Karau|Apple|
+|Attila Zsolt Piros|Cloudera|
 |Shane Knapp|UC Berkeley|
 |Cody Koeninger|Nexstar Digital|
 |Andy Konwinski|Databricks|
