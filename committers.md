@@ -42,7 +42,6 @@ navigation:
 |Kazuaki Ishizaki|IBM|
 |Xingbo Jiang|Databricks|
 |Holden Karau|Apple|
-|Attila Zsolt Piros|Cloudera|
 |Shane Knapp|UC Berkeley|
 |Cody Koeninger|Nexstar Digital|
 |Andy Konwinski|Databricks|
@@ -63,6 +62,7 @@ navigation:
 |Sean Owen|Databricks|
 |Tejas Patil|Facebook|
 |Nick Pentreath|IBM|
+|Attila Zsolt Piros|Cloudera|
 |Anirudh Ramanathan|Rockset|
 |Imran Rashid|Cloudera|
 |Charles Reiss|University of Virginia|
