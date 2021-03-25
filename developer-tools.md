@@ -169,11 +169,12 @@ Please check other available options via `python/run-tests[-with-coverage] --hel
 
 If you have made changes to the K8S bindings in Apache Spark, it would behoove you to test locally before submitting a PR.  This is relatively simple to do, but it will require a local (to you) installation of [minikube](https://kubernetes.io/docs/setup/minikube/).  Due to how minikube interacts with the host system, please be sure to set things up as follows:
 
-- minikube version v0.34.1 (or greater, but backwards-compatibility between versions is spotty)
-- You must use a VM driver!  Running minikube with the `--vm-driver=none` option requires that the user launching minikube/k8s have root access.  Our Jenkins workers use the [kvm2](https://github.com/kubernetes/minikube/blob/master/docs/drivers.md#kvm2-driver) drivers.  More details [here](https://github.com/kubernetes/minikube/blob/master/docs/drivers.md).
-- kubernetes version v1.15.12 (can be set by executing `minikube config set kubernetes-version v1.15.12`)
+- minikube version v1.7.3 (or greater)
+- You must use a VM driver!  Running minikube with the `--vm-driver=none` option requires that the user launching minikube/k8s have root access.  Our Jenkins workers use the [kvm2](https://minikube.sigs.k8s.io/docs/drivers/kvm2/) drivers.  More details [here](https://minikube.sigs.k8s.io/docs/drivers/).
+- kubernetes version v1.17.3 (can be set by executing `minikube config set kubernetes-version v1.17.3`)
+- the current kubernetes context must be minikube's default context (called 'minikube'). This can be selected by `minikube kubectl -- config use-context minikube`. This is only needed when after minikube is started another kubernetes context is selected.
 
-Once you have minikube properly set up, and have successfully completed the [quick start](https://kubernetes.io/docs/setup/minikube/#quickstart), you can test your changes locally.  All subsequent commands should be run from your root spark/ repo directory:
+Once you have minikube properly set up, and have successfully completed the [quick start](https://minikube.sigs.k8s.io/docs/start/), you can test your changes locally.  All subsequent commands should be run from your root spark/ repo directory:
 
 1) Build a tarball to test against:
 
@@ -196,7 +197,7 @@ export PVC_TESTS_HOST_PATH=$PVC_TMP_DIR
 export PVC_TESTS_VM_PATH=$PVC_TMP_DIR
 
 minikube --vm-driver=<YOUR VM DRIVER HERE> start --memory 6000 --cpus 8
-minikube config set kubernetes-version v1.15.12
+minikube config set kubernetes-version v1.17.3
 
 minikube mount ${PVC_TESTS_HOST_PATH}:${PVC_TESTS_VM_PATH} --9p-version=9p2000.L --gid=0 --uid=185 &; MOUNT_PID=$!
 
