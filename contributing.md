@@ -331,8 +331,13 @@ and add them as needed.
             test_that("SPARK-12345: a short description of the test", {
               ...
             ```
+1. Consider whether benchmark results should be added or updated as part of the change, and add them as needed by
+<a href="https://spark.apache.org/developer-tools.html#github-workflow-benchmarks">Running benchmarks in your forked repository</a>
+to generate benchmark results.
 1. Run all tests with `./dev/run-tests` to verify that the code still compiles, passes tests, and 
-passes style checks. If style checks fail, review the Code Style Guide below.
+passes style checks. Alternatively you can run the tests via GitHub Actions workflow by
+<a href="https://spark.apache.org/developer-tools.html#github-workflow-tests">Running tests in your forked repository</a>.
+If style checks fail, review the Code Style Guide below.
 1. <a href="https://help.github.com/articles/using-pull-requests/">Open a pull request</a> against 
 the `master` branch of `apache/spark`. (Only in special cases would the PR be opened against other branches.)
      1. The PR title should be of the form `[SPARK-xxxx][COMPONENT] Title`, where `SPARK-xxxx` is 
