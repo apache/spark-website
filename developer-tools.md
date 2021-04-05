@@ -216,24 +216,44 @@ In case of a failure the POD logs (driver and executors) can be found at the end
 
 Kubernetes, and more importantly, minikube have rapid release cycles, and point releases have been found to be buggy and/or break older and existing functionality.  If you are having trouble getting tests to pass on Jenkins, but locally things work, don't hesitate to file a Jira issue.
 
-<h3>Running tests in your forked repository using GitHub Actions</h3>
+<h3>Testing with GitHub Actions workflow</h3>
 
-GitHub Actions is a functionality within GitHub that enables continuous integration and a wide range of automation.
-We already have started using some action scripts and one of them is to run tests for [pull requests](https://spark.apache.org/contributing.html).
-If you are planning to create a new pull request, it is important to check if tests can pass on your branch before creating a pull request.
-This is because our GitHub Acrions script automatically runs tests for your pull request/following commits and
-this can burden our limited resources of GitHub Actions.
+Apache Spark leverages GitHub Actions that enables continuous integration and a wide range of automation. Apache Spark repository provides several GitHub Actions workflows for developers to run before creating a pull request.
 
-Our script enables you to run tests for a branch in your forked repository.
-Let's say that you have a branch named "your_branch" for a pull request.
+<a name="github-workflow-tests"></a>
+<h4>Running tests in your forked repository</h4>
+
+Before creating a pull request in Apache Spark, it is important to check if tests can pass on your branch because our GitHub Acrions workflows automatically run tests for your pull request/following commits, and every run burdens the limited resources of GitHub Actions in Apache Spark repository.
+
+Apache Spark repository has a workflow that enables you to run the same tests for a branch in your own forked repository that does not burden the resource from Apache Spark repository.
+
+For example, suppose that you have a branch named "your_branch" for a pull request.
 To run tests on "your_branch" and check test results:
 
-- Clicks a "Actions" tab in your forked repository.
-- Selects a "Build and test" workflow in a "All workflows" list.
-- Pushes a "Run workflow" button and enters "your_branch" in a "Target branch to run" field.
-- When a "Build and test" workflow finished, clicks a "Report test results" workflow to check test results.
+- Click the "Actions" tab in your forked repository.
+- Select the "Build and test" workflow in the "All workflows" list.
+- Click the "Run workflow" button and enter "your_branch" in the "Target branch to run" field.
+- Once the "Build and test" workflow is finished, click the "Report test results" workflow to check test results.
 
 <img src="/images/running-tests-using-github-actions.png" style="width: 100%; max-width: 800px;" />
+
+<a name="github-workflow-benchmarks"></a>
+<h4>Running benchmarks in your forked repository</h4>
+
+Apache Spark repository provides an easy way to run benchmarks in GitHub Actions. When you update the benchmark results in a pull request, it is recommended to use GitHub Actions to run and generate the benchmark results in order to run them on the environment as same as possible.
+
+- Click the "Actions" tab in your forked repository.
+- Select the "Run benchmarks" workflow in the "All workflows" list.
+- Click the "Run workflow" button and enter the fields appropriately as below:
+  - **Benchmark class**: the benchmark class which you wish to run. It allows a glob pattern. For example, `org.apache.spark.sql.*`.
+  - **JDK version**: Java version you want to run the benchmark with. For example, `11`.
+  - **Failfast**: indicates if you want to stop the benchmark and workflow when it fails. When `true`, it fails right away. When `false`, it runs all whether it fails or not.
+  - **Number of job splits**: it splits the benchmark jobs into the specified number, and runs them in parallel. It is particularly useful to work around the time limits of workflow and jobs in GitHub Actions.
+- Once a "Run benchmarks" workflow is finished, click the workflow and download benchmarks results at "Artifacts".
+- Go to your root directory of Apache Spark repository, and unzip/untar the downloaded files which will update the benchmark results with appropriately locating the files to update.
+
+<img src="/images/running-benchamrks-using-github-actions.png" style="width: 100%; max-width: 800px;" />
+
 
 <h3>ScalaTest Issues</h3>
 
