@@ -134,7 +134,7 @@ explaining **how** to resolve the problem would be redundant.
 **After**
 
 <code style="white-space:normal">
-  Invalid decimal {}; encountered error while parsing at position {}.
+  Invalid decimal {}; <span style="background-color: #ccffcc">encountered error while parsing at position {}.</span>
 </code>
 
 -   **What:** Invalid decimal.
