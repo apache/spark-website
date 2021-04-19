@@ -19,6 +19,7 @@ Exceptions thrown from Spark should answer the Five W's and How:
 -   **Who** encountered the problem?
 -   **What** was the problem?
 -   **When** did the problem happen?
+-   **Where** did the problem happen?
 -   **Why** did the problem happen?
 -   **How** can the problem be solved?
 
@@ -45,14 +46,15 @@ In many cases, the error message should explicitly answer **what**,
 </code>
 
 -   **What:** Unable to generate encoder inner class.
--   **Why:** Did not have access to the scope that the class was defined
-    in.
+-   **Why:** Did not have access to the scope that the class was defined in.
 -   **How:** Try moving this class out of its parent class.
 
 ##### Example 2
 
 If the proposed fix (**how**) feels arbitrary, providing an explanation
 for **why** the error occurred can reduce user frustration.
+
+**Before**
 
 <code style="white-space:normal">
   <a href="https://github.com/apache/spark/blob/03dd33cc982ebb3de4354274ac49da31521b8195/sql/catalyst/src/main/scala/org/apache/spark/sql/errors/QueryCompilationErrors.scala#L498">
@@ -76,7 +78,8 @@ catalog. Specify a function name with one or two parts.</span>*
 #### Implicitly answer How
 
 Not all error messages should be this verbose. Sometimes, explicitly
-explaining **how** to resolve the problem would be redundant.
+explaining **how** to resolve the problem would be redundant;
+you may skip an explicit explanation in this case.
 
 ##### Example 1
 
@@ -138,14 +141,13 @@ explaining **how** to resolve the problem would be redundant.
 </code>
 
 -   **What:** Invalid decimal.
--   **Why**: The decimal parser encountered an error at the specified
-    position.
+-   **Why**: The decimal parser encountered an error at the specified position.
 -   **How (*****implied by Why*****):** Fix the error at the specified position.
 
 #### Implicitly answer Why and How
 
 Sometimes, even explicitly explaining **why** the problem happened would
-be redundant.
+be redundant; you may skip an explicit explanation in this case.
 
 <code style="white-space:normal">
   <a href="https://github.com/apache/spark/blob/569fb133d09e24e4ed56ed7efff641512d98b01b/sql/catalyst/src/main/scala/org/apache/spark/sql/errors/QueryCompilationErrors.scala#L770">
@@ -320,7 +322,7 @@ be redundant.
       </td>
     </tr>
     <tr>
-      <th scope="row">Provide concrete examples</th>
+      <th scope="row">Provide concrete examples if the resolution is unclear</th>
       <td>
         <code style="white-space:normal">
           <a href="https://github.com/apache/spark/blob/569fb133d09e24e4ed56ed7efff641512d98b01b/sql/catalyst/src/main/scala/org/apache/spark/sql/errors/QueryCompilationErrors.scala#L422">
@@ -365,7 +367,7 @@ be redundant.
       </td>
     </tr>
     <tr>
-      <th scope="row">Use human-readable text for user-facing errors</th>
+      <th scope="row">Do not use programming jargon in user-facing errors</th>
       <td>
         <code style="white-space:normal">
           <a href="https://github.com/apache/spark/blob/4b5fc1da752ec008468ef80a5717c8beab468387/sql/catalyst/src/main/scala/org/apache/spark/sql/errors/QueryCompilationErrors.scala#L583">

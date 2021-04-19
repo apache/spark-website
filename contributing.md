@@ -202,10 +202,10 @@ When writing error messages, you should:
 - Use active voice
 - Avoid time-based statements, such as promises of future support
 - Use the present tense to describe the error and provide suggestions
-- Provide concrete examples
+- Provide concrete examples if the resolution is unclear
 - Avoid sounding accusatory, judgmental, or insulting
 - Be direct
-- Use human-readable text for user-facing errors
+- Do not use programming jargon in user-facing errors
 
 See the <a href="{{site.baseurl}}/error-message-guidelines.html">error message guidelines</a> for more details.
 
