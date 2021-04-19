@@ -186,6 +186,29 @@ that maintainability, consistency, and code quality come first. New algorithms s
 - Come with a reasonable expectation of developer support.
 - Have `@Since` annotation on public classes, methods, and variables.
 
+<h3>Error Message Guidelines</h3>
+
+Exceptions thrown in Spark should be associated with standardized and actionable
+error messages.
+
+Error messages should answer the following questions:
+
+- **What** was the problem?
+- **Why** did the problem happen?
+- **How** can the problem be solved?
+
+When writing error messages, you should:
+
+- Use active voice
+- Avoid time-based statements, such as promises of future support
+- Use the present tense to describe the error and provide suggestions
+- Provide concrete examples if the resolution is unclear
+- Avoid sounding accusatory, judgmental, or insulting
+- Be direct
+- Do not use programming jargon in user-facing errors
+
+See the <a href="{{site.baseurl}}/error-message-guidelines.html">error message guidelines</a> for more details.
+
 <h3>Code Review Criteria</h3>
 
 Before considering how to contribute code, it's useful to understand how code is reviewed, 
