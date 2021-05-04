@@ -53,7 +53,7 @@ navigation:
 |Davies Liu|Juicedata|
 |Cheng Lian|Databricks|
 |Yanbo Liang|Facebook|
-|Jungtaek Lim|Cloudera|
+|Jungtaek Lim|Databricks|
 |Sean McNamara|Oracle|
 |Xiangrui Meng|Databricks|
 |Mridul Muralidharan|LinkedIn|
