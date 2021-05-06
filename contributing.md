@@ -467,3 +467,12 @@ Scala guidelines below. The latter is preferred.
 If you're not sure about the right style for something, try to follow the style of the existing 
 codebase. Look at whether there are other examples in the code that use your feature. Feel free 
 to ask on the `dev@spark.apache.org` list as well and/or ask committers.
+
+<h2>Code of Conduct</h2>
+The Apache Spark project follows the <a href="https://www.apache.org/foundation/policies/conduct.html">Apache Software Foundation Code of Conduct</a>.  The <a href="https://www.apache.org/foundation/policies/conduct.html">code of conduct</a> applies to all spaces managed by the Apache Software Foundation, including IRC, all public and private mailing lists, issue trackers, wikis, blogs, Twitter, and any other communication channel used by our communities. A code of conduct which is specific to in-person events (ie., conferences) is codified in the published ASF anti-harassment policy.
+
+We expect this code of conduct to be honored by everyone who participates in the Apache community formally or informally, or claims any affiliation with the Foundation, in any Foundation-related activities and especially when representing the ASF, in any role.
+
+This code <u>is not exhaustive or complete</u>. It serves to distill our common understanding of a collaborative, shared environment and goals. We expect it to be followed in spirit as much as in the letter, so that it can enrich all of us and the technical communities in which we participate.
+
+For more information and specific guidelines, refer to the <a href="https://www.apache.org/foundation/policies/conduct.html">Apache Software Foundation Code of Conduct</a>.
