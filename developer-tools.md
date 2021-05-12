@@ -555,7 +555,7 @@ Spark publishes SNAPSHOT releases of its Maven artifacts for both master and mai
 branches on a nightly basis. To link to a SNAPSHOT you need to add the ASF snapshot 
 repository to your build. Note that SNAPSHOT artifacts are ephemeral and may change or
 be removed. To use these you must add the ASF snapshot repository at 
-<a href="https://repository.apache.org/snapshots/<a>.
+<a href="https://repository.apache.org/snapshots/">https://repository.apache.org/snapshots/</a>.
 
 ```
 groupId: org.apache.spark
