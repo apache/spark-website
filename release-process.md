@@ -203,10 +203,6 @@ $ svn rm https://dist.apache.org/repos/dist/release/spark/spark-1.1.0
 You will also need to update `js/download.js` to indicate the release is not mirrored
 anymore, so that the correct links are generated on the site.
 
-Also take a moment to check `HiveExternalCatalogVersionsSuite.scala` starting with branch-2.2
-and see if it needs to be adjusted, since that test relies on mirrored downloads of previous
-releases.
-
 
 <h4>Update the Spark Apache Repository</h4>
 
@@ -316,15 +312,6 @@ $ git shortlog v1.1.1 --grep "$EXPR" > contrib.txt
 # Large patch list (300+ lines)
 $ git log v1.1.1 --grep "$expr" --shortstat --oneline | grep -B 1 -e "[3-9][0-9][0-9] insert" -e "[1-9][1-9][1-9][1-9] insert" | grep SPARK > large-patches.txt
 ```
-
-<h4>Update `HiveExternalCatalogVersionsSuite`</h4>
-
-When a new release occurs, `PROCESS_TABLES.testingVersions` in `HiveExternalCatalogVersionsSuite`
-must be updated shortly thereafter. This list should contain the latest release in all active
-maintenance branches, and no more.
-For example, as of this writing, it has value `val testingVersions = Seq("2.1.3", "2.2.2", "2.3.2")`.
-"2.4.0" will be added to the list when it's released. "2.1.3" will be removed (and removed from the Spark dist mirrors)
-when the branch is no longer maintained. "2.3.2" will become "2.3.3" when "2.3.3" is released.
 
 <h4>Create an Announcement</h4>
 
