@@ -26,7 +26,7 @@ var packagesV10 = [hadoop2p7, hadoop3p2, hadoopFree, sources];
 
 addRelease("3.1.1", new Date("03/02/2021"), packagesV10, true);
 addRelease("3.0.2", new Date("02/19/2021"), packagesV10, true);
-addRelease("2.4.7", new Date("09/12/2020"), packagesV9, true);
+addRelease("2.4.8", new Date("05/17/2021"), packagesV9, true);
 
 function append(el, contents) {
   el.innerHTML += contents;
