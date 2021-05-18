@@ -118,11 +118,5 @@ For example, branch 2.3.x is no longer considered maintained as of September 201
 of 2.3.0 in February 2018. No more 2.3.x releases should be expected after that point, even for bug fixes.
 
 The last minor release within a major a release will typically be maintained for longer as an "LTS" release.
-For example, 2.4.0 was released in November 2nd 2018 and has been maintained for 29 months as of March 2021. 2.4.8 will be the last release and no more 2.4.x releases should be expected after that, even for bug fixes.
+For example, 2.4.0 was released in November 2nd 2018 and had been maintained for 31 months until 2.4.8 was released on May 2021. 2.4.8 is the last release and no more 2.4.x releases should be expected even for bug fixes.
 
-
-<h3>Spark 2.4 LTS Release Window</h3>
-
-| Date     | Event         |
-| -------- | ------------- |
-| Mar 2021 | Release 2.4.8 |
