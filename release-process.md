@@ -213,6 +213,10 @@ $ git tag v1.1.1 v1.1.1-rc2 # the RC that passed
 $ git push apache v1.1.1
 ```
 
+<h4>Update the version index of DocSearch</h4>
+- In the  <a href="https://github.com/algolia/docsearch-configs">algolia/docsearch-configs</a> repository, create a PR to add the new release version into <a href="https://github.com/algolia/docsearch-configs/blob/master/configs/apache_spark.json">apache_spark.json</a>
+- In the Spark repository, update the `facetFilters` of file `docs/_config.yml` as the new release version in the release branch. 
+
 <h4>Update the Spark Website</h4>
 
 The website repository is located at
