@@ -214,8 +214,7 @@ $ git push apache v1.1.1
 ```
 
 <h4>Update the version index of DocSearch</h4>
-- In the  <a href="https://github.com/algolia/docsearch-configs">algolia/docsearch-configs</a> repository, create a PR to add the new release version into <a href="https://github.com/algolia/docsearch-configs/blob/master/configs/apache_spark.json">apache_spark.json</a>
-- In the Spark repository, update the `facetFilters` of file `docs/_config.yml` as the new release version in the release branch. 
+In the repository <a href="https://github.com/algolia/docsearch-configs">algolia/docsearch-configs</a>, submit a PR to add the new Spark version into the array `version` on <a href="https://github.com/algolia/docsearch-configs/blob/master/configs/apache_spark.json">apache_spark.json</a>.
 
 <h4>Update the Spark Website</h4>
 
