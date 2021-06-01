@@ -22,9 +22,11 @@ var scala2p12_hadoopFree = {pretty: "Pre-built with Scala 2.12 and user-provided
 var packagesV9 = [hadoop2p7, hadoop2p6, hadoopFree, scala2p12_hadoopFree, sources];
 // 3.0.0+
 var packagesV10 = [hadoop2p7, hadoop3p2, hadoopFree, sources];
+// 3.1.0+
+var packagesV11 = [hadoop3p2, hadoop2p7, hadoopFree, sources];
 
 
-addRelease("3.1.1", new Date("03/02/2021"), packagesV10, true);
+addRelease("3.1.2", new Date("06/01/2021"), packagesV11, true);
 addRelease("3.0.2", new Date("02/19/2021"), packagesV10, true);
 addRelease("2.4.8", new Date("05/17/2021"), packagesV9, true);
 
