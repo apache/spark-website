@@ -48,7 +48,7 @@ Spark 3.1.2 is a maintenance release containing stability fixes. This release is
   - [[SPARK-34674]](https://issues.apache.org/jira/browse/SPARK-34674): Spark app on k8s doesn't terminate without call to sparkContext.stop() method
   - [[SPARK-34681]](https://issues.apache.org/jira/browse/SPARK-34681): Full outer shuffled hash join when building left side produces wrong result
   - [[SPARK-34682]](https://issues.apache.org/jira/browse/SPARK-34682): Regression in "operating on canonicalized plan" check in CustomShuffleReaderExec
-  - [[SPARK-34697]](https://issues.apache.org/jira/browse/SPARK-34697): Allow DESCRIBE FUNCTION and SHOW FUNCTIONS explain about || (string concatenation operator)
+  - [[SPARK-34697]](https://issues.apache.org/jira/browse/SPARK-34697): Allow DESCRIBE FUNCTION and SHOW FUNCTIONS explain about string concatenation operator
   - [[SPARK-34713]](https://issues.apache.org/jira/browse/SPARK-34713): Group by CreateStruct with ExtractValue fails analysis
   - [[SPARK-34714]](https://issues.apache.org/jira/browse/SPARK-34714): collect_list(struct()) fails when used with GROUP BY
   - [[SPARK-34719]](https://issues.apache.org/jira/browse/SPARK-34719): Fail if the view query has duplicated column names
