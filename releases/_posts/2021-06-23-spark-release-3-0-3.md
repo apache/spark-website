@@ -50,6 +50,8 @@ Spark 3.0.3 is a maintenance release containing stability fixes. This release is
   - [[SPARK-35168]](https://issues.apache.org/jira/browse/SPARK-35168): mapred.reduce.tasks should be shuffle.partitions not adaptive.coalescePartitions.initialPartitionNum
   - [[SPARK-35566]](https://issues.apache.org/jira/browse/SPARK-35566): Fix number of output rows for StateStoreRestoreExec
   - [[SPARK-35714]](https://issues.apache.org/jira/browse/SPARK-35714): Bug fix for deadlock during the executor shutdown
+  - [[SPARK-34534]](https://issues.apache.org/jira/browse/SPARK-34534): New protocol FetchShuffleBlocks in OneForOneBlockFetcher lead to data loss or correctness
+  - [[SPARK-34939]](https://issues.apache.org/jira/browse/SPARK-34939): Throw fetch failure exception when unable to deserialize broadcasted map statuses
 
 ### Dependency Changes
 
@@ -57,8 +59,8 @@ While being a maintence release we did still upgrade some dependencies in this r
   - [[SPARK-35210]](https://issues.apache.org/jira/browse/SPARK-35210): Upgrade Jetty to 9.4.40 to fix ERR_CONNECTION_RESET issue
 
 ### Known issues
-  - [[SPARK-34534]](https://issues.apache.org/jira/browse/SPARK-34534): New protocol FetchShuffleBlocks in OneForOneBlockFetcher lead to data loss or correctness
-  - [[SPARK-34939]](https://issues.apache.org/jira/browse/SPARK-34939): Throw fetch failure exception when unable to deserialize broadcasted map statuses
+  - [[SPARK-34529]](https://issues.apache.org/jira/browse/SPARK-34529): spark.read.csv is throwing exception ,"lineSep' can contain only 1 character" when parsing windows line feed (CR LF)
+
 You can consult JIRA for the [detailed changes](https://s.apache.org/spark-3.0.3).
 
 We would like to acknowledge all community members for contributing patches to this release.
