@@ -610,3 +610,15 @@ When running Spark tests through SBT, add `javaOptions in Test += "-agentpath:/p
 to `SparkBuild.scala` to launch the tests with the YourKit profiler agent enabled.  
 The platform-specific paths to the profiler agents are listed in the 
 <a href="http://www.yourkit.com/docs/80/help/agent.jsp">YourKit documentation</a>.
+
+<a name="local-cluster"></a>
+<h3>Local-cluster mode</h3>
+
+When launching applications with spark-submit, besides options in 
+<a href="https://spark.apache.org/docs/latest/submitting-applications.html#master-urls">Master URLs</a>
+, set local-cluster option to emulate a distributed cluster in a single JVM. 
+
+<table class="table">
+<tr><th>Master URL</th><th>Meaning</th></tr>
+<tr><td> <code>local-cluster[N,C,M]</code> </td><td> Run Spark cluster locally with N number of workers, C cores per worker and M MiB of memory per worker (only for unit test purpose).</td></tr>
+</table>
