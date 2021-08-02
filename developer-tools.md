@@ -169,8 +169,8 @@ Please check other available options via `python/run-tests[-with-coverage] --hel
 
 If you have made changes to the K8S bindings in Apache Spark, it would behoove you to test locally before submitting a PR.  This is relatively simple to do, but it will require a local (to you) installation of [minikube](https://kubernetes.io/docs/setup/minikube/).  Due to how minikube interacts with the host system, please be sure to set things up as follows:
 
-- minikube version v1.7.3 (or greater)
-- You must use a VM driver!  Running minikube with the `--vm-driver=none` option requires that the user launching minikube/k8s have root access.  Our Jenkins workers use the [kvm2](https://minikube.sigs.k8s.io/docs/drivers/kvm2/) drivers.  More details [here](https://minikube.sigs.k8s.io/docs/drivers/).
+- minikube version v1.18.1 (or greater)
+- You must use a VM driver!  Running minikube with the `--vm-driver=none` option requires that the user launching minikube/k8s have root access, which could impact how the tests are run.  Our Jenkins workers use the default [docker](https://minikube.sigs.k8s.io/docs/drivers/docker/) drivers.  More details [here](https://minikube.sigs.k8s.io/docs/drivers/).
 - kubernetes version v1.17.3 (can be set by executing `minikube config set kubernetes-version v1.17.3`)
 - the current kubernetes context must be minikube's default context (called 'minikube'). This can be selected by `minikube kubectl -- config use-context minikube`. This is only needed when after minikube is started another kubernetes context is selected.
 
@@ -196,8 +196,11 @@ PVC_TMP_DIR=$(mktemp -d)
 export PVC_TESTS_HOST_PATH=$PVC_TMP_DIR
 export PVC_TESTS_VM_PATH=$PVC_TMP_DIR
 
-minikube --vm-driver=<YOUR VM DRIVER HERE> start --memory 6000 --cpus 8
 minikube config set kubernetes-version v1.17.3
+minikube --vm-driver=<YOUR VM DRIVER HERE> start --memory 6000 --cpus 8
+
+# for macos only (see https://github.com/apache/spark/pull/32793):
+# minikube ssh "sudo useradd spark -u 185 -g 0 -m -s /bin/bash"
 
 minikube mount ${PVC_TESTS_HOST_PATH}:${PVC_TESTS_VM_PATH} --9p-version=9p2000.L --gid=0 --uid=185 &; MOUNT_PID=$!
 
