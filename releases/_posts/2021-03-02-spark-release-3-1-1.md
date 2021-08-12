@@ -19,7 +19,7 @@ To download Apache Spark 3.1.1, visit the [downloads](https://spark.apache.org/d
 {:toc}
 
 
-### Core, Spark SQL, Structured Streaming
+### Core and Spark SQL
 
 **Highlight**
 
