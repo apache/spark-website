@@ -4,7 +4,7 @@ In this directory you will find text files formatted using Markdown, with an `.m
 
 Building the site requires [Jekyll](http://jekyllrb.com/docs)
 [Rouge](https://github.com/rouge-ruby/rouge).
-The easiest way to install the right version of these tools is using the
+The easiest way to install the right version of these tools is using
 [Bundler](https://bundler.io/) and running `bundle install` in this directory.
 
 See also https://github.com/apache/spark/blob/master/docs/README.md
@@ -38,7 +38,7 @@ project's `/docs` directory.
 
 ## Rouge and Pygments
 
-We also use [rouge](https://github.com/rouge-ruby/rouge) for syntax highlighting in documentation markdown pages.
+We also use [Rouge](https://github.com/rouge-ruby/rouge) for syntax highlighting in documentation markdown pages.
 Its HTML output is compatible with CSS files designed for [Pygments](https://pygments.org/).
 
 To mark a block of code in your markdown to be syntax highlighted by `jekyll` during the 
