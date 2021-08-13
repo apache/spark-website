@@ -14,7 +14,7 @@ Using Jekyll via `bundle exec jekyll` locks it to the right version.
 So after this you can generate the html website by running `bundle exec jekyll build` in this
 directory. Use the `--watch` flag to have jekyll recompile your files as you save changes.
 
-In addition to generating the site as HTML from the markdown files, jekyll can serve the site via
+In addition to generating the site as HTML from the Markdown files, jekyll can serve the site via
 a web server. To build the site and run a web server use the command `bundle exec jekyll serve` which runs
 the web server on port 4000, then visit the site at http://localhost:4000.
 
@@ -38,14 +38,14 @@ project's `/docs` directory.
 
 ## Rouge and Pygments
 
-We also use [Rouge](https://github.com/rouge-ruby/rouge) for syntax highlighting in documentation markdown pages.
+We also use [Rouge](https://github.com/rouge-ruby/rouge) for syntax highlighting in documentation Markdown pages.
 Its HTML output is compatible with CSS files designed for [Pygments](https://pygments.org/).
 
-To mark a block of code in your markdown to be syntax highlighted by `jekyll` during the 
+To mark a block of code in your Markdown to be syntax highlighted by `jekyll` during the 
 compile phase, use the following syntax:
 
     {% highlight scala %}
-    // Your scala code goes here, you can replace scala with many other
+    // Your Scala code goes here, you can replace Scala with many other
     // supported languages too.
     {% endhighlight %}
 
