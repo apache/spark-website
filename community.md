@@ -24,8 +24,8 @@ Some quick tips when using StackOverflow:
   - Search StackOverflow's 
   <a href="https://stackoverflow.com/questions/tagged/apache-spark">`apache-spark`</a> tag to see if 
   your question has already been answered
-  - Search the nabble archive for
-  <a href="http://apache-spark-user-list.1001560.n3.nabble.com/">user@spark.apache.org</a> 
+  - Search the ASF archive for
+  <a href="https://lists.apache.org/list.html?user@spark.apache.org">user@spark.apache.org</a> 
 - Please follow the StackOverflow <a href="https://stackoverflow.com/help/how-to-ask">code of conduct</a>  
 - Always use the `apache-spark` tag when asking questions
 - Please also use a secondary tag to specify components so subject matter experts can more easily find them.
@@ -42,16 +42,16 @@ project, and scenarios, it is recommended you use the user@spark.apache.org mail
 
 <ul>
   <li>
-    <a href="http://apache-spark-user-list.1001560.n3.nabble.com">user@spark.apache.org</a> is for usage questions, help, and announcements.
+    <a href="https://lists.apache.org/list.html?user@spark.apache.org">user@spark.apache.org</a> is for usage questions, help, and announcements.
     <a href="mailto:user-subscribe@spark.apache.org?subject=(send%20this%20email%20to%20subscribe)">(subscribe)</a>
     <a href="mailto:user-unsubscribe@spark.apache.org?subject=(send%20this%20email%20to%20unsubscribe)">(unsubscribe)</a>
-    <a href="http://apache-spark-user-list.1001560.n3.nabble.com">(archives)</a>
+    <a href="https://lists.apache.org/list.html?user@spark.apache.org">(archives)</a>
   </li>
   <li>
-    <a href="http://apache-spark-developers-list.1001551.n3.nabble.com">dev@spark.apache.org</a> is for people who want to contribute code to Spark.
+    <a href="https://lists.apache.org/list.html?dev@spark.apache.org">dev@spark.apache.org</a> is for people who want to contribute code to Spark.
     <a href="mailto:dev-subscribe@spark.apache.org?subject=(send%20this%20email%20to%20subscribe)">(subscribe)</a>
     <a href="mailto:dev-unsubscribe@spark.apache.org?subject=(send%20this%20email%20to%20unsubscribe)">(unsubscribe)</a>
-    <a href="http://apache-spark-developers-list.1001551.n3.nabble.com">(archives)</a>
+    <a href="https://lists.apache.org/list.html?dev@spark.apache.org">(archives)</a>
   </li>
 </ul>
 
@@ -60,8 +60,8 @@ Some quick tips when using email:
 - Prior to asking submitting questions, please:
   - Search StackOverflow at <a href="https://stackoverflow.com/questions/tagged/apache-spark">`apache-spark`</a> 
   to see if your question has already been answered
-  - Search the nabble archive for
-  <a href="http://apache-spark-user-list.1001560.n3.nabble.com/">user@spark.apache.org</a> 
+  - Search the ASF archive for
+  <a href="https://lists.apache.org/list.html?user@spark.apache.org">user@spark.apache.org</a> 
 - Tagging the subject line of your email will help you get a faster response, e.g. 
 `[Spark SQL]: Does Spark SQL support LEFT SEMI JOIN?`
 - Tags may help identify a topic by:
