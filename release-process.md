@@ -106,7 +106,7 @@ You can upload:
 either use gpg command:
 
 ```
-$ gpg --send-key 26A27D33 --keyserver keys.openpgp.org
+$ gpg --keyserver keys.openpgp.org --send-key 26A27D33
 ```
 
 or copy-paste the ASCII-armored public key to <a href="http://keyserver.ubuntu.com:11371/#submitKey">OpenPGP Keyserver</a>.
