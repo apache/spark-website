@@ -245,21 +245,87 @@
 
 <p>You can skip this section if you have already uploaded your key.</p>
 
-<p>After generating the gpg key, you need to upload your key to a public key server. Please refer to
-<a href="https://www.apache.org/dev/openpgp.html#generate-key">https://www.apache.org/dev/openpgp.html#generate-key</a>
-for details.</p>
+<h4>Generate Key</h4>
 
-<p>If you want to do the release on another machine, you can transfer your secret key to that machine
-via the <code class="language-plaintext highlighter-rouge">gpg --export-secret-keys</code> and <code class="language-plaintext highlighter-rouge">gpg --import</code> commands.</p>
+<p>Here&#8217;s an example of gpg 2.0.12. If you use gpg version 1 series, please refer to <a href="https://www.apache.org/dev/openpgp.html#generate-key">generate-key</a> for details.</p>
 
-<p>The last step is to update the KEYS file with your code signing key
-<a href="https://www.apache.org/dev/openpgp.html#export-public-key">https://www.apache.org/dev/openpgp.html#export-public-key</a></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>:::console
+$ gpg --full-gen-key
+gpg (GnuPG) 2.0.12; Copyright (C) 2009 Free Software Foundation, Inc.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Please select what kind of key you want:
+   (1) RSA and RSA (default)
+   (2) DSA and Elgamal
+   (3) DSA (sign only)
+   (4) RSA (sign only)
+Your selection? 1
+RSA keys may be between 1024 and 4096 bits long.
+What keysize do you want? (2048) 4096
+Requested keysize is 4096 bits
+Please specify how long the key should be valid.
+         0 = key does not expire
+      &lt;n&gt;  = key expires in n days
+      &lt;n&gt;w = key expires in n weeks
+      &lt;n&gt;m = key expires in n months
+      &lt;n&gt;y = key expires in n years
+Key is valid for? (0) 
+Key does not expire at all
+Is this correct? (y/N) y
+
+GnuPG needs to construct a user ID to identify your key.
+
+Real name: Robert Burrell Donkin
+Email address: rdonkin@apache.org
+Comment: CODE SIGNING KEY
+You selected this USER-ID:
+    "Robert Burrell Donkin (CODE SIGNING KEY) &lt;rdonkin@apache.org&gt;"
+
+Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? O
+You need a Passphrase to protect your secret key.
+</code></pre></div></div>
+
+<h4>Upload Key</h4>
+
+<p>After generating the key, we should upload the public key to a <a href="https://infra.apache.org/release-signing.html#keyserver">public key server</a>.
+Upload the public key either by:</p>
+
+<p>(<b>Recommended</b>)
+First, export all public keys to ASCII-armored public key by</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>:::console
+$ gpg --export --armor 
+</code></pre></div></div>
+<p>or export the specific public key if you know the <a href="https://infra.apache.org/release-signing.html#key-id">key ID</a>, e.g.,</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>:::console
+$ gpg --export --armor AD741727
+</code></pre></div></div>
+<p>(Please refer to <a href="https://infra.apache.org/openpgp.html#export-public-key">export-public-key</a> for details.)</p>
+
+<p>Second, copy-paste your ASCII-armored public key to <a href="http://keyserver.ubuntu.com:11371/#submitKey">OpenPGP Keyserver</a> and submit.</p>
+
+<p>or</p>
+
+<p>Use gpg command to upload, e.g.,</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ gpg --send-key B13131DE2
+</code></pre></div></div>
+
+<p>Please refer to <a href="https://infra.apache.org/release-signing.html#keyserver-upload">keyserver-upload</a> for details.</p>
+
+<h4>Update KEYS file with your code signing key</h4>
+
+<p>The code signing key is exactly the same with your armored public key mentioned above.
+You should append it to <a href="https://dist.apache.org/repos/dist/dev/spark/KEYS">KEYS</a> by:</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Move dev/ to release/ when the voting is completed. See Finalize the Release below
 svn co --depth=files "https://dist.apache.org/repos/dist/dev/spark" svn-spark
 # edit svn-spark/KEYS file
 svn ci --username $ASF_USERNAME --password "$ASF_PASSWORD" -m"Update KEYS"
 </code></pre></div></div>
+
+<p>If you want to do the release on another machine, you can transfer your secret key to that machine
+via the <code class="language-plaintext highlighter-rouge">gpg --export-secret-keys</code> and <code class="language-plaintext highlighter-rouge">gpg --import</code> commands.</p>
 
 <h3>Installing docker</h3>
 

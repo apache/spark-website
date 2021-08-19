@@ -39,15 +39,82 @@ If you are a new Release Manager, you can read up on the process from the follow
 
 You can skip this section if you have already uploaded your key.
 
-After generating the gpg key, you need to upload your key to a public key server. Please refer to
-<a href="https://www.apache.org/dev/openpgp.html#generate-key">https://www.apache.org/dev/openpgp.html#generate-key</a>
-for details.
+<h4>Generate Key</h4>
 
-If you want to do the release on another machine, you can transfer your secret key to that machine
-via the `gpg --export-secret-keys` and `gpg --import` commands.
+Here's an example of gpg 2.0.12. If you use gpg version 1 series, please refer to <a href="https://www.apache.org/dev/openpgp.html#generate-key">generate-key</a> for details.
 
-The last step is to update the KEYS file with your code signing key
-<a href="https://www.apache.org/dev/openpgp.html#export-public-key">https://www.apache.org/dev/openpgp.html#export-public-key</a>
+```
+:::console
+$ gpg --full-gen-key
+gpg (GnuPG) 2.0.12; Copyright (C) 2009 Free Software Foundation, Inc.
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Please select what kind of key you want:
+   (1) RSA and RSA (default)
+   (2) DSA and Elgamal
+   (3) DSA (sign only)
+   (4) RSA (sign only)
+Your selection? 1
+RSA keys may be between 1024 and 4096 bits long.
+What keysize do you want? (2048) 4096
+Requested keysize is 4096 bits
+Please specify how long the key should be valid.
+         0 = key does not expire
+      <n>  = key expires in n days
+      <n>w = key expires in n weeks
+      <n>m = key expires in n months
+      <n>y = key expires in n years
+Key is valid for? (0) 
+Key does not expire at all
+Is this correct? (y/N) y
+
+GnuPG needs to construct a user ID to identify your key.
+
+Real name: Robert Burrell Donkin
+Email address: rdonkin@apache.org
+Comment: CODE SIGNING KEY
+You selected this USER-ID:
+    "Robert Burrell Donkin (CODE SIGNING KEY) <rdonkin@apache.org>"
+
+Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? O
+You need a Passphrase to protect your secret key.
+```
+
+<h4>Upload Key</h4>
+
+After generating the key, we should upload the public key to a <a href="https://infra.apache.org/release-signing.html#keyserver">public key server</a>.
+Upload the public key either by:
+
+(<b>Recommended</b>)
+First, export all public keys to ASCII-armored public key by
+```
+:::console
+$ gpg --export --armor 
+```
+or export the specific public key if you know the <a href="https://infra.apache.org/release-signing.html#key-id">key ID</a>, e.g.,
+```
+:::console
+$ gpg --export --armor AD741727
+```
+(Please refer to <a href="https://infra.apache.org/openpgp.html#export-public-key">export-public-key</a> for details.)
+
+Second, copy-paste your ASCII-armored public key to <a href="http://keyserver.ubuntu.com:11371/#submitKey">OpenPGP Keyserver</a> and submit.
+
+or
+
+Use gpg command to upload, e.g.,
+
+```
+$ gpg --send-key B13131DE2
+```
+
+Please refer to <a href="https://infra.apache.org/release-signing.html#keyserver-upload">keyserver-upload</a> for details.
+
+<h4>Update KEYS file with your code signing key</h4>
+
+The code signing key is exactly the same with your armored public key mentioned above.
+You should append it to <a href="https://dist.apache.org/repos/dist/dev/spark/KEYS">KEYS</a> by:
 
 ```
 # Move dev/ to release/ when the voting is completed. See Finalize the Release below
@@ -55,6 +122,9 @@ svn co --depth=files "https://dist.apache.org/repos/dist/dev/spark" svn-spark
 # edit svn-spark/KEYS file
 svn ci --username $ASF_USERNAME --password "$ASF_PASSWORD" -m"Update KEYS"
 ```
+
+If you want to do the release on another machine, you can transfer your secret key to that machine
+via the `gpg --export-secret-keys` and `gpg --import` commands.
 
 <h3>Installing docker</h3>
 
