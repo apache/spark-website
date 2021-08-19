@@ -97,6 +97,21 @@ or export the specific public key if you know the <a href="https://infra.apache.
 :::console
 $ gpg --export --armor AD741727
 ```
+
+Here's an example of how to get the key ID for your public key:
+
+```
+::: console
+gpg --list-keys --fingerprint
+pub   rsa4096 2021-06-11 [SC]
+      C377 AAEF 9DC1 577B ABBE  5194 78F3 1B6D AD74 1727
+uid           [ultimate] YOUR-USER-ID
+
+sub   rsa4096 2021-06-11 [E]
+```
+
+Find the fingerprint of your public key and the key ID is defined as last 8 digits (e.g., AD741727).
+
 (Please refer to <a href="https://infra.apache.org/openpgp.html#export-public-key">export-public-key</a> for details.)
 
 Second, copy-paste your ASCII-armored public key to <a href="http://keyserver.ubuntu.com:11371/#submitKey">OpenPGP Keyserver</a> and submit.
