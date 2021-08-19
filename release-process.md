@@ -106,7 +106,7 @@ or
 Use gpg command to upload, e.g.,
 
 ```
-$ gpg --send-key B13131DE2
+$ gpg --send-key AD741727
 ```
 
 Please refer to <a href="https://infra.apache.org/release-signing.html#keyserver-upload">keyserver-upload</a> for details.
