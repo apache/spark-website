@@ -44,7 +44,6 @@ You can skip this section if you have already uploaded your key.
 Here's an example of gpg 2.0.12. If you use gpg version 1 series, please refer to <a href="https://www.apache.org/dev/openpgp.html#generate-key">generate-key</a> for details.
 
 ```
-:::console
 $ gpg --full-gen-key
 gpg (GnuPG) 2.0.12; Copyright (C) 2009 Free Software Foundation, Inc.
 This is free software: you are free to change and redistribute it.
@@ -110,8 +109,13 @@ Please refer to <a href="https://infra.apache.org/release-signing.html#keyserver
 
 <h4>Update KEYS file with your code signing key</h4>
 
-The code signing key is exactly the same with the ASCII-armored public key mentioned above.
-You should append it to the KEYS file by:
+To get the code signing key (a.k.a ASCII-armored public key), run the command:
+
+```
+$ gpg --export --armor 26A27D33
+```
+
+And then append the generated key to the KEYS file by:
 
 ```
 # Move dev/ to release/ when the voting is completed. See Finalize the Release below
