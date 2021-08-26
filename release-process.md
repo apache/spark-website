@@ -111,7 +111,7 @@ Please refer to <a href="https://infra.apache.org/release-signing.html#keyserver
 <h4>Update KEYS file with your code signing key</h4>
 
 The code signing key is exactly the same with the ASCII-armored public key mentioned above.
-You should append it to <a href="https://dist.apache.org/repos/dist/dev/spark/KEYS">KEYS</a> by:
+You should append it to the KEYS file by:
 
 ```
 # Move dev/ to release/ when the voting is completed. See Finalize the Release below
