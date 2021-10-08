@@ -25,8 +25,6 @@ $ export SPARK_PREPEND_CLASSES=true
 $ ./bin/spark-shell # Now it's using compiled classes
 # ... do some local development ... #
 $ build/sbt compile
-# ... do some local development ... #
-$ build/sbt compile
 $ unset SPARK_PREPEND_CLASSES
 $ ./bin/spark-shell
  
