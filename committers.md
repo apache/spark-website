@@ -179,12 +179,12 @@ After cloning your fork of Spark you already have a remote `origin` pointing the
 contains at least these lines:
 
 ```
-apache	git@github.com:apache/spark-website.git (fetch)
-apache	git@github.com:apache/spark-website.git (push)
-apache-github	git@github.com:apache/spark-website.git (fetch)
-apache-github	git@github.com:apache/spark-website.git (push)
-origin	git@github.com:[your username]/spark-website.git (fetch)
-origin	git@github.com:[your username]/spark-website.git (push)
+apache	git@github.com:apache/spark.git (fetch)
+apache	git@github.com:apache/spark.git (push)
+apache-github	git@github.com:apache/spark.git (fetch)
+apache-github	git@github.com:apache/spark.git (push)
+origin	git@github.com:[your username]/spark.git (fetch)
+origin	git@github.com:[your username]/spark.git (push)
 ```
 
 For the `apache` repo, you will need to set up command-line authentication to GitHub. This may
