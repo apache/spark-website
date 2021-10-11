@@ -307,15 +307,15 @@ head(select(df, df$name.first))
         <div class="row">
             <div class="col-12 col-lg-5 order-2 order-lg-1 mt-5 mt-lg-0" style="font-size: 19px;line-height: 33px;">
                 <div class="scalable-data-science">
-                    <a href="https://spark.apache.org/docs/latest/sql-performance-tuning.html#adaptive-query-execution" alt="Adaptive Query Execution">Adaptive Query Execution</a>
-                    <p>Spark SQL adapts the execution plan at runtime to automatically set the number of reducers and join algorithms.</p>
+                    <a href="{{site.baseurl}}/docs/latest/sql-performance-tuning.html#adaptive-query-execution" alt="Adaptive Query Execution">Adaptive Query Execution</a>
+                    <p>Spark SQL adapts the execution plan at runtime, such as automatically setting the number of reducers and join algorithms.</p>
                 </div>
                 <div class="mt-5 scalable-data-science">
-                    <a href="https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html" alt="Support for ANSI SQL">Support for ANSI SQL</a>
+                    <a href="{{site.baseurl}}/docs/latest/sql-ref-ansi-compliance.html" alt="Support for ANSI SQL">Support for ANSI SQL</a>
                     <p>Use the same SQL you’re already comfortable with.</p>
                 </div>
                 <div class="mt-5 scalable-data-science">
-                    <a href="https://spark.apache.org/docs/latest/sql-data-sources-json.html" alt="Structured and unstructured data">Structured and unstructured data</a>
+                    <a href="{{site.baseurl}}/docs/latest/sql-data-sources-json.html" alt="Structured and unstructured data">Structured and unstructured data</a>
                     <p>Spark SQL works on structured tables and unstructured data such as JSON or images.</p>
                 </div>
             </div>
@@ -338,7 +338,7 @@ head(select(df, df$name.first))
         <div class="row mt-5">
             <div class="col-12 col-sm-4 p-3">
                 <div class="card">
-                    <a href="https://spark.apache.org/community.html" alt="Mailing list">
+                    <a href="{{site.baseurl}}/community.html" alt="Mailing list">
                         <div class="card-body text-center text-xl-start">
                             <img class="d-block d-xl-inline-block m-auto" src="{{site.baseurl}}/images/icon-orange-mailing-list.svg"
                                  width="96" height="96" alt="Mailing list"/> Mailing list
@@ -358,7 +358,7 @@ head(select(df, df$name.first))
             </div>
             <div class="col-12 col-sm-4 p-3">
                 <div class="card">
-                    <a href="https://spark.apache.org/news/" alt="News and events">
+                    <a href="{{site.baseurl}}/news/" alt="News and events">
                         <div class="card-body text-center text-xl-start">
                             <img class="d-block d-xl-inline-block mx-auto" src="{{site.baseurl}}/images/icon-orange-Delta-Table.svg"
                                  width="96" height="96" alt="News and events"/> News and events
@@ -368,7 +368,7 @@ head(select(df, df$name.first))
             </div>
             <div class="col-12 col-sm-4 p-3">
                 <div class="card">
-                    <a href="https://spark.apache.org/contributing.html" alt="How to contribute">
+                    <a href="{{site.baseurl}}/contributing.html" alt="How to contribute">
                         <div class="card-body text-center text-xl-start">
                             <img class="d-block d-xl-inline-block mx-auto" src="{{site.baseurl}}/images/icon-orange-Collaborative.svg"
                                  width="96" height="96" alt="How to contribute"/> How to contribute
@@ -388,7 +388,7 @@ head(select(df, df$name.first))
             </div>
             <div class="col-12 col-sm-4 p-3">
                 <div class="card">
-                    <a href="https://spark.apache.org/committers.html" alt="Committers">
+                    <a href="{{site.baseurl}}/committers.html" alt="Committers">
                         <div class="card-body text-center text-xl-start">
                             <img class="d-block d-xl-inline-block mx-auto"
                                  src="{{site.baseurl}}/images/icon-orange-data-engineer-persona.svg" width="96" height="96"
