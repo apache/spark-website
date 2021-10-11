@@ -6,7 +6,7 @@ navigation:
   weight: 5
   show: true
 ---
-<h2>Current Committers</h2>
+<h2>Current committers</h2>
 
 |Name|Organization|
 |----|------------|
@@ -94,7 +94,7 @@ navigation:
 |Ruifeng Zheng|JD.com|
 |Shixiong Zhu|Databricks|
 
-<h3>Becoming a Committer</h3>
+<h3>Becoming a committer</h3>
 
 To get started contributing to Spark, learn 
 <a href="{{site.baseurl}}/contributing.html">how to contribute</a> – 
@@ -130,7 +130,7 @@ helping vote on releases, enforce Apache project trademarks, take responsibility
 and ensure the project follows Apache project mechanics. The PMC periodically adds committers to the PMC 
 who have shown they understand and can help with these activities.
 
-<h3>Review Process</h3>
+<h3>Review process</h3>
 
 All contributions should be reviewed before merging as described in 
 <a href="{{site.baseurl}}/contributing.html">Contributing to Spark</a>. 
@@ -159,12 +159,12 @@ Being a committer means exercising your judgement while working in a community o
 
 It is hoped that these guidelines do not slow down development; rather, by removing some of the uncertainty, the goal is to make it easier for us to reach consensus. If you have ideas on how to improve these guidelines or other Spark project operating procedures, you should reach out on the dev@ list to start the discussion.
 
-<h3>How to Merge a Pull Request</h3>
+<h3>How to merge a pull request</h3>
 
 Changes pushed to the master branch on Apache cannot be removed; that is, we can't force-push to 
 it. So please don't add any test commits or anything like that, only real patches.
 
-<h4>Setting up Remotes</h4>
+<h4>Setting up remotes</h4>
 
 To use the `merge_spark_pr.py` script described below, you 
 will need to add a git remote called `apache` at `https://github.com/apache/spark`, 
@@ -197,7 +197,7 @@ To check whether the necessary write access are already granted please visit [Gi
 
 Ask `dev@spark.apache.org` if you have trouble with these steps, or want help doing your first merge.
 
-<h4>Merge Script</h4>
+<h4>Merge script</h4>
 
 All merges should be done using the 
 [dev/merge_spark_pr.py](https://github.com/apache/spark/blob/master/dev/merge_spark_pr.py),
@@ -219,7 +219,7 @@ https://issues.apache.org/jira/plugins/servlet/project-config/SPARK/roles .
 
 Once a PR is merged please leave a comment on the PR stating which branch(es) it has been merged with.
 
-<h3>Policy on Backporting Bug Fixes</h3>
+<h3>Policy on backporting bug fixes</h3>
 
 From <a href="https://www.mail-archive.com/dev@spark.apache.org/msg10284.html">`pwendell`</a>:
 

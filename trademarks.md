@@ -6,7 +6,7 @@ navigation:
   weight: 7
   show: true
 ---
-<h2>Apache Spark Trademark Guidelines</h2>
+<h2><span class="text-capitalize">Apache Spark<span class="tm">&trade;</span></span> trademark guidelines</h2>
 
 Apache Spark, Spark and the Spark logo are 
 <a href="https://www.apache.org/foundation/marks/">trademarks</a>

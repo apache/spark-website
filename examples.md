@@ -6,7 +6,7 @@ navigation:
   weight: 4
   show: true
 ---
-<h2>Apache Spark Examples</h2>
+<h2>Apache Spark<span class="tm">&trade;</span> examples</h2>
 
 These examples give a quick overview of the Spark API.
 Spark is built on the concept of <em>distributed datasets</em>, which contain arbitrary Java or
@@ -21,16 +21,11 @@ On top of Spark’s RDD API, high level APIs are provided, e.g.
 These high level APIs provide a concise way to conduct certain data operations.
 In this page, we will show examples using RDD API as well as examples using high level APIs.
 
-<h2>RDD API Examples</h2>
+<h2>RDD API examples</h2>
 
-<h3>Word Count</h3>
+<h3>Word count</h3>
 <p>In this example, we use a few transformations to build a dataset of (String, Int) pairs called <code>counts</code> and then save it to a file.</p>
 
-<ul class="nav nav-tabs">
-  <li class="lang-tab lang-tab-python active"><a href="#">Python</a></li>
-  <li class="lang-tab lang-tab-scala"><a href="#">Scala</a></li>
-  <li class="lang-tab lang-tab-java"><a href="#">Java</a></li>
-</ul>
 
 <div class="tab-content">
 <div class="tab-pane tab-pane-python active">
@@ -71,7 +66,7 @@ counts.saveAsTextFile("hdfs://...");
 </div>
 </div>
 
-<h3>Pi Estimation</h3>
+<h3>Pi estimation</h3>
 <p>Spark can also be used for compute-intensive tasks. This code estimates <span style="font-family: serif; font-size: 120%;">π</span> by "throwing darts" at a circle. We pick random points in the unit square ((0, 0) to (1,1)) and see how many fall in the unit circle. The fraction should be <span style="font-family: serif; font-size: 120%;">π / 4</span>, so we use this to get our estimate.</p>
 
 <ul class="nav nav-tabs">
@@ -127,7 +122,7 @@ System.out.println("Pi is roughly " + 4.0 * count / NUM_SAMPLES);
 </div>
 </div>
 
-<h2>DataFrame API Examples</h2>
+<h2>DataFrame API examples</h2>
 <p>
 In Spark, a <a href="https://spark.apache.org/docs/latest/sql-programming-guide.html#dataframes">DataFrame</a>
 is a distributed collection of data organized into named columns.
@@ -136,7 +131,7 @@ data sources and Spark’s built-in distributed collections without providing sp
 Also, programs based on DataFrame API will be automatically optimized by Spark’s built-in optimizer, Catalyst.
 </p>
 
-<h3>Text Search</h3>
+<h3>Text search</h3>
 <p>In this example, we search through the error messages in a log file.</p>
 
 <ul class="nav nav-tabs">
@@ -205,7 +200,7 @@ errors.filter(col("line").like("%MySQL%")).collect();
 </div>
 </div>
 
-<h3>Simple Data Operations</h3>
+<h3>Simple data operations</h3>
 <p>
 In this example, we read a table stored in a database and calculate the number of people for every age.
 Finally, we save the calculated result to S3 in the format of JSON.
@@ -302,7 +297,7 @@ countsByAge.write().format("json").save("s3a://...");
 </div>
 </div>
 
-<h2>Machine Learning Example</h2>
+<h2>Machine learning example</h2>
 <p>
 <a href="https://spark.apache.org/docs/latest/mllib-guide.html">MLlib</a>, Spark’s Machine Learning (ML) library, provides many distributed ML algorithms.
 These algorithms cover tasks such as feature extraction, classification, regression, clustering,
@@ -311,7 +306,7 @@ MLlib also provides tools such as ML Pipelines for building workflows, CrossVali
 and model persistence for saving and loading models.
 </p>
 
-<h3>Prediction with Logistic Regression</h3>
+<h3>Prediction with logistic regression</h3>
 <p>
 In this example, we take a dataset of labels and feature vectors.
 We learn to predict the labels from feature vectors using the Logistic Regression algorithm.
@@ -396,7 +391,7 @@ model.transform(df).show();
 </div>
 
 <a name="additional"></a>
-<h1>Additional Examples</h1>
+<h1>Additional examples</h1>
 
 Many additional examples are distributed with Spark:
 

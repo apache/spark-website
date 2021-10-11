@@ -7,10 +7,10 @@ navigation:
   show: true
 ---
 
-<h2>Apache Spark Community</h2>
+<h2>Apache Spark<span class="tm">&trade;</span> community</h2>
 
 <a name="have-questions"></a>
-<h3>Have Questions?</h3>
+<h3>Have questions?</h3>
 
 <h4>StackOverflow</h4>
 
@@ -35,7 +35,7 @@ Some quick tips when using StackOverflow:
 - No jobs, sales, or solicitation is permitted on StackOverflow
 
 <a name="mailing-lists"></a>
-<h4>Mailing Lists</h4>
+<h4>Mailing lists</h4>
 
 For broad, opinion based, ask for external resources, debug issues, bugs, contributing to the 
 project, and scenarios, it is recommended you use the user@spark.apache.org mailing list.
@@ -72,13 +72,13 @@ Some quick tips when using email:
 and include only a few lines of the pertinent code / log within the email.
 - No jobs, sales, or solicitation is permitted on the Apache Spark mailing lists.
 
-<h5>Reporting Security Issues</h5>
+<h5>Reporting security issues</h5>
 
 Please see the [Security](security.html) page for information on how to report sensitive security
 vulnerabilities, and for information on known security issues.
 
 <a name="chat"></a>
-<h4>Chat Rooms</h4>
+<h4>Chat rooms</h4>
 
 Chat rooms are great for quick questions or discussions on specialized topics. The following chat rooms are not officially part of Apache Spark; they are provided for reference only.
 <ul>
@@ -88,7 +88,7 @@ Chat rooms are great for quick questions or discussions on specialized topics. T
 </ul>
 
 <a name="events"></a>
-<h3>Events and Meetups</h3>
+<h3>Events and meetups</h3>
 
 <h4>Conferences</h4>
 <ul>
@@ -197,11 +197,11 @@ Spark Meetups are grass-roots events organized and hosted by individuals in the 
 <p>If you'd like your meetup or conference added, please email <a href="mailto:user@spark.apache.org">user@spark.apache.org</a>.</p>
 
 <a name="issue-tracker"></a>
-<h3>Issue Tracker</h3>
+<h3>Issue tracker</h3>
 
 <p>The project tracks bugs and new features on <a href="https://issues.apache.org/jira/browse/SPARK">JIRA</a>. If you'd like, you can also subscribe to <a href="https://mail-archives.apache.org/mod_mbox/spark-issues/">issues@spark.apache.org</a> to receive emails about new issues, and <a href="https://mail-archives.apache.org/mod_mbox/spark-commits/">commits@spark.apache.org</a> to get emails about commits.</p>
 
-<h3>Powered By</h3>
+<h3>Powered by</h3>
 
 <p>Our site has a list of <a href="{{site.baseurl}}/powered-by.html">projects and organizations powered by Spark</a>.
 Add yours by emailing `dev@spark.apache.org`.

@@ -7,11 +7,11 @@ navigation:
   show: true
 ---
 
-<h2>Useful Developer Tools</h2>
+<h2>Useful developer tools</h2>
 
-<h3 id="reducing-build-times">Reducing Build Times</h3>
+<h3 id="reducing-build-times">Reducing build times</h3>
 
-<h4>SBT: Avoiding Re-Creating the Assembly JAR</h4>
+<h4>SBT: Avoiding re-creating the assembly JAR</h4>
 
 Spark's default build strategy is to assemble a jar including all of its dependencies. This can 
 be cumbersome when doing iterative development. When developing locally, it is possible to create 
@@ -219,7 +219,7 @@ In case of a failure the POD logs (driver and executors) can be found at the end
 
 Kubernetes, and more importantly, minikube have rapid release cycles, and point releases have been found to be buggy and/or break older and existing functionality.  If you are having trouble getting tests to pass on Jenkins, but locally things work, don't hesitate to file a Jira issue.
 
-<h3>Testing with GitHub Actions workflow</h3>
+<h3>Testing with GitHub actions workflow</h3>
 
 Apache Spark leverages GitHub Actions that enables continuous integration and a wide range of automation. Apache Spark repository provides several GitHub Actions workflows for developers to run before creating a pull request.
 
@@ -258,7 +258,7 @@ Apache Spark repository provides an easy way to run benchmarks in GitHub Actions
 <img src="/images/running-benchamrks-using-github-actions.png" style="width: 100%; max-width: 800px;" />
 
 
-<h3>ScalaTest Issues</h3>
+<h3>ScalaTest issues</h3>
 
 If the following error occurs when running ScalaTest
 
@@ -281,7 +281,7 @@ sufficient to run a test from the command line:
 build/sbt "testOnly org.apache.spark.rdd.SortingSuite"
 ```
 
-<h3>Running Different Test Permutations on Jenkins</h3>
+<h3>Running different test permutations on Jenkins</h3>
 
 When running tests for a pull request on Jenkins, you can add special phrases to the title of 
 your pull request to change testing behavior. This includes:
@@ -347,7 +347,7 @@ updating your pull request. Usually, the problems reported by MiMa are
 self-explanatory and revolve around missing members (methods or fields) that
 you will have to add back in order to maintain binary compatibility.
 
-<h3>Checking Out Pull Requests</h3>
+<h3>Checking out pull requests</h3>
 
 Git provides a mechanism for fetching remote pull requests into your own local repository. 
 This is useful when reviewing code or testing patches locally. If you haven't yet cloned the 
@@ -380,7 +380,7 @@ $ git checkout origin/pr/112
 $ git checkout origin/pr/112 -b new-branch
 ```
 
-<h3>Generating Dependency Graphs</h3>
+<h3>Generating dependency graphs</h3>
 
 ```
 $ # sbt
@@ -391,13 +391,13 @@ $ build/mvn -DskipTests install
 $ build/mvn dependency:tree
 ```
 
-<h3>Organizing Imports</h3>
+<h3>Organizing imports</h3>
 
 You can use a <a href="https://plugins.jetbrains.com/plugin/7350">IntelliJ Imports Organizer</a> 
 from Aaron Davidson to help you organize the imports in 
 your code.  It can be configured to match the import ordering from the style guide.
 
-<h3>Formatting Code</h3>
+<h3>Formatting code</h3>
 
 To format Scala code, run the following command prior to submitting a PR:
 
@@ -407,7 +407,7 @@ $ ./dev/scalafmt
 
 By default, this script will format files that differ from git master. For more information, see <a href="https://scalameta.org/scalafmt/">scalafmt documentation</a>, but use the existing script not a locally installed version of scalafmt.
 
-<h3>IDE Setup</h3>
+<h3>IDE setup</h3>
 
 <h4>IntelliJ</h4>
 
@@ -465,10 +465,10 @@ Error:(147, 9) value q is not a member of StringContext
         q"""
         ^ 
 ```
-<h4>Debug Spark Remotely</h4>
+<h4>Debug Spark remotely</h4>
 This part will show you how to debug Spark remotely with IntelliJ.
 
-<h5>Set up Remote Debug Configuration</h5>
+<h5>Set up remote debug configuration</h5>
 Follow <i>Run > Edit Configurations > + > Remote</i> to open a default Remote Configuration template:
 <img src="/images/intellij_remote_debug_configuration.png" style="width: 75%; max-width: 660px;" />
 
@@ -552,7 +552,7 @@ in the Eclipse install directory. Increase the following setting as needed:
 ```
 
 <a name="nightly-builds"></a>
-<h3>Nightly Builds</h3>
+<h3>Nightly builds</h3>
 
 Spark publishes SNAPSHOT releases of its Maven artifacts for both master and maintenance 
 branches on a nightly basis. To link to a SNAPSHOT you need to add the ASF snapshot 
@@ -567,7 +567,7 @@ version: 3.0.0-SNAPSHOT
 ```
 
 <a name="profiling"></a>
-<h3>Profiling Spark Applications Using YourKit</h3>
+<h3>Profiling Spark applications using YourKit</h3>
 
 Here are instructions on profiling Spark applications using YourKit Java Profiler.
 

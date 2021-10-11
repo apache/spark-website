@@ -8,10 +8,12 @@ navigation:
 ---
 
 <script type="text/javascript">
-$(document).ready(function() {
-  initDownloads();
-  initReleaseNotes();
-});
+window.onload = function () {
+  $(document).ready(function() {
+    initDownloads();
+    initReleaseNotes();
+  });
+}
 </script>
 
 ## Download Apache Spark&trade;
@@ -28,7 +30,7 @@ $(document).ready(function() {
 
 Note that, Spark 2.x is pre-built with Scala 2.11 except version 2.4.2, which is pre-built with Scala 2.12. Spark 3.0+ is pre-built with Scala 2.12.
 
-### Latest Preview Release
+### Latest preview release
 Preview releases, as the name suggests, are releases for previewing upcoming features.
 Unlike nightly packages, preview releases have been audited by the project's management committee
 to satisfy the legal requirements of Apache Software Foundation's release policy.
@@ -46,11 +48,11 @@ Spark artifacts are [hosted in Maven Central](https://search.maven.org/search?q=
 ### Installing with PyPi
 <a href="https://pypi.org/project/pyspark/">PySpark</a> is now available in pypi. To install just run `pip install pyspark`.
 
-### Release Notes for Stable Releases
+### Release notes for stable releases
 
 <ul id="sparkReleaseNotes"></ul>
 
-### Archived Releases
+### Archived releases
 
 As new Spark releases come out for each development stream, previous ones will be archived,
 but they are still available at [Spark release archives](https://archive.apache.org/dist/spark/).

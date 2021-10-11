@@ -7,7 +7,7 @@ navigation:
   show: true
 ---
 
-<h2>Reporting Security Issues</h2>
+<h2>Reporting security issues</h2>
 
 Apache Spark uses the standard process outlined by the [Apache Security Team](https://www.apache.org/security/)
 for reporting vulnerabilities. Note that vulnerabilities should not be publicly disclosed until the project has
@@ -16,9 +16,9 @@ responded.
 To report a possible security vulnerability, please email `security@spark.apache.org`. This is a
 non-public list that will reach the Apache Security team, as well as the Spark PMC.
 
-<h2>Known Security Issues</h2>
+<h2>Known security issues</h2>
 
-<h3 id="CVE-2020-9480">CVE-2020-9480: Apache Spark RCE vulnerability in auth-enabled standalone master</h3>
+<h3 id="CVE-2020-9480">CVE-2020-9480: Apache Spark<span class="tm">&trade;</span> RCE vulnerability in auth-enabled standalone master</h3>
 
 Severity: Important
 
@@ -51,7 +51,7 @@ Credit:
 - Ayoub Elaassal
 
 
-<h3 id="CVE-2019-10099">CVE-2019-10099: Apache Spark unencrypted data on local disk</h3>
+<h3 id="CVE-2019-10099">CVE-2019-10099: Apache Spark<span class="tm">&trade;</span> unencrypted data on local disk</h3>
 
 Severity: Important
 
@@ -75,7 +75,7 @@ Credit:
 - This issue was reported by Thomas Graves of NVIDIA.
 
 
-<h3 id="CVE-2018-11760">CVE-2018-11760: Apache Spark local privilege escalation vulnerability</h3>
+<h3 id="CVE-2018-11760">CVE-2018-11760: Apache Spark<span class="tm">&trade;</span> local privilege escalation vulnerability</h3>
 
 Severity: Important
 
@@ -106,7 +106,7 @@ Credit:
 
 
 
-<h3 id="CVE-2018-17190">CVE-2018-17190: Unsecured Apache Spark standalone executes user code</h3>
+<h3 id="CVE-2018-17190">CVE-2018-17190: Unsecured Apache Spark<span class="tm">&trade;</span> standalone executes user code</h3>
 
 Severity: Low
 
@@ -135,7 +135,7 @@ Credit:
 - Andre Protas, Apple Information Security
 
 
-<h3 id="CVE-2018-11804">CVE-2018-11804: Apache Spark build/mvn runs zinc, and can expose information from build machines</h3>
+<h3 id="CVE-2018-11804">CVE-2018-11804: Apache Spark<span class="tm">&trade;</span> build/mvn runs zinc, and can expose information from build machines</h3>
 
 Severity: Low
 
@@ -167,7 +167,7 @@ Credit:
 - Andre Protas, Apple Information Security
 
 
-<h3 id="CVE-2018-11770">CVE-2018-11770: Apache Spark standalone master, Mesos REST APIs not controlled by authentication</h3>
+<h3 id="CVE-2018-11770">CVE-2018-11770: Apache Spark<span class="tm">&trade;</span> standalone master, Mesos REST APIs not controlled by authentication</h3>
 
 Severity: Medium
 
@@ -204,7 +204,7 @@ Credit:
 - Fengwei Zhang, Alibaba Cloud Security Team
 
 
-<h3 id="CVE-2018-8024">CVE-2018-8024: Apache Spark XSS vulnerability in UI</h3>
+<h3 id="CVE-2018-8024">CVE-2018-8024: Apache Spark<span class="tm">&trade;</span> XSS vulnerability in UI</h3>
 
 Severity: Medium
 
@@ -232,7 +232,7 @@ Credit:
 
 - Spencer Gietzen, Rhino Security Labs
 
-<h3 id="CVE-2018-1334">CVE-2018-1334: Apache Spark local privilege escalation vulnerability</h3>
+<h3 id="CVE-2018-1334">CVE-2018-1334: Apache Spark<span class="tm">&trade;</span> local privilege escalation vulnerability</h3>
 
 Severity: High
 
@@ -261,7 +261,7 @@ Credit:
 
 - Nehmé Tohmé, Cloudera, Inc.
 
-<h3 id="CVE-2017-12612">CVE-2017-12612 Unsafe deserialization in Apache Spark launcher API</h3>
+<h3 id="CVE-2017-12612">CVE-2017-12612 Unsafe deserialization in Apache Spark<span class="tm">&trade;</span> launcher API</h3>
 
 JIRA: [SPARK-20922](https://issues.apache.org/jira/browse/SPARK-20922)
 
@@ -292,7 +292,7 @@ Credit:
 
 - Aditya Sharad, Semmle
 
-<h3 id="CVE-2017-7678">CVE-2017-7678 Apache Spark XSS web UI MHTML vulnerability</h3>
+<h3 id="CVE-2017-7678">CVE-2017-7678 Apache Spark<span class="tm">&trade;</span> XSS web UI MHTML vulnerability</h3>
 
 JIRA: [SPARK-20393](https://issues.apache.org/jira/browse/SPARK-20393)
 

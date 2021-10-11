@@ -6,7 +6,7 @@ navigation:
   weight: 7
   show: true
 ---
-<h2>Apache Spark FAQ</h2>
+<h2><span class="text-capitalize">Apache Spark<span class="tm">&trade;</span></span> FAQ</h2>
 
 <p class="question">How does Spark relate to Apache Hadoop?</p>
 <p class="answer">
