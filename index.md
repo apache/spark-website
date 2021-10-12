@@ -117,8 +117,7 @@ navigation:
                         <div class="tab-pane show active" id="nav-quick_start" role="tabpanel" aria-labelledby="nav-quick_start-tab">
 {% highlight python %}
 df = spark.read.json("logs.json")
-df.where("age > 21")
-  .select("name.first").show()
+df.where("age > 21").select("name.first").show()
 {% endhighlight %}
                         </div>
                         <div class="tab-pane" id="nav-machine_learning" role="tabpanel" aria-labelledby="nav-machine_learning-tab">
@@ -144,9 +143,7 @@ model.transform(test_df).show()
 df = spark.read.csv("accounts.csv", header=True)
 
 # Select subset of features and filter for balance > 0
-filtered_df = (df
-  .select("AccountBalance", "CountOfDependents")
-  .filter("AccountBalance > 0"))
+filtered_df = df.select("AccountBalance", "CountOfDependents").filter("AccountBalance > 0")
 
 # Generate summary statistics
 filtered_df.summary().show()
@@ -203,9 +200,9 @@ df.where("age > 21")
                     <div class="window"><span class="circle red"></span><span class="circle yellow"></span><span class="circle green"></span></div>
                     <div class="spark-code">
 {% highlight java %}
-Dataset df = spark.read().json("logs.json")
+Dataset df = spark.read().json("logs.json");
 df.where("age > 21")
-  .select("name.first").show()
+  .select("name.first").show();
 {% endhighlight %}
                     </div>
                 </div>
