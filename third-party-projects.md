@@ -23,7 +23,7 @@ Note that all project and product names should follow [trademark guidelines](/tr
 community-managed list of third-party libraries, add-ons, and applications that work with 
 Apache Spark. You can add a package as long as you have a GitHub repository.
 
-<h2>Infrastructure Projects</h2>
+<h2>Infrastructure projects</h2>
 
 - <a href="https://github.com/spark-jobserver/spark-jobserver">REST Job Server for Apache Spark</a> - 
 REST interface for managing and submitting Spark jobs on the same cluster.
@@ -46,7 +46,7 @@ against Spark, and data scientists to use Javascript in Jupyter notebooks.
 - <a href="https://github.com/databricks/koalas">Koalas</a> - Data frame API on Apache Spark that more closely follows Python's pandas.
 - <a href="https://datafu.apache.org/docs/spark/getting-started.html">Apache DataFu</a> - A collection of utils and user-defined-functions for working with large scale data in Apache Spark, as well as making Scala-Python interoperability easier.
 
-<h2>Applications Using Spark</h2>
+<h2>Applications using Spark</h2>
 
 - <a href="https://mahout.apache.org/">Apache Mahout</a> - Previously on Hadoop MapReduce, 
 Mahout has switched to using Spark as the backend
@@ -68,12 +68,12 @@ transforming, and analyzing genomic data using Apache Spark
 - <a href="https://github.com/JohnSnowLabs/spark-nlp">Natural Language Processing for Apache Spark</a> - A library to provide simple, performant, and accurate NLP annotations for machine learning pipelines
 - <a href="http://rumbledb.org">Rumble for Apache Spark</a> - A JSONiq engine to query, with a functional language, large, nested, and heterogeneous JSON datasets that do not fit in dataframes.
 
-<h2>Performance, Monitoring, and Debugging Tools for Spark</h2>
+<h2>Performance, monitoring, and debugging tools for Spark</h2>
 
 - <a href="https://github.com/g1thubhub/phil_stopwatch">Performance and debugging library</a> - A library to analyze Spark and PySpark applications for improving performance and finding the cause of failures
 - <a href="https://www.datamechanics.co/delight">Data Mechanics Delight</a> - Delight is a free, hosted, cross-platform Spark UI alternative backed by an open-source Spark agent. It features new metrics and visualizations to simplify Spark monitoring and performance tuning.
 
-<h2>Additional Language Bindings</h2>
+<h2>Additional language bindings</h2>
 
 <h3>C# / .NET</h3>
 

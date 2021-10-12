@@ -19,7 +19,7 @@ So, this guide organizes contributions in order that they should probably be con
 contributors who intend to get involved long-term. Build some track record of helping others, 
 rather than just open pull requests.
 
-<h2>Contributing by Helping Other Users</h2>
+<h2>Contributing by helping other users</h2>
 
 A great way to contribute to Spark is to help answer user questions on the `user@spark.apache.org` 
 mailing list or on StackOverflow. There are always many new Spark users; taking a few minutes to 
@@ -33,14 +33,14 @@ See the <a href="{{site.baseurl}}/mailing-lists.html">Mailing Lists guide</a> fo
 about how to effectively participate in discussions on the mailing list, as well as forums 
 like StackOverflow.
 
-<h2>Contributing by Testing Releases</h2>
+<h2>Contributing by testing releases</h2>
 
 Spark's release process is community-oriented, and members of the community can vote on new 
 releases on the `dev@spark.apache.org` mailing list. Spark users are invited to subscribe to 
 this list to receive announcements, and test their workloads on newer release and provide 
 feedback on any performance or correctness issues found in the newer release.
 
-<h2>Contributing by Reviewing Changes</h2>
+<h2>Contributing by reviewing changes</h2>
 
 Changes to Spark source code are proposed, reviewed and committed via 
 <a href="https://github.com/apache/spark/pulls">GitHub pull requests</a> (described later). 
@@ -51,7 +51,7 @@ questions or pointing out issues -- as simple as typos or small issues of style.
 See also <a href="https://spark-prs.appspot.com/">https://spark-prs.appspot.com/</a> for a
 convenient way to view and filter open PRs.
 
-<h2>Contributing Documentation Changes</h2>
+<h2>Contributing documentation changes</h2>
 
 To propose a change to _release_ documentation (that is, docs that appear under 
 <a href="https://spark.apache.org/docs/">https://spark.apache.org/docs/</a>), 
@@ -65,7 +65,7 @@ To propose a change to the rest of the documentation (that is, docs that do _not
 <a href="https://spark.apache.org/docs/">https://spark.apache.org/docs/</a>), similarly, edit the Markdown in the 
 <a href="https://github.com/apache/spark-website">spark-website repository</a> and open a pull request.
 
-<h2>Contributing User Libraries to Spark</h2>
+<h2>Contributing user libraries to Spark</h2>
 
 Just as Java and Scala applications can access a huge selection of libraries and utilities, 
 none of which are part of Java or Scala themselves, Spark aims to support a rich ecosystem of 
@@ -77,7 +77,7 @@ To that end, large and independent new functionality is often rejected for inclu
 itself, but, can and should be hosted as a separate project and repository, and included in 
 the <a href="https://spark-packages.org/">spark-packages.org</a> collection.
 
-<h2>Contributing Bug Reports</h2>
+<h2>Contributing bug reports</h2>
 
 Ideally, bug reports are accompanied by a proposed code change to fix the bug. This isn't 
 always possible, as those who discover a bug may not have the experience to fix it. A bug 
@@ -106,7 +106,7 @@ should consider <a href="https://spark-packages.org/">spark-packages.org</a> fir
 or be discussed on the mailing 
 list first. Feature requests may be rejected, or closed after a long period of inactivity.
 
-<h2>Contributing to JIRA Maintenance</h2>
+<h2>Contributing to JIRA maintenance</h2>
 
 Given the sheer volume of issues raised in the Apache Spark JIRA, inevitably some issues are 
 duplicates, or become obsolete and eventually fixed otherwise, or can't be reproduced, or could 
@@ -137,9 +137,9 @@ in acting on it, then resolve as **Won't Fix**
 - Umbrellas are frequently marked **Done** if they are just container issues that don't correspond 
 to an actionable change of their own
 
-<h2>Preparing to Contribute Code Changes</h2>
+<h2>Preparing to contribute code changes</h2>
 
-<h3>Choosing What to Contribute</h3>
+<h3>Choosing what to contribute</h3>
 
 Spark is an exceptionally busy project, with a new JIRA or pull request every few hours on average. 
 Review can take hours or days of committer time. Everyone benefits if contributors focus on 
@@ -173,7 +173,7 @@ It's worth reemphasizing that changes to the core of Spark, or to highly complex
 like SQL and Catalyst, are more difficult to make correctly. They will be subjected to more scrutiny,
 and held to a higher standard of review than changes to less critical code.
 
-<h3>MLlib-specific Contribution Guidelines</h3>
+<h3>MLlib-specific contribution guidelines</h3>
 
 While a rich set of algorithms is an important goal for MLLib, scaling the project requires 
 that maintainability, consistency, and code quality come first. New algorithms should:
@@ -186,7 +186,7 @@ that maintainability, consistency, and code quality come first. New algorithms s
 - Come with a reasonable expectation of developer support.
 - Have `@Since` annotation on public classes, methods, and variables.
 
-<h3>Error Message Guidelines</h3>
+<h3>Error message guidelines</h3>
 
 Exceptions thrown in Spark should be associated with standardized and actionable
 error messages.
@@ -209,7 +209,7 @@ When writing error messages, you should:
 
 See the <a href="{{site.baseurl}}/error-message-guidelines.html">error message guidelines</a> for more details.
 
-<h3>Code Review Criteria</h3>
+<h3>Code review criteria</h3>
 
 Before considering how to contribute code, it's useful to understand how code is reviewed, 
 and why changes may be rejected. See the 
@@ -230,7 +230,7 @@ rather than receive iterations of review.
 - Reduces complexity and lines of code
 - Change has already been discussed and is known to committers
 
-<h4>Negatives, Risks</h4>
+<h4>Negatives, risks</h4>
 
 - Band-aids a symptom of a bug only
 - Introduces complex new functionality, especially an API that needs to be supported
@@ -243,7 +243,7 @@ externally and indexed by <a href="https://spark-packages.org/">spark-packages.o
 - Adds a large amount of code
 - Makes lots of modifications in one "big bang" change
 
-<h2>Contributing Code Changes</h2>
+<h2>Contributing code changes</h2>
 
 Please review the preceding section before proposing a code change. This section documents how to do so.
 
@@ -253,7 +253,7 @@ this explicitly, by submitting any copyrighted material via pull request, email,
 you agree to license the material under the project's open source license and warrant that you 
 have the legal authority to do so.**
 
-<h3>Cloning the Apache Spark source code</h3>
+<h3>Cloning the Apache Spark<span class="tm">&trade;</span> source code</h3>
 
 If you are interested in working with the newest under-development code or contributing to Apache Spark development, you can check out the master branch from Git:
 
@@ -320,7 +320,7 @@ Example: `Fix typos in Foo scaladoc`
 1. If the change is a large change, consider inviting discussion on the issue at 
 `dev@spark.apache.org` first before proceeding to implement the change.
 
-<h3>Pull Request</h3>
+<h3>Pull request</h3>
 
 1. <a href="https://help.github.com/articles/fork-a-repo/">Fork</a> the GitHub repository at 
 <a href="https://github.com/apache/spark">https://github.com/apache/spark</a> if you haven't already
@@ -397,7 +397,7 @@ with a link to the full results on Jenkins.
 automatically to test SparkR on Windows, which takes roughly an hour. Similarly to the steps
 above, fix failures and push new commits which will request the re-test in AppVeyor.
 
-<h3>The Review Process</h3>
+<h3>The review process</h3>
 
 - Other reviewers, including committers, may comment on the changes and suggest modifications. 
 Changes can be added by simply pushing more commits to the same branch.
@@ -419,7 +419,7 @@ running `git fetch upstream` followed by `git rebase upstream/master` and resolv
 then pushing the result to your branch.
 - Try to be responsive to the discussion rather than let days pass between replies
 
-<h3>Closing Your Pull Request / JIRA</h3>
+<h3>Closing your pull request / JIRA</h3>
 
 - If a change is accepted, it will be merged and the pull request will automatically be closed, 
 along with the associated JIRA if any
@@ -444,7 +444,7 @@ the JIRA is not going to be resolved by any pull request (not a problem, won't f
 resolve the JIRA.
 
 <a name="code-style-guide"></a>
-<h2>Code Style Guide</h2>
+<h2>Code style guide</h2>
 
 Please follow the style of the existing codebase.
 
@@ -462,13 +462,13 @@ Scala guidelines below. The latter is preferred.
 <a href="http://docs.scala-lang.org/style/">Scala style guide</a> and
 <a href="https://github.com/databricks/scala-style-guide">Databricks Scala guide</a>. The latter is preferred. To format Scala code, run ./dev/scalafmt prior to submitting a PR.
 
-<h3>If in Doubt</h3>
+<h3>If in doubt</h3>
 
 If you're not sure about the right style for something, try to follow the style of the existing 
 codebase. Look at whether there are other examples in the code that use your feature. Feel free 
 to ask on the `dev@spark.apache.org` list as well and/or ask committers.
 
-<h2>Code of Conduct</h2>
+<h2>Code of conduct</h2>
 The Apache Spark project follows the <a href="https://www.apache.org/foundation/policies/conduct.html">Apache Software Foundation Code of Conduct</a>.  The <a href="https://www.apache.org/foundation/policies/conduct.html">code of conduct</a> applies to all spaces managed by the Apache Software Foundation, including IRC, all public and private mailing lists, issue trackers, wikis, blogs, Twitter, and any other communication channel used by our communities. A code of conduct which is specific to in-person events (ie., conferences) is codified in the published ASF anti-harassment policy.
 
 We expect this code of conduct to be honored by everyone who participates in the Apache community formally or informally, or claims any affiliation with the Foundation, in any Foundation-related activities and especially when representing the ASF, in any role.

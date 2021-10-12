@@ -12,7 +12,7 @@ subproject: MLlib
 
 <div class="row row-padded">
   <div class="col-md-7 col-sm-7">
-    <h2>Ease of Use</h2>
+    <h2>Ease of use</h2>
     <p class="lead">
       Usable in Java, Scala, Python, and R.
     </p>
@@ -61,7 +61,7 @@ subproject: MLlib
 
 <div class="row row-padded" style="margin-bottom: 15px;">
   <div class="col-md-7 col-sm-7">
-    <h2>Runs Everywhere</h2>
+    <h2>Runs everywhere</h2>
     <p class="lead">
       Spark runs on Hadoop, Apache Mesos, Kubernetes, standalone, or in the cloud, against diverse data sources.
     </p>
@@ -138,7 +138,7 @@ subproject: MLlib
   </div>
 
   <div class="col-md-4 col-padded">
-    <h3>Getting Started</h3>
+    <h3>Getting started</h3>
     <p>
       To get started with MLlib:
     </p>
@@ -156,7 +156,7 @@ subproject: MLlib
 
 <div class="row">
   <div class="col-sm-12 col-center">
-    <a href="{{site.baseurl}}/downloads.html" class="btn btn-success btn-lg btn-multiline">
+    <a href="{{site.baseurl}}/downloads.html" class="btn btn-cta btn-lg btn-multiline">
       Download Apache Spark<br/><span class="small">Includes MLlib</span>
     </a>
   </div>

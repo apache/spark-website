@@ -93,7 +93,7 @@ subproject: GraphX
   </div>
 
   <div class="col-md-6 col-padded">
-    <h3>Getting Started</h3>
+    <h3>Getting started</h3>
     <p>
       To get started with GraphX:
     </p>
@@ -111,7 +111,7 @@ subproject: GraphX
 
 <div class="row">
   <div class="col-sm-12 col-center">
-    <a href="{{site.baseurl}}/downloads.html" class="btn btn-success btn-lg btn-multiline">
+    <a href="{{site.baseurl}}/downloads.html" class="btn btn-cta btn-lg btn-multiline">
       Download Apache Spark<br/><span class="small">Includes GraphX</span>
     </a>
   </div>

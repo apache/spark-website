@@ -7,7 +7,7 @@ navigation:
   show: true
 ---
 
-<h2>Spark Project Improvement Proposals (SPIP)</h2>
+<h2>Spark project improvement proposals (SPIP)</h2>
 
 The purpose of an SPIP is to inform and involve the user community in major improvements to the Spark codebase throughout the development process, to increase the likelihood that user needs are met.
 
@@ -45,7 +45,7 @@ Any <strong>community member</strong> can help by discussing whether an SPIP is 
 - Get feedback from users and iterate on the design & implementation
 - Uphold the quality of the changes, including verifying whether the changes satisfy the goal of the SPIP and are absent of critical bugs before releasing them
 
-<h3>SPIP Process</h3>
+<h3>SPIP process</h3>
 <h4>Proposing an SPIP</h4>
 
 Anyone may propose an SPIP, using the document template below. Please only submit an SPIP if you are willing to help, at least with discussion.
@@ -55,7 +55,7 @@ After a SPIP is created, the author should email <a href="mailto:dev@spark.apach
 If an SPIP is too small or incremental and should have been done through the normal JIRA process, a committer should remove the SPIP label.
 
 
-<h4>SPIP Document Template</h4>
+<h4>SPIP document template</h4>
 
 A SPIP document is a short document with a few questions, inspired by the Heilmeier Catechism:
 

@@ -7,7 +7,7 @@ navigation:
   show: true
 ---
 
-<h2>Project and Product names using "Spark"</h2>
+<h2>Project and product names using "Spark"</h2>
 
 Organizations creating products and projects for use with Apache Spark, along with associated 
 marketing materials, should take care to respect the trademark in "Apache Spark" and its logo. 
@@ -26,7 +26,7 @@ It is common practice to create software identifiers (Maven coordinates, module 
 like "spark-foo". These are permitted. Nominative use of trademarks in descriptions is also 
 always allowed, as in "BigCoProduct is a widget for Apache Spark".
 
-<h2>Companies and Organizations</h2>
+<h2>Companies and organizations</h2>
 
 To add yourself to the list, please email `dev@spark.apache.org` with your organization name, URL, 
 a list of which Spark components you are using, and a short description of your use case.

@@ -7,7 +7,7 @@ navigation:
   show: true
 ---
 
-<h2>Preparing Spark Releases</h2>
+<h2>Preparing Spark releases</h2>
 
 <h3>Background</h3>
 
@@ -39,7 +39,7 @@ If you are a new Release Manager, you can read up on the process from the follow
 
 You can skip this section if you have already uploaded your key.
 
-<h4>Generate Key</h4>
+<h4>Generate key</h4>
 
 Here's an example of gpg 2.0.12. If you use gpg version 1 series, please refer to <a href="https://www.apache.org/dev/openpgp.html#generate-key">generate-key</a> for details.
 
@@ -97,7 +97,7 @@ sub   rsa4096 2021-08-19 [E]
 
 Note that the last 8 digits (26A27D33) of the public key is the <a href="https://infra.apache.org/release-signing.html#key-id">key ID</a>.
 
-<h4>Upload Key</h4>
+<h4>Upload key</h4>
 
 After generating the public key, we should upload it to <a href="https://infra.apache.org/release-signing.html#keyserver">public key server</a>:
 
@@ -127,14 +127,14 @@ svn ci --username $ASF_USERNAME --password "$ASF_PASSWORD" -m"Update KEYS"
 If you want to do the release on another machine, you can transfer your secret key to that machine
 via the `gpg --export-secret-keys` and `gpg --import` commands.
 
-<h3>Installing docker</h3>
+<h3>Installing Docker</h3>
 
 The scripts to create release candidates are run through docker. You need to install docker before running
 these scripts. Please make sure that you can run docker as non-root users. See
 <a href="https://docs.docker.com/install/linux/linux-postinstall/">https://docs.docker.com/install/linux/linux-postinstall</a>
 for more details.
 
-<h2>Preparing Spark for Release</h2>
+<h2>Preparing Spark for release</h2>
 
 The main step towards preparing a release is to create a release branch. This is done via
 standard Git branching mechanism and should be announced to the community once the branch is
@@ -146,7 +146,7 @@ https://amplab.cs.berkeley.edu/jenkins/view/Spark%20QA%20Test/job/spark-branch-2
 Consult Josh Rosen and Shane Knapp for help with this. Also remember to add the newly-added jobs
 to the test dashboard at https://amplab.cs.berkeley.edu/jenkins/view/Spark%20QA%20Test%20(Dashboard)/ .
 
-<h3>Cutting a Release Candidate</h3>
+<h3>Cutting a release candidate</h3>
 
 If this is not the first RC, then make sure that the JIRA issues that have been solved since the
 last RC are marked as `Resolved` and has a `Target Versions` set to this release version.
@@ -180,7 +180,7 @@ The process of cutting a release candidate has been automated via the `dev/creat
 Run this script, type information it requires, and wait until it finishes. You can also do a single step via the `-s` option.
 Please run `do-release-docker.sh -h` and see more details.
 
-<h3>Call a Vote on the Release Candidate</h3>
+<h3>Call a vote on the release candidate</h3>
 
 The release voting takes place on the Apache Spark developers list (the PMC is voting).
 Look at past voting threads to see how this proceeds. The email should follow
@@ -194,7 +194,7 @@ Look at past voting threads to see how this proceeds. The email should follow
 Once the vote is done, you should also send out a summary email with the totals, with a subject
 that looks something like `[VOTE][RESULT] ...`.
 
-<h3>Finalize the Release</h3>
+<h3>Finalize the release</h3>
 
 **Be Careful!**
 
@@ -262,7 +262,7 @@ Make sure to also remove the unpublished staging repositories from the
 <a href="https://repository.apache.org/">Apache Nexus Repository Manager</a>.
 
 
-<h4>Remove Old Releases from Mirror Network</h4>
+<h4>Remove old releases from Mirror Network</h4>
 
 Spark always keeps the latest maintenance released of each branch in the mirror network.
 To delete older versions simply use svn rm:
@@ -275,7 +275,7 @@ You will also need to update `js/download.js` to indicate the release is not mir
 anymore, so that the correct links are generated on the site.
 
 
-<h4>Update the Spark Apache Repository</h4>
+<h4>Update the Spark Apache<span class="tm">&trade;</span> repository</h4>
 
 Check out the tagged commit for the release candidate that passed and apply the correct version tag.
 
@@ -287,7 +287,7 @@ $ git push apache v1.1.1
 <h4>Update the version index of DocSearch</h4>
 In the repository <a href="https://github.com/algolia/docsearch-configs">algolia/docsearch-configs</a>, submit a PR to add the new Spark version in <a href="https://github.com/algolia/docsearch-configs/blob/master/configs/apache_spark.json">apache_spark.json</a>.
 
-<h4>Update the Spark Website</h4>
+<h4>Update the Spark website</h4>
 
 The website repository is located at
 <a href="https://github.com/apache/spark-website">https://github.com/apache/spark-website</a>.
@@ -387,7 +387,7 @@ $ git shortlog v1.1.1 --grep "$EXPR" > contrib.txt
 $ git log v1.1.1 --grep "$expr" --shortstat --oneline | grep -B 1 -e "[3-9][0-9][0-9] insert" -e "[1-9][1-9][1-9][1-9] insert" | grep SPARK > large-patches.txt
 ```
 
-<h4>Create an Announcement</h4>
+<h4>Create an announcement</h4>
 
 Once everything is working (website docs, website changes) create an announcement on the website
 and then send an e-mail to the mailing list. To create an announcement, create a post under

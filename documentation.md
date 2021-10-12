@@ -7,7 +7,7 @@ navigation:
   show: true
 ---
 
-<h2>Apache Spark Documentation</h2>
+<h2><span class="text-capitalize">Apache Spark<span class="tm">&trade;</span></span> Documentation</h2>
 
 <p>Setup instructions, programming guides, and other documentation are available for each stable version of Spark below:</p>
 
