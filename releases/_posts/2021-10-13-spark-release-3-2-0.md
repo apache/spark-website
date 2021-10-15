@@ -311,6 +311,7 @@ _Programming guide: [GraphX Programming Guide](https://spark.apache.org/docs/3.2
 * Fail to load Snappy codec ([SPARK-36681](https://issues.apache.org/jira/browse/SPARK-36681))
 * Can not insert into hive bucket table if table is created with an uppercase schema ([SPARK-35531](https://issues.apache.org/jira/browse/SPARK-35531))
 * Reading Hive view without explicit column names fails in Spark ([SPARK-36905](https://issues.apache.org/jira/browse/SPARK-36905))
+* Job cancellation causes py4j errors on Jupyter due to pinned thread mode ([SPARK-37004](https://issues.apache.org/jira/browse/SPARK-37004))
 
 ### Credits
 
