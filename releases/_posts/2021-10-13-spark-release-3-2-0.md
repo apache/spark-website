@@ -120,7 +120,6 @@ To download Apache Spark 3.2.0, visit the [downloads](https://spark.apache.org/d
 * Support early driver service clean-up during app termination ([SPARK-35131](https://issues.apache.org/jira/browse/SPARK-35131))
 * Add config for driver readiness timeout before executors start ([SPARK-32975](https://issues.apache.org/jira/browse/SPARK-32975))
 * Support driver-owned on-demand PVC ([SPARK-35182](https://issues.apache.org/jira/browse/SPARK-35182))
-* Support shuffle data recovery on the reused PVCs
 * Maximum decommissioning time & allow decommissioning for excludes ([SPARK-34104](https://issues.apache.org/jira/browse/SPARK-34104))
 * Support submit to k8s only with token ([SPARK-33720](https://issues.apache.org/jira/browse/SPARK-33720))
 * Add a developer API for custom feature steps ([SPARK-33261](https://issues.apache.org/jira/browse/SPARK-33261))
