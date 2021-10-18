@@ -188,6 +188,7 @@ To download Apache Spark 3.2.0, visit the [downloads](https://spark.apache.org/d
 * Keep dependants cached while refreshing v1 tables ([SPARK-34138](https://issues.apache.org/jira/browse/SPARK-34138))
 * Make BlockManagerMaster driver heartbeat timeout configurable ([SPARK-34278](https://issues.apache.org/jira/browse/SPARK-34278))
 * io.file.buffer.size set by spark.buffer.size will override by loading hive-site.xml accidentally may cause perf regression ([SPARK-34346](https://issues.apache.org/jira/browse/SPARK-34346))
+* Support remote scheduler pool files ([SPARK-35083](https://issues.apache.org/jira/browse/SPARK-35083))
 * Make shuffle service name configurable on client-side and allow for classpath-based config override on the server side ([SPARK-34828](https://issues.apache.org/jira/browse/SPARK-34828))
 * ExecutorMetricsPoller should keep stage entry in stageTCMP until a heartbeat occurs ([SPARK-34779](https://issues.apache.org/jira/browse/SPARK-34779))
 * Replace if with filter clause in RewriteDistinctAggregates ([SPARK-34882](https://issues.apache.org/jira/browse/SPARK-34882))
@@ -310,6 +311,7 @@ _Programming guide: [GraphX Programming Guide](https://spark.apache.org/docs/3.2
 * Can not insert into hive bucket table if table is created with an uppercase schema ([SPARK-35531](https://issues.apache.org/jira/browse/SPARK-35531))
 * Reading Hive view without explicit column names fails in Spark ([SPARK-36905](https://issues.apache.org/jira/browse/SPARK-36905))
 * Job cancellation causes py4j errors on Jupyter due to pinned thread mode ([SPARK-37004](https://issues.apache.org/jira/browse/SPARK-37004))
+* Driver mistakenly reports removed executors as alive in UI ([SPARK-35011](https://issues.apache.org/jira/browse/SPARK-35011))
 
 ### Credits
 
