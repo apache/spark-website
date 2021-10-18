@@ -74,7 +74,6 @@ To download Apache Spark 3.2.0, visit the [downloads](https://spark.apache.org/d
   * Add code-gen for all join types of sort-merge join ([SPARK-34705](https://issues.apache.org/jira/browse/SPARK-34705))
   * Whole plan exchange and subquery reuse ([SPARK-29375](https://issues.apache.org/jira/browse/SPARK-29375))
   * Broadcast nested loop join improvement ([SPARK-34706](https://issues.apache.org/jira/browse/SPARK-34706))
-  * Support two levels of hash maps for final hash aggregation ([SPARK-35141](https://issues.apache.org/jira/browse/SPARK-35141))
   * Allow concurrent writers for writing dynamic partitions and bucket table ([SPARK-26164](https://issues.apache.org/jira/browse/SPARK-26164))
   * Improve performance of processing FETCH_PRIOR in Spark Thrift server ([SPARK-33655](https://issues.apache.org/jira/browse/SPARK-33655))
 
@@ -106,7 +105,7 @@ To download Apache Spark 3.2.0, visit the [downloads](https://spark.apache.org/d
 * CSV
   * Upgrade univocity-parsers to 2.9.1 ([SPARK-33940](https://issues.apache.org/jira/browse/SPARK-33940))
 * JDBC
-  * Represent JDBC Time type as Integer in milliseconds ([SPARK-33888](https://issues.apache.org/jira/browse/SPARK-33888))
+  * Map JDBC SQL TIME type to TimestampType with time portion fixed regardless of timezone ([SPARK-34357](https://issues.apache.org/jira/browse/SPARK-34357))
   * Calculate more precise partition stride in JDBCRelation ([SPARK-34843](https://issues.apache.org/jira/browse/SPARK-34843))
   * Support refreshKrb5Config option in JDBC data sources ([SPARK-35226](https://issues.apache.org/jira/browse/SPARK-35226))
 * Hive Metastore support filter by NOT IN ([SPARK-34538](https://issues.apache.org/jira/browse/SPARK-34538))
