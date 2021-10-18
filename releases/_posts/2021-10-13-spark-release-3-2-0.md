@@ -82,7 +82,7 @@ To download Apache Spark 3.2.0, visit the [downloads](https://spark.apache.org/d
 
 * Parquet
   * Upgrade Apache Parquet used to version 1.12.1 ([SPARK-36726](https://issues.apache.org/jira/browse/SPARK-36726))
-  * Parquet vectorized reader support column index ([SPARK-34289](https://issues.apache.org/jira/browse/SPARK-34289))
+  * Support column index in Parquet vectorized reader ([SPARK-34289](https://issues.apache.org/jira/browse/SPARK-34289))
   * Add new parquet data source options to control datetime rebasing in read ([SPARK-34377](https://issues.apache.org/jira/browse/SPARK-34377))
   * Read parquet unsigned types that are stored as int32 physical type in parquet ([SPARK-34817](https://issues.apache.org/jira/browse/SPARK-34817))
   * Read Parquet unsigned int64 logical type that stored as signed int64 physical type to decimal(20, 0) ([SPARK-34786](https://issues.apache.org/jira/browse/SPARK-34786))
@@ -178,10 +178,10 @@ To download Apache Spark 3.2.0, visit the [downloads](https://spark.apache.org/d
 
 **Other Notable Changes**
 
-* Monitor
+* Monitoring
   * New metrics to ExternalShuffleService ([SPARK-35258](https://issues.apache.org/jira/browse/SPARK-35258))
   * Add new stage-level REST APIs and parameters ([SPARK-26399](https://issues.apache.org/jira/browse/SPARK-26399))
-  * Support task and executor  Metrics Distributions in the REST API ([SPARK-34488](https://issues.apache.org/jira/browse/SPARK-34488))
+  * Support task and executor Metrics Distributions in the REST API ([SPARK-34488](https://issues.apache.org/jira/browse/SPARK-34488))
   * Add fallback metrics for hash aggregate ([SPARK-35529](https://issues.apache.org/jira/browse/SPARK-35529), [SPARK-34237](https://issues.apache.org/jira/browse/SPARK-34237))
 * Add count_distinct as an option to Dataset#summary ([SPARK-34165](https://issues.apache.org/jira/browse/SPARK-34165))
 * Introduce SQLSTATE and ERRORCODE to SQL Exception ([SPARK-34920](https://issues.apache.org/jira/browse/SPARK-34920))
@@ -236,7 +236,7 @@ To download Apache Spark 3.2.0, visit the [downloads](https://spark.apache.org/d
   * Enable mypy for pandas-on-Spark ([SPARK-34941](https://issues.apache.org/jira/browse/SPARK-34941))
   * Implement CategoricalDtype support ([SPARK-35997](https://issues.apache.org/jira/browse/SPARK-35997), [SPARK-36185](https://issues.apache.org/jira/browse/SPARK-36185))
   * Complete the basic operations of Series and Index ([SPARK-36103](https://issues.apache.org/jira/browse/SPARK-36103), [SPARK-36104](https://issues.apache.org/jira/browse/SPARK-36104), [SPARK-36192](https://issues.apache.org/jira/browse/SPARK-36192))
-  * Match behaviors to 1.3 pandas ([SPARK-36367](https://issues.apache.org/jira/browse/SPARK-36367))
+  * Match behaviors to pandas 1.3 ([SPARK-36367](https://issues.apache.org/jira/browse/SPARK-36367))
   * Match behaviours on Series with NaN to pandas ’([SPARK-36031](https://issues.apache.org/jira/browse/SPARK-36031), [SPARK-36310](https://issues.apache.org/jira/browse/SPARK-36310))
   * Implement unary operator 'invert' of integral Series and Index ([SPARK-36003](https://issues.apache.org/jira/browse/SPARK-36003))
   * Implement CategoricalIndex.map and DatetimeIndex.map ([SPARK-36470](https://issues.apache.org/jira/browse/SPARK-36470))
@@ -253,7 +253,7 @@ To download Apache Spark 3.2.0, visit the [downloads](https://spark.apache.org/d
 * Add Arrow self_destruct support to toPandas ([SPARK-32953](https://issues.apache.org/jira/browse/SPARK-32953))
 * Add thread target wrapper API for PySpark pin thread mode ([SPARK-35498](https://issues.apache.org/jira/browse/SPARK-35498))
 
-### MLLIB
+### MLlib
 
 **Performance improvements**
 
