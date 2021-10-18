@@ -23,12 +23,12 @@ To download Apache Spark 3.2.0, visit the [downloads](https://spark.apache.org/d
 ### Highlights
 
 * Support Pandas API layer on PySpark ([SPARK-34849](https://issues.apache.org/jira/browse/SPARK-34849))
+* Enable adaptive query execution by default ([SPARK-33679](https://issues.apache.org/jira/browse/SPARK-33679))
 * Support push-based shuffle to improve shuffle efficiency ([SPARK-30602](https://issues.apache.org/jira/browse/SPARK-30602))
 * Add RocksDB StateStore implementation ([SPARK-34198](https://issues.apache.org/jira/browse/SPARK-34198))
 * EventTime based sessionization (session window) ([SPARK-10816](https://issues.apache.org/jira/browse/SPARK-10816))
 * ANSI SQL mode GA ([SPARK-35030](https://issues.apache.org/jira/browse/SPARK-35030))
 * Support for ANSI SQL INTERVAL types ([SPARK-27790](https://issues.apache.org/jira/browse/SPARK-27790))
-* Enable adaptive query execution by default ([SPARK-33679](https://issues.apache.org/jira/browse/SPARK-33679))
 * Query compilation latency reduction ([SPARK-35042](https://issues.apache.org/jira/browse/SPARK-35042), [SPARK-35103](https://issues.apache.org/jira/browse/SPARK-35103), [SPARK-34989](https://issues.apache.org/jira/browse/SPARK-34989))
 * Support Scala 2.13 ([SPARK-34218](https://issues.apache.org/jira/browse/SPARK-34218))
 
@@ -43,6 +43,7 @@ To download Apache Spark 3.2.0, visit the [downloads](https://spark.apache.org/d
 * ANSI mode: IntegralDivide throws an exception on overflow ([SPARK-35152](https://issues.apache.org/jira/browse/SPARK-35152))
 * ANSI mode: Check for overflow in Average ([SPARK-35955](https://issues.apache.org/jira/browse/SPARK-35955))
 * Block count(table.*) to follow ANSI standard and other SQL engines ([SPARK-34199](https://issues.apache.org/jira/browse/SPARK-34199))
+* Support (IGNORE | RESPECT) NULLS for LEAD/LAG/NTH_VALUE/FIRST_VALUE/LAST_VALUE ([SPARK-30789](https://issues.apache.org/jira/browse/SPARK-30789))
 
 **Performance**
 
@@ -169,11 +170,9 @@ To download Apache Spark 3.2.0, visit the [downloads](https://spark.apache.org/d
 * Extend the function of decode so as consistent with mainstream databases ([SPARK-33527](https://issues.apache.org/jira/browse/SPARK-33527))
 * Apply spark.sql.hive.metastorePartitionPruning for non-Hive tables that uses Hive metastore for partition management ([SPARK-36128](https://issues.apache.org/jira/browse/SPARK-36128))
 * Support creating tables with null column ([SPARK-36241](https://issues.apache.org/jira/browse/SPARK-36241))
-* Propagate reason for exec loss to Web UI ([SPARK-34764](https://issues.apache.org/jira/browse/SPARK-34764))
 * Avoid inlining non-deterministic With-CTEs ([SPARK-36447](https://issues.apache.org/jira/browse/SPARK-36447))
 * Support analyzing all tables in a specific database ([SPARK-33687](https://issues.apache.org/jira/browse/SPARK-33687))
 * Standardize exception messages in Spark ([SPARK-33539](https://issues.apache.org/jira/browse/SPARK-33539))
-* Support (IGNORE | RESPECT) NULLS for LEAD/LAG/NTH_VALUE/FIRST_VALUE/LAST_VALUE ([SPARK-30789](https://issues.apache.org/jira/browse/SPARK-30789))
 
 **Other Notable Changes**
 
@@ -182,6 +181,7 @@ To download Apache Spark 3.2.0, visit the [downloads](https://spark.apache.org/d
   * Add new stage-level REST APIs and parameters ([SPARK-26399](https://issues.apache.org/jira/browse/SPARK-26399))
   * Support task and executor Metrics Distributions in the REST API ([SPARK-34488](https://issues.apache.org/jira/browse/SPARK-34488))
   * Add fallback metrics for hash aggregate ([SPARK-35529](https://issues.apache.org/jira/browse/SPARK-35529), [SPARK-34237](https://issues.apache.org/jira/browse/SPARK-34237))
+  * Propagate reason for exec loss to Web UI ([SPARK-34764](https://issues.apache.org/jira/browse/SPARK-34764))
 * Add count_distinct as an option to Dataset#summary ([SPARK-34165](https://issues.apache.org/jira/browse/SPARK-34165))
 * Introduce SQLSTATE and ERRORCODE to SQL Exception ([SPARK-34920](https://issues.apache.org/jira/browse/SPARK-34920))
 * Implement ScriptTransform in sql/core ([SPARK-31936](https://issues.apache.org/jira/browse/SPARK-31936))
@@ -307,7 +307,7 @@ _Programming guide: [GraphX Programming Guide](https://spark.apache.org/docs/3.2
 ### Known Issues
 
 * Support fetching shuffle blocks in batch with i/o encryption ([SPARK-34827](https://issues.apache.org/jira/browse/SPARK-34827))
-* Fail to load Snappy codec ([SPARK-36681](https://issues.apache.org/jira/browse/SPARK-36681))
+* Fail to load Snappy codec for sequence file I/O ([SPARK-36681](https://issues.apache.org/jira/browse/SPARK-36681))
 * Can not insert into hive bucket table if table is created with an uppercase schema ([SPARK-35531](https://issues.apache.org/jira/browse/SPARK-35531))
 * Reading Hive view without explicit column names fails in Spark ([SPARK-36905](https://issues.apache.org/jira/browse/SPARK-36905))
 * Job cancellation causes py4j errors on Jupyter due to pinned thread mode ([SPARK-37004](https://issues.apache.org/jira/browse/SPARK-37004))
