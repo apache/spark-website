@@ -39,6 +39,7 @@ To download Apache Spark 3.2.0, visit the [downloads](https://spark.apache.org/d
 
 * Support for ANSI SQL INTERVAL types ([SPARK-27790](https://issues.apache.org/jira/browse/SPARK-27790))
 * New type coercion syntax rules in ANSI mode ([SPARK-34246](https://issues.apache.org/jira/browse/SPARK-34246))
+* Support LATERAL subqueries ([SPARK-34382](https://issues.apache.org/jira/browse/SPARK-34382))
 * ANSI mode: IntegralDivide throws exception on overflow ([SPARK-35152](https://issues.apache.org/jira/browse/SPARK-35152))
 * ANSI mode: Check for overflow in Average ([SPARK-35955](https://issues.apache.org/jira/browse/SPARK-35955))
 * Block count(table.*) to follow ANSI standard and other SQL engines ([SPARK-34199](https://issues.apache.org/jira/browse/SPARK-34199))
@@ -140,8 +141,7 @@ To download Apache Spark 3.2.0, visit the [downloads](https://spark.apache.org/d
 
 **Feature Enhancements**
 
-* Subquery
-  * Support LATERAL subqueries ([SPARK-34382](https://issues.apache.org/jira/browse/SPARK-34382))
+* Subquery improvements
   * Improve correlated subqueries ([SPARK-35553](https://issues.apache.org/jira/browse/SPARK-35553))
   * Allow non-aggregated single row correlated scalar subquery ([SPARK-28379](https://issues.apache.org/jira/browse/SPARK-28379))
   * Only allow a subset of correlated equality predicates when a subquery is aggregated ([SPARK-35080](https://issues.apache.org/jira/browse/SPARK-35080))
@@ -162,7 +162,7 @@ To download Apache Spark 3.2.0, visit the [downloads](https://spark.apache.org/d
 * Support Fallback Storage Cleanup during stopping SparkContext ([SPARK-34142](https://issues.apache.org/jira/browse/SPARK-34142))
 * Support Java enums from Scala Dataset API ([SPARK-23862](https://issues.apache.org/jira/browse/SPARK-23862))
 * ADD JAR with ivy coordinates should be compatible with Hive transitive behavior ([SPARK-34506](https://issues.apache.org/jira/browse/SPARK-34506))
-* Support ADD ARCHIVE and LIST ARCHIVES command ([SPARK-34603](https://issues.apache.org/jira/browse/SPARK-34603))
+* Support ADD ARCHIVE and LIST ARCHIVES commands ([SPARK-34603](https://issues.apache.org/jira/browse/SPARK-34603))
 * Support multiple paths for ADD FILE/JAR/ARCHIVE commands ([SPARK-35105](https://issues.apache.org/jira/browse/SPARK-35105))
 * Support archive files as resources for CREATE FUNCTION USING syntax ([SPARK-35236](https://issues.apache.org/jira/browse/SPARK-35236))
 * Loading SparkSessionExtensions from ServiceLoader ([SPARK-35380](https://issues.apache.org/jira/browse/SPARK-35380))
@@ -172,7 +172,7 @@ To download Apache Spark 3.2.0, visit the [downloads](https://spark.apache.org/d
 * Support creating tables with null column ([SPARK-36241](https://issues.apache.org/jira/browse/SPARK-36241))
 * Propagate reason for exec loss to Web UI ([SPARK-34764](https://issues.apache.org/jira/browse/SPARK-34764))
 * Avoid inlining non-deterministic With-CTEs ([SPARK-36447](https://issues.apache.org/jira/browse/SPARK-36447))
-* Support analyze all tables in a specific database ([SPARK-33687](https://issues.apache.org/jira/browse/SPARK-33687))
+* Support analyzing all tables in a specific database ([SPARK-33687](https://issues.apache.org/jira/browse/SPARK-33687))
 * Standardize exception messages in Spark ([SPARK-33539](https://issues.apache.org/jira/browse/SPARK-33539))
 * Support (IGNORE | RESPECT) NULLS for LEAD/LAG/NTH_VALUE/FIRST_VALUE/LAST_VALUE ([SPARK-30789](https://issues.apache.org/jira/browse/SPARK-30789))
 
