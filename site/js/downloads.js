@@ -16,6 +16,7 @@ var hadoopFree = {pretty: "Pre-built with user-provided Apache Hadoop", tag: "wi
 var hadoop2p7 = {pretty: "Pre-built for Apache Hadoop 2.7", tag: "hadoop2.7"};
 var hadoop3p2 = {pretty: "Pre-built for Apache Hadoop 3.2 and later", tag: "hadoop3.2"};
 var hadoop3p3 = {pretty: "Pre-built for Apache Hadoop 3.3 and later", tag: "hadoop3.2"};
+var hadoop3p3scala213 = {pretty: "Pre-built for Apache Hadoop 3.3 and later (Scala 2.13)", tag: "hadoop3.2-scala2.13"};
 var scala2p12_hadoopFree = {pretty: "Pre-built with Scala 2.12 and user-provided Apache Hadoop", tag: "without-hadoop-scala-2.12"};
 
 // 3.0.0+
@@ -23,7 +24,7 @@ var packagesV10 = [hadoop2p7, hadoop3p2, hadoopFree, sources];
 // 3.1.0+
 var packagesV11 = [hadoop3p2, hadoop2p7, hadoopFree, sources];
 // 3.2.0+
-var packagesV12 = [hadoop3p3, hadoop2p7, hadoopFree, sources];
+var packagesV12 = [hadoop3p3, hadoop3p3scala213, hadoop2p7, hadoopFree, sources];
 
 addRelease("3.2.0", new Date("10/13/2021"), packagesV12, true);
 addRelease("3.1.2", new Date("06/01/2021"), packagesV11, true);
