@@ -73,6 +73,7 @@ navigation:
 |Prashant Sharma|IBM|
 |Gabor Somogyi|Cloudera|
 |Ram Sriharsha|Databricks|
+|Chao Sun|Apple|
 |Maciej Szymkiewicz||
 |Jose Torres|Databricks|
 |DB Tsai|Apple|
