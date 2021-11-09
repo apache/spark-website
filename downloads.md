@@ -30,14 +30,6 @@ window.onload = function () {
 
 Note that, Spark 2.x is pre-built with Scala 2.11 except version 2.4.2, which is pre-built with Scala 2.12. Spark 3.0+ is pre-built with Scala 2.12.
 
-### Latest preview release
-Preview releases, as the name suggests, are releases for previewing upcoming features.
-Unlike nightly packages, preview releases have been audited by the project's management committee
-to satisfy the legal requirements of Apache Software Foundation's release policy.
-Preview releases are not meant to be functional, i.e. they can and highly likely will contain
-critical bugs or documentation errors.
-The latest preview release is Spark 3.0.0-preview2, published on Dec 23, 2019.
-
 ### Link with Spark
 Spark artifacts are [hosted in Maven Central](https://search.maven.org/search?q=g:org.apache.spark). You can add a Maven dependency with the following coordinates:
 
