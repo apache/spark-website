@@ -335,7 +335,7 @@ head(select(df, df$name.first))
         <div class="row mt-5">
             <div class="col-12 col-sm-4 p-3">
                 <div class="card">
-                    <a href="{{site.baseurl}}/community.html" alt="Mailing list">
+                    <a href="{{site.baseurl}}/community.html">
                         <div class="card-body text-center text-xl-start">
                             <img class="d-block d-xl-inline-block m-auto" src="{{site.baseurl}}/images/icon-orange-mailing-list.svg"
                                  width="96" height="96" alt="Mailing list"/> Mailing list
@@ -345,17 +345,17 @@ head(select(df, df$name.first))
             </div>
             <div class="col-12 col-sm-4 p-3">
                 <div class="card">
-                    <a href="https://github.com/apache/spark" alt="GitHub Source">
+                    <a href="https://github.com/apache/spark">
                         <div class="card-body text-center text-xl-start">
                             <img class="d-block d-xl-inline-block mx-auto" src="{{site.baseurl}}/images/icon-orange-built-in-functions.svg"
-                                 width="96" height="96" alt="Github source"/> GitHub Source
+                                 width="96" height="96" alt="Source code"/> Source code
                         </div>
                     </a>
                 </div>
             </div>
             <div class="col-12 col-sm-4 p-3">
                 <div class="card">
-                    <a href="{{site.baseurl}}/news/" alt="News and events">
+                    <a href="{{site.baseurl}}/news/">
                         <div class="card-body text-center text-xl-start">
                             <img class="d-block d-xl-inline-block mx-auto" src="{{site.baseurl}}/images/icon-orange-Delta-Table.svg"
                                  width="96" height="96" alt="News and events"/> News and events
@@ -365,7 +365,7 @@ head(select(df, df$name.first))
             </div>
             <div class="col-12 col-sm-4 p-3">
                 <div class="card">
-                    <a href="{{site.baseurl}}/contributing.html" alt="How to contribute">
+                    <a href="{{site.baseurl}}/contributing.html">
                         <div class="card-body text-center text-xl-start">
                             <img class="d-block d-xl-inline-block mx-auto" src="{{site.baseurl}}/images/icon-orange-Collaborative.svg"
                                  width="96" height="96" alt="How to contribute"/> How to contribute
@@ -375,7 +375,7 @@ head(select(df, df$name.first))
             </div>
             <div class="col-12 col-sm-4 p-3">
                 <div class="card">
-                    <a href="https://issues.apache.org/jira/projects/SPARK/issues" alt="Issue tracking">
+                    <a href="https://issues.apache.org/jira/projects/SPARK/issues">
                         <div class="card-body text-center text-xl-start">
                             <img class="d-block d-xl-inline-block mx-auto" src="{{site.baseurl}}/images/icon-orange-Scheduled-Jobs.svg"
                                  width="96" height="96" alt="Issue tracking"/> Issue tracking
@@ -385,7 +385,7 @@ head(select(df, df$name.first))
             </div>
             <div class="col-12 col-sm-4 p-3">
                 <div class="card">
-                    <a href="{{site.baseurl}}/committers.html" alt="Committers">
+                    <a href="{{site.baseurl}}/committers.html">
                         <div class="card-body text-center text-xl-start">
                             <img class="d-block d-xl-inline-block mx-auto"
                                  src="{{site.baseurl}}/images/icon-orange-data-engineer-persona.svg" width="96" height="96"
