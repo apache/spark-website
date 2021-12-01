@@ -222,7 +222,7 @@ Please read the migration guides for each component: [Spark Core](https://spark.
 - Support getCheckpointDir method in PySpark SparkContext ([SPARK-33017](https://issues.apache.org/jira/browse/SPARK-33017))
 - Support to fill nulls for missing columns in unionByName ([SPARK-32798](https://issues.apache.org/jira/browse/SPARK-32798))
 - Update cloudpickle to v1.5.0 ([SPARK-32094](https://issues.apache.org/jira/browse/SPARK-32094))
-- Add MapType support for PySpark with Arrow ([SPARK-24554](https://issues.apache.org/jira/browse/SPARK-33748))
+- Add MapType support for PySpark with Arrow ([SPARK-24554](https://issues.apache.org/jira/browse/SPARK-24554))
 - DataStreamReader.table and DataStreamWriter.toTable ([SPARK-33836](https://issues.apache.org/jira/browse/SPARK-33836))
 
 **Changes of behavior**
