@@ -50,6 +50,7 @@ navigation:
 |Haoyuan Li|Alluxio|
 |Xiao Li|Databricks|
 |Yinan Li|Google|
+|Yuanjian Li|Databricks|
 |Davies Liu|Juicedata|
 |Cheng Lian|Databricks|
 |Yanbo Liang|Facebook|
