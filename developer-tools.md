@@ -7,6 +7,31 @@ navigation:
   show: true
 ---
 
+<h2>Test coverage</h2>
+
+Apache Spark community uses various resources to maintain the community test coverage.
+
+<h3 id="github_action">GitHub Action</h3>
+
+[GitHub Action](https://github.com/apache/spark/actions) provides the following on Ubuntu 20.04.
+- Scala 2.12/2.13 SBT build with Java 8
+- Scala 2.12 Maven build with Java 11/17
+- Java/Scala/Python/R unit tests with Java 8/Scala 2.12/SBT
+- TPC-DS benchmark with scale factor 1
+- JDBC Docker integration tests
+- Daily Java/Scala/Python/R unit tests with Java 11/17 and Scala 2.12/SBT
+
+<h3 id="appveyor">AppVeyor</h3>
+
+[AppVeyor](https://ci.appveyor.com/project/ApacheSoftwareFoundation/spark) provides the following on Windows.
+- R unit tests with Java 8/Scala 2.12/SBT
+
+<h3 id="scaleway">Scaleway</h3>
+
+[Scaleway](https://www.scaleway.com) provides the following on MacOS and Apple Silicon.
+- Java/Scala/Python/R unit tests with Java 17/Scala 2.12/Maven
+- K8s integration tests (TBD)
+
 <h2>Useful developer tools</h2>
 
 <h3 id="reducing-build-times">Reducing build times</h3>
