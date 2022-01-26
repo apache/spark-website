@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: dropFields</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/languages/r.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</head><body><div class="container">
+
+<table width="100%" summary="page for dropFields {SparkR}"><tr><td>dropFields {SparkR}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>dropFields</h2>
+
+<h3>Description</h3>
+
+<p>Drops fields in a struct <code>Column</code> by name.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+dropFields(x, ...)
+
+## S4 method for signature 'Column'
+dropFields(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>a Column</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>names of the fields to be dropped.</p>
+</td></tr>
+</table>
+
+
+<h3>Note</h3>
+
+<p>dropFields since 3.1.0
+</p>
+
+
+<h3>Examples</h3>
+
+<pre><code class="r">## Not run: 
+##D df &lt;- select(
+##D   createDataFrame(iris),
+##D   alias(
+##D     struct(
+##D       column(&quot;Sepal_Width&quot;), column(&quot;Sepal_Length&quot;),
+##D       alias(
+##D         struct(
+##D           column(&quot;Petal_Width&quot;), column(&quot;Petal_Length&quot;),
+##D           alias(
+##D             column(&quot;Petal_Width&quot;) * column(&quot;Petal_Length&quot;),
+##D             &quot;Petal_Product&quot;
+##D           )
+##D         ),
+##D         &quot;Petal&quot;
+##D       )
+##D     ),
+##D     &quot;dimensions&quot;
+##D   )
+##D )
+##D head(withColumn(df, &quot;dimensions&quot;, dropFields(df$dimensions, &quot;Petal&quot;)))
+##D 
+##D head(
+##D   withColumn(
+##D     df, &quot;dimensions&quot;,
+##D     dropFields(df$dimensions, &quot;Sepal_Width&quot;, &quot;Sepal_Length&quot;)
+##D   )
+##D )
+##D 
+##D # This method supports dropping multiple nested fields directly e.g.
+##D head(
+##D   withColumn(
+##D     df, &quot;dimensions&quot;,
+##D     dropFields(df$dimensions, &quot;Petal.Petal_Width&quot;, &quot;Petal.Petal_Length&quot;)
+##D   )
+##D )
+##D 
+##D # However, if you are going to add/replace multiple nested fields,
+##D # it is preferred to extract out the nested struct before
+##D # adding/replacing multiple fields e.g.
+##D head(
+##D   withColumn(
+##D     df, &quot;dimensions&quot;,
+##D     withField(
+##D       column(&quot;dimensions&quot;),
+##D       &quot;Petal&quot;,
+##D       dropFields(column(&quot;dimensions.Petal&quot;), &quot;Petal_Width&quot;, &quot;Petal_Length&quot;)
+##D     )
+##D   )
+##D )
+## End(Not run)
+</code></pre>
+
+
+<hr /><div style="text-align: center;">[Package <em>SparkR</em> version 3.2.1 <a href="00Index.html">Index</a>]</div>
+</div></body></html>
