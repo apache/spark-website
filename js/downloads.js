@@ -26,6 +26,7 @@ var packagesV11 = [hadoop3p2, hadoop2p7, hadoopFree, sources];
 // 3.2.0+
 var packagesV12 = [hadoop3p3, hadoop3p3scala213, hadoop2p7, hadoopFree, sources];
 
+addRelease("3.2.1", new Date("01/26/2022"), packagesV12, true);
 addRelease("3.2.0", new Date("10/13/2021"), packagesV12, true);
 addRelease("3.1.2", new Date("06/01/2021"), packagesV11, true);
 addRelease("3.0.3", new Date("06/23/2021"), packagesV10, true);
