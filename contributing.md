@@ -321,11 +321,17 @@ Example: `Fix typos in Foo scaladoc`
 `dev@spark.apache.org` first before proceeding to implement the change.
 
 <h3>Pull request</h3>
+Before creating a pull request in Apache Spark, it is important to check if tests can pass on your branch because 
+our GitHub Actions workflows automatically run tests for your pull request/following commits 
+and every run burdens the limited resources of GitHub Actions in Apache Spark repository.
+Below steps will take your through the process.
+
 
 1. <a href="https://help.github.com/articles/fork-a-repo/">Fork</a> the GitHub repository at 
 <a href="https://github.com/apache/spark">https://github.com/apache/spark</a> if you haven't already
-1. Clone your fork, create a new branch, push commits to the branch.
-1. Consider whether documentation or tests need to be added or updated as part of the change, 
+2. Go to "Actions" tab on your forked repository and enable "Build and test" and "Report test results" workflows  
+3. Clone your fork and create a new branch
+4. Consider whether documentation or tests need to be added or updated as part of the change, 
 and add them as needed.
       1. When you add tests, make sure the tests are self-descriptive.
       1. Also, you should consider writing a JIRA ID in the tests when your pull request targets to fix
@@ -354,46 +360,48 @@ and add them as needed.
             test_that("SPARK-12345: a short description of the test", {
               ...
             ```
-1. Consider whether benchmark results should be added or updated as part of the change, and add them as needed by
-<a href="https://spark.apache.org/developer-tools.html#github-workflow-benchmarks">Running benchmarks in your forked repository</a>
+5. Consider whether benchmark results should be added or updated as part of the change, and add them as needed by
+<a href="{{site.baseurl}}/developer-tools.html#github-workflow-benchmarks">Running benchmarks in your forked repository</a>
 to generate benchmark results.
-1. Run all tests with `./dev/run-tests` to verify that the code still compiles, passes tests, and 
-passes style checks. Alternatively you can run the tests via GitHub Actions workflow by
-<a href="https://spark.apache.org/developer-tools.html#github-workflow-tests">Running tests in your forked repository</a>.
+6. Run all tests with `./dev/run-tests` to verify that the code still compiles, passes tests, and 
+passes style checks. 
 If style checks fail, review the Code Style Guide below.
-1. <a href="https://help.github.com/articles/using-pull-requests/">Open a pull request</a> against 
-the `master` branch of `apache/spark`. (Only in special cases would the PR be opened against other branches.)
+7. Push commits to your branch. This will trigger "Build and test" and "Report test results" workflows 
+on your forked repository and start testing and validating your changes.
+8. <a href="https://help.github.com/articles/using-pull-requests/">Open a pull request</a> against 
+the `master` branch of `apache/spark`. (Only in special cases would the PR be opened against other branches). This 
+will trigger workflows "On pull request*" (on Spark repo) that will look/watch for successful workflow runs on "your" forked repository (it will wait if one is running). 
      1. The PR title should be of the form `[SPARK-xxxx][COMPONENT] Title`, where `SPARK-xxxx` is 
      the relevant JIRA number, `COMPONENT `is one of the PR categories shown at 
      <a href="https://spark-prs.appspot.com/">spark-prs.appspot.com</a> and 
      Title may be the JIRA's title or a more specific title describing the PR itself.
-     1. If the pull request is still a work in progress, and so is not ready to be merged, 
+     2. If the pull request is still a work in progress, and so is not ready to be merged, 
      but needs to be pushed to GitHub to facilitate review, then add `[WIP]` after the component.
-     1. Consider identifying committers or other contributors who have worked on the code being 
+     3. Consider identifying committers or other contributors who have worked on the code being 
      changed. Find the file(s) in GitHub and click "Blame" to see a line-by-line annotation of 
      who changed the code last. You can add `@username` in the PR description to ping them 
      immediately.
-     1. Please state that the contribution is your original work and that you license the work 
+     4. Please state that the contribution is your original work and that you license the work 
      to the project under the project's open source license.
-1. The related JIRA, if any, will be marked as "In Progress" and your pull request will 
+9. The related JIRA, if any, will be marked as "In Progress" and your pull request will 
 automatically be linked to it. There is no need to be the Assignee of the JIRA to work on it, 
 though you are welcome to comment that you have begun work.
-1. The Jenkins automatic pull request builder will test your changes
-     1. If it is your first contribution, Jenkins will wait for confirmation before building 
-     your code and post "Can one of the admins verify this patch?"
-     1. A committer can authorize testing with a comment like "ok to test"
-     1. A committer can automatically allow future pull requests from a contributor to be 
-     tested with a comment like "Jenkins, add to whitelist"
-1. After about 2 hours, Jenkins will post the results of the test to the pull request, along 
+10. The Jenkins automatic pull request builder will test your changes
+      1. If it is your first contribution, Jenkins will wait for confirmation before building 
+      your code and post "Can one of the admins verify this patch?"
+      1. A committer can authorize testing with a comment like "ok to test"
+      1. A committer can automatically allow future pull requests from a contributor to be 
+      tested with a comment like "Jenkins, add to whitelist"
+11. After about 2 hours, Jenkins will post the results of the test to the pull request, along 
 with a link to the full results on Jenkins.
-1. Watch for the results, and investigate and fix failures promptly
-     1. Fixes can simply be pushed to the same branch from which you opened your pull request
-     1. Jenkins will automatically re-test when new commits are pushed
-     1. If the tests failed for reasons unrelated to the change (e.g. Jenkins outage), then a 
-     committer can request a re-test with "Jenkins, retest this please".
-     Ask if you need a test restarted. If you were added by "Jenkins, add to whitelist" from a
-     committer before, you can also request the re-test.
-1. If there is a change related to SparkR in your pull request, AppVeyor will be triggered
+12. Watch for the results, and investigate and fix failures promptly
+      1. Fixes can simply be pushed to the same branch from which you opened your pull request
+      1. Jenkins will automatically re-test when new commits are pushed
+      1. If the tests failed for reasons unrelated to the change (e.g. Jenkins outage), then a 
+      committer can request a re-test with "Jenkins, retest this please".
+      Ask if you need a test restarted. If you were added by "Jenkins, add to whitelist" from a
+      committer before, you can also request the re-test.
+13. If there is a change related to SparkR in your pull request, AppVeyor will be triggered
 automatically to test SparkR on Windows, which takes roughly an hour. Similarly to the steps
 above, fix failures and push new commits which will request the re-test in AppVeyor.
 
