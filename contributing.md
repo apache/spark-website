@@ -376,13 +376,13 @@ will trigger workflows "On pull request*" (on Spark repo) that will look/watch f
      the relevant JIRA number, `COMPONENT `is one of the PR categories shown at 
      <a href="https://spark-prs.appspot.com/">spark-prs.appspot.com</a> and 
      Title may be the JIRA's title or a more specific title describing the PR itself.
-     2. If the pull request is still a work in progress, and so is not ready to be merged, 
+     1. If the pull request is still a work in progress, and so is not ready to be merged, 
      but needs to be pushed to GitHub to facilitate review, then add `[WIP]` after the component.
-     3. Consider identifying committers or other contributors who have worked on the code being 
+     1. Consider identifying committers or other contributors who have worked on the code being 
      changed. Find the file(s) in GitHub and click "Blame" to see a line-by-line annotation of 
      who changed the code last. You can add `@username` in the PR description to ping them 
      immediately.
-     4. Please state that the contribution is your original work and that you license the work 
+     1. Please state that the contribution is your original work and that you license the work 
      to the project under the project's open source license.
 1. The related JIRA, if any, will be marked as "In Progress" and your pull request will 
 automatically be linked to it. There is no need to be the Assignee of the JIRA to work on it, 
