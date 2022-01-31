@@ -321,6 +321,7 @@ Example: `Fix typos in Foo scaladoc`
 `dev@spark.apache.org` first before proceeding to implement the change.
 
 <h3>Pull request</h3>
+
 Before creating a pull request in Apache Spark, it is important to check if tests can pass on your branch because 
 our GitHub Actions workflows automatically run tests for your pull request/following commits 
 and every run burdens the limited resources of GitHub Actions in Apache Spark repository.
