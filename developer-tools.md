@@ -246,23 +246,6 @@ Kubernetes, and more importantly, minikube have rapid release cycles, and point 
 
 Apache Spark leverages GitHub Actions that enables continuous integration and a wide range of automation. Apache Spark repository provides several GitHub Actions workflows for developers to run before creating a pull request.
 
-<a name="github-workflow-tests"></a>
-<h4>Running tests in your forked repository</h4>
-
-Before creating a pull request in Apache Spark, it is important to check if tests can pass on your branch because our GitHub Acrions workflows automatically run tests for your pull request/following commits, and every run burdens the limited resources of GitHub Actions in Apache Spark repository.
-
-Apache Spark repository has a workflow that enables you to run the same tests for a branch in your own forked repository that does not burden the resource from Apache Spark repository.
-
-For example, suppose that you have a branch named "your_branch" for a pull request.
-To run tests on "your_branch" and check test results:
-
-- Click the "Actions" tab in your forked repository.
-- Select the "Build and test" workflow in the "All workflows" list.
-- Click the "Run workflow" button and enter "your_branch" in the "Target branch to run" field.
-- Once the "Build and test" workflow is finished, click the "Report test results" workflow to check test results.
-
-<img src="/images/running-tests-using-github-actions.png" style="width: 100%; max-width: 800px;" />
-
 <a name="github-workflow-benchmarks"></a>
 <h4>Running benchmarks in your forked repository</h4>
 
