@@ -43,7 +43,7 @@ Spark artifacts are [hosted in Maven Central](https://search.maven.org/search?q=
 
 ### Convenience Docker Container Images
 
-[Spark Docker Container images are available from DockerHub](https://hub.docker.com/repository/docker/apache/spark), these images contain non-ASF software and may be subject to different license terms.
+[Spark Docker Container images are available from DockerHub](https://hub.docker.com/r/apache/spark-py/tags), these images contain non-ASF software and may be subject to different license terms.
 
 ### Release notes for stable releases
 
