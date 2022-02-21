@@ -36,6 +36,6 @@ While being a maintence release we did still upgrade some dependencies in this r
   - [[SPARK-36129]](https://issues.apache.org/jira/browse/SPARK-36129): Upgrade commons-compress to 1.21
 
 
-You can consult JIRA for the [detailed changes](https://s.apache.org/spark-3.2.1).
+You can consult JIRA for the [detailed changes](https://s.apache.org/spark-3.1.3).
 
 We would like to acknowledge all community members for contributing patches to this release.
