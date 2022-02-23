@@ -26,7 +26,7 @@ Spark 3.1.3 is a maintenance release containing stability fixes. This release is
   - [[SPARK-36532]](https://issues.apache.org/jira/browse/SPARK-36532): Deadlock in CoarseGrainedExecutorBackend.onDisconnected
   - [[SPARK-36489]](https://issues.apache.org/jira/browse/SPARK-36489): Aggregate functions over no grouping keys, on tables with a single bucket, return multiple rows
   - [[SPARK-36339]](https://issues.apache.org/jira/browse/SPARK-36339): aggsBuffer should collect AggregateExpression in the map range
-  - [[SPARK-35391]](https://issues.apache.org/jira/browse/SPARK-36339): Memory leak in ExecutorAllocationListener breaks dynamic allocation under high load
+  - [[SPARK-35391]](https://issues.apache.org/jira/browse/SPARK-35391): Memory leak in ExecutorAllocationListener breaks dynamic allocation under high load
 
 ### Dependency Changes
 

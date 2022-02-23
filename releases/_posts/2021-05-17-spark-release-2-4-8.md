@@ -21,7 +21,7 @@ Spark 2.4.8 is a maintenance release containing stability, correctness, and secu
   - [[SPARK-26645]](https://issues.apache.org/jira/browse/SPARK-26645): CSV infer schema bug infers decimal(9,-1)
   - [[SPARK-27575]](https://issues.apache.org/jira/browse/SPARK-27575): Spark overwrites existing value of spark.yarn.dist.* instead of merging value
   - [[SPARK-27872]](https://issues.apache.org/jira/browse/SPARK-27872): Driver and executors use a different service account breaking pull secrets
-  - [[SPARK-29574]](https://issues.apache.org/jira/browse/SPARK-27872): spark with user provided hadoop doesn't work on kubernetes
+  - [[SPARK-29574]](https://issues.apache.org/jira/browse/SPARK-29574): spark with user provided hadoop doesn't work on kubernetes
   - [[SPARK-30201]](https://issues.apache.org/jira/browse/SPARK-30201): HiveOutputWriter standardOI should use ObjectInspectorCopyOption.DEFAULT
   - [[SPARK-32635]](https://issues.apache.org/jira/browse/SPARK-32635): When pyspark.sql.functions.lit() function is used with dataframe cache, it returns wrong result
   - [[SPARK-32708]](https://issues.apache.org/jira/browse/SPARK-32708): Query optimization fails to reuse exchange with DataSourceV2
