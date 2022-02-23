@@ -17,7 +17,7 @@ Spark 2.4.4 is a maintenance release containing stability fixes. This release is
   - [[SPARK-26038]](https://issues.apache.org/jira/browse/SPARK-26038): Fix Decimal toScalaBigInt/toJavaBigInteger for decimals not fitting in long
   - [[SPARK-26812]](https://issues.apache.org/jira/browse/SPARK-26812): Fix PushProjectionThroughUnion nullability issue
   - [[SPARK-27798]](https://issues.apache.org/jira/browse/SPARK-27798): Fix from_avro not to modify variables in other rows in local mode
-  - [[SPARK-27907]](https://issues.apache.org/jira/browse/SPARK-27992): Spark 2.4.3 accidentally throws NPE when HiveUDAF meets 0 rows. Fixed to return NULL like all the other releases.
+  - [[SPARK-27907]](https://issues.apache.org/jira/browse/SPARK-27907): Spark 2.4.3 accidentally throws NPE when HiveUDAF meets 0 rows. Fixed to return NULL like all the other releases.
   - [[SPARK-27992]](https://issues.apache.org/jira/browse/SPARK-27992): Fix PySpark socket server to sync with JVM connection thread future
   - [[SPARK-28015]](https://issues.apache.org/jira/browse/SPARK-28015): Check stringToDate() consumes entire input for the yyyy and yyyy-[m]m formats
   - [[SPARK-28308]](https://issues.apache.org/jira/browse/SPARK-28308): CalendarInterval sub-second part should be padded before parsing
