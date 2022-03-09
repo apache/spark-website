@@ -18,6 +18,33 @@ non-public list that will reach the Apache Security team, as well as the Spark P
 
 <h2>Known security issues</h2>
 
+<h3 id="CVE-2021-38296">CVE-2021-38296: Apache Spark<span class="tm">&trade;</span> Key Negotiation Vulnerability</h3>
+
+Severity: Medium
+
+Vendor: The Apache Software Foundation
+
+Versions Affected:
+
+- Apache Spark 3.1.2 and earlier
+
+Description:
+
+Apache Spark supports end-to-end encryption of RPC connections via `spark.authenticate` and `spark.network.crypto.enabled`. 
+In versions 3.1.2 and earlier, it uses a bespoke mutual authentication protocol that allows for full encryption key 
+recovery. After an initial interactive attack, this would allow someone to decrypt plaintext traffic offline. 
+Note that this does not affect security mechanisms controlled by `spark.authenticate.enableSaslEncryption`, 
+`spark.io.encryption.enabled`, `spark.ssl`, `spark.ui.strictTransportSecurity`.
+
+Mitigation:
+
+- Update to Spark 3.1.3 or later
+
+Credit:
+
+- Steve Weis (Databricks)
+
+
 <h3 id="CVE-2020-9480">CVE-2020-9480: Apache Spark<span class="tm">&trade;</span> RCE vulnerability in auth-enabled standalone master</h3>
 
 Severity: Important
