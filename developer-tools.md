@@ -29,7 +29,7 @@ Apache Spark community uses various resources to maintain the community test cov
 <h3 id="scaleway">Scaleway</h3>
 
 [Scaleway](https://www.scaleway.com) provides the following on MacOS and Apple Silicon.
-- Java/Scala/Python/R unit tests with Java 17/Scala 2.12/Maven
+- [Java/Scala/Python/R unit tests with Java 17/Scala 2.12/SBT](https://apache-spark.s3.fr-par.scw.cloud/index.html)
 - K8s integration tests (TBD)
 
 <h2>Useful developer tools</h2>
