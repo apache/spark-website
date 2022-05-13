@@ -1,6 +1,6 @@
 ---
 layout: post
-title: SIGMOD System Award for Apache Spark
+title: SIGMOD Systems Award for Apache Spark
 categories:
 - News
 tags: []
@@ -12,7 +12,7 @@ meta:
   _wpas_done_all: '1'
 ---
 
-Apache Spark [received the SIGMOD System Award this year](https://sigmod.org/2022-sigmod-awards/),
+Apache Spark [received the SIGMOD Systems Award this year](https://sigmod.org/2022-sigmod-awards/),
 given by SIGMOD (the ACM’s data management research organization) to impactful
 real-world and research systems:
 
