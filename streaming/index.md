@@ -27,10 +27,10 @@ subproject: Streaming
       <div class="code">
         spark<br/>
         &nbsp;&nbsp;.<span class="sparkop">readStream</span><br/>
-        &nbsp;&nbsp;.<span class="sparkop">select</span>(<span class="closure">$"value".cast("string").alias("jsonData")</span>)<br/>
-        &nbsp;&nbsp;.<span class="sparkop">select</span>(<span class="closure">from_json($"jsonData",jsonSchema).alias("payload")</span>)<br/>
+        &nbsp;&nbsp;.<span class="sparkop">select</span>(<span class="closure">$"value"</span>.cast(<span class="closure">"string"</span>).alias(<span class="closure">"jsonData"</span>))<br/>
+        &nbsp;&nbsp;.<span class="sparkop">select</span>(from_json(<span class="closure">$"jsonData"</span>,jsonSchema).alias(<span class="closure">"payload"</span>))<br/>
         &nbsp;&nbsp;.<span class="sparkop">writeStream</span><br/>
-        &nbsp;&nbsp;.<span class="sparkop">trigger("1 seconds")</span><br/>
+        &nbsp;&nbsp;.<span class="sparkop">trigger</span>(<span class="closure">"1 seconds"</span>)<br/>
         &nbsp;&nbsp;.<span class="sparkop">start</span>()
       </div>
     </div>
