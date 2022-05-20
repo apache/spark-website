@@ -26,7 +26,7 @@ window.onload = function () {
 
 3. Download Spark: <span id="spanDownloadLink"></span>
 
-4. Verify this release using the <span id="sparkDownloadVerify"></span> and [project release KEYS](https://downloads.apache.org/spark/KEYS).
+4. Verify this release using the <span id="sparkDownloadVerify"></span> and [project release KEYS](https://downloads.apache.org/spark/KEYS) by following these [procedures](https://www.apache.org/info/verification.html).
 
 Note that Spark 3 is pre-built with Scala 2.12 in general and Spark 3.2+ provides additional pre-built distribution with Scala 2.13.
 
