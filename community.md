@@ -201,6 +201,10 @@ Spark Meetups are grass-roots events organized and hosted by individuals in the 
 
 <p>The project tracks bugs and new features on <a href="https://issues.apache.org/jira/browse/SPARK">JIRA</a>. If you'd like, you can also subscribe to <a href="https://mail-archives.apache.org/mod_mbox/spark-issues/">issues@spark.apache.org</a> to receive emails about new issues, and <a href="https://mail-archives.apache.org/mod_mbox/spark-commits/">commits@spark.apache.org</a> to get emails about commits.</p>
 
+<h3>Shop</h3>
+<p><img alt="RedBubble" src="{{site.baseurl}}/images/redbubble.png" title="RedBubble"></p>
+<p>The ASF has an <a href="https://www.redbubble.com/people/comdev/shop">official store at RedBubble</a> that Apache Community Development (ComDev) runs. In the store, <a href="https://www.redbubble.com/shop/ap/113203780">various products featuring the Apache Spark logo</a> are available.</p>
+
 <h3>Powered by</h3>
 
 <p>Our site has a list of <a href="{{site.baseurl}}/powered-by.html">projects and organizations powered by Spark</a>.
