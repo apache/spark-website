@@ -284,8 +284,8 @@ $ git tag v1.1.1 v1.1.1-rc2 # the RC that passed
 $ git push apache v1.1.1
 ```
 
-<h4>Update the version index of DocSearch</h4>
-In the repository <a href="https://github.com/algolia/docsearch-configs">algolia/docsearch-configs</a>, submit a PR to add the new Spark version in <a href="https://github.com/algolia/docsearch-configs/blob/master/configs/apache_spark.json">apache_spark.json</a>.
+<h4>Update the configuration of Algolia Crawler</h4>
+The search box on the <a href="https://spark.apache.org/docs/latest/">Spark documentation website</a> leverages the <a href="https://www.algolia.com/products/search-and-discovery/crawler/">Algolia Crawler</a>. Before a release, please update the crawler configuration for Apache Spark with the new version on the <a href="https://crawler.algolia.com/">Algolia Crawler Admin Console</a>. If you don't have access to the configuration, contact <a href="mailto:gengliang@apache.org">Gengliang Wang</a> or <a href="mailto:lixiao@apache.org">Xiao Li</a> for help.
 
 <h4>Update the Spark website</h4>
 
