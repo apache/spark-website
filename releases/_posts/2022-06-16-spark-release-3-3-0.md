@@ -13,8 +13,9 @@ _wpas_done_all: '1'
 
 Apache Spark 3.3.0 is the fourth release of the 3.x line. With tremendous contribution from the open-source community, this release managed to resolve in excess of 1,600 Jira tickets.
 
+This release improve join query performance via Bloom filters, increases the Pandas API coverage with the support of popular Pandas features such as datetime.timedelta and merge_asof, simplifies the migration from traditional data warehouses by improving ANSI compliance and supporting dozens of new built-in functions, boosts development productivity with better error handling, autocompletion, performance, and profiling. 
 
-To download Apache Spark 3.3.0, visit the [downloads](https://spark.apache.org/downloads.html) page. You can consult JIRA for the [detailed changes](https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315420&version=12350369). We have curated a list of high level changes here, grouped by major modules.
+To download Apache Spark 3.3.0, visit the [downloads](https://spark.apache.org/downloads.html) page. You can consult JIRA for the [detailed changes](https://s.apache.org/spark-3.3.0). We have curated a list of high level changes here, grouped by major modules.
 
 * This will become a table of contents (this text will be scraped).
 {:toc}
