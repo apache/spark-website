@@ -86,15 +86,15 @@ To download Apache Spark 3.3.0, visit the [downloads](https://spark.apache.org/d
     * Datetime
         * Add the <span style="text-decoration:underline;">TIMESTAMPADD</span>() function ([SPARK-38195](https://issues.apache.org/jira/browse/SPARK-38195))
         * Add the <span style="text-decoration:underline;">TIMESTAMPDIFF</span>() function ([SPARK-38284](https://issues.apache.org/jira/browse/SPARK-38284))
-        * Add the `<span style="text-decoration:underline;">DATEDIFF</span>()` alias for `TIMESTAMPDIFF()` ([SPARK-38389](https://issues.apache.org/jira/browse/SPARK-38389))
-        * Add the `<span style="text-decoration:underline;">DATEADD</span>()` alias for `TIMESTAMPADD()` ([SPARK-38332](https://issues.apache.org/jira/browse/SPARK-38332))
-        * Add the `<span style="text-decoration:underline;">convert_timezone</span>()` function ([SPARK-37552](https://issues.apache.org/jira/browse/SPARK-37552), [SPARK-37568](https://issues.apache.org/jira/browse/SPARK-37568))
+        * Add the <span style="text-decoration:underline;">DATEDIFF</span>() alias for `TIMESTAMPDIFF()` ([SPARK-38389](https://issues.apache.org/jira/browse/SPARK-38389))
+        * Add the <span style="text-decoration:underline;">DATEADD</span>() alias for `TIMESTAMPADD()` ([SPARK-38332](https://issues.apache.org/jira/browse/SPARK-38332))
+        * Add the <span style="text-decoration:underline;">convert_timezone</span>() function ([SPARK-37552](https://issues.apache.org/jira/browse/SPARK-37552), [SPARK-37568](https://issues.apache.org/jira/browse/SPARK-37568))
         * Expose <span style="text-decoration:underline;">make_date</span> expression in functions.scala ([SPARK-36554](https://issues.apache.org/jira/browse/SPARK-36554))
     * AES functions ([SPARK-12567](https://issues.apache.org/jira/browse/SPARK-12567))
         * Add <span style="text-decoration:underline;">aes_encrypt</span> and <span style="text-decoration:underline;">aes_decrypt</span> builtin functions ([SPARK-12567](https://issues.apache.org/jira/browse/SPARK-12567)) \
-Support the GCM mode by `<span style="text-decoration:underline;">aes_encrypt</span>()`/`<span style="text-decoration:underline;">aes_decrypt</span>()` ([SPARK-37591](https://issues.apache.org/jira/browse/SPARK-37591))
-        * Set `GCM` as the default mode in `<span style="text-decoration:underline;">aes_encrypt</span>()`/`<span style="text-decoration:underline;">aes_decrypt</span>()` ([SPARK-37666](https://issues.apache.org/jira/browse/SPARK-37666))
-        * Add the `mode` and `padding` args to `<span style="text-decoration:underline;">aes_encrypt</span>()`/`<span style="text-decoration:underline;">aes_decrypt</span>()` ([SPARK-37586](https://issues.apache.org/jira/browse/SPARK-37586))
+Support the GCM mode by <span style="text-decoration:underline;">aes_encrypt</span>()/<span style="text-decoration:underline;">aes_decrypt</span>() ([SPARK-37591](https://issues.apache.org/jira/browse/SPARK-37591))
+        * Set `GCM` as the default mode in <span style="text-decoration:underline;">aes_encrypt</span>()/<span style="text-decoration:underline;">aes_decrypt</span>() ([SPARK-37666](https://issues.apache.org/jira/browse/SPARK-37666))
+        * Add the `mode` and `padding` args to <span style="text-decoration:underline;">aes_encrypt</span>()/<span style="text-decoration:underline;">aes_decrypt</span>() ([SPARK-37586](https://issues.apache.org/jira/browse/SPARK-37586))
     * ANSI Aggregation Function ([SPARK-37671](https://issues.apache.org/jira/browse/SPARK-37671))
         * Support ANSI Aggregate Function: <span style="text-decoration:underline;">regr_count</span> ([SPARK-37613](https://issues.apache.org/jira/browse/SPARK-37613))
         * Support ANSI Aggregate Function: <span style="text-decoration:underline;">regr_avgx</span> & <span style="text-decoration:underline;">regr_avgy</span> ([SPARK-37614](https://issues.apache.org/jira/browse/SPARK-37614))
@@ -112,10 +112,10 @@ Support the GCM mode by `<span style="text-decoration:underline;">aes_encrypt</s
     * Format
         * Add a new SQL function <span style="text-decoration:underline;">to_binary</span> ([SPARK-37507](https://issues.apache.org/jira/browse/SPARK-37507), [SPARK-38796](https://issues.apache.org/jira/browse/SPARK-38796))
         * New SQL function: <span style="text-decoration:underline;">try_to_binary</span> ([SPARK-38590](https://issues.apache.org/jira/browse/SPARK-38590), [SPARK-38796](https://issues.apache.org/jira/browse/SPARK-38796))
-        * Data Type Formatting Functions: `<span style="text-decoration:underline;">to_number</span>` ([SPARK-28137](https://issues.apache.org/jira/browse/SPARK-28137))
+        * Data Type Formatting Functions: <span style="text-decoration:underline;">to_number</span> ([SPARK-28137](https://issues.apache.org/jira/browse/SPARK-28137))
     * String/Binary
         * Add <span style="text-decoration:underline;">CONTAINS</span>() string function ([SPARK-37508](https://issues.apache.org/jira/browse/SPARK-37508))
-        * Add the `<span style="text-decoration:underline;">startswith</span>()` and `<span style="text-decoration:underline;">endswith</span>()` string functions ([SPARK-37520](https://issues.apache.org/jira/browse/SPARK-37520))
+        * Add the <span style="text-decoration:underline;">startswith</span>() and <span style="text-decoration:underline;">endswith</span>() string functions ([SPARK-37520](https://issues.apache.org/jira/browse/SPARK-37520))
         * Add lpad and rpad functions for binary strings ([SPARK-37047](https://issues.apache.org/jira/browse/SPARK-37047))
         * Support split_part Function ([SPARK-38063](https://issues.apache.org/jira/browse/SPARK-38063))
     * Add scale parameter to <span style="text-decoration:underline;">floor</span> and <span style="text-decoration:underline;">ceil</span> functions ([SPARK-37475](https://issues.apache.org/jira/browse/SPARK-37475))
@@ -353,7 +353,7 @@ Support the GCM mode by `<span style="text-decoration:underline;">aes_encrypt</s
 
 
 * Major improvement
-    * **'distributed-sequence' index **optimization with being **default** ([SPARK-37649](https://issues.apache.org/jira/browse/SPARK-37649), [SPARK-36559](https://issues.apache.org/jira/browse/SPARK-36559), [SPARK-36338](https://issues.apache.org/jira/browse/SPARK-36338))
+    * 'distributed-sequence' index optimization with being **default** ([SPARK-37649](https://issues.apache.org/jira/browse/SPARK-37649), [SPARK-36559](https://issues.apache.org/jira/browse/SPARK-36559), [SPARK-36338](https://issues.apache.org/jira/browse/SPARK-36338))
     * Support to specify index type and name in pandas API on Spark ([SPARK-36709](https://issues.apache.org/jira/browse/SPARK-36709))
     * Show default index type in SQL plans for pandas API on Spark ([SPARK-38654](https://issues.apache.org/jira/browse/SPARK-38654))
 * Major feature
