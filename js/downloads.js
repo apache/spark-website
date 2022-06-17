@@ -20,10 +20,7 @@ var hadoop3p3scala213 = {pretty: "Pre-built for Apache Hadoop 3.3 and later (Sca
 var hadoop2p = {pretty: "Pre-built for Apache Hadoop 2.7", tag: "hadoop2"};
 var hadoop3p = {pretty: "Pre-built for Apache Hadoop 3.3 and later", tag: "hadoop3"};
 var hadoop3pscala213 = {pretty: "Pre-built for Apache Hadoop 3.3 and later (Scala 2.13)", tag: "hadoop3-scala2.13"};
-var scala2p12_hadoopFree = {pretty: "Pre-built with Scala 2.12 and user-provided Apache Hadoop", tag: "without-hadoop-scala-2.12"};
 
-// 3.0.0+
-var packagesV10 = [hadoop2p7, hadoop3p2, hadoopFree, sources];
 // 3.1.0+
 var packagesV11 = [hadoop3p2, hadoop2p7, hadoopFree, sources];
 // 3.2.0+
@@ -34,7 +31,6 @@ var packagesV13 = [hadoop3p, hadoop3pscala213, hadoop2p, hadoopFree, sources];
 addRelease("3.3.0", new Date("06/16/2022"), packagesV13, true);
 addRelease("3.2.1", new Date("01/26/2022"), packagesV12, true);
 addRelease("3.1.3", new Date("02/18/2022"), packagesV11, true);
-addRelease("3.0.3", new Date("06/23/2021"), packagesV10, true);
 
 function append(el, contents) {
   el.innerHTML += contents;
