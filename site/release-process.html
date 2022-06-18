@@ -163,6 +163,8 @@
   <li>svn https://www.apache.org/dev/version-control.html#https-svn</li>
 </ul>
 
+<p>You should also get access to the ASF Dockerhub, this is not required for the release candidates but can take some time. You can get access by filing a INFRA JIRA ticket.</p>
+
 <h3>Preparing gpg key</h3>
 
 <p>You can skip this section if you have already uploaded your key.</p>
@@ -496,6 +498,14 @@ $ git shortlog v1.1.1 --grep "$EXPR" &gt; contrib.txt
 # Large patch list (300+ lines)
 $ git log v1.1.1 --grep "$expr" --shortstat --oneline | grep -B 1 -e "[3-9][0-9][0-9] insert" -e "[1-9][1-9][1-9][1-9] insert" | grep SPARK &gt; large-patches.txt
 </code></pre></div></div>
+
+<h4>Create and upload Spark Docker Images</h4>
+
+<p>The Spark docker images are created using the <code class="language-plaintext highlighter-rouge">./bin/docker-image-tool.sh</code> that is included in the release artifacts.</p>
+
+<p>You should install <code class="language-plaintext highlighter-rouge">docker buildx</code> so that you can cross-compile for multiple archs as ARM is becoming increasing popular. If you have access to both an ARM and an x86 machine you should set up a <a href="https://scalingpythonml.com/2020/12/11/some-sharp-corners-with-docker-buildx.html">remote builder as described here</a>, but if you only have one <a href="https://docs.docker.com/buildx/working-with-buildx/">docker buildx with QEMU works fine as we don&#8217;t use cgo</a>.</p>
+
+<p>Once you have your cross-platform docker build environment setup, extract the build artifact (e.g. <code class="language-plaintext highlighter-rouge">tar -xvf spark-3.3.0-bin-hadoop3.tgz</code>), go into the director (e.g. <code class="language-plaintext highlighter-rouge">cd spark-3.3.0-bin-hadoop3</code>) and build the containers and publish them to the Spark dockerhub (e.g. <code class="language-plaintext highlighter-rouge">./bin/docker-image-tool.sh -r docker.io/apache -p ./kubernetes/dockerfiles/spark/bindings/python/Dockerfile -t v3.3.0 -X -b java_image_tag=11-jre-slim build</code>)</p>
 
 <h4>Create an announcement</h4>
 
