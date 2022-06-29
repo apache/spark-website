@@ -93,7 +93,7 @@ navigation:
 |Kent Yao|NetEase|
 |Burak Yavuz|Databricks|
 |Matei Zaharia|Databricks, Stanford|
-|Ruifeng Zheng|JD.com|
+|Ruifeng Zheng|Databricks|
 |Shixiong Zhu|Databricks|
 
 <h3>Becoming a committer</h3>
