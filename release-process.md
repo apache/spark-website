@@ -36,7 +36,7 @@ If you are a new Release Manager, you can read up on the process from the follow
 - svn https://www.apache.org/dev/version-control.html#https-svn
 
 
-You should also get access to the ASF Dockerhub, this is not required for the release candidates but can take some time. You can get access by filing a INFRA JIRA ticket (see an example ticket https://issues.apache.org/jira/browse/INFRA-21282 ).
+You should also get access to the ASF Dockerhub. You can get access by filing a INFRA JIRA ticket (see an example ticket https://issues.apache.org/jira/browse/INFRA-21282 ).
 
 <h3>Preparing gpg key</h3>
 
@@ -178,10 +178,11 @@ To cut a release candidate, there are 4 steps:
 1. Package the release binaries & sources, and upload them to the Apache staging SVN repo.
 1. Create the release docs, and upload them to the Apache staging SVN repo.
 1. Publish a snapshot to the Apache staging Maven repo.
+1. Create a RC docker image tag (e.g. `3.4.0-rc1`)
 
-The process of cutting a release candidate has been automated via the `dev/create-release/do-release-docker.sh` script.
+The process of cutting a release candidate has been mostly automated via the `dev/create-release/do-release-docker.sh` script.
 Run this script, type information it requires, and wait until it finishes. You can also do a single step via the `-s` option.
-Please run `do-release-docker.sh -h` and see more details.
+Please run `do-release-docker.sh -h` and see more details. It does not currently generate the RC docker image tag.
 
 <h3>Call a vote on the release candidate</h3>
 
