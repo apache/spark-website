@@ -36,7 +36,7 @@ If you are a new Release Manager, you can read up on the process from the follow
 - svn https://www.apache.org/dev/version-control.html#https-svn
 
 
-You should also get access to the ASF Dockerhub, this is not required for the release candidates but can take some time. You can get access by filing a INFRA JIRA ticket.
+You should also get access to the ASF Dockerhub, this is not required for the release candidates but can take some time. You can get access by filing a INFRA JIRA ticket (see an example ticket https://issues.apache.org/jira/browse/INFRA-21282 ).
 
 <h3>Preparing gpg key</h3>
 
@@ -398,7 +398,7 @@ The Spark docker images are created using the `./bin/docker-image-tool.sh` that 
 You should install `docker buildx` so that you can cross-compile for multiple archs as ARM is becoming increasing popular. If you have access to both an ARM and an x86 machine you should set up a [remote builder as described here](https://scalingpythonml.com/2020/12/11/some-sharp-corners-with-docker-buildx.html), but if you only have one [docker buildx with QEMU works fine as we don't use cgo](https://docs.docker.com/buildx/working-with-buildx/).
 
 
-Once you have your cross-platform docker build environment setup, extract the build artifact (e.g. `tar -xvf spark-3.3.0-bin-hadoop3.tgz`), go into the director (e.g. `cd spark-3.3.0-bin-hadoop3`) and build the containers and publish them to the Spark dockerhub (e.g. `./bin/docker-image-tool.sh -r docker.io/apache -p ./kubernetes/dockerfiles/spark/bindings/python/Dockerfile -t v3.3.0 -X -b java_image_tag=11-jre-slim build`)
+Once you have your cross-platform docker build environment setup, extract the build artifact (e.g. `tar -xvf spark-3.3.0-bin-hadoop3.tgz`), go into the directory (e.g. `cd spark-3.3.0-bin-hadoop3`) and build the containers and publish them to the Spark dockerhub (e.g. `./bin/docker-image-tool.sh -r docker.io/apache -p ./kubernetes/dockerfiles/spark/bindings/python/Dockerfile -t v3.3.0 -X -b java_image_tag=11-jre-slim build`)
 
 <h4>Create an announcement</h4>
 
