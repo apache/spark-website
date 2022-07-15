@@ -57,6 +57,7 @@ navigation:
 |Jungtaek Lim|Databricks|
 |Sean McNamara|Oracle|
 |Xiangrui Meng|Databricks|
+|Xinrong Meng|Databricks|
 |Mridul Muralidharan|LinkedIn|
 |Andrew Or|Princeton University|
 |Kay Ousterhout|LightStep|
