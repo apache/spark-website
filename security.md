@@ -18,6 +18,36 @@ non-public list that will reach the Apache Security team, as well as the Spark P
 
 <h2>Known security issues</h2>
 
+<h3 id="CVE-2022-33891">CVE-2022-33891: Apache Spark shell command injection vulnerability via Spark UI</h3>
+
+Severity: Important
+
+Vendor: The Apache Software Foundation
+
+Versions Affected:
+
+- 3.0.3 and earlier
+- 3.1.1 to 3.1.2
+- 3.2.0 to 3.2.1
+
+Description:
+
+The Apache Spark UI offers the possibility to enable ACLs via the configuration option spark.acls.enable. 
+With an authentication filter, this checks whether a user has access permissions to view or modify the application. 
+If ACLs are enabled, a code path in HttpSecurityFilter can allow someone to perform impersonation by providing an 
+arbitrary user name. A malicious user might then be able to reach a permission check function that will ultimately 
+build a Unix shell command based on their input, and execute it. This will result in arbitrary shell command 
+execution as the user Spark is currently running as.
+
+Mitigation
+
+- Update to Spark 3.1.3, 3.2.2, or 3.3.0 or later
+
+Credit:
+
+- Kostya Torchinsky (Databricks)
+
+
 <h3 id="CVE-2021-38296">CVE-2021-38296: Apache Spark<span class="tm">&trade;</span> Key Negotiation Vulnerability</h3>
 
 Severity: Medium
