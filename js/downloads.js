@@ -29,7 +29,7 @@ var packagesV12 = [hadoop3p3, hadoop3p3scala213, hadoop2p7, hadoopFree, sources]
 var packagesV13 = [hadoop3p, hadoop3pscala213, hadoop2p, hadoopFree, sources];
 
 addRelease("3.3.0", new Date("06/16/2022"), packagesV13, true);
-addRelease("3.2.1", new Date("01/26/2022"), packagesV12, true);
+addRelease("3.2.2", new Date("07/17/2022"), packagesV12, true);
 addRelease("3.1.3", new Date("02/18/2022"), packagesV11, true);
 
 function append(el, contents) {
