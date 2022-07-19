@@ -35,6 +35,9 @@ If you are a new Release Manager, you can read up on the process from the follow
 - gpg for signing https://www.apache.org/dev/openpgp.html
 - svn https://www.apache.org/dev/version-control.html#https-svn
 
+
+You should also get access to the ASF Dockerhub. You can get access by filing a INFRA JIRA ticket (see an example ticket https://issues.apache.org/jira/browse/INFRA-21282 ).
+
 <h3>Preparing gpg key</h3>
 
 You can skip this section if you have already uploaded your key.
@@ -175,10 +178,11 @@ To cut a release candidate, there are 4 steps:
 1. Package the release binaries & sources, and upload them to the Apache staging SVN repo.
 1. Create the release docs, and upload them to the Apache staging SVN repo.
 1. Publish a snapshot to the Apache staging Maven repo.
+1. Create a RC docker image tag (e.g. `3.4.0-rc1`)
 
-The process of cutting a release candidate has been automated via the `dev/create-release/do-release-docker.sh` script.
+The process of cutting a release candidate has been mostly automated via the `dev/create-release/do-release-docker.sh` script.
 Run this script, type information it requires, and wait until it finishes. You can also do a single step via the `-s` option.
-Please run `do-release-docker.sh -h` and see more details.
+Please run `do-release-docker.sh -h` and see more details. It does not currently generate the RC docker image tag.
 
 <h3>Call a vote on the release candidate</h3>
 
@@ -386,6 +390,16 @@ $ git shortlog v1.1.1 --grep "$EXPR" > contrib.txt
 # Large patch list (300+ lines)
 $ git log v1.1.1 --grep "$expr" --shortstat --oneline | grep -B 1 -e "[3-9][0-9][0-9] insert" -e "[1-9][1-9][1-9][1-9] insert" | grep SPARK > large-patches.txt
 ```
+
+<h4>Create and upload Spark Docker Images</h4>
+
+The Spark docker images are created using the `./bin/docker-image-tool.sh` that is included in the release artifacts.
+
+
+You should install `docker buildx` so that you can cross-compile for multiple archs as ARM is becoming increasing popular. If you have access to both an ARM and an x86 machine you should set up a [remote builder as described here](https://scalingpythonml.com/2020/12/11/some-sharp-corners-with-docker-buildx.html), but if you only have one [docker buildx with QEMU works fine as we don't use cgo](https://docs.docker.com/buildx/working-with-buildx/).
+
+
+Once you have your cross-platform docker build environment setup, extract the build artifact (e.g. `tar -xvf spark-3.3.0-bin-hadoop3.tgz`), go into the directory (e.g. `cd spark-3.3.0-bin-hadoop3`) and build the containers and publish them to the Spark dockerhub (e.g. `./bin/docker-image-tool.sh -r docker.io/apache -p ./kubernetes/dockerfiles/spark/bindings/python/Dockerfile -t v3.3.0 -X -b java_image_tag=11-jre-slim build`)
 
 <h4>Create an announcement</h4>
 
