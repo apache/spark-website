@@ -103,13 +103,13 @@ In general, feature ("minor") releases occur about every 6 months. Hence, Spark 
 generally be released about 6 months after 2.2.0. Maintenance releases happen as needed
 in between feature releases. Major releases do not happen according to a fixed schedule.
 
-<h3>Spark 3.3 release window</h3>
+<h3>Spark 3.4 release window</h3>
 
 | Date  | Event |
 | ----- | ----- |
-| March 15th 2022 | Code freeze. Release branch cut.|
-| Late March 2022 | QA period. Focus on bug fixes, tests, stability and docs. Generally, no new features merged.|
-| April 2022 | Release candidates (RC), voting, etc. until final release passes|
+| January 15th 2023 | Code freeze. Release branch cut.|
+| Late January 2023 | QA period. Focus on bug fixes, tests, stability and docs. Generally, no new features merged.|
+| February 2023 | Release candidates (RC), voting, etc. until final release passes|
 
 <h2>Maintenance releases and EOL</h2>
 
