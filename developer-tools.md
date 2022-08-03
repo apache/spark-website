@@ -19,6 +19,7 @@ Apache Spark community uses various resources to maintain the community test cov
 - Java/Scala/Python/R unit tests with Java 8/Scala 2.12/SBT
 - TPC-DS benchmark with scale factor 1
 - JDBC Docker integration tests
+- Kubernetes integration tests
 - Daily Java/Scala/Python/R unit tests with Java 11/17 and Scala 2.12/SBT
 
 <h3 id="appveyor">AppVeyor</h3>
@@ -190,57 +191,9 @@ Please check other available options via `python/run-tests[-with-coverage] --hel
 
 <h4>Testing K8S</h4>
 
-If you have made changes to the K8S bindings in Apache Spark, it would behoove you to test locally before submitting a PR.  This is relatively simple to do, but it will require a local (to you) installation of [minikube](https://kubernetes.io/docs/setup/minikube/).  Due to how minikube interacts with the host system, please be sure to set things up as follows:
+Although GitHub Action provide both K8s unit test and integration test coverage, you can run it locally. For example, Volcano batch scheduler integration test should be done manually. Please refer the integration test documentation for the detail.
 
-- minikube version v1.18.1 (or greater)
-- You must use a VM driver!  Running minikube with the `--vm-driver=none` option requires that the user launching minikube/k8s have root access, which could impact how the tests are run.  Our Jenkins workers use the default [docker](https://minikube.sigs.k8s.io/docs/drivers/docker/) drivers.  More details [here](https://minikube.sigs.k8s.io/docs/drivers/).
-- kubernetes version v1.17.3 (can be set by executing `minikube config set kubernetes-version v1.17.3`)
-- the current kubernetes context must be minikube's default context (called 'minikube'). This can be selected by `minikube kubectl -- config use-context minikube`. This is only needed when after minikube is started another kubernetes context is selected.
-
-Once you have minikube properly set up, and have successfully completed the [quick start](https://minikube.sigs.k8s.io/docs/start/), you can test your changes locally.  All subsequent commands should be run from your root spark/ repo directory:
-
-1) Build a tarball to test against:
-
-```
-export DATE=`date "+%Y%m%d"`
-export REVISION=`git rev-parse --short HEAD`
-export ZINC_PORT=$(python -S -c "import random; print(random.randrange(3030,4030))")
-export HADOOP_PROFILE=hadoop-3.2
-
-./dev/make-distribution.sh --name ${DATE}-${REVISION} --pip --tgz -DzincPort=${ZINC_PORT} \
-     -P$HADOOP_PROFILE -Pkubernetes -Pkinesis-asl -Phive -Phive-thriftserver
-export TARBALL_TO_TEST=($(pwd)/spark-*${DATE}-${REVISION}.tgz)
-```
-
-2) Use that tarball and run the K8S integration tests:
-
-```
-PVC_TMP_DIR=$(mktemp -d)
-export PVC_TESTS_HOST_PATH=$PVC_TMP_DIR
-export PVC_TESTS_VM_PATH=$PVC_TMP_DIR
-
-minikube config set kubernetes-version v1.17.3
-minikube --vm-driver=<YOUR VM DRIVER HERE> start --memory 6000 --cpus 8
-
-# for macos only (see https://github.com/apache/spark/pull/32793):
-# minikube ssh "sudo useradd spark -u 185 -g 0 -m -s /bin/bash"
-
-minikube mount ${PVC_TESTS_HOST_PATH}:${PVC_TESTS_VM_PATH} --9p-version=9p2000.L --gid=0 --uid=185 &; MOUNT_PID=$!
-
-kubectl create clusterrolebinding serviceaccounts-cluster-admin --clusterrole=cluster-admin --group=system:serviceaccounts || true
-
-./resource-managers/kubernetes/integration-tests/dev/dev-run-integration-tests.sh \
-    --spark-tgz $TARBALL_TO_TEST --hadoop-profile $HADOOP_PROFILE --exclude-tags r
-
-kill -9 $MOUNT_PID
-minikube stop
-```
-
-After the run is completed, the integration test logs are saved here: `./resource-managers/kubernetes/integration-tests/target/integration-tests.log`.
-
-In case of a failure the POD logs (driver and executors) can be found at the end of the failed test (within `integration-tests.log`) in the `EXTRA LOGS FOR THE FAILED TEST` section.
-
-Kubernetes, and more importantly, minikube have rapid release cycles, and point releases have been found to be buggy and/or break older and existing functionality.  If you are having trouble getting tests to pass on Jenkins, but locally things work, don't hesitate to file a Jira issue.
+https://github.com/apache/spark/blob/master/resource-managers/kubernetes/integration-tests/README.md
 
 <h3>Testing with GitHub actions workflow</h3>
 
