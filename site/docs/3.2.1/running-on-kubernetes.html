@@ -183,8 +183,15 @@
       <li><a href="#future-work" id="markdown-toc-future-work">Future Work</a></li>
     </ul>
   </li>
-  <li><a href="#configuration" id="markdown-toc-configuration">Configuration</a>    <ul>
+  <li><a href="#configuration" id="markdown-toc-configuration">Configuration</a>
+    <ul>
       <li><a href="#spark-properties" id="markdown-toc-spark-properties">Spark Properties</a></li>
+      <li><a href="#pod-template-properties" id="markdown-toc-pod-template-properties">Pod Template Properties</a></li>
+      <li><a href="#pod-metadata" id="markdown-toc-pod-metadata">Pod Metadata</a></li>
+      <li><a href="#pod-spec" id="markdown-toc-pod-spec">Pod Spec</a></li>
+      <li><a href="#container-spec" id="markdown-toc-container-spec">Container spec</a></li>
+      <li><a href="#resource-allocation-and-configuration-overview" id="markdown-toc-resource-allocation-and-configuration-overview">Resource Allocation and Configuration Overview</a></li>
+      <li><a href="#stage-level-scheduling" id="markdown-toc-stage-level-scheduling">Stage Level Scheduling Overview</a></li>
     </ul>
   </li>
 </ul>
@@ -1446,13 +1453,13 @@ using <code class="language-plaintext highlighter-rouge">--conf</code> as means 
   <td>3.0.0</td>
 </tr>
 <tr>
-  <td><code>spark.kubernetes.executor.scheduler.name<code>&lt;/td&gt;
+  <td><code>spark.kubernetes.executor.scheduler.name<code></td>
   <td>(none)</td>
   <td>
 	Specify the scheduler name for each executor pod.
   </td>
   <td>3.0.0</td>
-&lt;/tr&gt;
+</tr>
 <tr>
   <td><code>spark.kubernetes.configMap.maxSize</code></td>
   <td><code>1572864</code></td>
@@ -1571,13 +1578,13 @@ using <code class="language-plaintext highlighter-rouge">--conf</code> as means 
   </td>
   <td>3.1.3</td>
 </tr>
-&lt;/table&gt;
+</table>
 
-#### Pod template properties
+<h4 id="pod-template-properties">Pod Template Properties</h4>
 
 See the below table for the full list of pod specifications that will be overwritten by spark.
 
-### Pod Metadata
+<h4 id="pod-metadata">Pod Metadata</h4>
 
 <table class="table">
 <tr><th>Pod metadata key</th><th>Modified value</th><th>Description</th></tr>
@@ -1613,7 +1620,7 @@ See the below table for the full list of pod specifications that will be overwri
 </tr>
 </table>
 
-### Pod Spec
+<h4 id="pod-spec">Pod Spec</h4>
 
 <table class="table">
 <tr><th>Pod spec key</th><th>Modified value</th><th>Description</th></tr>
@@ -1664,7 +1671,7 @@ See the below table for the full list of pod specifications that will be overwri
 </tr>
 </table>
 
-### Container spec
+<h4 id="container-spec">Container Spec</h4>
 
 The following affect the driver and executor containers. All other containers in the pod spec will be unaffected.
 
@@ -1721,7 +1728,7 @@ The following affect the driver and executor containers. All other containers in
 </tr>
 </table>
 
-### Resource Allocation and Configuration Overview
+<h4 id="resource-allocation-and-configuration-overview">Resource Allocation and Configuration Overview</h4>
 
 Please make sure to have read the Custom Resource Scheduling and Configuration Overview section on the [configuration page](configuration.html). This section only talks about the Kubernetes specific aspects of resource scheduling.
 
@@ -1731,7 +1738,7 @@ Spark automatically handles translating the Spark configs <code>spark.{driver/ex
 
 Kubernetes does not tell Spark the addresses of the resources allocated to each container. For that reason, the user must specify a discovery script that gets run by the executor on startup to discover what resources are available to that executor. You can find an example scripts in `examples/src/main/scripts/getGpusResources.sh`. The script must have execute permissions set and the user should setup permissions to not allow malicious users to modify it. The script should write to STDOUT a JSON string in the format of the ResourceInformation class. This has the resource name and an array of resource addresses available to just that executor.
 
-### Stage Level Scheduling Overview
+<h4 id="stage-level-scheduling">Stage Level Scheduling Overview</h4>
 
 Stage level scheduling is supported on Kubernetes when dynamic allocation is enabled. This also requires <code>spark.dynamicAllocation.shuffleTracking.enabled</code> to be enabled since Kubernetes doesn't support an external shuffle service at this time. The order in which containers for different profiles is requested from Kubernetes is not guaranteed. Note that since dynamic allocation on Kubernetes requires the shuffle tracking feature, this means that executors from previous stages that used a different ResourceProfile may not idle timeout due to having shuffle data on them. This could result in using more cluster resources and in the worst case if there are no remaining resources on the Kubernetes cluster then Spark could potentially hang. You may consider looking at config <code>spark.dynamicAllocation.shuffleTracking.timeout</code> to set a timeout, but that could result in data having to be recomputed if the shuffle data is really needed.
 Note, there is a difference in the way pod template resources are handled between the base default profile and custom ResourceProfiles. Any resources specified in the pod template file will only be used with the base default profile. If you create custom ResourceProfiles be sure to include all necessary resources there since the resources from the template file will not be propagated to custom ResourceProfiles.
