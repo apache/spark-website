@@ -52,14 +52,12 @@ against Spark, and data scientists to use Javascript in Jupyter notebooks.
 Mahout has switched to using Spark as the backend
 - <a href="https://wiki.apache.org/mrql/">Apache MRQL</a> - A query processing and optimization 
 system for large-scale, distributed data analysis, built on top of Apache Hadoop, Hama, and Spark
-- <a href="http://blinkdb.org/">BlinkDB</a> - a massively parallel, approximate query engine built 
+- <a href="https://github.com/sameeragarwal/blinkdb">BlinkDB</a> - a massively parallel, approximate query engine built 
 on top of Shark and Spark
 - <a href="https://github.com/adobe-research/spindle">Spindle</a> - Spark/Parquet-based web 
 analytics query engine
 - <a href="https://github.com/thunderain-project/thunderain">Thunderain</a> - a framework 
 for combining stream processing with historical data, think Lambda architecture
-- <a href="https://github.com/AyasdiOpenSource/df">DF</a> from Ayasdi - a Pandas-like data frame 
-implementation for Spark
 - <a href="https://github.com/OryxProject/oryx">Oryx</a> -  Lambda architecture on Apache Spark, 
 Apache Kafka for real-time large scale machine learning
 - <a href="https://github.com/bigdatagenomics/adam">ADAM</a> - A framework and CLI for loading, 
