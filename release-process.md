@@ -389,7 +389,7 @@ $ git log v1.1.1 --grep "$expr" --shortstat --oneline | grep -B 1 -e "[3-9][0-9]
 
 <h4>Create and upload Spark Docker Images</h4>
 
-Please contact <a href="mailto:holden@apache.org">Holden Karau</a> or <a href="mailto:gengliang@apache.org">Gengliang Wang</a> or <a href="mailto:dongjoon@apache.org">Dongjoon Hyun</a> to do this step because of the [ASF has a limited number of Docker Hub seats](https://infra.apache.org/docker-hub-policy.html).
+Please contact <a href="mailto:holden@apache.org">Holden Karau</a>, <a href="mailto:gengliang@apache.org">Gengliang Wang</a> or <a href="mailto:dongjoon@apache.org">Dongjoon Hyun</a> to do this step because of the [ASF has a limited number of Docker Hub seats](https://infra.apache.org/docker-hub-policy.html).
 
 
 The Spark docker images are created using the `./bin/docker-image-tool.sh` that is included in the release artifacts.
