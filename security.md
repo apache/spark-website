@@ -200,7 +200,9 @@ Vendor: The Apache Software Foundation
 
 Versions Affected
 
-- 1.3.x release branch and later
+- 2.1.x release branch and earlier
+- 2.2.x release branch before Spark 2.2.3
+- 2.3.x release branch before Spark 2.3.3
 
 Description:
 
@@ -232,7 +234,7 @@ Vendor: The Apache Software Foundation
 
 Versions Affected:
 
-- Spark versions from 1.3.0, running standalone master with REST API enabled, or running Mesos master with cluster mode enabled
+- Spark versions from 1.3.0, running standalone master with REST API enabled, or running Mesos master with cluster mode enabled; suggested mitigations resolved the issue as of Spark 2.4.0.
 
 Description:
 
