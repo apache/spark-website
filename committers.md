@@ -41,6 +41,7 @@ navigation:
 |Dongjoon Hyun|Apple|
 |Kazuaki Ishizaki|IBM|
 |Xingbo Jiang|Databricks|
+|Yikun Jiang|Huawei|
 |Holden Karau|Apple|
 |Shane Knapp|UC Berkeley|
 |Cody Koeninger|Nexstar Digital|
