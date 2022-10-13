@@ -117,6 +117,9 @@ and external data sources, driving holistic and actionable insights.
   - We are using Spark for analyzing and visualizing patterns in large-scale recordings of brain 
   activity in real time
 - <a href="http://www.fundacionctic.org">Fundacion CTIC</a>
+- <a href="https://graal.systems">GraalSystems</a>
+  - GraalSystems is a cloud-native data platform that can be used erverywhere, on cloud 
+  environments or on bare-metal infrastructures.
 - <a href="https://www.groupon.com">Groupon</a>
 - <a href="https://www.godatadriven.com">GoDataDriven</a>
   - Amsterdam based consultancy company helping companies to be successful with Spark
