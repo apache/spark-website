@@ -118,7 +118,7 @@ and external data sources, driving holistic and actionable insights.
   activity in real time
 - <a href="http://www.fundacionctic.org">Fundacion CTIC</a>
 - <a href="https://graal.systems">GraalSystems</a>
-  - GraalSystems is a cloud-native data platform that can be used erverywhere, on cloud 
+  - GraalSystems is a cloud-native data platform that can be used everywhere, on cloud 
   environments or on bare-metal infrastructures.
 - <a href="https://www.groupon.com">Groupon</a>
 - <a href="https://www.godatadriven.com">GoDataDriven</a>
