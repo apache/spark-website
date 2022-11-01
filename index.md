@@ -155,7 +155,7 @@ filtered_df.summary().show()
             <div class="tab-pane fade" id="nav-sql" role="tabpanel" aria-labelledby="nav-sql-tab">
                 <div class="mb-2 title">Run now</div>
                 <div class="code">
-                    <p>$ SPARK-HOME/bin/spark-sql</p>
+                    <p>$ docker run -it --rm apache/spark /opt/spark/bin/spark-sql</p>
                     <p>spark-sql></p>
                 </div>
                 <div class="examples mt-5">
@@ -175,7 +175,7 @@ FROM json.`logs.json`
             <div class="tab-pane fade" id="nav-scala" role="tabpanel" aria-labelledby="nav-scala-tab">
                 <div class="mb-2 title">Run now</div>
                 <div class="code">
-                    <p>$ SPARK-HOME/bin/spark-shell</p>
+                    <p>$ docker run -it --rm apache/spark /opt/spark/bin/spark-shell</p>
                     <p>scala></p>
                 </div>
                 <div class="examples mt-5">
@@ -193,7 +193,7 @@ df.where("age > 21")
             <div class="tab-pane fade" id="nav-java" role="tabpanel" aria-labelledby="nav-java-tab">
                 <div class="mb-2 title">Run now</div>
                 <div class="code">
-                    <p>$ SPARK-HOME/bin/spark-shell</p>
+                    <p>$ docker run -it --rm apache/spark /opt/spark/bin/spark-shell</p>
                     <p>scala></p>
                 </div>
                 <div class="examples mt-5">
