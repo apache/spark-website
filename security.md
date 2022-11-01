@@ -18,6 +18,32 @@ non-public list that will reach the Apache Security team, as well as the Spark P
 
 <h2>Known security issues</h2>
 
+<h3 id="CVE-2022-31777">CVE-2022-31777: Apache Spark XSS vulnerability in log viewer UI Javascript</h3>
+
+Severity: Medium
+
+Vendor: The Apache Software Foundation
+
+Versions Affected:
+
+- 3.2.1 and earlier
+- 3.3.0
+
+Description:
+
+A stored cross-site scripting (XSS) vulnerability in Apache Spark 3.2.1 and earlier, and 3.3.0, allows remote 
+attackers to execute arbitrary JavaScript in the web browser of a user, by including a malicious payload into 
+the logs which would be returned in logs rendered in the UI.
+
+Mitigation:
+
+- Upgrade to Spark 3.2.2, or 3.3.1 or later
+
+Credit:
+
+- Florian Walter (Veracode)
+
+
 <h3 id="CVE-2022-33891">CVE-2022-33891: Apache Spark shell command injection vulnerability via Spark UI</h3>
 
 Severity: Important
