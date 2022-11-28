@@ -1,0 +1,123 @@
+<!DOCTYPE html><html><head><title>R: Avro processing functions for Column operations</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.3/dist/katex.min.css">
+<script type="text/javascript">
+const macros = { "\\R": "\\textsf{R}", "\\code": "\\texttt"};
+function processMathHTML() {
+    var l = document.getElementsByClassName('reqn');
+    for (let e of l) { katex.render(e.textContent, e, { throwOnError: false, macros }); }
+    return;
+}</script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.3/dist/katex.min.js"
+    onload="processMathHTML();"></script>
+<link rel="stylesheet" type="text/css" href="R.css" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/languages/r.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</head><body><div class="container">
+
+<table style="width: 100%;"><tr><td>column_avro_functions {SparkR}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Avro processing functions for Column operations</h2>
+
+<h3>Description</h3>
+
+<p>Avro processing functions defined for <code>Column</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre><code class='language-R'>from_avro(x, ...)
+
+to_avro(x, ...)
+
+## S4 method for signature 'characterOrColumn'
+from_avro(x, jsonFormatSchema, ...)
+
+## S4 method for signature 'characterOrColumn'
+to_avro(x, jsonFormatSchema = NULL)
+</code></pre>
+
+
+<h3>Arguments</h3>
+
+<table>
+<tr style="vertical-align: top;"><td><code>x</code></td>
+<td>
+<p>Column to compute on.</p>
+</td></tr>
+<tr style="vertical-align: top;"><td><code>...</code></td>
+<td>
+<p>additional argument(s) passed as parser options.</p>
+</td></tr>
+<tr style="vertical-align: top;"><td><code>jsonFormatSchema</code></td>
+<td>
+<p>character Avro schema in JSON string format</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>from_avro</code> Converts a binary column of Avro format into its corresponding catalyst value.
+The specified schema must match the read data, otherwise the behavior is undefined:
+it may fail or return arbitrary result.
+To deserialize the data with a compatible and evolved schema, the expected Avro schema can be
+set via the option avroSchema.
+</p>
+<p><code>to_avro</code> Converts a column into binary of Avro format.
+</p>
+
+
+<h3>Note</h3>
+
+<p>Avro is built-in but external data source module since Spark 2.4.
+Please deploy the application as per
+<a href="https://spark.apache.org/docs/latest/sql-data-sources-avro.html#deploying">
+the deployment section
+</a> of &quot;Apache Avro Data Source Guide&quot;.
+</p>
+<p>from_avro since 3.1.0
+</p>
+<p>to_avro since 3.1.0
+</p>
+
+
+<h3>Examples</h3>
+
+<pre><code class="language-r">## Not run: 
+##D df &lt;- createDataFrame(iris)
+##D schema &lt;- paste(
+##D   c(
+##D     '{&quot;type&quot;: &quot;record&quot;, &quot;namespace&quot;: &quot;example.avro&quot;, &quot;name&quot;: &quot;Iris&quot;, &quot;fields&quot;: [',
+##D     '{&quot;type&quot;: [&quot;double&quot;, &quot;null&quot;], &quot;name&quot;: &quot;Sepal_Length&quot;},',
+##D     '{&quot;type&quot;: [&quot;double&quot;, &quot;null&quot;], &quot;name&quot;: &quot;Sepal_Width&quot;},',
+##D     '{&quot;type&quot;: [&quot;double&quot;, &quot;null&quot;], &quot;name&quot;: &quot;Petal_Length&quot;},',
+##D     '{&quot;type&quot;: [&quot;double&quot;, &quot;null&quot;], &quot;name&quot;: &quot;Petal_Width&quot;},',
+##D     '{&quot;type&quot;: [&quot;string&quot;, &quot;null&quot;], &quot;name&quot;: &quot;Species&quot;}]}'
+##D   ),
+##D   collapse=&quot;\\n&quot;
+##D )
+##D 
+##D df_serialized &lt;- select(
+##D   df,
+##D   alias(to_avro(alias(struct(column(&quot;*&quot;)), &quot;fields&quot;)), &quot;payload&quot;)
+##D )
+##D 
+##D df_deserialized &lt;- select(
+##D   df_serialized,
+##D   from_avro(df_serialized$payload, schema)
+##D )
+##D 
+##D head(df_deserialized)
+## End(Not run)
+</code></pre>
+
+
+<hr /><div style="text-align: center;">[Package <em>SparkR</em> version 3.2.3 <a href="00Index.html">Index</a>]</div>
+</div>
+</body></html>

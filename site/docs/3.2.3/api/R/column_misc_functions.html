@@ -1,0 +1,172 @@
+<!DOCTYPE html><html><head><title>R: Miscellaneous functions for Column operations</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.3/dist/katex.min.css">
+<script type="text/javascript">
+const macros = { "\\R": "\\textsf{R}", "\\code": "\\texttt"};
+function processMathHTML() {
+    var l = document.getElementsByClassName('reqn');
+    for (let e of l) { katex.render(e.textContent, e, { throwOnError: false, macros }); }
+    return;
+}</script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.3/dist/katex.min.js"
+    onload="processMathHTML();"></script>
+<link rel="stylesheet" type="text/css" href="R.css" />
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/languages/r.min.js"></script>
+<script>hljs.initHighlightingOnLoad();</script>
+</head><body><div class="container">
+
+<table style="width: 100%;"><tr><td>column_misc_functions {SparkR}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Miscellaneous functions for Column operations</h2>
+
+<h3>Description</h3>
+
+<p>Miscellaneous functions defined for <code>Column</code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre><code class='language-R'>assert_true(x, errMsg = NULL)
+
+crc32(x)
+
+hash(x, ...)
+
+md5(x)
+
+raise_error(x)
+
+sha1(x)
+
+sha2(y, x)
+
+xxhash64(x, ...)
+
+## S4 method for signature 'Column'
+crc32(x)
+
+## S4 method for signature 'Column'
+hash(x, ...)
+
+## S4 method for signature 'Column'
+xxhash64(x, ...)
+
+## S4 method for signature 'Column'
+assert_true(x, errMsg = NULL)
+
+## S4 method for signature 'characterOrColumn'
+raise_error(x)
+
+## S4 method for signature 'Column'
+md5(x)
+
+## S4 method for signature 'Column'
+sha1(x)
+
+## S4 method for signature 'Column,numeric'
+sha2(y, x)
+</code></pre>
+
+
+<h3>Arguments</h3>
+
+<table>
+<tr style="vertical-align: top;"><td><code>x</code></td>
+<td>
+<p>Column to compute on. In <code>sha2</code>, it is one of 224, 256, 384, or 512.</p>
+</td></tr>
+<tr style="vertical-align: top;"><td><code>errMsg</code></td>
+<td>
+<p>(optional) The error message to be thrown.</p>
+</td></tr>
+<tr style="vertical-align: top;"><td><code>...</code></td>
+<td>
+<p>additional Columns.</p>
+</td></tr>
+<tr style="vertical-align: top;"><td><code>y</code></td>
+<td>
+<p>Column to compute on.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>crc32</code>: Calculates the cyclic redundancy check value  (CRC32) of a binary column
+and returns the value as a bigint.
+</p>
+<p><code>hash</code>: Calculates the hash code of given columns, and returns the result
+as an int column.
+</p>
+<p><code>xxhash64</code>: Calculates the hash code of given columns using the 64-bit
+variant of the xxHash algorithm, and returns the result as a long
+column.
+</p>
+<p><code>assert_true</code>: Returns null if the input column is true; throws an exception
+with the provided error message otherwise.
+</p>
+<p><code>raise_error</code>: Throws an exception with the provided error message.
+</p>
+<p><code>md5</code>: Calculates the MD5 digest of a binary column and returns the value
+as a 32 character hex string.
+</p>
+<p><code>sha1</code>: Calculates the SHA-1 digest of a binary column and returns the value
+as a 40 character hex string.
+</p>
+<p><code>sha2</code>: Calculates the SHA-2 family of hash functions of a binary column and
+returns the value as a hex string. The second argument <code>x</code> specifies the number
+of bits, and is one of 224, 256, 384, or 512.
+</p>
+
+
+<h3>Note</h3>
+
+<p>crc32 since 1.5.0
+</p>
+<p>hash since 2.0.0
+</p>
+<p>xxhash64 since 3.0.0
+</p>
+<p>assert_true since 3.1.0
+</p>
+<p>raise_error since 3.1.0
+</p>
+<p>md5 since 1.5.0
+</p>
+<p>sha1 since 1.5.0
+</p>
+<p>sha2 since 1.5.0
+</p>
+
+
+<h3>Examples</h3>
+
+<pre><code class="language-r">## Not run: 
+##D # Dataframe used throughout this doc
+##D df &lt;- createDataFrame(cbind(model = rownames(mtcars), mtcars)[, 1:2])
+##D tmp &lt;- mutate(df, v1 = crc32(df$model), v2 = hash(df$model),
+##D                   v3 = hash(df$model, df$mpg), v4 = md5(df$model),
+##D                   v5 = sha1(df$model), v6 = sha2(df$model, 256))
+##D head(tmp)
+## End(Not run)
+## Not run: 
+##D tmp &lt;- mutate(df, v1 = assert_true(df$vs &lt; 2),
+##D                   v2 = assert_true(df$vs &lt; 2, &quot;custom error message&quot;),
+##D                   v3 = assert_true(df$vs &lt; 2, df$vs))
+##D head(tmp)
+## End(Not run)
+## Not run: 
+##D tmp &lt;- mutate(df, v1 = raise_error(&quot;error message&quot;))
+##D head(tmp)
+## End(Not run)
+</code></pre>
+
+
+<hr /><div style="text-align: center;">[Package <em>SparkR</em> version 3.2.3 <a href="00Index.html">Index</a>]</div>
+</div>
+</body></html>
