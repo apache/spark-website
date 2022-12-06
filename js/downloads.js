@@ -14,8 +14,8 @@ function addRelease(version, releaseDate, packages, mirrored) {
 var sources = {pretty: "Source Code", tag: "sources"};
 var hadoopFree = {pretty: "Pre-built with user-provided Apache Hadoop", tag: "without-hadoop"};
 var hadoop2p7 = {pretty: "Pre-built for Apache Hadoop 2.7", tag: "hadoop2.7"};
-var hadoop3p3 = {pretty: "Pre-built for Apache Hadoop 3.3 and later", tag: "hadoop3.2"};
-var hadoop3p3scala213 = {pretty: "Pre-built for Apache Hadoop 3.3 and later (Scala 2.13)", tag: "hadoop3.2-scala2.13"};
+var hadoop3p3 = {pretty: "Pre-built for Apache Hadoop 3.2 and later", tag: "hadoop3.2"};
+var hadoop3p3scala213 = {pretty: "Pre-built for Apache Hadoop 3.2 and later (Scala 2.13)", tag: "hadoop3.2-scala2.13"};
 var hadoop2p = {pretty: "Pre-built for Apache Hadoop 2.7", tag: "hadoop2"};
 var hadoop3p = {pretty: "Pre-built for Apache Hadoop 3.3 and later", tag: "hadoop3"};
 var hadoop3pscala213 = {pretty: "Pre-built for Apache Hadoop 3.3 and later (Scala 2.13)", tag: "hadoop3-scala2.13"};
