@@ -74,7 +74,7 @@ navigation:
 |Kousuke Saruta|NTT Data|
 |Saisai Shao|Tencent|
 |Prashant Sharma|IBM|
-|Gabor Somogyi|Cloudera|
+|Gabor Somogyi|Apple|
 |Ram Sriharsha|Databricks|
 |Chao Sun|Apple|
 |Maciej Szymkiewicz||
