@@ -258,6 +258,7 @@ head(select(df, df$name.first))
                     <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/pytorch.png" height="90" width="166"/></div>
                     <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/mlflow-logo.png" height="90" width="166"/></div>
                     <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/r_logo.png" height="90" width="166"/></div>
+                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/numpy.png" height="90" width="166"/></div>
                 </div>
             </div>
             <div class="col-12 col-md-12 col-lg-5 mt-5 mt-md-5 mt-lg-0 mx-auto">
