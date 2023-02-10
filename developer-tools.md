@@ -13,7 +13,7 @@ Apache Spark community uses various resources to maintain the community test cov
 
 <h3 id="github_action">GitHub Action</h3>
 
-[GitHub Action](https://github.com/apache/spark/actions) provides the following on Ubuntu 20.04.
+[GitHub Action](https://github.com/apache/spark/actions) provides the following on Ubuntu 22.04.
 - Scala 2.12/2.13 SBT build with Java 8
 - Scala 2.12 Maven build with Java 11/17
 - Java/Scala/Python/R unit tests with Java 8/Scala 2.12/SBT
