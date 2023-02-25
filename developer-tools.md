@@ -240,18 +240,6 @@ sufficient to run a test from the command line:
 build/sbt "testOnly org.apache.spark.rdd.SortingSuite"
 ```
 
-<h3>Running different test permutations on Jenkins</h3>
-
-When running tests for a pull request on Jenkins, you can add special phrases to the title of 
-your pull request to change testing behavior. This includes:
-
-- `[test-maven]` - signals to test the pull request using maven
-- `[test-hadoop2.7]` - signals to test using Spark's Hadoop 2.7 profile
-- `[test-hadoop3.2]` - signals to test using Spark's Hadoop 3.2 profile
-- `[test-hadoop3.2][test-java11]` - signals to test using Spark's Hadoop 3.2 profile with JDK 11
-- `[test-hive1.2]` - signals to test using Spark's Hive 1.2 profile
-- `[test-hive2.3]` - signals to test using Spark's Hive 2.3 profile
-
 <h3>Binary compatibility</h3>
 
 To ensure binary compatibility, Spark uses [MiMa](https://github.com/typesafehub/migration-manager).
@@ -272,17 +260,6 @@ A binary incompatibility reported by MiMa might look like the following:
 ```
 [error] method this(org.apache.spark.sql.Dataset)Unit in class org.apache.spark.SomeClass does not have a correspondent in current version
 [error] filter with: ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.spark.SomeClass.this")
-```
-
-If you open a pull request containing binary incompatibilities anyway, Jenkins
-will remind you by failing the test build with the following message:
-
-```
-Test build #xx has finished for PR yy at commit ffffff.
-
-  This patch fails MiMa tests.
-  This patch merges cleanly.
-  This patch adds no public classes.
 ```
 
 <h4>Solving a binary incompatibility</h4>

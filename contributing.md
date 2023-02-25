@@ -387,21 +387,6 @@ will trigger workflows "On pull request*" (on Spark repo) that will look/watch f
 1. The related JIRA, if any, will be marked as "In Progress" and your pull request will 
 automatically be linked to it. There is no need to be the Assignee of the JIRA to work on it, 
 though you are welcome to comment that you have begun work.
-1. The Jenkins automatic pull request builder will test your changes
-     1. If it is your first contribution, Jenkins will wait for confirmation before building 
-     your code and post "Can one of the admins verify this patch?"
-     1. A committer can authorize testing with a comment like "ok to test"
-     1. A committer can automatically allow future pull requests from a contributor to be 
-     tested with a comment like "Jenkins, add to whitelist"
-1. After about 2 hours, Jenkins will post the results of the test to the pull request, along 
-with a link to the full results on Jenkins.
-1. Watch for the results, and investigate and fix failures promptly
-     1. Fixes can simply be pushed to the same branch from which you opened your pull request
-     1. Jenkins will automatically re-test when new commits are pushed
-     1. If the tests failed for reasons unrelated to the change (e.g. Jenkins outage), then a 
-     committer can request a re-test with "Jenkins, retest this please".
-     Ask if you need a test restarted. If you were added by "Jenkins, add to whitelist" from a
-     committer before, you can also request the re-test.
 1. If there is a change related to SparkR in your pull request, AppVeyor will be triggered
 automatically to test SparkR on Windows, which takes roughly an hour. Similarly to the steps
 above, fix failures and push new commits which will request the re-test in AppVeyor.

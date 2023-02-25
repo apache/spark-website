@@ -140,11 +140,6 @@ The main step towards preparing a release is to create a release branch. This is
 standard Git branching mechanism and should be announced to the community once the branch is
 created.
 
-It is also good to set up Jenkins jobs for the release branch once it is cut to
-ensure tests are passing. These are jobs like
-https://amplab.cs.berkeley.edu/jenkins/view/Spark%20QA%20Test/job/spark-branch-2.3-test-maven-hadoop-2.7/ .
-Consult Josh Rosen and Shane Knapp for help with this. Also remember to add the newly-added jobs
-to the test dashboard at https://amplab.cs.berkeley.edu/jenkins/view/Spark%20QA%20Test%20(Dashboard)/ .
 
 <h3>Cutting a release candidate</h3>
 
@@ -164,11 +159,6 @@ and click on the version link of its Target Versions field)
 Verify from `git log` whether they are actually making it in the new RC or not. Check for JIRA issues
 with `release-notes` label, and make sure they are documented in relevant migration guide for breaking
 changes or in the release news on the website later.
-
-
-Also check that all build and test passes are green from the RISELab Jenkins: https://amplab.cs.berkeley.edu/jenkins/ particularly look for Spark Packaging, QA Compile, QA Test.
-Note that not all permutations are run on PR therefore it is important to check Jenkins runs.
-
 
 To cut a release candidate, there are 4 steps:
 1. Create a git tag for the release candidate.
