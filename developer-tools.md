@@ -262,17 +262,6 @@ A binary incompatibility reported by MiMa might look like the following:
 [error] filter with: ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.spark.SomeClass.this")
 ```
 
-If you open a pull request containing binary incompatibilities anyway, Jenkins
-will remind you by failing the test build with the following message:
-
-```
-Test build #xx has finished for PR yy at commit ffffff.
-
-  This patch fails MiMa tests.
-  This patch merges cleanly.
-  This patch adds no public classes.
-```
-
 <h4>Solving a binary incompatibility</h4>
 
 If you believe that your binary incompatibilies are justified or that MiMa
