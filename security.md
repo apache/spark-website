@@ -52,8 +52,7 @@ Vendor: The Apache Software Foundation
 
 Versions Affected:
 
-- 3.0.3 and earlier
-- 3.1.1 to 3.1.2
+- 3.1.3 and earlier
 - 3.2.0 to 3.2.1
 
 Description:
@@ -67,7 +66,7 @@ execution as the user Spark is currently running as.
 
 Mitigation
 
-- Update to Spark 3.1.3, 3.2.2, or 3.3.0 or later
+- Update to Spark 3.2.2, or 3.3.0 or later
 
 Credit:
 
