@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>pyspark.sql.column &#8212; PySpark 3.3.2 documentation</title>
+    <title>pyspark.sql.column &#8212; PySpark 3.4.0 documentation</title>
     
   <link rel="stylesheet" href="../../../_static/css/index.73d71520a4ca3b99cfee5594769eaaae.css">
 
@@ -62,11 +62,15 @@
         
         
         <li class="nav-item ">
+            <a class="nav-link" href="../../../index.html">Overview</a>
+        </li>
+        
+        <li class="nav-item ">
             <a class="nav-link" href="../../../getting_started/index.html">Getting Started</a>
         </li>
         
         <li class="nav-item ">
-            <a class="nav-link" href="../../../user_guide/index.html">User Guide</a>
+            <a class="nav-link" href="../../../user_guide/index.html">User Guides</a>
         </li>
         
         <li class="nav-item ">
@@ -78,7 +82,7 @@
         </li>
         
         <li class="nav-item ">
-            <a class="nav-link" href="../../../migration_guide/index.html">Migration Guide</a>
+            <a class="nav-link" href="../../../migration_guide/index.html">Migration Guides</a>
         </li>
         
         
@@ -109,6 +113,8 @@
     
   
     <ul class="nav bd-sidenav">
+        
+        
         
         
         
@@ -184,7 +190,8 @@
 
 <span class="kn">from</span> <span class="nn">pyspark</span> <span class="kn">import</span> <span class="n">copy_func</span>
 <span class="kn">from</span> <span class="nn">pyspark.context</span> <span class="kn">import</span> <span class="n">SparkContext</span>
-<span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">StructField</span><span class="p">,</span> <span class="n">StructType</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">,</span> <span class="n">StringType</span>
+<span class="kn">from</span> <span class="nn">pyspark.errors</span> <span class="kn">import</span> <span class="n">PySparkTypeError</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="n">DataType</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">pyspark.sql._typing</span> <span class="kn">import</span> <span class="n">ColumnOrName</span><span class="p">,</span> <span class="n">LiteralType</span><span class="p">,</span> <span class="n">DecimalLiteral</span><span class="p">,</span> <span class="n">DateTimeLiteral</span>
@@ -226,7 +233,7 @@
     <span class="n">converter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="s2">&quot;ColumnOrName&quot;</span><span class="p">],</span> <span class="n">JavaObject</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JavaObject</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert a list of Column (or names) into a JVM Seq of Column.</span>
+<span class="sd">    Convert a list of Columns (or names) into a JVM Seq of Column.</span>
 
 <span class="sd">    An optional `converter` could be used to convert items in `cols`</span>
 <span class="sd">    into JVM Column objects.</span>
@@ -243,7 +250,7 @@
     <span class="n">converter</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="s2">&quot;ColumnOrName&quot;</span><span class="p">],</span> <span class="n">JavaObject</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JavaObject</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert a list of Column (or names) into a JVM (Scala) List of Column.</span>
+<span class="sd">    Convert a list of Columns (or names) into a JVM (Scala) List of Columns.</span>
 
 <span class="sd">    An optional `converter` could be used to convert items in `cols`</span>
 <span class="sd">    into JVM Column objects.</span>
@@ -336,18 +343,30 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A column in a DataFrame.</span>
 
-<span class="sd">    :class:`Column` instances can be created by::</span>
-
-<span class="sd">        # 1. Select a column out of a DataFrame</span>
-
-<span class="sd">        df.colName</span>
-<span class="sd">        df[&quot;colName&quot;]</span>
-
-<span class="sd">        # 2. Create from an expression</span>
-<span class="sd">        df.colName + 1</span>
-<span class="sd">        1 / df.colName</span>
-
 <span class="sd">    .. versionadded:: 1.3.0</span>
+
+<span class="sd">    .. versionchanged:: 3.4.0</span>
+<span class="sd">        Support Spark Connect.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Column instances can be created by</span>
+
+<span class="sd">    &gt;&gt;&gt; df = spark.createDataFrame(</span>
+<span class="sd">    ...      [(2, &quot;Alice&quot;), (5, &quot;Bob&quot;)], [&quot;age&quot;, &quot;name&quot;])</span>
+
+<span class="sd">    Select a column out of a DataFrame</span>
+<span class="sd">    &gt;&gt;&gt; df.name</span>
+<span class="sd">    Column&lt;&#39;name&#39;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; df[&quot;name&quot;]</span>
+<span class="sd">    Column&lt;&#39;name&#39;&gt;</span>
+
+<span class="sd">    Create from an expression</span>
+
+<span class="sd">    &gt;&gt;&gt; df.age + 1</span>
+<span class="sd">    Column&lt;...&gt;</span>
+<span class="sd">    &gt;&gt;&gt; 1 / df.age</span>
+<span class="sd">    Column&lt;...&gt;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jc</span><span class="p">:</span> <span class="n">JavaObject</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -420,6 +439,9 @@
 <span class="s2">    Equality test that is safe for null values.</span>
 
 <span class="s2">    .. versionadded:: 2.3.0</span>
+
+<span class="s2">    .. versionchanged:: 3.4.0</span>
+<span class="s2">        Support Spark Connect.</span>
 
 <span class="s2">    Parameters</span>
 <span class="s2">    ----------</span>
@@ -497,6 +519,9 @@
     <span class="n">_bitwiseOR_doc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">    Compute bitwise OR of this expression with another expression.</span>
 
+<span class="s2">    .. versionchanged:: 3.4.0</span>
+<span class="s2">        Support Spark Connect.</span>
+
 <span class="s2">    Parameters</span>
 <span class="s2">    ----------</span>
 <span class="s2">    other</span>
@@ -513,6 +538,9 @@
     <span class="n">_bitwiseAND_doc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">    Compute bitwise AND of this expression with another expression.</span>
 
+<span class="s2">    .. versionchanged:: 3.4.0</span>
+<span class="s2">        Support Spark Connect.</span>
+
 <span class="s2">    Parameters</span>
 <span class="s2">    ----------</span>
 <span class="s2">    other</span>
@@ -528,6 +556,9 @@
 <span class="s2">    &quot;&quot;&quot;</span>
     <span class="n">_bitwiseXOR_doc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">    Compute bitwise XOR of this expression with another expression.</span>
+
+<span class="s2">    .. versionchanged:: 3.4.0</span>
+<span class="s2">        Support Spark Connect.</span>
 
 <span class="s2">    Parameters</span>
 <span class="s2">    ----------</span>
@@ -554,6 +585,23 @@
 
 <span class="sd">        .. versionadded:: 1.3.0</span>
 
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        key</span>
+<span class="sd">            a literal value, or a :class:`Column` expression.</span>
+<span class="sd">            The result will only be true at a location if the item matches in the column.</span>
+
+<span class="sd">             .. deprecated:: 3.0.0</span>
+<span class="sd">                 :class:`Column` as a parameter is deprecated.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`Column`</span>
+<span class="sd">            Column representing the item(s) got at position out of a list or by key out of a dict.</span>
+
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        &gt;&gt;&gt; df = spark.createDataFrame([([1, 2], {&quot;key&quot;: &quot;value&quot;})], [&quot;l&quot;, &quot;d&quot;])</span>
@@ -578,6 +626,22 @@
 <span class="sd">        An expression that gets a field by name in a :class:`StructType`.</span>
 
 <span class="sd">        .. versionadded:: 1.3.0</span>
+
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        name</span>
+<span class="sd">            a literal value, or a :class:`Column` expression.</span>
+<span class="sd">            The result will only be true at a location if the field matches in the Column.</span>
+
+<span class="sd">             .. deprecated:: 3.0.0</span>
+<span class="sd">                 :class:`Column` as a parameter is deprecated.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`Column`</span>
+<span class="sd">            Column representing whether each element of Column got by name.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -611,6 +675,23 @@
 
 <span class="sd">        .. versionadded:: 3.1.0</span>
 
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fieldName : str</span>
+<span class="sd">            a literal value.</span>
+<span class="sd">            The result will only be true at a location if any field matches in the Column.</span>
+<span class="sd">        col : :class:`Column`</span>
+<span class="sd">            A :class:`Column` expression for the column with `fieldName`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`Column`</span>
+<span class="sd">            Column representing whether each element of Column</span>
+<span class="sd">            which field was added/replaced by fieldName.</span>
+
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        &gt;&gt;&gt; from pyspark.sql import Row</span>
@@ -630,19 +711,39 @@
 <span class="sd">        +---+</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fieldName</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;fieldName should be a string&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">PySparkTypeError</span><span class="p">(</span>
+                <span class="n">error_class</span><span class="o">=</span><span class="s2">&quot;NOT_STR&quot;</span><span class="p">,</span>
+                <span class="n">message_parameters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;arg_name&quot;</span><span class="p">:</span> <span class="s2">&quot;fieldName&quot;</span><span class="p">,</span> <span class="s2">&quot;arg_type&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="n">fieldName</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">},</span>
+            <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">Column</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;col should be a Column&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">PySparkTypeError</span><span class="p">(</span>
+                <span class="n">error_class</span><span class="o">=</span><span class="s2">&quot;NOT_COLUMN&quot;</span><span class="p">,</span>
+                <span class="n">message_parameters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;arg_name&quot;</span><span class="p">:</span> <span class="s2">&quot;col&quot;</span><span class="p">,</span> <span class="s2">&quot;arg_type&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="n">col</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">},</span>
+            <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jc</span><span class="o">.</span><span class="n">withField</span><span class="p">(</span><span class="n">fieldName</span><span class="p">,</span> <span class="n">col</span><span class="o">.</span><span class="n">_jc</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="Column.dropFields"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.Column.dropFields.html#pyspark.sql.Column.dropFields">[docs]</a>    <span class="k">def</span> <span class="nf">dropFields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">fieldNames</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Column&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        An expression that drops fields in :class:`StructType` by name.</span>
-<span class="sd">        This is a no-op if schema doesn&#39;t contain field name(s).</span>
+<span class="sd">        This is a no-op if the schema doesn&#39;t contain field name(s).</span>
 
 <span class="sd">        .. versionadded:: 3.1.0</span>
+
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fieldNames : str</span>
+<span class="sd">            Desired field names (collects all positional arguments passed)</span>
+<span class="sd">            The result will drop at a location if any field matches in the Column.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`Column`</span>
+<span class="sd">            Column representing whether each element of Column with field dropped by fieldName.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -692,18 +793,77 @@
         <span class="n">jc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jc</span><span class="o">.</span><span class="n">dropFields</span><span class="p">(</span><span class="n">_to_seq</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="n">fieldNames</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">jc</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Column&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="Column.__getattr__"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.Column.__getattr__.html#pyspark.sql.Column.__getattr__">[docs]</a>    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Column&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        An expression that gets an item at position ``ordinal`` out of a list,</span>
+<span class="sd">        or gets an item by key out of a dict.</span>
+
+<span class="sd">        .. versionadded:: 1.3.0</span>
+
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        item</span>
+<span class="sd">            a literal value.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`Column`</span>
+<span class="sd">            Column representing the item got by key out of a dict.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; df = spark.createDataFrame([(&#39;abcedfg&#39;, {&quot;key&quot;: &quot;value&quot;})], [&quot;l&quot;, &quot;d&quot;])</span>
+<span class="sd">        &gt;&gt;&gt; df.select(df.d.key).show()</span>
+<span class="sd">        +------+</span>
+<span class="sd">        |d[key]|</span>
+<span class="sd">        +------+</span>
+<span class="sd">        | value|</span>
+<span class="sd">        +------+</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">item</span><span class="p">]</span></div>
 
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Column&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="Column.__getitem__"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.Column.__getitem__.html#pyspark.sql.Column.__getitem__">[docs]</a>    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Column&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        An expression that gets an item at position ``ordinal`` out of a list,</span>
+<span class="sd">        or gets an item by key out of a dict.</span>
+
+<span class="sd">        .. versionadded:: 1.3.0</span>
+
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        k</span>
+<span class="sd">            a literal value, or a slice object without step.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`Column`</span>
+<span class="sd">            Column representing the item got by key out of a dict, or substrings sliced by</span>
+<span class="sd">            the given slice object.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; df = spark.createDataFrame([(&#39;abcedfg&#39;, {&quot;key&quot;: &quot;value&quot;})], [&quot;l&quot;, &quot;d&quot;])</span>
+<span class="sd">        &gt;&gt;&gt; df.select(df.l[slice(1, 3)], df.d[&#39;key&#39;]).show()</span>
+<span class="sd">        +------------------+------+</span>
+<span class="sd">        |substring(l, 1, 3)|d[key]|</span>
+<span class="sd">        +------------------+------+</span>
+<span class="sd">        |               abc| value|</span>
+<span class="sd">        +------------------+------+</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">k</span><span class="o">.</span><span class="n">step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;slice with step is not supported.&quot;</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">substr</span><span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">k</span><span class="o">.</span><span class="n">stop</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">_bin_op</span><span class="p">(</span><span class="s2">&quot;apply&quot;</span><span class="p">)(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">_bin_op</span><span class="p">(</span><span class="s2">&quot;apply&quot;</span><span class="p">)(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Column is not iterable&quot;</span><span class="p">)</span>
@@ -712,6 +872,9 @@
     <span class="n">_contains_doc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">    Contains the other element. Returns a boolean :class:`Column` based on a string match.</span>
 
+<span class="s2">    .. versionchanged:: 3.4.0</span>
+<span class="s2">        Support Spark Connect.</span>
+
 <span class="s2">    Parameters</span>
 <span class="s2">    ----------</span>
 <span class="s2">    other</span>
@@ -719,62 +882,16 @@
 
 <span class="s2">    Examples</span>
 <span class="s2">    --------</span>
+<span class="s2">    &gt;&gt;&gt; df = spark.createDataFrame(</span>
+<span class="s2">    ...      [(2, &quot;Alice&quot;), (5, &quot;Bob&quot;)], [&quot;age&quot;, &quot;name&quot;])</span>
 <span class="s2">    &gt;&gt;&gt; df.filter(df.name.contains(&#39;o&#39;)).collect()</span>
 <span class="s2">    [Row(age=5, name=&#39;Bob&#39;)]</span>
 <span class="s2">    &quot;&quot;&quot;</span>
-    <span class="n">_rlike_doc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">    SQL RLIKE expression (LIKE with Regex). Returns a boolean :class:`Column` based on a regex</span>
-<span class="s2">    match.</span>
-
-<span class="s2">    Parameters</span>
-<span class="s2">    ----------</span>
-<span class="s2">    other : str</span>
-<span class="s2">        an extended regex expression</span>
-
-<span class="s2">    Examples</span>
-<span class="s2">    --------</span>
-<span class="s2">    &gt;&gt;&gt; df.filter(df.name.rlike(&#39;ice$&#39;)).collect()</span>
-<span class="s2">    [Row(age=2, name=&#39;Alice&#39;)]</span>
-<span class="s2">    &quot;&quot;&quot;</span>
-    <span class="n">_like_doc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">    SQL like expression. Returns a boolean :class:`Column` based on a SQL LIKE match.</span>
-
-<span class="s2">    Parameters</span>
-<span class="s2">    ----------</span>
-<span class="s2">    other : str</span>
-<span class="s2">        a SQL LIKE pattern</span>
-
-<span class="s2">    See Also</span>
-<span class="s2">    --------</span>
-<span class="s2">    pyspark.sql.Column.rlike</span>
-
-<span class="s2">    Examples</span>
-<span class="s2">    --------</span>
-<span class="s2">    &gt;&gt;&gt; df.filter(df.name.like(&#39;Al%&#39;)).collect()</span>
-<span class="s2">    [Row(age=2, name=&#39;Alice&#39;)]</span>
-<span class="s2">    &quot;&quot;&quot;</span>
-    <span class="n">_ilike_doc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">    SQL ILIKE expression (case insensitive LIKE). Returns a boolean :class:`Column`</span>
-<span class="s2">    based on a case insensitive match.</span>
-
-<span class="s2">    .. versionadded:: 3.3.0</span>
-
-<span class="s2">    Parameters</span>
-<span class="s2">    ----------</span>
-<span class="s2">    other : str</span>
-<span class="s2">        a SQL LIKE pattern</span>
-
-<span class="s2">    See Also</span>
-<span class="s2">    --------</span>
-<span class="s2">    pyspark.sql.Column.rlike</span>
-
-<span class="s2">    Examples</span>
-<span class="s2">    --------</span>
-<span class="s2">    &gt;&gt;&gt; df.filter(df.name.ilike(&#39;%Ice&#39;)).collect()</span>
-<span class="s2">    [Row(age=2, name=&#39;Alice&#39;)]</span>
-<span class="s2">    &quot;&quot;&quot;</span>
     <span class="n">_startswith_doc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">    String starts with. Returns a boolean :class:`Column` based on a string match.</span>
+
+<span class="s2">    .. versionchanged:: 3.4.0</span>
+<span class="s2">        Support Spark Connect.</span>
 
 <span class="s2">    Parameters</span>
 <span class="s2">    ----------</span>
@@ -783,6 +900,8 @@
 
 <span class="s2">    Examples</span>
 <span class="s2">    --------</span>
+<span class="s2">    &gt;&gt;&gt; df = spark.createDataFrame(</span>
+<span class="s2">    ...      [(2, &quot;Alice&quot;), (5, &quot;Bob&quot;)], [&quot;age&quot;, &quot;name&quot;])</span>
 <span class="s2">    &gt;&gt;&gt; df.filter(df.name.startswith(&#39;Al&#39;)).collect()</span>
 <span class="s2">    [Row(age=2, name=&#39;Alice&#39;)]</span>
 <span class="s2">    &gt;&gt;&gt; df.filter(df.name.startswith(&#39;^Al&#39;)).collect()</span>
@@ -791,6 +910,9 @@
     <span class="n">_endswith_doc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">    String ends with. Returns a boolean :class:`Column` based on a string match.</span>
 
+<span class="s2">    .. versionchanged:: 3.4.0</span>
+<span class="s2">        Support Spark Connect.</span>
+
 <span class="s2">    Parameters</span>
 <span class="s2">    ----------</span>
 <span class="s2">    other : :class:`Column` or str</span>
@@ -798,6 +920,8 @@
 
 <span class="s2">    Examples</span>
 <span class="s2">    --------</span>
+<span class="s2">    &gt;&gt;&gt; df = spark.createDataFrame(</span>
+<span class="s2">    ...      [(2, &quot;Alice&quot;), (5, &quot;Bob&quot;)], [&quot;age&quot;, &quot;name&quot;])</span>
 <span class="s2">    &gt;&gt;&gt; df.filter(df.name.endswith(&#39;ice&#39;)).collect()</span>
 <span class="s2">    [Row(age=2, name=&#39;Alice&#39;)]</span>
 <span class="s2">    &gt;&gt;&gt; df.filter(df.name.endswith(&#39;ice$&#39;)).collect()</span>
@@ -805,11 +929,104 @@
 <span class="s2">    &quot;&quot;&quot;</span>
 
     <span class="n">contains</span> <span class="o">=</span> <span class="n">_bin_op</span><span class="p">(</span><span class="s2">&quot;contains&quot;</span><span class="p">,</span> <span class="n">_contains_doc</span><span class="p">)</span>
-    <span class="n">rlike</span> <span class="o">=</span> <span class="n">_bin_op</span><span class="p">(</span><span class="s2">&quot;rlike&quot;</span><span class="p">,</span> <span class="n">_rlike_doc</span><span class="p">)</span>
-    <span class="n">like</span> <span class="o">=</span> <span class="n">_bin_op</span><span class="p">(</span><span class="s2">&quot;like&quot;</span><span class="p">,</span> <span class="n">_like_doc</span><span class="p">)</span>
-    <span class="n">ilike</span> <span class="o">=</span> <span class="n">_bin_op</span><span class="p">(</span><span class="s2">&quot;ilike&quot;</span><span class="p">,</span> <span class="n">_ilike_doc</span><span class="p">)</span>
     <span class="n">startswith</span> <span class="o">=</span> <span class="n">_bin_op</span><span class="p">(</span><span class="s2">&quot;startsWith&quot;</span><span class="p">,</span> <span class="n">_startswith_doc</span><span class="p">)</span>
     <span class="n">endswith</span> <span class="o">=</span> <span class="n">_bin_op</span><span class="p">(</span><span class="s2">&quot;endsWith&quot;</span><span class="p">,</span> <span class="n">_endswith_doc</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Column.like"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.Column.like.html#pyspark.sql.Column.like">[docs]</a>    <span class="k">def</span> <span class="nf">like</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="s2">&quot;Column&quot;</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Column&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        SQL like expression. Returns a boolean :class:`Column` based on a SQL LIKE match.</span>
+
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        other : str</span>
+<span class="sd">            a SQL LIKE pattern</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        pyspark.sql.Column.rlike</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`Column`</span>
+<span class="sd">            Column of booleans showing whether each element</span>
+<span class="sd">            in the Column is matched by SQL LIKE pattern.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; df = spark.createDataFrame(</span>
+<span class="sd">        ...      [(2, &quot;Alice&quot;), (5, &quot;Bob&quot;)], [&quot;age&quot;, &quot;name&quot;])</span>
+<span class="sd">        &gt;&gt;&gt; df.filter(df.name.like(&#39;Al%&#39;)).collect()</span>
+<span class="sd">        [Row(age=2, name=&#39;Alice&#39;)]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">njc</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jc</span><span class="p">,</span> <span class="s2">&quot;like&quot;</span><span class="p">)(</span><span class="n">other</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">njc</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Column.rlike"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.Column.rlike.html#pyspark.sql.Column.rlike">[docs]</a>    <span class="k">def</span> <span class="nf">rlike</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="s2">&quot;Column&quot;</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Column&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        SQL RLIKE expression (LIKE with Regex). Returns a boolean :class:`Column` based on a regex</span>
+<span class="sd">        match.</span>
+
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        other : str</span>
+<span class="sd">            an extended regex expression</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`Column`</span>
+<span class="sd">            Column of booleans showing whether each element</span>
+<span class="sd">            in the Column is matched by extended regex expression.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; df = spark.createDataFrame(</span>
+<span class="sd">        ...      [(2, &quot;Alice&quot;), (5, &quot;Bob&quot;)], [&quot;age&quot;, &quot;name&quot;])</span>
+<span class="sd">        &gt;&gt;&gt; df.filter(df.name.rlike(&#39;ice$&#39;)).collect()</span>
+<span class="sd">        [Row(age=2, name=&#39;Alice&#39;)]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">njc</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jc</span><span class="p">,</span> <span class="s2">&quot;rlike&quot;</span><span class="p">)(</span><span class="n">other</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">njc</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Column.ilike"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.Column.ilike.html#pyspark.sql.Column.ilike">[docs]</a>    <span class="k">def</span> <span class="nf">ilike</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="s2">&quot;Column&quot;</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Column&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        SQL ILIKE expression (case insensitive LIKE). Returns a boolean :class:`Column`</span>
+<span class="sd">        based on a case insensitive match.</span>
+
+<span class="sd">        .. versionadded:: 3.3.0</span>
+
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        other : str</span>
+<span class="sd">            a SQL LIKE pattern</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        pyspark.sql.Column.rlike</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`Column`</span>
+<span class="sd">            Column of booleans showing whether each element</span>
+<span class="sd">            in the Column is matched by SQL LIKE pattern.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; df = spark.createDataFrame(</span>
+<span class="sd">        ...      [(2, &quot;Alice&quot;), (5, &quot;Bob&quot;)], [&quot;age&quot;, &quot;name&quot;])</span>
+<span class="sd">        &gt;&gt;&gt; df.filter(df.name.ilike(&#39;%Ice&#39;)).collect()</span>
+<span class="sd">        [Row(age=2, name=&#39;Alice&#39;)]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">njc</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jc</span><span class="p">,</span> <span class="s2">&quot;ilike&quot;</span><span class="p">)(</span><span class="n">other</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Column</span><span class="p">(</span><span class="n">njc</span><span class="p">)</span></div>
 
     <span class="nd">@overload</span>
     <span class="k">def</span> <span class="nf">substr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">startPos</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Column&quot;</span><span class="p">:</span>
@@ -825,6 +1042,9 @@
 
 <span class="sd">        .. versionadded:: 1.3.0</span>
 
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        startPos : :class:`Column` or int</span>
@@ -832,18 +1052,27 @@
 <span class="sd">        length : :class:`Column` or int</span>
 <span class="sd">            length of the substring</span>
 
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`Column`</span>
+<span class="sd">            Column representing whether each element of Column is substr of origin Column.</span>
+
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; df = spark.createDataFrame(</span>
+<span class="sd">        ...      [(2, &quot;Alice&quot;), (5, &quot;Bob&quot;)], [&quot;age&quot;, &quot;name&quot;])</span>
 <span class="sd">        &gt;&gt;&gt; df.select(df.name.substr(1, 3).alias(&quot;col&quot;)).collect()</span>
 <span class="sd">        [Row(col=&#39;Ali&#39;), Row(col=&#39;Bob&#39;)]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">startPos</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">type</span><span class="p">(</span><span class="n">length</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="s2">&quot;startPos and length must be the same type. &quot;</span>
-                <span class="s2">&quot;Got </span><span class="si">{startPos_t}</span><span class="s2"> and </span><span class="si">{length_t}</span><span class="s2">, respectively.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                    <span class="n">startPos_t</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">startPos</span><span class="p">),</span>
-                    <span class="n">length_t</span><span class="o">=</span><span class="nb">type</span><span class="p">(</span><span class="n">length</span><span class="p">),</span>
-                <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">PySparkTypeError</span><span class="p">(</span>
+                <span class="n">error_class</span><span class="o">=</span><span class="s2">&quot;NOT_SAME_TYPE&quot;</span><span class="p">,</span>
+                <span class="n">message_parameters</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;arg_name1&quot;</span><span class="p">:</span> <span class="s2">&quot;startPos&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;arg_name2&quot;</span><span class="p">:</span> <span class="s2">&quot;length&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;arg_type1&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="n">startPos</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                    <span class="s2">&quot;arg_type2&quot;</span><span class="p">:</span> <span class="nb">type</span><span class="p">(</span><span class="n">length</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                <span class="p">},</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">startPos</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="n">jc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jc</span><span class="o">.</span><span class="n">substr</span><span class="p">(</span><span class="n">startPos</span><span class="p">,</span> <span class="n">length</span><span class="p">)</span>
@@ -860,8 +1089,23 @@
 
 <span class="sd">        .. versionadded:: 1.5.0</span>
 
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cols</span>
+<span class="sd">            The result will only be true at a location if any value matches in the Column.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`Column`</span>
+<span class="sd">            Column of booleans showing whether each element in the Column is contained in cols.</span>
+
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; df = spark.createDataFrame(</span>
+<span class="sd">        ...      [(2, &quot;Alice&quot;), (5, &quot;Bob&quot;)], [&quot;age&quot;, &quot;name&quot;])</span>
 <span class="sd">        &gt;&gt;&gt; df[df.name.isin(&quot;Bob&quot;, &quot;Mike&quot;)].collect()</span>
 <span class="sd">        [Row(age=5, name=&#39;Bob&#39;)]</span>
 <span class="sd">        &gt;&gt;&gt; df[df.age.isin([1, 2, 3])].collect()</span>
@@ -880,7 +1124,10 @@
 
     <span class="c1"># order</span>
     <span class="n">_asc_doc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">    Returns a sort expression based on ascending order of the column.</span>
+<span class="s2">    Returns a sort expression based on the ascending order of the column.</span>
+
+<span class="s2">    .. versionchanged:: 3.4.0</span>
+<span class="s2">        Support Spark Connect.</span>
 
 <span class="s2">    Examples</span>
 <span class="s2">    --------</span>
@@ -894,6 +1141,9 @@
 <span class="s2">    return before non-null values.</span>
 
 <span class="s2">    .. versionadded:: 2.4.0</span>
+
+<span class="s2">    .. versionchanged:: 3.4.0</span>
+<span class="s2">        Support Spark Connect.</span>
 
 <span class="s2">    Examples</span>
 <span class="s2">    --------</span>
@@ -909,6 +1159,9 @@
 
 <span class="s2">    .. versionadded:: 2.4.0</span>
 
+<span class="s2">    .. versionchanged:: 3.4.0</span>
+<span class="s2">        Support Spark Connect.</span>
+
 <span class="s2">    Examples</span>
 <span class="s2">    --------</span>
 <span class="s2">    &gt;&gt;&gt; from pyspark.sql import Row</span>
@@ -921,6 +1174,9 @@
 <span class="s2">    Returns a sort expression based on the descending order of the column.</span>
 
 <span class="s2">    .. versionadded:: 2.4.0</span>
+
+<span class="s2">    .. versionchanged:: 3.4.0</span>
+<span class="s2">        Support Spark Connect.</span>
 
 <span class="s2">    Examples</span>
 <span class="s2">    --------</span>
@@ -935,6 +1191,9 @@
 
 <span class="s2">    .. versionadded:: 2.4.0</span>
 
+<span class="s2">    .. versionchanged:: 3.4.0</span>
+<span class="s2">        Support Spark Connect.</span>
+
 <span class="s2">    Examples</span>
 <span class="s2">    --------</span>
 <span class="s2">    &gt;&gt;&gt; from pyspark.sql import Row</span>
@@ -948,6 +1207,9 @@
 <span class="s2">    appear after non-null values.</span>
 
 <span class="s2">    .. versionadded:: 2.4.0</span>
+
+<span class="s2">    .. versionchanged:: 3.4.0</span>
+<span class="s2">        Support Spark Connect.</span>
 
 <span class="s2">    Examples</span>
 <span class="s2">    --------</span>
@@ -967,6 +1229,9 @@
     <span class="n">_isNull_doc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">    True if the current expression is null.</span>
 
+<span class="s2">    .. versionchanged:: 3.4.0</span>
+<span class="s2">        Support Spark Connect.</span>
+
 <span class="s2">    Examples</span>
 <span class="s2">    --------</span>
 <span class="s2">    &gt;&gt;&gt; from pyspark.sql import Row</span>
@@ -976,6 +1241,9 @@
 <span class="s2">    &quot;&quot;&quot;</span>
     <span class="n">_isNotNull_doc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">    True if the current expression is NOT null.</span>
+
+<span class="s2">    .. versionchanged:: 3.4.0</span>
+<span class="s2">        Support Spark Connect.</span>
 
 <span class="s2">    Examples</span>
 <span class="s2">    --------</span>
@@ -995,6 +1263,9 @@
 
 <span class="sd">        .. versionadded:: 1.3.0</span>
 
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        alias : str</span>
@@ -1010,8 +1281,15 @@
 <span class="sd">            .. versionchanged:: 2.2.0</span>
 <span class="sd">               Added optional ``metadata`` argument.</span>
 
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`Column`</span>
+<span class="sd">            Column representing whether each element of Column is aliased with new name or names.</span>
+
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; df = spark.createDataFrame(</span>
+<span class="sd">        ...      [(2, &quot;Alice&quot;), (5, &quot;Bob&quot;)], [&quot;age&quot;, &quot;name&quot;])</span>
 <span class="sd">        &gt;&gt;&gt; df.select(df.age.alias(&quot;age2&quot;)).collect()</span>
 <span class="sd">        [Row(age2=2), Row(age2=5)]</span>
 <span class="sd">        &gt;&gt;&gt; df.select(df.age.alias(&quot;age3&quot;, metadata={&#39;max&#39;: 99})).schema[&#39;age3&#39;].metadata[&#39;max&#39;]</span>
@@ -1043,8 +1321,25 @@
 
 <span class="sd">        .. versionadded:: 1.3.0</span>
 
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        dataType : :class:`DataType` or str</span>
+<span class="sd">            a DataType or Python string literal with a DDL-formatted string</span>
+<span class="sd">            to use when parsing the column to the same type.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`Column`</span>
+<span class="sd">            Column representing whether each element of Column is cast into new type.</span>
+
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.sql.types import StringType</span>
+<span class="sd">        &gt;&gt;&gt; df = spark.createDataFrame(</span>
+<span class="sd">        ...      [(2, &quot;Alice&quot;), (5, &quot;Bob&quot;)], [&quot;age&quot;, &quot;name&quot;])</span>
 <span class="sd">        &gt;&gt;&gt; df.select(df.age.cast(&quot;string&quot;).alias(&#39;ages&#39;)).collect()</span>
 <span class="sd">        [Row(ages=&#39;2&#39;), Row(ages=&#39;5&#39;)]</span>
 <span class="sd">        &gt;&gt;&gt; df.select(df.age.cast(StringType()).alias(&#39;ages&#39;)).collect()</span>
@@ -1074,8 +1369,26 @@
 
 <span class="sd">        .. versionadded:: 1.3.0</span>
 
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lowerBound : :class:`Column`, int, float, string, bool, datetime, date or Decimal</span>
+<span class="sd">            a boolean expression that boundary start, inclusive.</span>
+<span class="sd">        upperBound : :class:`Column`, int, float, string, bool, datetime, date or Decimal</span>
+<span class="sd">            a boolean expression that boundary end, inclusive.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`Column`</span>
+<span class="sd">            Column of booleans showing whether each element of Column</span>
+<span class="sd">            is between left and right (inclusive).</span>
+
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; df = spark.createDataFrame(</span>
+<span class="sd">        ...      [(2, &quot;Alice&quot;), (5, &quot;Bob&quot;)], [&quot;age&quot;, &quot;name&quot;])</span>
 <span class="sd">        &gt;&gt;&gt; df.select(df.name, df.age.between(2, 4)).show()</span>
 <span class="sd">        +-----+---------------------------+</span>
 <span class="sd">        | name|((age &gt;= 2) AND (age &lt;= 4))|</span>
@@ -1093,6 +1406,9 @@
 
 <span class="sd">        .. versionadded:: 1.4.0</span>
 
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        condition : :class:`Column`</span>
@@ -1100,9 +1416,16 @@
 <span class="sd">        value</span>
 <span class="sd">            a literal value, or a :class:`Column` expression.</span>
 
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`Column`</span>
+<span class="sd">            Column representing whether each element of Column is in conditions.</span>
+
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        &gt;&gt;&gt; from pyspark.sql import functions as F</span>
+<span class="sd">        &gt;&gt;&gt; df = spark.createDataFrame(</span>
+<span class="sd">        ...      [(2, &quot;Alice&quot;), (5, &quot;Bob&quot;)], [&quot;age&quot;, &quot;name&quot;])</span>
 <span class="sd">        &gt;&gt;&gt; df.select(df.name, F.when(df.age &gt; 4, 1).when(df.age &lt; 3, -1).otherwise(0)).show()</span>
 <span class="sd">        +-----+------------------------------------------------------------+</span>
 <span class="sd">        | name|CASE WHEN (age &gt; 4) THEN 1 WHEN (age &lt; 3) THEN -1 ELSE 0 END|</span>
@@ -1128,14 +1451,24 @@
 
 <span class="sd">        .. versionadded:: 1.4.0</span>
 
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        value</span>
 <span class="sd">            a literal value, or a :class:`Column` expression.</span>
 
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`Column`</span>
+<span class="sd">            Column representing whether each element of Column is unmatched conditions.</span>
+
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        &gt;&gt;&gt; from pyspark.sql import functions as F</span>
+<span class="sd">        &gt;&gt;&gt; df = spark.createDataFrame(</span>
+<span class="sd">        ...      [(2, &quot;Alice&quot;), (5, &quot;Bob&quot;)], [&quot;age&quot;, &quot;name&quot;])</span>
 <span class="sd">        &gt;&gt;&gt; df.select(df.name, F.when(df.age &gt; 3, 1).otherwise(0)).show()</span>
 <span class="sd">        +-----+-------------------------------------+</span>
 <span class="sd">        | name|CASE WHEN (age &gt; 3) THEN 1 ELSE 0 END|</span>
@@ -1158,6 +1491,9 @@
 
 <span class="sd">        .. versionadded:: 1.4.0</span>
 
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        window : :class:`WindowSpec`</span>
@@ -1171,8 +1507,9 @@
 <span class="sd">        &gt;&gt;&gt; from pyspark.sql import Window</span>
 <span class="sd">        &gt;&gt;&gt; window = Window.partitionBy(&quot;name&quot;).orderBy(&quot;age&quot;) \</span>
 <span class="sd">                .rowsBetween(Window.unboundedPreceding, Window.currentRow)</span>
-<span class="sd">        &gt;&gt;&gt; from pyspark.sql.functions import rank, min</span>
-<span class="sd">        &gt;&gt;&gt; from pyspark.sql.functions import desc</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.sql.functions import rank, min, desc</span>
+<span class="sd">        &gt;&gt;&gt; df = spark.createDataFrame(</span>
+<span class="sd">        ...      [(2, &quot;Alice&quot;), (5, &quot;Bob&quot;)], [&quot;age&quot;, &quot;name&quot;])</span>
 <span class="sd">        &gt;&gt;&gt; df.withColumn(&quot;rank&quot;, rank().over(window)) \</span>
 <span class="sd">                .withColumn(&quot;min&quot;, min(&#39;age&#39;).over(window)).sort(desc(&quot;age&quot;)).show()</span>
 <span class="sd">        +---+-----+----+---+</span>
@@ -1208,11 +1545,7 @@
 
     <span class="n">globs</span> <span class="o">=</span> <span class="n">pyspark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">master</span><span class="p">(</span><span class="s2">&quot;local[4]&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;sql.column tests&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
-    <span class="n">sc</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">sparkContext</span>
     <span class="n">globs</span><span class="p">[</span><span class="s2">&quot;spark&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">spark</span>
-    <span class="n">globs</span><span class="p">[</span><span class="s2">&quot;df&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="p">([(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Alice&quot;</span><span class="p">),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;Bob&quot;</span><span class="p">)])</span><span class="o">.</span><span class="n">toDF</span><span class="p">(</span>
-        <span class="n">StructType</span><span class="p">([</span><span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;age&quot;</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">()),</span> <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">())])</span>
-    <span class="p">)</span>
 
     <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span>
         <span class="n">pyspark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">column</span><span class="p">,</span>
