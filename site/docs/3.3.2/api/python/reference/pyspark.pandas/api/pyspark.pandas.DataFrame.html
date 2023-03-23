@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>pyspark.pandas.DataFrame &#8212; PySpark 3.3.2 documentation</title>
+    <title>pyspark.pandas.DataFrame &#8212; PySpark 3.4.0 documentation</title>
     
   <link rel="stylesheet" href="../../../_static/css/index.73d71520a4ca3b99cfee5594769eaaae.css">
 
@@ -64,11 +64,15 @@
         
         
         <li class="nav-item ">
+            <a class="nav-link" href="../../../index.html">Overview</a>
+        </li>
+        
+        <li class="nav-item ">
             <a class="nav-link" href="../../../getting_started/index.html">Getting Started</a>
         </li>
         
         <li class="nav-item ">
-            <a class="nav-link" href="../../../user_guide/index.html">User Guide</a>
+            <a class="nav-link" href="../../../user_guide/index.html">User Guides</a>
         </li>
         
         <li class="nav-item active">
@@ -80,7 +84,7 @@
         </li>
         
         <li class="nav-item ">
-            <a class="nav-link" href="../../../migration_guide/index.html">Migration Guide</a>
+            <a class="nav-link" href="../../../migration_guide/index.html">Migration Guides</a>
         </li>
         
         
@@ -111,6 +115,8 @@
     
   
     <ul class="nav bd-sidenav">
+        
+        
         
         
         
@@ -159,6 +165,10 @@
                         </li>
                     
                         <li class="">
+                            <a href="../resampling.html">Resampling</a>
+                        </li>
+                    
+                        <li class="">
                             <a href="../ml.html">Machine Learning utilities</a>
                         </li>
                     
@@ -184,7 +194,7 @@
           
             
                 <li class="">
-                    <a href="../../pyspark.streaming.html">Spark Streaming</a>
+                    <a href="../../pyspark.streaming.html">Spark Streaming (Legacy)</a>
                 </li>
             
           
@@ -203,6 +213,12 @@
             
                 <li class="">
                     <a href="../../pyspark.resource.html">Resource Management</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="../../pyspark.errors.html">Errors</a>
                 </li>
             
           
@@ -251,19 +267,28 @@ DataFrame internally.</p>
 </dd>
 <dt class="field-even">Parameters</dt>
 <dd class="field-even"><dl class="simple">
-<dt><strong>data</strong><span class="classifier">numpy ndarray (structured or homogeneous), dict, pandas DataFrame, Spark DataFrame         or pandas-on-Spark Series</span></dt><dd><p>Dict can contain Series, arrays, constants, or list-like objects
-Note that if <cite>data</cite> is a pandas DataFrame, a Spark DataFrame, and a pandas-on-Spark Series,
-other arguments should not be used.</p>
+<dt><strong>data</strong><span class="classifier">numpy ndarray (structured or homogeneous), dict, pandas DataFrame,</span></dt><dd><p>Spark DataFrame, pandas-on-Spark DataFrame or pandas-on-Spark Series.
+Dict can contain Series, arrays, constants, or list-like objects</p>
 </dd>
-<dt><strong>index</strong><span class="classifier">Index or array-like</span></dt><dd><p>Index to use for resulting frame. Will default to RangeIndex if
+<dt><strong>index</strong><span class="classifier">Index or array-like</span></dt><dd><p>Index to use for the resulting frame. Will default to RangeIndex if
 no indexing information part of input data and no index provided</p>
 </dd>
-<dt><strong>columns</strong><span class="classifier">Index or array-like</span></dt><dd><p>Column labels to use for resulting frame. Will default to
+<dt><strong>columns</strong><span class="classifier">Index or array-like</span></dt><dd><p>Column labels to use for the resulting frame. Will default to
 RangeIndex (0, 1, 2, …, n) if no column labels are provided</p>
 </dd>
 <dt><strong>dtype</strong><span class="classifier">dtype, default None</span></dt><dd><p>Data type to force. Only a single dtype is allowed. If None, infer</p>
 </dd>
 <dt><strong>copy</strong><span class="classifier">boolean, default False</span></dt><dd><p>Copy data from inputs. Only affects DataFrame / 2d ndarray input</p>
+</dd>
+<dt><strong>.. versionchanged:: 3.4.0</strong></dt><dd><p>Since 3.4.0, it deals with <cite>data</cite> and <cite>index</cite> in this approach:
+1, when <cite>data</cite> is a distributed dataset (Internal DataFrame/Spark DataFrame/
+pandas-on-Spark DataFrame/pandas-on-Spark Series), it will first parallelize
+the <cite>index</cite> if necessary, and then try to combine the <cite>data</cite> and <cite>index</cite>;
+Note that if <cite>data</cite> and <cite>index</cite> doesn’t have the same anchor, then
+<cite>compute.ops_on_diff_frames</cite> should be turned on;
+2, when <cite>data</cite> is a local dataset (Pandas DataFrame/numpy ndarray/list/etc),
+it will first collect the <cite>index</cite> to driver if necessary, and then apply
+the <cite>Pandas.DataFrame(…)</cite> creation internally;</p>
 </dd>
 </dl>
 </dd>
@@ -302,15 +327,92 @@ RangeIndex (0, 1, 2, …, n) if no column labels are provided</p>
 </pre></div>
 </div>
 <p>Constructing DataFrame from numpy ndarray:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">df2</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)),</span>
-<span class="gp">... </span>                   <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;e&#39;</span><span class="p">])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">df2</span>  
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ps</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]),</span>
+<span class="gp">... </span>    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;e&#39;</span><span class="p">])</span>
 <span class="go">   a  b  c  d  e</span>
-<span class="go">0  3  1  4  9  8</span>
-<span class="go">1  4  8  4  8  4</span>
-<span class="go">2  7  6  5  6  7</span>
-<span class="go">3  8  7  9  1  0</span>
-<span class="go">4  2  5  4  3  9</span>
+<span class="go">0  1  2  3  4  5</span>
+<span class="go">1  6  7  8  9  0</span>
+</pre></div>
+</div>
+<p>Constructing DataFrame from numpy ndarray with Pandas index:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ps</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]),</span>
+<span class="gp">... </span>    <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">]),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;e&#39;</span><span class="p">])</span>
+<span class="go">   a  b  c  d  e</span>
+<span class="go">1  1  2  3  4  5</span>
+<span class="go">4  6  7  8  9  0</span>
+</pre></div>
+</div>
+<p>Constructing DataFrame from numpy ndarray with pandas-on-Spark index:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ps</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]),</span>
+<span class="gp">... </span>    <span class="n">index</span><span class="o">=</span><span class="n">ps</span><span class="o">.</span><span class="n">Index</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">]),</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;e&#39;</span><span class="p">])</span>
+<span class="go">   a  b  c  d  e</span>
+<span class="go">1  1  2  3  4  5</span>
+<span class="go">4  6  7  8  9  0</span>
+</pre></div>
+</div>
+<p>Constructing DataFrame from Pandas DataFrame with Pandas index:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]),</span>
+<span class="gp">... </span>    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;e&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ps</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">pdf</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">]))</span>
+<span class="go">     a    b    c    d    e</span>
+<span class="go">1  6.0  7.0  8.0  9.0  0.0</span>
+<span class="go">4  NaN  NaN  NaN  NaN  NaN</span>
+</pre></div>
+</div>
+<p>Constructing DataFrame from Pandas DataFrame with pandas-on-Spark index:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]),</span>
+<span class="gp">... </span>    <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;e&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ps</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">pdf</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">ps</span><span class="o">.</span><span class="n">Index</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">]))</span>
+<span class="go">     a    b    c    d    e</span>
+<span class="go">1  6.0  7.0  8.0  9.0  0.0</span>
+<span class="go">4  NaN  NaN  NaN  NaN  NaN</span>
+</pre></div>
+</div>
+<p>Constructing DataFrame from Spark DataFrame with Pandas index:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sdf</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">([(</span><span class="s2">&quot;Data&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;Bricks&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)],</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ps</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">sdf</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]))</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="w">  </span><span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">Cannot combine the series or dataframe...&#39;compute.ops_on_diff_frames&#39; option.</span>
+</pre></div>
+</div>
+<p>Enable ‘compute.ops_on_diff_frames’ to combine SparkDataFrame and Pandas index</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">ps</span><span class="o">.</span><span class="n">option_context</span><span class="p">(</span><span class="s2">&quot;compute.ops_on_diff_frames&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">ps</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">sdf</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]))</span>
+<span class="go">        x    y</span>
+<span class="go">0    Data  1.0</span>
+<span class="go">1  Bricks  2.0</span>
+<span class="go">2    None  NaN</span>
+</pre></div>
+</div>
+<p>Constructing DataFrame from Spark DataFrame with pandas-on-Spark index:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sdf</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">([(</span><span class="s2">&quot;Data&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;Bricks&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)],</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ps</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">sdf</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">ps</span><span class="o">.</span><span class="n">Index</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]))</span>
+<span class="gt">Traceback (most recent call last):</span>
+<span class="w">  </span><span class="c">...</span>
+<span class="gr">ValueError</span>: <span class="n">Cannot combine the series or dataframe...&#39;compute.ops_on_diff_frames&#39; option.</span>
+</pre></div>
+</div>
+<p>Enable ‘compute.ops_on_diff_frames’ to combine Spark DataFrame and pandas-on-Spark index</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">ps</span><span class="o">.</span><span class="n">option_context</span><span class="p">(</span><span class="s2">&quot;compute.ops_on_diff_frames&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="n">ps</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">sdf</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">ps</span><span class="o">.</span><span class="n">Index</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]))</span>
+<span class="go">        x    y</span>
+<span class="go">0    Data  1.0</span>
+<span class="go">1  Bricks  2.0</span>
+<span class="go">2    None  NaN</span>
 </pre></div>
 </div>
 <p class="rubric">Methods</p>
@@ -341,10 +443,10 @@ RangeIndex (0, 1, 2, …, n) if no column labels are provided</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.align.html#pyspark.pandas.DataFrame.align" title="pyspark.pandas.DataFrame.align"><code class="xref py py-obj docutils literal notranslate"><span class="pre">align</span></code></a>(other[, join, axis, copy])</p></td>
 <td><p>Align two objects on their axes with the specified join method.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.all.html#pyspark.pandas.DataFrame.all" title="pyspark.pandas.DataFrame.all"><code class="xref py py-obj docutils literal notranslate"><span class="pre">all</span></code></a>([axis])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.all.html#pyspark.pandas.DataFrame.all" title="pyspark.pandas.DataFrame.all"><code class="xref py py-obj docutils literal notranslate"><span class="pre">all</span></code></a>([axis, bool_only, skipna])</p></td>
 <td><p>Return whether all elements are True.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.any.html#pyspark.pandas.DataFrame.any" title="pyspark.pandas.DataFrame.any"><code class="xref py py-obj docutils literal notranslate"><span class="pre">any</span></code></a>([axis])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.any.html#pyspark.pandas.DataFrame.any" title="pyspark.pandas.DataFrame.any"><code class="xref py py-obj docutils literal notranslate"><span class="pre">any</span></code></a>([axis, bool_only])</p></td>
 <td><p>Return whether any element is True.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.append.html#pyspark.pandas.DataFrame.append" title="pyspark.pandas.DataFrame.append"><code class="xref py py-obj docutils literal notranslate"><span class="pre">append</span></code></a>(other[, ignore_index, …])</p></td>
@@ -377,22 +479,28 @@ RangeIndex (0, 1, 2, …, n) if no column labels are provided</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.bool.html#pyspark.pandas.DataFrame.bool" title="pyspark.pandas.DataFrame.bool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></a>()</p></td>
 <td><p>Return the bool of a single element in the current object.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.clip.html#pyspark.pandas.DataFrame.clip" title="pyspark.pandas.DataFrame.clip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clip</span></code></a>([lower, upper])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.boxplot.html#pyspark.pandas.DataFrame.boxplot" title="pyspark.pandas.DataFrame.boxplot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">boxplot</span></code></a>(**kwds)</p></td>
+<td><p>Make a box plot of the Series columns.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.clip.html#pyspark.pandas.DataFrame.clip" title="pyspark.pandas.DataFrame.clip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clip</span></code></a>([lower, upper])</p></td>
 <td><p>Trim values at input threshold(s).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.combine_first.html#pyspark.pandas.DataFrame.combine_first" title="pyspark.pandas.DataFrame.combine_first"><code class="xref py py-obj docutils literal notranslate"><span class="pre">combine_first</span></code></a>(other)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.combine_first.html#pyspark.pandas.DataFrame.combine_first" title="pyspark.pandas.DataFrame.combine_first"><code class="xref py py-obj docutils literal notranslate"><span class="pre">combine_first</span></code></a>(other)</p></td>
 <td><p>Update null elements with value in the same location in <cite>other</cite>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.copy.html#pyspark.pandas.DataFrame.copy" title="pyspark.pandas.DataFrame.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>([deep])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.copy.html#pyspark.pandas.DataFrame.copy" title="pyspark.pandas.DataFrame.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a>([deep])</p></td>
 <td><p>Make a copy of this object’s indices and data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.corr.html#pyspark.pandas.DataFrame.corr" title="pyspark.pandas.DataFrame.corr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">corr</span></code></a>([method])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.corr.html#pyspark.pandas.DataFrame.corr" title="pyspark.pandas.DataFrame.corr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">corr</span></code></a>([method, min_periods])</p></td>
 <td><p>Compute pairwise correlation of columns, excluding NA/null values.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.corrwith.html#pyspark.pandas.DataFrame.corrwith" title="pyspark.pandas.DataFrame.corrwith"><code class="xref py py-obj docutils literal notranslate"><span class="pre">corrwith</span></code></a>(other[, axis, drop, method])</p></td>
+<td><p>Compute pairwise correlation.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.count.html#pyspark.pandas.DataFrame.count" title="pyspark.pandas.DataFrame.count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">count</span></code></a>([axis, numeric_only])</p></td>
 <td><p>Count non-NA cells for each column.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.cov.html#pyspark.pandas.DataFrame.cov" title="pyspark.pandas.DataFrame.cov"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cov</span></code></a>([min_periods])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.cov.html#pyspark.pandas.DataFrame.cov" title="pyspark.pandas.DataFrame.cov"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cov</span></code></a>([min_periods, ddof])</p></td>
 <td><p>Compute pairwise covariance of columns, excluding NA/null values.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.cummax.html#pyspark.pandas.DataFrame.cummax" title="pyspark.pandas.DataFrame.cummax"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cummax</span></code></a>([skipna])</p></td>
@@ -420,12 +528,12 @@ RangeIndex (0, 1, 2, …, n) if no column labels are provided</p>
 <td><p>Get Floating division of dataframe and other, element-wise (binary operator <cite>/</cite>).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.dot.html#pyspark.pandas.DataFrame.dot" title="pyspark.pandas.DataFrame.dot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dot</span></code></a>(other)</p></td>
-<td><p>Compute the matrix multiplication between the DataFrame and other.</p></td>
+<td><p>Compute the matrix multiplication between the DataFrame and others.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.drop.html#pyspark.pandas.DataFrame.drop" title="pyspark.pandas.DataFrame.drop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop</span></code></a>([labels, axis, index, columns])</p></td>
 <td><p>Drop specified labels from columns.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.drop_duplicates.html#pyspark.pandas.DataFrame.drop_duplicates" title="pyspark.pandas.DataFrame.drop_duplicates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_duplicates</span></code></a>([subset, keep, inplace])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.drop_duplicates.html#pyspark.pandas.DataFrame.drop_duplicates" title="pyspark.pandas.DataFrame.drop_duplicates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_duplicates</span></code></a>([subset, keep, inplace, …])</p></td>
 <td><p>Return DataFrame with duplicate rows removed, optionally only considering certain columns.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.droplevel.html#pyspark.pandas.DataFrame.droplevel" title="pyspark.pandas.DataFrame.droplevel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">droplevel</span></code></a>(level[, axis])</p></td>
@@ -446,68 +554,74 @@ RangeIndex (0, 1, 2, …, n) if no column labels are provided</p>
 <tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.eval.html#pyspark.pandas.DataFrame.eval" title="pyspark.pandas.DataFrame.eval"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eval</span></code></a>(expr[, inplace])</p></td>
 <td><p>Evaluate a string describing operations on DataFrame columns.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.expanding.html#pyspark.pandas.DataFrame.expanding" title="pyspark.pandas.DataFrame.expanding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expanding</span></code></a>([min_periods])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.ewm.html#pyspark.pandas.DataFrame.ewm" title="pyspark.pandas.DataFrame.ewm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ewm</span></code></a>([com, span, halflife, alpha, …])</p></td>
+<td><p>Provide exponentially weighted window transformations.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.expanding.html#pyspark.pandas.DataFrame.expanding" title="pyspark.pandas.DataFrame.expanding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expanding</span></code></a>([min_periods])</p></td>
 <td><p>Provide expanding transformations.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.explode.html#pyspark.pandas.DataFrame.explode" title="pyspark.pandas.DataFrame.explode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">explode</span></code></a>(column)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.explode.html#pyspark.pandas.DataFrame.explode" title="pyspark.pandas.DataFrame.explode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">explode</span></code></a>(column[, ignore_index])</p></td>
 <td><p>Transform each element of a list-like to a row, replicating index values.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.ffill.html#pyspark.pandas.DataFrame.ffill" title="pyspark.pandas.DataFrame.ffill"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ffill</span></code></a>([axis, inplace, limit])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.ffill.html#pyspark.pandas.DataFrame.ffill" title="pyspark.pandas.DataFrame.ffill"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ffill</span></code></a>([axis, inplace, limit])</p></td>
 <td><p>Synonym for <cite>DataFrame.fillna()</cite> or <cite>Series.fillna()</cite> with <code class="docutils literal notranslate"><span class="pre">method=`ffill`</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.fillna.html#pyspark.pandas.DataFrame.fillna" title="pyspark.pandas.DataFrame.fillna"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fillna</span></code></a>([value, method, axis, inplace, limit])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.fillna.html#pyspark.pandas.DataFrame.fillna" title="pyspark.pandas.DataFrame.fillna"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fillna</span></code></a>([value, method, axis, inplace, limit])</p></td>
 <td><p>Fill NA/NaN values.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.filter.html#pyspark.pandas.DataFrame.filter" title="pyspark.pandas.DataFrame.filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter</span></code></a>([items, like, regex, axis])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.filter.html#pyspark.pandas.DataFrame.filter" title="pyspark.pandas.DataFrame.filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter</span></code></a>([items, like, regex, axis])</p></td>
 <td><p>Subset rows or columns of dataframe according to labels in the specified index.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.first.html#pyspark.pandas.DataFrame.first" title="pyspark.pandas.DataFrame.first"><code class="xref py py-obj docutils literal notranslate"><span class="pre">first</span></code></a>(offset)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.first.html#pyspark.pandas.DataFrame.first" title="pyspark.pandas.DataFrame.first"><code class="xref py py-obj docutils literal notranslate"><span class="pre">first</span></code></a>(offset)</p></td>
 <td><p>Select first periods of time series data based on a date offset.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.first_valid_index.html#pyspark.pandas.DataFrame.first_valid_index" title="pyspark.pandas.DataFrame.first_valid_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">first_valid_index</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.first_valid_index.html#pyspark.pandas.DataFrame.first_valid_index" title="pyspark.pandas.DataFrame.first_valid_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">first_valid_index</span></code></a>()</p></td>
 <td><p>Retrieves the index of the first valid value.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.floordiv.html#pyspark.pandas.DataFrame.floordiv" title="pyspark.pandas.DataFrame.floordiv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">floordiv</span></code></a>(other)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.floordiv.html#pyspark.pandas.DataFrame.floordiv" title="pyspark.pandas.DataFrame.floordiv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">floordiv</span></code></a>(other)</p></td>
 <td><p>Get Integer division of dataframe and other, element-wise (binary operator <cite>//</cite>).</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dict</span></code>(data[, orient, dtype, columns])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_dict</span></code>(data[, orient, dtype, columns])</p></td>
 <td><p>Construct DataFrame from dict of array-like or dicts.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.from_records.html#pyspark.pandas.DataFrame.from_records" title="pyspark.pandas.DataFrame.from_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_records</span></code></a>(data[, index, exclude, …])</p></td>
-<td><p>Convert structured or record ndarray to DataFrame.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.from_records.html#pyspark.pandas.DataFrame.from_records" title="pyspark.pandas.DataFrame.from_records"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_records</span></code></a>(data[, index, exclude, …])</p></td>
+<td><p>Convert structured or recorded ndarray to DataFrame.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.ge.html#pyspark.pandas.DataFrame.ge" title="pyspark.pandas.DataFrame.ge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ge</span></code></a>(other)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.ge.html#pyspark.pandas.DataFrame.ge" title="pyspark.pandas.DataFrame.ge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ge</span></code></a>(other)</p></td>
 <td><p>Compare if the current value is greater than or equal to the other.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.get.html#pyspark.pandas.DataFrame.get" title="pyspark.pandas.DataFrame.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a>(key[, default])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.get.html#pyspark.pandas.DataFrame.get" title="pyspark.pandas.DataFrame.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a>(key[, default])</p></td>
 <td><p>Get item from object for given key (DataFrame column, Panel slice, etc.).</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dtype_counts</span></code>()</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dtype_counts</span></code>()</p></td>
 <td><p>Return counts of unique dtypes in this object.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.groupby.html#pyspark.pandas.DataFrame.groupby" title="pyspark.pandas.DataFrame.groupby"><code class="xref py py-obj docutils literal notranslate"><span class="pre">groupby</span></code></a>(by[, axis, as_index, dropna])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.groupby.html#pyspark.pandas.DataFrame.groupby" title="pyspark.pandas.DataFrame.groupby"><code class="xref py py-obj docutils literal notranslate"><span class="pre">groupby</span></code></a>(by[, axis, as_index, dropna])</p></td>
 <td><p>Group DataFrame or Series using one or more columns.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.gt.html#pyspark.pandas.DataFrame.gt" title="pyspark.pandas.DataFrame.gt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gt</span></code></a>(other)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.gt.html#pyspark.pandas.DataFrame.gt" title="pyspark.pandas.DataFrame.gt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gt</span></code></a>(other)</p></td>
 <td><p>Compare if the current value is greater than the other.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.head.html#pyspark.pandas.DataFrame.head" title="pyspark.pandas.DataFrame.head"><code class="xref py py-obj docutils literal notranslate"><span class="pre">head</span></code></a>([n])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.head.html#pyspark.pandas.DataFrame.head" title="pyspark.pandas.DataFrame.head"><code class="xref py py-obj docutils literal notranslate"><span class="pre">head</span></code></a>([n])</p></td>
 <td><p>Return the first <cite>n</cite> rows.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.hist.html#pyspark.pandas.DataFrame.hist" title="pyspark.pandas.DataFrame.hist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hist</span></code></a>([bins])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.hist.html#pyspark.pandas.DataFrame.hist" title="pyspark.pandas.DataFrame.hist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hist</span></code></a>([bins])</p></td>
 <td><p>Draw one histogram of the DataFrame’s columns.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.idxmax.html#pyspark.pandas.DataFrame.idxmax" title="pyspark.pandas.DataFrame.idxmax"><code class="xref py py-obj docutils literal notranslate"><span class="pre">idxmax</span></code></a>([axis])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.idxmax.html#pyspark.pandas.DataFrame.idxmax" title="pyspark.pandas.DataFrame.idxmax"><code class="xref py py-obj docutils literal notranslate"><span class="pre">idxmax</span></code></a>([axis])</p></td>
 <td><p>Return index of first occurrence of maximum over requested axis.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.idxmin.html#pyspark.pandas.DataFrame.idxmin" title="pyspark.pandas.DataFrame.idxmin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">idxmin</span></code></a>([axis])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.idxmin.html#pyspark.pandas.DataFrame.idxmin" title="pyspark.pandas.DataFrame.idxmin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">idxmin</span></code></a>([axis])</p></td>
 <td><p>Return index of first occurrence of minimum over requested axis.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.info.html#pyspark.pandas.DataFrame.info" title="pyspark.pandas.DataFrame.info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">info</span></code></a>([verbose, buf, max_cols, null_counts])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.info.html#pyspark.pandas.DataFrame.info" title="pyspark.pandas.DataFrame.info"><code class="xref py py-obj docutils literal notranslate"><span class="pre">info</span></code></a>([verbose, buf, max_cols, null_counts])</p></td>
 <td><p>Print a concise summary of a DataFrame.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.insert.html#pyspark.pandas.DataFrame.insert" title="pyspark.pandas.DataFrame.insert"><code class="xref py py-obj docutils literal notranslate"><span class="pre">insert</span></code></a>(loc, column, value[, allow_duplicates])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.insert.html#pyspark.pandas.DataFrame.insert" title="pyspark.pandas.DataFrame.insert"><code class="xref py py-obj docutils literal notranslate"><span class="pre">insert</span></code></a>(loc, column, value[, allow_duplicates])</p></td>
 <td><p>Insert column into DataFrame at specified location.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.interpolate.html#pyspark.pandas.DataFrame.interpolate" title="pyspark.pandas.DataFrame.interpolate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate</span></code></a>([method, limit, …])</p></td>
+<td><p>Fill NaN values using an interpolation method.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.isin.html#pyspark.pandas.DataFrame.isin" title="pyspark.pandas.DataFrame.isin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isin</span></code></a>(values)</p></td>
 <td><p>Whether each element in the DataFrame is contained in values.</p></td>
@@ -519,10 +633,10 @@ RangeIndex (0, 1, 2, …, n) if no column labels are provided</p>
 <td><p>Detects missing values for items in the current Dataframe.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.items.html#pyspark.pandas.DataFrame.items" title="pyspark.pandas.DataFrame.items"><code class="xref py py-obj docutils literal notranslate"><span class="pre">items</span></code></a>()</p></td>
-<td><p>This is an alias of <code class="docutils literal notranslate"><span class="pre">iteritems</span></code>.</p></td>
+<td><p>Iterator over (column name, Series) pairs.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.iteritems.html#pyspark.pandas.DataFrame.iteritems" title="pyspark.pandas.DataFrame.iteritems"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iteritems</span></code></a>()</p></td>
-<td><p>Iterator over (column name, Series) pairs.</p></td>
+<td><p>This is an alias of <code class="docutils literal notranslate"><span class="pre">items</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.iterrows.html#pyspark.pandas.DataFrame.iterrows" title="pyspark.pandas.DataFrame.iterrows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">iterrows</span></code></a>()</p></td>
 <td><p>Iterate over DataFrame rows as (index, Series) pairs.</p></td>
@@ -539,10 +653,10 @@ RangeIndex (0, 1, 2, …, n) if no column labels are provided</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.keys.html#pyspark.pandas.DataFrame.keys" title="pyspark.pandas.DataFrame.keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">keys</span></code></a>()</p></td>
 <td><p>Return alias for columns.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.kurt.html#pyspark.pandas.DataFrame.kurt" title="pyspark.pandas.DataFrame.kurt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kurt</span></code></a>([axis, numeric_only])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.kurt.html#pyspark.pandas.DataFrame.kurt" title="pyspark.pandas.DataFrame.kurt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kurt</span></code></a>([axis, skipna, numeric_only])</p></td>
 <td><p>Return unbiased kurtosis using Fisher’s definition of kurtosis (kurtosis of normal == 0.0).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.kurtosis.html#pyspark.pandas.DataFrame.kurtosis" title="pyspark.pandas.DataFrame.kurtosis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kurtosis</span></code></a>([axis, numeric_only])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.kurtosis.html#pyspark.pandas.DataFrame.kurtosis" title="pyspark.pandas.DataFrame.kurtosis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kurtosis</span></code></a>([axis, skipna, numeric_only])</p></td>
 <td><p>Return unbiased kurtosis using Fisher’s definition of kurtosis (kurtosis of normal == 0.0).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.last.html#pyspark.pandas.DataFrame.last" title="pyspark.pandas.DataFrame.last"><code class="xref py py-obj docutils literal notranslate"><span class="pre">last</span></code></a>(offset)</p></td>
@@ -563,13 +677,13 @@ RangeIndex (0, 1, 2, …, n) if no column labels are provided</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.mask.html#pyspark.pandas.DataFrame.mask" title="pyspark.pandas.DataFrame.mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mask</span></code></a>(cond[, other])</p></td>
 <td><p>Replace values where the condition is True.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.max.html#pyspark.pandas.DataFrame.max" title="pyspark.pandas.DataFrame.max"><code class="xref py py-obj docutils literal notranslate"><span class="pre">max</span></code></a>([axis, numeric_only])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.max.html#pyspark.pandas.DataFrame.max" title="pyspark.pandas.DataFrame.max"><code class="xref py py-obj docutils literal notranslate"><span class="pre">max</span></code></a>([axis, skipna, numeric_only])</p></td>
 <td><p>Return the maximum of the values.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.mean.html#pyspark.pandas.DataFrame.mean" title="pyspark.pandas.DataFrame.mean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean</span></code></a>([axis, numeric_only])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.mean.html#pyspark.pandas.DataFrame.mean" title="pyspark.pandas.DataFrame.mean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mean</span></code></a>([axis, skipna, numeric_only])</p></td>
 <td><p>Return the mean of the values.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.median.html#pyspark.pandas.DataFrame.median" title="pyspark.pandas.DataFrame.median"><code class="xref py py-obj docutils literal notranslate"><span class="pre">median</span></code></a>([axis, numeric_only, accuracy])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.median.html#pyspark.pandas.DataFrame.median" title="pyspark.pandas.DataFrame.median"><code class="xref py py-obj docutils literal notranslate"><span class="pre">median</span></code></a>([axis, skipna, numeric_only, accuracy])</p></td>
 <td><p>Return the median of the values for the requested axis.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.melt.html#pyspark.pandas.DataFrame.melt" title="pyspark.pandas.DataFrame.melt"><code class="xref py py-obj docutils literal notranslate"><span class="pre">melt</span></code></a>([id_vars, value_vars, var_name, value_name])</p></td>
@@ -578,92 +692,98 @@ RangeIndex (0, 1, 2, …, n) if no column labels are provided</p>
 <tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.merge.html#pyspark.pandas.DataFrame.merge" title="pyspark.pandas.DataFrame.merge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge</span></code></a>(right[, how, on, left_on, right_on, …])</p></td>
 <td><p>Merge DataFrame objects with a database-style join.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.min.html#pyspark.pandas.DataFrame.min" title="pyspark.pandas.DataFrame.min"><code class="xref py py-obj docutils literal notranslate"><span class="pre">min</span></code></a>([axis, numeric_only])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.min.html#pyspark.pandas.DataFrame.min" title="pyspark.pandas.DataFrame.min"><code class="xref py py-obj docutils literal notranslate"><span class="pre">min</span></code></a>([axis, skipna, numeric_only])</p></td>
 <td><p>Return the minimum of the values.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.mod.html#pyspark.pandas.DataFrame.mod" title="pyspark.pandas.DataFrame.mod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mod</span></code></a>(other)</p></td>
 <td><p>Get Modulo of dataframe and other, element-wise (binary operator <cite>%</cite>).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.mul.html#pyspark.pandas.DataFrame.mul" title="pyspark.pandas.DataFrame.mul"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mul</span></code></a>(other)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.mode.html#pyspark.pandas.DataFrame.mode" title="pyspark.pandas.DataFrame.mode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mode</span></code></a>([axis, numeric_only, dropna])</p></td>
+<td><p>Get the mode(s) of each element along the selected axis.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.mul.html#pyspark.pandas.DataFrame.mul" title="pyspark.pandas.DataFrame.mul"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mul</span></code></a>(other)</p></td>
 <td><p>Get Multiplication of dataframe and other, element-wise (binary operator <cite>*</cite>).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">multiply</span></code>(other)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">multiply</span></code>(other)</p></td>
 <td><p>Get Multiplication of dataframe and other, element-wise (binary operator <cite>*</cite>).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.ne.html#pyspark.pandas.DataFrame.ne" title="pyspark.pandas.DataFrame.ne"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ne</span></code></a>(other)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.ne.html#pyspark.pandas.DataFrame.ne" title="pyspark.pandas.DataFrame.ne"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ne</span></code></a>(other)</p></td>
 <td><p>Compare if the current value is not equal to the other.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.nlargest.html#pyspark.pandas.DataFrame.nlargest" title="pyspark.pandas.DataFrame.nlargest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nlargest</span></code></a>(n, columns)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.nlargest.html#pyspark.pandas.DataFrame.nlargest" title="pyspark.pandas.DataFrame.nlargest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nlargest</span></code></a>(n, columns[, keep])</p></td>
 <td><p>Return the first <cite>n</cite> rows ordered by <cite>columns</cite> in descending order.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.notna.html#pyspark.pandas.DataFrame.notna" title="pyspark.pandas.DataFrame.notna"><code class="xref py py-obj docutils literal notranslate"><span class="pre">notna</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.notna.html#pyspark.pandas.DataFrame.notna" title="pyspark.pandas.DataFrame.notna"><code class="xref py py-obj docutils literal notranslate"><span class="pre">notna</span></code></a>()</p></td>
 <td><p>Detects non-missing values for items in the current Dataframe.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.notnull.html#pyspark.pandas.DataFrame.notnull" title="pyspark.pandas.DataFrame.notnull"><code class="xref py py-obj docutils literal notranslate"><span class="pre">notnull</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.notnull.html#pyspark.pandas.DataFrame.notnull" title="pyspark.pandas.DataFrame.notnull"><code class="xref py py-obj docutils literal notranslate"><span class="pre">notnull</span></code></a>()</p></td>
 <td><p>Detects non-missing values for items in the current Dataframe.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.nsmallest.html#pyspark.pandas.DataFrame.nsmallest" title="pyspark.pandas.DataFrame.nsmallest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nsmallest</span></code></a>(n, columns)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.nsmallest.html#pyspark.pandas.DataFrame.nsmallest" title="pyspark.pandas.DataFrame.nsmallest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nsmallest</span></code></a>(n, columns[, keep])</p></td>
 <td><p>Return the first <cite>n</cite> rows ordered by <cite>columns</cite> in ascending order.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.nunique.html#pyspark.pandas.DataFrame.nunique" title="pyspark.pandas.DataFrame.nunique"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nunique</span></code></a>([axis, dropna, approx, rsd])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.nunique.html#pyspark.pandas.DataFrame.nunique" title="pyspark.pandas.DataFrame.nunique"><code class="xref py py-obj docutils literal notranslate"><span class="pre">nunique</span></code></a>([axis, dropna, approx, rsd])</p></td>
 <td><p>Return number of unique elements in the object.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.pad.html#pyspark.pandas.DataFrame.pad" title="pyspark.pandas.DataFrame.pad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pad</span></code></a>([axis, inplace, limit])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.pad.html#pyspark.pandas.DataFrame.pad" title="pyspark.pandas.DataFrame.pad"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pad</span></code></a>([axis, inplace, limit])</p></td>
 <td><p>Synonym for <cite>DataFrame.fillna()</cite> or <cite>Series.fillna()</cite> with <code class="docutils literal notranslate"><span class="pre">method=`ffill`</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.pct_change.html#pyspark.pandas.DataFrame.pct_change" title="pyspark.pandas.DataFrame.pct_change"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pct_change</span></code></a>([periods])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.pct_change.html#pyspark.pandas.DataFrame.pct_change" title="pyspark.pandas.DataFrame.pct_change"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pct_change</span></code></a>([periods])</p></td>
 <td><p>Percentage change between the current and a prior element.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.pipe.html#pyspark.pandas.DataFrame.pipe" title="pyspark.pandas.DataFrame.pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pipe</span></code></a>(func, *args, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.pipe.html#pyspark.pandas.DataFrame.pipe" title="pyspark.pandas.DataFrame.pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pipe</span></code></a>(func, *args, **kwargs)</p></td>
 <td><p>Apply func(self, *args, **kwargs).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.pivot.html#pyspark.pandas.DataFrame.pivot" title="pyspark.pandas.DataFrame.pivot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pivot</span></code></a>([index, columns, values])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.pivot.html#pyspark.pandas.DataFrame.pivot" title="pyspark.pandas.DataFrame.pivot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pivot</span></code></a>([index, columns, values])</p></td>
 <td><p>Return reshaped DataFrame organized by given index / column values.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.pivot_table.html#pyspark.pandas.DataFrame.pivot_table" title="pyspark.pandas.DataFrame.pivot_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pivot_table</span></code></a>([values, index, columns, …])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.pivot_table.html#pyspark.pandas.DataFrame.pivot_table" title="pyspark.pandas.DataFrame.pivot_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pivot_table</span></code></a>([values, index, columns, …])</p></td>
 <td><p>Create a spreadsheet-style pivot table as a DataFrame.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.pop.html#pyspark.pandas.DataFrame.pop" title="pyspark.pandas.DataFrame.pop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pop</span></code></a>(item)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.pop.html#pyspark.pandas.DataFrame.pop" title="pyspark.pandas.DataFrame.pop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pop</span></code></a>(item)</p></td>
 <td><p>Return item and drop from frame.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.pow.html#pyspark.pandas.DataFrame.pow" title="pyspark.pandas.DataFrame.pow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pow</span></code></a>(other)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.pow.html#pyspark.pandas.DataFrame.pow" title="pyspark.pandas.DataFrame.pow"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pow</span></code></a>(other)</p></td>
 <td><p>Get Exponential power of series of dataframe and other, element-wise (binary operator <cite>**</cite>).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.prod.html#pyspark.pandas.DataFrame.prod" title="pyspark.pandas.DataFrame.prod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prod</span></code></a>([axis, numeric_only, min_count])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.prod.html#pyspark.pandas.DataFrame.prod" title="pyspark.pandas.DataFrame.prod"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prod</span></code></a>([axis, skipna, numeric_only, min_count])</p></td>
 <td><p>Return the product of the values.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.product.html#pyspark.pandas.DataFrame.product" title="pyspark.pandas.DataFrame.product"><code class="xref py py-obj docutils literal notranslate"><span class="pre">product</span></code></a>([axis, numeric_only, min_count])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.product.html#pyspark.pandas.DataFrame.product" title="pyspark.pandas.DataFrame.product"><code class="xref py py-obj docutils literal notranslate"><span class="pre">product</span></code></a>([axis, skipna, numeric_only, min_count])</p></td>
 <td><p>Return the product of the values.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.quantile.html#pyspark.pandas.DataFrame.quantile" title="pyspark.pandas.DataFrame.quantile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quantile</span></code></a>([q, axis, numeric_only, accuracy])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.quantile.html#pyspark.pandas.DataFrame.quantile" title="pyspark.pandas.DataFrame.quantile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">quantile</span></code></a>([q, axis, numeric_only, accuracy])</p></td>
 <td><p>Return value at the given quantile.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.query.html#pyspark.pandas.DataFrame.query" title="pyspark.pandas.DataFrame.query"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query</span></code></a>(expr[, inplace])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.query.html#pyspark.pandas.DataFrame.query" title="pyspark.pandas.DataFrame.query"><code class="xref py py-obj docutils literal notranslate"><span class="pre">query</span></code></a>(expr[, inplace])</p></td>
 <td><p>Query the columns of a DataFrame with a boolean expression.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.radd.html#pyspark.pandas.DataFrame.radd" title="pyspark.pandas.DataFrame.radd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">radd</span></code></a>(other)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.radd.html#pyspark.pandas.DataFrame.radd" title="pyspark.pandas.DataFrame.radd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">radd</span></code></a>(other)</p></td>
 <td><p>Get Addition of dataframe and other, element-wise (binary operator <cite>+</cite>).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.rank.html#pyspark.pandas.DataFrame.rank" title="pyspark.pandas.DataFrame.rank"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rank</span></code></a>([method, ascending])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.rank.html#pyspark.pandas.DataFrame.rank" title="pyspark.pandas.DataFrame.rank"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rank</span></code></a>([method, ascending, numeric_only])</p></td>
 <td><p>Compute numerical data ranks (1 through n) along axis.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.rdiv.html#pyspark.pandas.DataFrame.rdiv" title="pyspark.pandas.DataFrame.rdiv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rdiv</span></code></a>(other)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.rdiv.html#pyspark.pandas.DataFrame.rdiv" title="pyspark.pandas.DataFrame.rdiv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rdiv</span></code></a>(other)</p></td>
 <td><p>Get Floating division of dataframe and other, element-wise (binary operator <cite>/</cite>).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.reindex.html#pyspark.pandas.DataFrame.reindex" title="pyspark.pandas.DataFrame.reindex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reindex</span></code></a>([labels, index, columns, axis, …])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.reindex.html#pyspark.pandas.DataFrame.reindex" title="pyspark.pandas.DataFrame.reindex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reindex</span></code></a>([labels, index, columns, axis, …])</p></td>
 <td><p>Conform DataFrame to new index with optional filling logic, placing NA/NaN in locations having no value in the previous index.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.reindex_like.html#pyspark.pandas.DataFrame.reindex_like" title="pyspark.pandas.DataFrame.reindex_like"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reindex_like</span></code></a>(other[, copy])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.reindex_like.html#pyspark.pandas.DataFrame.reindex_like" title="pyspark.pandas.DataFrame.reindex_like"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reindex_like</span></code></a>(other[, copy])</p></td>
 <td><p>Return a DataFrame with matching indices as other object.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.rename.html#pyspark.pandas.DataFrame.rename" title="pyspark.pandas.DataFrame.rename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rename</span></code></a>([mapper, index, columns, axis, …])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.rename.html#pyspark.pandas.DataFrame.rename" title="pyspark.pandas.DataFrame.rename"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rename</span></code></a>([mapper, index, columns, axis, …])</p></td>
 <td><p>Alter axes labels.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.rename_axis.html#pyspark.pandas.DataFrame.rename_axis" title="pyspark.pandas.DataFrame.rename_axis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rename_axis</span></code></a>([mapper, index, columns, axis, …])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.rename_axis.html#pyspark.pandas.DataFrame.rename_axis" title="pyspark.pandas.DataFrame.rename_axis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rename_axis</span></code></a>([mapper, index, columns, axis, …])</p></td>
 <td><p>Set the name of the axis for the index or columns.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.replace.html#pyspark.pandas.DataFrame.replace" title="pyspark.pandas.DataFrame.replace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">replace</span></code></a>([to_replace, value, inplace, limit, …])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.replace.html#pyspark.pandas.DataFrame.replace" title="pyspark.pandas.DataFrame.replace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">replace</span></code></a>([to_replace, value, inplace, limit, …])</p></td>
 <td><p>Returns a new DataFrame replacing a value with another value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.resample.html#pyspark.pandas.DataFrame.resample" title="pyspark.pandas.DataFrame.resample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resample</span></code></a>(rule[, closed, label, on])</p></td>
+<td><p>Resample time-series data.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.reset_index.html#pyspark.pandas.DataFrame.reset_index" title="pyspark.pandas.DataFrame.reset_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_index</span></code></a>([level, drop, inplace, …])</p></td>
 <td><p>Reset the index, or a level of it.</p></td>
@@ -692,13 +812,13 @@ RangeIndex (0, 1, 2, …, n) if no column labels are provided</p>
 <tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.rtruediv.html#pyspark.pandas.DataFrame.rtruediv" title="pyspark.pandas.DataFrame.rtruediv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rtruediv</span></code></a>(other)</p></td>
 <td><p>Get Floating division of dataframe and other, element-wise (binary operator <cite>/</cite>).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.sample.html#pyspark.pandas.DataFrame.sample" title="pyspark.pandas.DataFrame.sample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample</span></code></a>([n, frac, replace, random_state])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.sample.html#pyspark.pandas.DataFrame.sample" title="pyspark.pandas.DataFrame.sample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sample</span></code></a>([n, frac, replace, random_state, …])</p></td>
 <td><p>Return a random sample of items from an axis of object.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.select_dtypes.html#pyspark.pandas.DataFrame.select_dtypes" title="pyspark.pandas.DataFrame.select_dtypes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_dtypes</span></code></a>([include, exclude])</p></td>
 <td><p>Return a subset of the DataFrame’s columns based on the column dtypes.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.sem.html#pyspark.pandas.DataFrame.sem" title="pyspark.pandas.DataFrame.sem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sem</span></code></a>([axis, ddof, numeric_only])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.sem.html#pyspark.pandas.DataFrame.sem" title="pyspark.pandas.DataFrame.sem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sem</span></code></a>([axis, skipna, ddof, numeric_only])</p></td>
 <td><p>Return unbiased standard error of the mean over requested axis.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.set_index.html#pyspark.pandas.DataFrame.set_index" title="pyspark.pandas.DataFrame.set_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_index</span></code></a>(keys[, drop, append, inplace])</p></td>
@@ -707,7 +827,7 @@ RangeIndex (0, 1, 2, …, n) if no column labels are provided</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.shift.html#pyspark.pandas.DataFrame.shift" title="pyspark.pandas.DataFrame.shift"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shift</span></code></a>([periods, fill_value])</p></td>
 <td><p>Shift DataFrame by desired number of periods.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.skew.html#pyspark.pandas.DataFrame.skew" title="pyspark.pandas.DataFrame.skew"><code class="xref py py-obj docutils literal notranslate"><span class="pre">skew</span></code></a>([axis, numeric_only])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.skew.html#pyspark.pandas.DataFrame.skew" title="pyspark.pandas.DataFrame.skew"><code class="xref py py-obj docutils literal notranslate"><span class="pre">skew</span></code></a>([axis, skipna, numeric_only])</p></td>
 <td><p>Return unbiased skew normalized by N-1.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.sort_index.html#pyspark.pandas.DataFrame.sort_index" title="pyspark.pandas.DataFrame.sort_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sort_index</span></code></a>([axis, level, ascending, …])</p></td>
@@ -722,7 +842,7 @@ RangeIndex (0, 1, 2, …, n) if no column labels are provided</p>
 <tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.stack.html#pyspark.pandas.DataFrame.stack" title="pyspark.pandas.DataFrame.stack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stack</span></code></a>()</p></td>
 <td><p>Stack the prescribed level(s) from columns to index.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.std.html#pyspark.pandas.DataFrame.std" title="pyspark.pandas.DataFrame.std"><code class="xref py py-obj docutils literal notranslate"><span class="pre">std</span></code></a>([axis, ddof, numeric_only])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.std.html#pyspark.pandas.DataFrame.std" title="pyspark.pandas.DataFrame.std"><code class="xref py py-obj docutils literal notranslate"><span class="pre">std</span></code></a>([axis, skipna, ddof, numeric_only])</p></td>
 <td><p>Return sample standard deviation.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.sub.html#pyspark.pandas.DataFrame.sub" title="pyspark.pandas.DataFrame.sub"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sub</span></code></a>(other)</p></td>
@@ -731,7 +851,7 @@ RangeIndex (0, 1, 2, …, n) if no column labels are provided</p>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">subtract</span></code>(other)</p></td>
 <td><p>Get Subtraction of dataframe and other, element-wise (binary operator <cite>-</cite>).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.sum.html#pyspark.pandas.DataFrame.sum" title="pyspark.pandas.DataFrame.sum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sum</span></code></a>([axis, numeric_only, min_count])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.sum.html#pyspark.pandas.DataFrame.sum" title="pyspark.pandas.DataFrame.sum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sum</span></code></a>([axis, skipna, numeric_only, min_count])</p></td>
 <td><p>Return the sum of the values.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.swapaxes.html#pyspark.pandas.DataFrame.swapaxes" title="pyspark.pandas.DataFrame.swapaxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">swapaxes</span></code></a>(i, j[, copy])</p></td>
@@ -777,7 +897,7 @@ RangeIndex (0, 1, 2, …, n) if no column labels are provided</p>
 <td><p>A NumPy ndarray representing the values in this DataFrame or Series.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.to_orc.html#pyspark.pandas.DataFrame.to_orc" title="pyspark.pandas.DataFrame.to_orc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_orc</span></code></a>(path[, mode, partition_cols, index_col])</p></td>
-<td><p>Write the DataFrame out as a ORC file or directory.</p></td>
+<td><p>Write a DataFrame to the ORC format.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="pyspark.pandas.DataFrame.to_pandas.html#pyspark.pandas.DataFrame.to_pandas" title="pyspark.pandas.DataFrame.to_pandas"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_pandas</span></code></a>()</p></td>
 <td><p>Return a pandas DataFrame.</p></td>
