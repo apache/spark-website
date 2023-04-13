@@ -16,7 +16,6 @@ Spark 3.2.4 is a maintenance release containing stability fixes. This release is
 ### Notable changes
 
   - [[SPARK-38173]](https://issues.apache.org/jira/browse/SPARK-38173): Quoted column cannot be recognized correctly when quotedRegexColumnNames is true
-
   - [[SPARK-39399]](https://issues.apache.org/jira/browse/SPARK-39399): proxy-user not working for Spark on k8s in cluster deploy mode
   - [[SPARK-40817]](https://issues.apache.org/jira/browse/SPARK-40817): Remote spark.jars URIs ignored for Spark on Kubernetes in cluster mode
   - [[SPARK-40819]](https://issues.apache.org/jira/browse/SPARK-40819): Parquet INT64 (TIMESTAMP(NANOS,true)) now throwing Illegal Parquet type instead of automatically converting to LongType
