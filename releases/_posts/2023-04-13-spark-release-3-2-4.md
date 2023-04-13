@@ -46,7 +46,7 @@ Spark 3.2.4 is a maintenance release containing stability fixes. This release is
 
 ### Dependency Changes
 
-While being a maintence release we did still upgrade some dependencies in this release they are:
+While being a maintenance release we did still upgrade some dependencies in this release they are:
 
   - [[SPARK-41030]](https://issues.apache.org/jira/browse/SPARK-41030): Upgrade Apache Ivy to 2.5.1
 
