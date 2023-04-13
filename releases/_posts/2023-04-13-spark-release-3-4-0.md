@@ -73,7 +73,7 @@ To download Apache Spark 3.4.0, visit the [downloads](https://spark.apache.org/d
 
 * ANSI SQL mode: always return null on invalid access to map column ([SPARK-40066](https://issues.apache.org/jira/browse/SPARK-40066))
 * Support double quoted identifiers ([SPARK-40585](https://issues.apache.org/jira/browse/SPARK-40585))
-* ANSI SQL mode: Round/Bround should return an error on integer overflow [SPARK-42045](https://issues.apache.org/jira/browse/SPARK-42045))
+* ANSI SQL mode: Round/Bround should return an error on integer overflow ([SPARK-42045](https://issues.apache.org/jira/browse/SPARK-42045))
 * Support casting of integrals to ANSI intervals ([SPARK-40008](https://issues.apache.org/jira/browse/SPARK-40008))
 * Support cast of decimals to ANSI intervals ([SPARK-40014](https://issues.apache.org/jira/browse/SPARK-40014))
 * Return wider ANSI interval types from the percentile functions ([SPARK-40151](https://issues.apache.org/jira/browse/SPARK-40151))
