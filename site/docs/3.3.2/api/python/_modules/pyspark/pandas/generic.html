@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>pyspark.pandas.generic &#8212; PySpark 3.3.2 documentation</title>
+    <title>pyspark.pandas.generic &#8212; PySpark 3.4.0 documentation</title>
     
   <link rel="stylesheet" href="../../../_static/css/index.73d71520a4ca3b99cfee5594769eaaae.css">
 
@@ -62,11 +62,15 @@
         
         
         <li class="nav-item ">
+            <a class="nav-link" href="../../../index.html">Overview</a>
+        </li>
+        
+        <li class="nav-item ">
             <a class="nav-link" href="../../../getting_started/index.html">Getting Started</a>
         </li>
         
         <li class="nav-item ">
-            <a class="nav-link" href="../../../user_guide/index.html">User Guide</a>
+            <a class="nav-link" href="../../../user_guide/index.html">User Guides</a>
         </li>
         
         <li class="nav-item ">
@@ -78,7 +82,7 @@
         </li>
         
         <li class="nav-item ">
-            <a class="nav-link" href="../../../migration_guide/index.html">Migration Guide</a>
+            <a class="nav-link" href="../../../migration_guide/index.html">Migration Guides</a>
         </li>
         
         
@@ -109,6 +113,8 @@
     
   
     <ul class="nav bd-sidenav">
+        
+        
         
         
         
@@ -165,7 +171,7 @@
 <span class="c1">#</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">A base class of DataFrame/Column to behave similar to pandas DataFrame/Series.</span>
+<span class="sd">A base class of DataFrame/Column to behave like pandas DataFrame/Series.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
@@ -194,7 +200,6 @@
 <span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">BooleanType</span><span class="p">,</span>
     <span class="n">DoubleType</span><span class="p">,</span>
-    <span class="n">IntegralType</span><span class="p">,</span>
     <span class="n">LongType</span><span class="p">,</span>
     <span class="n">NumericType</span><span class="p">,</span>
 <span class="p">)</span>
@@ -231,7 +236,7 @@
     <span class="kn">from</span> <span class="nn">pyspark.pandas.indexes.base</span> <span class="kn">import</span> <span class="n">Index</span>
     <span class="kn">from</span> <span class="nn">pyspark.pandas.groupby</span> <span class="kn">import</span> <span class="n">GroupBy</span>
     <span class="kn">from</span> <span class="nn">pyspark.pandas.series</span> <span class="kn">import</span> <span class="n">Series</span>
-    <span class="kn">from</span> <span class="nn">pyspark.pandas.window</span> <span class="kn">import</span> <span class="n">Rolling</span><span class="p">,</span> <span class="n">Expanding</span>
+    <span class="kn">from</span> <span class="nn">pyspark.pandas.window</span> <span class="kn">import</span> <span class="n">Rolling</span><span class="p">,</span> <span class="n">Expanding</span><span class="p">,</span> <span class="n">ExponentialMoving</span>
 
 
 <span class="n">bool_type</span> <span class="o">=</span> <span class="nb">bool</span>
@@ -266,6 +271,7 @@
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">numeric_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">skipna</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="s2">&quot;Series&quot;</span><span class="p">,</span> <span class="n">Scalar</span><span class="p">]:</span>
         <span class="k">pass</span>
@@ -308,13 +314,13 @@
 <span class="sd">        Returns a DataFrame or Series of the same size containing the cumulative minimum.</span>
 
 <span class="sd">        .. note:: the current implementation of cummin uses Spark&#39;s Window without</span>
-<span class="sd">            specifying partition specification. This leads to move all data into</span>
-<span class="sd">            single partition in single machine and could cause serious</span>
-<span class="sd">            performance degradation. Avoid this method against very large dataset.</span>
+<span class="sd">            specifying partition specification. This leads to moveing all data into a</span>
+<span class="sd">            single partition in a single machine and could cause serious</span>
+<span class="sd">            performance degradation. Avoid this method with very large datasets.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        skipna : boolean, default True</span>
+<span class="sd">        skipna: boolean, default True</span>
 <span class="sd">            Exclude NA/null values. If an entire row/column is NA, the result will be NA.</span>
 
 <span class="sd">        Returns</span>
@@ -323,15 +329,15 @@
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        DataFrame.min : Return the minimum over DataFrame axis.</span>
-<span class="sd">        DataFrame.cummax : Return cumulative maximum over DataFrame axis.</span>
-<span class="sd">        DataFrame.cummin : Return cumulative minimum over DataFrame axis.</span>
-<span class="sd">        DataFrame.cumsum : Return cumulative sum over DataFrame axis.</span>
-<span class="sd">        Series.min : Return the minimum over Series axis.</span>
-<span class="sd">        Series.cummax : Return cumulative maximum over Series axis.</span>
-<span class="sd">        Series.cummin : Return cumulative minimum over Series axis.</span>
-<span class="sd">        Series.cumsum : Return cumulative sum over Series axis.</span>
-<span class="sd">        Series.cumprod : Return cumulative product over Series axis.</span>
+<span class="sd">        DataFrame.min: Return the minimum over DataFrame axis.</span>
+<span class="sd">        DataFrame.cummax: Return cumulative maximum over DataFrame axis.</span>
+<span class="sd">        DataFrame.cummin: Return cumulative minimum over DataFrame axis.</span>
+<span class="sd">        DataFrame.cumsum: Return cumulative sum over DataFrame axis.</span>
+<span class="sd">        Series.min: Return the minimum over Series axis.</span>
+<span class="sd">        Series.cummax: Return cumulative maximum over Series axis.</span>
+<span class="sd">        Series.cummin: Return cumulative minimum over Series axis.</span>
+<span class="sd">        Series.cumsum: Return cumulative sum over Series axis.</span>
+<span class="sd">        Series.cumprod: Return cumulative product over Series axis.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -368,13 +374,13 @@
 <span class="sd">        Returns a DataFrame or Series of the same size containing the cumulative maximum.</span>
 
 <span class="sd">        .. note:: the current implementation of cummax uses Spark&#39;s Window without</span>
-<span class="sd">            specifying partition specification. This leads to move all data into</span>
-<span class="sd">            single partition in single machine and could cause serious</span>
-<span class="sd">            performance degradation. Avoid this method against very large dataset.</span>
+<span class="sd">            specifying partition specification. This leads to moveing all data into a</span>
+<span class="sd">            single partition in a single machine and could cause serious</span>
+<span class="sd">            performance degradation. Avoid this method with very large datasets.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        skipna : boolean, default True</span>
+<span class="sd">        skipna: boolean, default True</span>
 <span class="sd">            Exclude NA/null values. If an entire row/column is NA, the result will be NA.</span>
 
 <span class="sd">        Returns</span>
@@ -383,16 +389,16 @@
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        DataFrame.max : Return the maximum over DataFrame axis.</span>
-<span class="sd">        DataFrame.cummax : Return cumulative maximum over DataFrame axis.</span>
-<span class="sd">        DataFrame.cummin : Return cumulative minimum over DataFrame axis.</span>
-<span class="sd">        DataFrame.cumsum : Return cumulative sum over DataFrame axis.</span>
-<span class="sd">        DataFrame.cumprod : Return cumulative product over DataFrame axis.</span>
-<span class="sd">        Series.max : Return the maximum over Series axis.</span>
-<span class="sd">        Series.cummax : Return cumulative maximum over Series axis.</span>
-<span class="sd">        Series.cummin : Return cumulative minimum over Series axis.</span>
-<span class="sd">        Series.cumsum : Return cumulative sum over Series axis.</span>
-<span class="sd">        Series.cumprod : Return cumulative product over Series axis.</span>
+<span class="sd">        DataFrame.max: Return the maximum over DataFrame axis.</span>
+<span class="sd">        DataFrame.cummax: Return cumulative maximum over DataFrame axis.</span>
+<span class="sd">        DataFrame.cummin: Return cumulative minimum over DataFrame axis.</span>
+<span class="sd">        DataFrame.cumsum: Return cumulative sum over DataFrame axis.</span>
+<span class="sd">        DataFrame.cumprod: Return cumulative product over DataFrame axis.</span>
+<span class="sd">        Series.max: Return the maximum over Series axis.</span>
+<span class="sd">        Series.cummax: Return cumulative maximum over Series axis.</span>
+<span class="sd">        Series.cummin: Return cumulative minimum over Series axis.</span>
+<span class="sd">        Series.cumsum: Return cumulative sum over Series axis.</span>
+<span class="sd">        Series.cumprod: Return cumulative product over Series axis.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -429,13 +435,13 @@
 <span class="sd">        Returns a DataFrame or Series of the same size containing the cumulative sum.</span>
 
 <span class="sd">        .. note:: the current implementation of cumsum uses Spark&#39;s Window without</span>
-<span class="sd">            specifying partition specification. This leads to move all data into</span>
-<span class="sd">            single partition in single machine and could cause serious</span>
-<span class="sd">            performance degradation. Avoid this method against very large dataset.</span>
+<span class="sd">            specifying partition specification. This leads to moveing all data into a</span>
+<span class="sd">            single partition in a single machine and could cause serious</span>
+<span class="sd">            performance degradation. Avoid this method with very large datasets.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        skipna : boolean, default True</span>
+<span class="sd">        skipna: boolean, default True</span>
 <span class="sd">            Exclude NA/null values. If an entire row/column is NA, the result will be NA.</span>
 
 <span class="sd">        Returns</span>
@@ -444,16 +450,16 @@
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        DataFrame.sum : Return the sum over DataFrame axis.</span>
-<span class="sd">        DataFrame.cummax : Return cumulative maximum over DataFrame axis.</span>
-<span class="sd">        DataFrame.cummin : Return cumulative minimum over DataFrame axis.</span>
-<span class="sd">        DataFrame.cumsum : Return cumulative sum over DataFrame axis.</span>
-<span class="sd">        DataFrame.cumprod : Return cumulative product over DataFrame axis.</span>
-<span class="sd">        Series.sum : Return the sum over Series axis.</span>
-<span class="sd">        Series.cummax : Return cumulative maximum over Series axis.</span>
-<span class="sd">        Series.cummin : Return cumulative minimum over Series axis.</span>
-<span class="sd">        Series.cumsum : Return cumulative sum over Series axis.</span>
-<span class="sd">        Series.cumprod : Return cumulative product over Series axis.</span>
+<span class="sd">        DataFrame.sum: Return the sum over DataFrame axis.</span>
+<span class="sd">        DataFrame.cummax: Return cumulative maximum over DataFrame axis.</span>
+<span class="sd">        DataFrame.cummin: Return cumulative minimum over DataFrame axis.</span>
+<span class="sd">        DataFrame.cumsum: Return cumulative sum over DataFrame axis.</span>
+<span class="sd">        DataFrame.cumprod: Return cumulative product over DataFrame axis.</span>
+<span class="sd">        Series.sum: Return the sum over Series axis.</span>
+<span class="sd">        Series.cummax: Return cumulative maximum over Series axis.</span>
+<span class="sd">        Series.cummin: Return cumulative minimum over Series axis.</span>
+<span class="sd">        Series.cumsum: Return cumulative sum over Series axis.</span>
+<span class="sd">        Series.cumprod: Return cumulative product over Series axis.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -492,16 +498,16 @@
 <span class="sd">        Returns a DataFrame or Series of the same size containing the cumulative product.</span>
 
 <span class="sd">        .. note:: the current implementation of cumprod uses Spark&#39;s Window without</span>
-<span class="sd">            specifying partition specification. This leads to move all data into</span>
-<span class="sd">            single partition in single machine and could cause serious</span>
-<span class="sd">            performance degradation. Avoid this method against very large dataset.</span>
+<span class="sd">            specifying partition specification. This leads to moveing all data into a</span>
+<span class="sd">            single partition in a single machine and could cause serious</span>
+<span class="sd">            performance degradation. Avoid this method with very large datasets.</span>
 
 <span class="sd">        .. note:: unlike pandas&#39;, pandas-on-Spark&#39;s emulates cumulative product by</span>
 <span class="sd">            ``exp(sum(log(...)))`` trick. Therefore, it only works for positive numbers.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        skipna : boolean, default True</span>
+<span class="sd">        skipna: boolean, default True</span>
 <span class="sd">            Exclude NA/null values. If an entire row/column is NA, the result will be NA.</span>
 
 <span class="sd">        Returns</span>
@@ -510,18 +516,18 @@
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        DataFrame.cummax : Return cumulative maximum over DataFrame axis.</span>
-<span class="sd">        DataFrame.cummin : Return cumulative minimum over DataFrame axis.</span>
-<span class="sd">        DataFrame.cumsum : Return cumulative sum over DataFrame axis.</span>
-<span class="sd">        DataFrame.cumprod : Return cumulative product over DataFrame axis.</span>
-<span class="sd">        Series.cummax : Return cumulative maximum over Series axis.</span>
-<span class="sd">        Series.cummin : Return cumulative minimum over Series axis.</span>
-<span class="sd">        Series.cumsum : Return cumulative sum over Series axis.</span>
-<span class="sd">        Series.cumprod : Return cumulative product over Series axis.</span>
+<span class="sd">        DataFrame.cummax: Return cumulative maximum over DataFrame axis.</span>
+<span class="sd">        DataFrame.cummin: Return cumulative minimum over DataFrame axis.</span>
+<span class="sd">        DataFrame.cumsum: Return cumulative sum over DataFrame axis.</span>
+<span class="sd">        DataFrame.cumprod: Return cumulative product over DataFrame axis.</span>
+<span class="sd">        Series.cummax: Return cumulative maximum over Series axis.</span>
+<span class="sd">        Series.cummin: Return cumulative minimum over Series axis.</span>
+<span class="sd">        Series.cumsum: Return cumulative sum over Series axis.</span>
+<span class="sd">        Series.cumprod: Return cumulative product over Series axis.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
-<span class="sd">        Exception : If the values is equal to or lower than 0.</span>
+<span class="sd">        Exception: If the values is equal to or lower than 0.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -561,12 +567,12 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        dtype : pd.Series</span>
+<span class="sd">        dtype: pd.Series</span>
 <span class="sd">            Series with the count of columns with each dtype.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        dtypes : Return the dtypes in this object.</span>
+<span class="sd">        dtypes: Return the dtypes in this object.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -605,20 +611,20 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        func : function</span>
+<span class="sd">        func: function</span>
 <span class="sd">            function to apply to the DataFrame.</span>
 <span class="sd">            ``args``, and ``kwargs`` are passed into ``func``.</span>
 <span class="sd">            Alternatively a ``(callable, data_keyword)`` tuple where</span>
 <span class="sd">            ``data_keyword`` is a string indicating the keyword of</span>
 <span class="sd">            ``callable`` that expects the DataFrames.</span>
-<span class="sd">        args : iterable, optional</span>
+<span class="sd">        args: iterable, optional</span>
 <span class="sd">            positional arguments passed into ``func``.</span>
-<span class="sd">        kwargs : mapping, optional</span>
+<span class="sd">        kwargs: mapping, optional</span>
 <span class="sd">            a dictionary of keyword arguments passed into ``func``.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        object : the return type of ``func``.</span>
+<span class="sd">        object: the return type of ``func``.</span>
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
@@ -656,7 +662,7 @@
 <span class="sd">        1        A     2     5     3    15</span>
 
 
-<span class="sd">        If you have a function that takes the data as (say) the second</span>
+<span class="sd">        If you have a function that takes the data as the second</span>
 <span class="sd">        argument, pass a tuple indicating which keyword expects the</span>
 <span class="sd">        data. For example, suppose ``f`` takes its data as ``df``:</span>
 
@@ -674,7 +680,7 @@
 <span class="sd">        0        A     1     4     2     8</span>
 <span class="sd">        1        A     2     5     3    15</span>
 
-<span class="sd">        You can use lambda as wel</span>
+<span class="sd">        You can use lambda as well</span>
 
 <span class="sd">        &gt;&gt;&gt; ps.Series([1, 2, 3]).pipe(lambda x: (x + 1).rename(&quot;value&quot;))</span>
 <span class="sd">        0    2</span>
@@ -820,32 +826,33 @@
 
 <span class="sd">        .. note:: pandas-on-Spark writes CSV files into the directory, `path`, and writes</span>
 <span class="sd">            multiple `part-...` files in the directory when `path` is specified.</span>
-<span class="sd">            This behaviour was inherited from Apache Spark. The number of files can</span>
-<span class="sd">            be controlled by `num_files`.</span>
+<span class="sd">            This behavior was inherited from Apache Spark. The number of partitions can</span>
+<span class="sd">            be controlled by `num_files`. This is deprecated.</span>
+<span class="sd">            Use `DataFrame.spark.repartition` instead.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        path : str, default None</span>
+<span class="sd">        path: str, default None</span>
 <span class="sd">            File path. If None is provided the result is returned as a string.</span>
-<span class="sd">        sep : str, default &#39;,&#39;</span>
+<span class="sd">        sep: str, default &#39;,&#39;</span>
 <span class="sd">            String of length 1. Field delimiter for the output file.</span>
-<span class="sd">        na_rep : str, default &#39;&#39;</span>
+<span class="sd">        na_rep: str, default &#39;&#39;</span>
 <span class="sd">            Missing data representation.</span>
-<span class="sd">        columns : sequence, optional</span>
+<span class="sd">        columns: sequence, optional</span>
 <span class="sd">            Columns to write.</span>
-<span class="sd">        header : bool or list of str, default True</span>
+<span class="sd">        header: bool or list of str, default True</span>
 <span class="sd">            Write out the column names. If a list of strings is given it is</span>
 <span class="sd">            assumed to be aliases for the column names.</span>
-<span class="sd">        quotechar : str, default &#39;\&quot;&#39;</span>
+<span class="sd">        quotechar: str, default &#39;\&quot;&#39;</span>
 <span class="sd">            String of length 1. Character used to quote fields.</span>
-<span class="sd">        date_format : str, default None</span>
+<span class="sd">        date_format: str, default None</span>
 <span class="sd">            Format string for datetime objects.</span>
-<span class="sd">        escapechar : str, default None</span>
+<span class="sd">        escapechar: str, default None</span>
 <span class="sd">            String of length 1. Character used to escape `sep` and `quotechar`</span>
 <span class="sd">            when appropriate.</span>
-<span class="sd">        num_files : the number of files to be written in `path` directory when</span>
-<span class="sd">            this is a path.</span>
-<span class="sd">        mode : str</span>
+<span class="sd">        num_files: the number of partitions to be written in `path` directory when</span>
+<span class="sd">            this is a path. This is deprecated. Use `DataFrame.spark.repartition` instead.</span>
+<span class="sd">        mode: str</span>
 <span class="sd">            Python write mode, default &#39;w&#39;.</span>
 
 <span class="sd">            .. note:: mode can accept the strings for Spark writing mode.</span>
@@ -856,13 +863,13 @@
 <span class="sd">                - &#39;ignore&#39;: Silently ignore this operation if data already exists.</span>
 <span class="sd">                - &#39;error&#39; or &#39;errorifexists&#39;: Throw an exception if data already exists.</span>
 
-<span class="sd">        partition_cols : str or list of str, optional, default None</span>
+<span class="sd">        partition_cols: str or list of str, optional, default None</span>
 <span class="sd">            Names of partitioning columns</span>
 <span class="sd">        index_col: str or list of str, optional, default: None</span>
 <span class="sd">            Column names to be used in Spark to represent pandas-on-Spark&#39;s index. The index name</span>
 <span class="sd">            in pandas-on-Spark is ignored. By default, the index is always lost.</span>
 <span class="sd">        options: keyword arguments for additional options specific to PySpark.</span>
-<span class="sd">            This kwargs are specific to PySpark&#39;s CSV options to pass. Check</span>
+<span class="sd">            These kwargs are specific to PySpark&#39;s CSV options to pass. Check</span>
 <span class="sd">            the options in PySpark&#39;s API documentation for spark.write.csv(...).</span>
 <span class="sd">            It has higher priority and overwrites all other options.</span>
 <span class="sd">            This parameter only works when `path` is specified.</span>
@@ -1049,11 +1056,12 @@
 
 <span class="sd">        .. note:: pandas-on-Spark writes JSON files into the directory, `path`, and writes</span>
 <span class="sd">            multiple `part-...` files in the directory when `path` is specified.</span>
-<span class="sd">            This behaviour was inherited from Apache Spark. The number of files can</span>
-<span class="sd">            be controlled by `num_files`.</span>
+<span class="sd">            This behavior was inherited from Apache Spark. The number of partitions can</span>
+<span class="sd">            be controlled by `num_files`. This is deprecated.</span>
+<span class="sd">            Use `DataFrame.spark.repartition` instead.</span>
 
-<span class="sd">        .. note:: output JSON format is different from pandas&#39;. It always use `orient=&#39;records&#39;`</span>
-<span class="sd">            for its output. This behaviour might have to change in the near future.</span>
+<span class="sd">        .. note:: output JSON format is different from pandas&#39;. It always uses `orient=&#39;records&#39;`</span>
+<span class="sd">            for its output. This behavior might have to change soon.</span>
 
 <span class="sd">        .. note:: Set `ignoreNullFields` keyword argument to `True` to omit `None` or `NaN` values</span>
 <span class="sd">            when writing JSON objects. It works only when `path` is provided.</span>
@@ -1063,22 +1071,22 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        path : string, optional</span>
+<span class="sd">        path: string, optional</span>
 <span class="sd">            File path. If not specified, the result is returned as</span>
 <span class="sd">            a string.</span>
-<span class="sd">        lines : bool, default True</span>
-<span class="sd">            If ‘orient’ is ‘records’ write out line delimited json format.</span>
+<span class="sd">        lines: bool, default True</span>
+<span class="sd">            If ‘orient’ is ‘records’ write out line delimited JSON format.</span>
 <span class="sd">            Will throw ValueError if incorrect ‘orient’ since others are not</span>
 <span class="sd">            list like. It should be always True for now.</span>
-<span class="sd">        orient : str, default &#39;records&#39;</span>
+<span class="sd">        orient: str, default &#39;records&#39;</span>
 <span class="sd">             It should be always &#39;records&#39; for now.</span>
-<span class="sd">        compression : {&#39;gzip&#39;, &#39;bz2&#39;, &#39;xz&#39;, None}</span>
+<span class="sd">        compression: {&#39;gzip&#39;, &#39;bz2&#39;, &#39;xz&#39;, None}</span>
 <span class="sd">            A string representing the compression to use in the output file,</span>
 <span class="sd">            only used when the first argument is a filename. By default, the</span>
 <span class="sd">            compression is inferred from the filename.</span>
-<span class="sd">        num_files : the number of files to be written in `path` directory when</span>
-<span class="sd">            this is a path.</span>
-<span class="sd">        mode : str</span>
+<span class="sd">        num_files: the number of partitions to be written in `path` directory when</span>
+<span class="sd">            this is a path. This is deprecated. Use `DataFrame.spark.repartition` instead.</span>
+<span class="sd">        mode: str</span>
 <span class="sd">            Python write mode, default &#39;w&#39;.</span>
 
 <span class="sd">            .. note:: mode can accept the strings for Spark writing mode.</span>
@@ -1089,7 +1097,7 @@
 <span class="sd">                - &#39;ignore&#39;: Silently ignore this operation if data already exists.</span>
 <span class="sd">                - &#39;error&#39; or &#39;errorifexists&#39;: Throw an exception if data already exists.</span>
 
-<span class="sd">        partition_cols : str or list of str, optional, default None</span>
+<span class="sd">        partition_cols: str or list of str, optional, default None</span>
 <span class="sd">            Names of partitioning columns</span>
 <span class="sd">        index_col: str or list of str, optional, default: None</span>
 <span class="sd">            Column names to be used in Spark to represent pandas-on-Spark&#39;s index. The index name</span>
@@ -1213,45 +1221,51 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        excel_writer : str or ExcelWriter object</span>
+<span class="sd">        excel_writer: str or ExcelWriter object</span>
 <span class="sd">            File path or existing ExcelWriter.</span>
-<span class="sd">        sheet_name : str, default &#39;Sheet1&#39;</span>
+<span class="sd">        sheet_name: str, default &#39;Sheet1&#39;</span>
 <span class="sd">            Name of sheet which will contain DataFrame.</span>
-<span class="sd">        na_rep : str, default &#39;&#39;</span>
+<span class="sd">        na_rep: str, default &#39;&#39;</span>
 <span class="sd">            Missing data representation.</span>
-<span class="sd">        float_format : str, optional</span>
+<span class="sd">        float_format: str, optional</span>
 <span class="sd">            Format string for floating point numbers. For example</span>
 <span class="sd">            ``float_format=&quot;%%.2f&quot;`` will format 0.1234 to 0.12.</span>
-<span class="sd">        columns : sequence or list of str, optional</span>
+<span class="sd">        columns: sequence or list of str, optional</span>
 <span class="sd">            Columns to write.</span>
-<span class="sd">        header : bool or list of str, default True</span>
+<span class="sd">        header: bool or list of str, default True</span>
 <span class="sd">            Write out the column names. If a list of string is given it is</span>
 <span class="sd">            assumed to be aliases for the column names.</span>
-<span class="sd">        index : bool, default True</span>
+<span class="sd">        index: bool, default True</span>
 <span class="sd">            Write row names (index).</span>
-<span class="sd">        index_label : str or sequence, optional</span>
+<span class="sd">        index_label: str or sequence, optional</span>
 <span class="sd">            Column label for index column(s) if desired. If not specified, and</span>
 <span class="sd">            `header` and `index` are True, then the index names are used. A</span>
 <span class="sd">            sequence should be given if the DataFrame uses MultiIndex.</span>
-<span class="sd">        startrow : int, default 0</span>
+<span class="sd">        startrow: int, default 0</span>
 <span class="sd">            Upper left cell row to dump data frame.</span>
-<span class="sd">        startcol : int, default 0</span>
+<span class="sd">        startcol: int, default 0</span>
 <span class="sd">            Upper left cell column to dump data frame.</span>
-<span class="sd">        engine : str, optional</span>
+<span class="sd">        engine: str, optional</span>
 <span class="sd">            Write engine to use, &#39;openpyxl&#39; or &#39;xlsxwriter&#39;. You can also set this</span>
 <span class="sd">            via the options ``io.excel.xlsx.writer``, ``io.excel.xls.writer``, and</span>
 <span class="sd">            ``io.excel.xlsm.writer``.</span>
-<span class="sd">        merge_cells : bool, default True</span>
+<span class="sd">        merge_cells: bool, default True</span>
 <span class="sd">            Write MultiIndex and Hierarchical Rows as merged cells.</span>
-<span class="sd">        encoding : str, optional</span>
+<span class="sd">        encoding: str, optional</span>
 <span class="sd">            Encoding of the resulting excel file. Only necessary for xlwt,</span>
 <span class="sd">            other writers support unicode natively.</span>
-<span class="sd">        inf_rep : str, default &#39;inf&#39;</span>
+
+<span class="sd">            .. deprecated:: 3.4.0</span>
+
+<span class="sd">        inf_rep: str, default &#39;inf&#39;</span>
 <span class="sd">            Representation for infinity (there is no native representation for</span>
 <span class="sd">            infinity in Excel).</span>
-<span class="sd">        verbose : bool, default True</span>
+<span class="sd">        verbose: bool, default True</span>
 <span class="sd">            Display more information in the error logs.</span>
-<span class="sd">        freeze_panes : tuple of int (length 2), optional</span>
+
+<span class="sd">            .. deprecated:: 3.4.0</span>
+
+<span class="sd">        freeze_panes: tuple of int (length 2), optional</span>
 <span class="sd">            Specifies the one-based bottommost row and rightmost column that</span>
 <span class="sd">            is to be frozen.</span>
 
@@ -1262,11 +1276,11 @@
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        read_excel : Read Excel file.</span>
+<span class="sd">        read_excel: Read Excel file.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        Create, write to and save a workbook:</span>
+<span class="sd">        Create, write to, and save a workbook:</span>
 
 <span class="sd">        &gt;&gt;&gt; df1 = ps.DataFrame([[&#39;a&#39;, &#39;b&#39;], [&#39;c&#39;, &#39;d&#39;]],</span>
 <span class="sd">        ...                    index=[&#39;row 1&#39;, &#39;row 2&#39;],</span>
@@ -1313,22 +1327,27 @@
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">mean</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">numeric_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">skipna</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">numeric_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Scalar</span><span class="p">,</span> <span class="s2">&quot;Series&quot;</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the mean of the values.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        axis : {index (0), columns (1)}</span>
+<span class="sd">        axis: {index (0), columns (1)}</span>
 <span class="sd">            Axis for the function to be applied on.</span>
-<span class="sd">        numeric_only : bool, default None</span>
+<span class="sd">        skipna: bool, default True</span>
+<span class="sd">            Exclude NA/null values when computing the result.</span>
+
+<span class="sd">            .. versionchanged:: 3.4.0</span>
+<span class="sd">               Supported including NA/null values.</span>
+<span class="sd">        numeric_only: bool, default None</span>
 <span class="sd">            Include only float, int, boolean columns. False is not supported. This parameter</span>
 <span class="sd">            is mainly for pandas compatibility.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        mean : scalar for a Series, and a Series for a DataFrame.</span>
+<span class="sd">        mean: scalar for a Series, and a Series for a DataFrame.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -1374,29 +1393,42 @@
             <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">spark_column</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reduce_for_stat_function</span><span class="p">(</span>
-            <span class="n">mean</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">numeric_only</span><span class="o">=</span><span class="n">numeric_only</span>
+            <span class="n">mean</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+            <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span>
+            <span class="n">numeric_only</span><span class="o">=</span><span class="n">numeric_only</span><span class="p">,</span>
+            <span class="n">skipna</span><span class="o">=</span><span class="n">skipna</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">sum</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">numeric_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">min_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">skipna</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">numeric_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Scalar</span><span class="p">,</span> <span class="s2">&quot;Series&quot;</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the sum of the values.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        axis : {index (0), columns (1)}</span>
+<span class="sd">        axis: {index (0), columns (1)}</span>
 <span class="sd">            Axis for the function to be applied on.</span>
-<span class="sd">        numeric_only : bool, default None</span>
+<span class="sd">        skipna: bool, default True</span>
+<span class="sd">            Exclude NA/null values when computing the result.</span>
+
+<span class="sd">            .. versionchanged:: 3.4.0</span>
+<span class="sd">               Added *skipna* to exclude.</span>
+<span class="sd">        numeric_only: bool, default None</span>
 <span class="sd">            Include only float, int, boolean columns. False is not supported. This parameter</span>
 <span class="sd">            is mainly for pandas compatibility.</span>
-<span class="sd">        min_count : int, default 0</span>
+<span class="sd">        min_count: int, default 0</span>
 <span class="sd">            The required number of valid values to perform the operation. If fewer than</span>
 <span class="sd">             ``min_count`` non-NA values are present the result will be NA.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        sum : scalar for a Series, and a Series for a DataFrame.</span>
+<span class="sd">        sum: scalar for a Series, and a Series for a DataFrame.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -1450,6 +1482,7 @@
         <span class="k">def</span> <span class="nf">sum</span><span class="p">(</span><span class="n">psser</span><span class="p">:</span> <span class="s2">&quot;Series&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Column</span><span class="p">:</span>
             <span class="n">spark_type</span> <span class="o">=</span> <span class="n">psser</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">data_type</span>
             <span class="n">spark_column</span> <span class="o">=</span> <span class="n">psser</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">column</span>
+
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spark_type</span><span class="p">,</span> <span class="n">BooleanType</span><span class="p">):</span>
                 <span class="n">spark_column</span> <span class="o">=</span> <span class="n">spark_column</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">LongType</span><span class="p">())</span>
             <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spark_type</span><span class="p">,</span> <span class="n">NumericType</span><span class="p">):</span>
@@ -1458,14 +1491,23 @@
                         <span class="n">spark_type_to_pandas_dtype</span><span class="p">(</span><span class="n">spark_type</span><span class="p">),</span> <span class="n">spark_type</span><span class="o">.</span><span class="n">simpleString</span><span class="p">()</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
-            <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">coalesce</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">spark_column</span><span class="p">),</span> <span class="n">SF</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">coalesce</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">spark_column</span><span class="p">),</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reduce_for_stat_function</span><span class="p">(</span>
-            <span class="nb">sum</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sum&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">numeric_only</span><span class="o">=</span><span class="n">numeric_only</span><span class="p">,</span> <span class="n">min_count</span><span class="o">=</span><span class="n">min_count</span>
+            <span class="nb">sum</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sum&quot;</span><span class="p">,</span>
+            <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span>
+            <span class="n">numeric_only</span><span class="o">=</span><span class="n">numeric_only</span><span class="p">,</span>
+            <span class="n">min_count</span><span class="o">=</span><span class="n">min_count</span><span class="p">,</span>
+            <span class="n">skipna</span><span class="o">=</span><span class="n">skipna</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">product</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">numeric_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">min_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">skipna</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">numeric_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Scalar</span><span class="p">,</span> <span class="s2">&quot;Series&quot;</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the product of the values.</span>
@@ -1475,12 +1517,17 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        axis : {index (0), columns (1)}</span>
+<span class="sd">        axis: {index (0), columns (1)}</span>
 <span class="sd">            Axis for the function to be applied on.</span>
-<span class="sd">        numeric_only : bool, default None</span>
+<span class="sd">        skipna: bool, default True</span>
+<span class="sd">            Exclude NA/null values when computing the result.</span>
+
+<span class="sd">            .. versionchanged:: 3.4.0</span>
+<span class="sd">               Supported including NA/null values.</span>
+<span class="sd">        numeric_only: bool, default None</span>
 <span class="sd">            Include only float, int, boolean columns. False is not supported. This parameter</span>
 <span class="sd">            is mainly for pandas compatibility.</span>
-<span class="sd">        min_count : int, default 0</span>
+<span class="sd">        min_count: int, default 0</span>
 <span class="sd">            The required number of valid values to perform the operation. If fewer than</span>
 <span class="sd">            ``min_count`` non-NA values are present the result will be NA.</span>
 
@@ -1537,51 +1584,49 @@
             <span class="n">spark_type</span> <span class="o">=</span> <span class="n">psser</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">data_type</span>
             <span class="n">spark_column</span> <span class="o">=</span> <span class="n">psser</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">column</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spark_type</span><span class="p">,</span> <span class="n">BooleanType</span><span class="p">):</span>
-                <span class="n">scol</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">coalesce</span><span class="p">(</span><span class="n">spark_column</span><span class="p">,</span> <span class="n">SF</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">True</span><span class="p">)))</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">LongType</span><span class="p">())</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spark_type</span><span class="p">,</span> <span class="n">NumericType</span><span class="p">):</span>
-                <span class="n">num_zeros</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">spark_column</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
-                <span class="n">sign</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">when</span><span class="p">(</span>
-                    <span class="n">F</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">spark_column</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span>
-                <span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-
-                <span class="n">scol</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">num_zeros</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span>
-                    <span class="n">sign</span> <span class="o">*</span> <span class="n">F</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">spark_column</span><span class="p">))))</span>
-                <span class="p">)</span>
-
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spark_type</span><span class="p">,</span> <span class="n">IntegralType</span><span class="p">):</span>
-                    <span class="n">scol</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">scol</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">LongType</span><span class="p">())</span>
-            <span class="k">else</span><span class="p">:</span>
+                <span class="n">spark_column</span> <span class="o">=</span> <span class="n">spark_column</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">LongType</span><span class="p">())</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spark_type</span><span class="p">,</span> <span class="n">NumericType</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                     <span class="s2">&quot;Could not convert </span><span class="si">{}</span><span class="s2"> (</span><span class="si">{}</span><span class="s2">) to numeric&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                         <span class="n">spark_type_to_pandas_dtype</span><span class="p">(</span><span class="n">spark_type</span><span class="p">),</span> <span class="n">spark_type</span><span class="o">.</span><span class="n">simpleString</span><span class="p">()</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
 
-            <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">coalesce</span><span class="p">(</span><span class="n">scol</span><span class="p">,</span> <span class="n">SF</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">SF</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">spark_column</span><span class="p">,</span> <span class="n">skipna</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reduce_for_stat_function</span><span class="p">(</span>
-            <span class="n">prod</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;prod&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">numeric_only</span><span class="o">=</span><span class="n">numeric_only</span><span class="p">,</span> <span class="n">min_count</span><span class="o">=</span><span class="n">min_count</span>
+            <span class="n">prod</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;prod&quot;</span><span class="p">,</span>
+            <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span>
+            <span class="n">numeric_only</span><span class="o">=</span><span class="n">numeric_only</span><span class="p">,</span>
+            <span class="n">min_count</span><span class="o">=</span><span class="n">min_count</span><span class="p">,</span>
+            <span class="n">skipna</span><span class="o">=</span><span class="n">skipna</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="n">prod</span> <span class="o">=</span> <span class="n">product</span>
 
     <span class="k">def</span> <span class="nf">skew</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">numeric_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">skipna</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">numeric_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Scalar</span><span class="p">,</span> <span class="s2">&quot;Series&quot;</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return unbiased skew normalized by N-1.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        axis : {index (0), columns (1)}</span>
+<span class="sd">        axis: {index (0), columns (1)}</span>
 <span class="sd">            Axis for the function to be applied on.</span>
-<span class="sd">        numeric_only : bool, default None</span>
+<span class="sd">        skipna: bool, default True</span>
+<span class="sd">            Exclude NA/null values when computing the result.</span>
+
+<span class="sd">            .. versionchanged:: 3.4.0</span>
+<span class="sd">               Supported including NA/null values.</span>
+<span class="sd">        numeric_only: bool, default None</span>
 <span class="sd">            Include only float, int, boolean columns. False is not supported. This parameter</span>
 <span class="sd">            is mainly for pandas compatibility.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        skew : scalar for a Series, and a Series for a DataFrame.</span>
+<span class="sd">        skew: scalar for a Series, and a Series for a DataFrame.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -1591,9 +1636,9 @@
 
 <span class="sd">        On a DataFrame:</span>
 
-<span class="sd">        &gt;&gt;&gt; df.skew()  # doctest: +SKIP</span>
-<span class="sd">        a    0.000000e+00</span>
-<span class="sd">        b   -3.319678e-16</span>
+<span class="sd">        &gt;&gt;&gt; df.skew()</span>
+<span class="sd">        a    0.0</span>
+<span class="sd">        b    0.0</span>
 <span class="sd">        dtype: float64</span>
 
 <span class="sd">        On a Series:</span>
@@ -1618,22 +1663,18 @@
                     <span class="p">)</span>
                 <span class="p">)</span>
 
-            <span class="n">count_scol</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="o">~</span><span class="n">spark_column</span><span class="o">.</span><span class="n">isNull</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="kc">None</span><span class="p">))</span>
-            <span class="c1"># refer to the Pandas implementation &#39;nanskew&#39;</span>
-            <span class="c1"># https://github.com/pandas-dev/pandas/blob/main/pandas/core/nanops.py#L1152</span>
-            <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">when</span><span class="p">(</span>
-                <span class="n">count_scol</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">,</span>
-                <span class="n">F</span><span class="o">.</span><span class="n">skewness</span><span class="p">(</span><span class="n">spark_column</span><span class="p">)</span>
-                <span class="o">*</span> <span class="n">F</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">count_scol</span><span class="p">)</span>
-                <span class="o">*</span> <span class="p">(</span><span class="n">count_scol</span> <span class="o">/</span> <span class="p">(</span><span class="n">count_scol</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)),</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">SF</span><span class="o">.</span><span class="n">skew</span><span class="p">(</span><span class="n">spark_column</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reduce_for_stat_function</span><span class="p">(</span>
-            <span class="n">skew</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;skew&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">numeric_only</span><span class="o">=</span><span class="n">numeric_only</span>
+            <span class="n">skew</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;skew&quot;</span><span class="p">,</span>
+            <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span>
+            <span class="n">numeric_only</span><span class="o">=</span><span class="n">numeric_only</span><span class="p">,</span>
+            <span class="n">skipna</span><span class="o">=</span><span class="n">skipna</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">kurtosis</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">numeric_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">skipna</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">numeric_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Scalar</span><span class="p">,</span> <span class="s2">&quot;Series&quot;</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return unbiased kurtosis using Fisher’s definition of kurtosis (kurtosis of normal == 0.0).</span>
@@ -1641,33 +1682,38 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        axis : {index (0), columns (1)}</span>
+<span class="sd">        axis: {index (0), columns (1)}</span>
 <span class="sd">            Axis for the function to be applied on.</span>
-<span class="sd">        numeric_only : bool, default None</span>
+<span class="sd">        skipna: bool, default True</span>
+<span class="sd">            Exclude NA/null values when computing the result.</span>
+
+<span class="sd">            .. versionchanged:: 3.4.0</span>
+<span class="sd">               Supported including NA/null values.</span>
+<span class="sd">        numeric_only: bool, default None</span>
 <span class="sd">            Include only float, int, boolean columns. False is not supported. This parameter</span>
 <span class="sd">            is mainly for pandas compatibility.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        kurt : scalar for a Series, and a Series for a DataFrame.</span>
+<span class="sd">        kurt: scalar for a Series, and a Series for a DataFrame.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 
-<span class="sd">        &gt;&gt;&gt; df = ps.DataFrame({&#39;a&#39;: [1, 2, 3, np.nan], &#39;b&#39;: [0.1, 0.2, 0.3, np.nan]},</span>
+<span class="sd">        &gt;&gt;&gt; df = ps.DataFrame({&#39;a&#39;: [1, 2, 3, np.nan, 6], &#39;b&#39;: [0.1, 0.2, 0.3, np.nan, 0.8]},</span>
 <span class="sd">        ...                   columns=[&#39;a&#39;, &#39;b&#39;])</span>
 
 <span class="sd">        On a DataFrame:</span>
 
 <span class="sd">        &gt;&gt;&gt; df.kurtosis()</span>
-<span class="sd">        a   -1.5</span>
-<span class="sd">        b   -1.5</span>
+<span class="sd">        a    1.500000</span>
+<span class="sd">        b    2.703924</span>
 <span class="sd">        dtype: float64</span>
 
 <span class="sd">        On a Series:</span>
 
 <span class="sd">        &gt;&gt;&gt; df[&#39;a&#39;].kurtosis()</span>
-<span class="sd">        -1.5</span>
+<span class="sd">        1.5</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">axis</span> <span class="o">=</span> <span class="n">validate_axis</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
 
@@ -1685,32 +1731,42 @@
                         <span class="n">spark_type_to_pandas_dtype</span><span class="p">(</span><span class="n">spark_type</span><span class="p">),</span> <span class="n">spark_type</span><span class="o">.</span><span class="n">simpleString</span><span class="p">()</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
-            <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">kurtosis</span><span class="p">(</span><span class="n">spark_column</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">SF</span><span class="o">.</span><span class="n">kurt</span><span class="p">(</span><span class="n">spark_column</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reduce_for_stat_function</span><span class="p">(</span>
-            <span class="n">kurtosis</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;kurtosis&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">numeric_only</span><span class="o">=</span><span class="n">numeric_only</span>
+            <span class="n">kurtosis</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;kurtosis&quot;</span><span class="p">,</span>
+            <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span>
+            <span class="n">numeric_only</span><span class="o">=</span><span class="n">numeric_only</span><span class="p">,</span>
+            <span class="n">skipna</span><span class="o">=</span><span class="n">skipna</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="n">kurt</span> <span class="o">=</span> <span class="n">kurtosis</span>
 
     <span class="k">def</span> <span class="nf">min</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">numeric_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">skipna</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">numeric_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Scalar</span><span class="p">,</span> <span class="s2">&quot;Series&quot;</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the minimum of the values.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        axis : {index (0), columns (1)}</span>
+<span class="sd">        axis: {index (0), columns (1)}</span>
 <span class="sd">            Axis for the function to be applied on.</span>
-<span class="sd">        numeric_only : bool, default None</span>
+<span class="sd">        skipna: bool, default True</span>
+<span class="sd">            Exclude NA/null values when computing the result.</span>
+
+<span class="sd">            .. versionchanged:: 3.4.0</span>
+<span class="sd">               Supported including NA/null values.</span>
+<span class="sd">        numeric_only: bool, default None</span>
 <span class="sd">            If True, include only float, int, boolean columns. This parameter is mainly for</span>
 <span class="sd">            pandas compatibility. False is supported; however, the columns should</span>
 <span class="sd">            be all numeric or all non-numeric.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        min : scalar for a Series, and a Series for a DataFrame.</span>
+<span class="sd">        min: scalar for a Series, and a Series for a DataFrame.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -1749,26 +1805,32 @@
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;min&quot;</span><span class="p">,</span>
             <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span>
             <span class="n">numeric_only</span><span class="o">=</span><span class="n">numeric_only</span><span class="p">,</span>
+            <span class="n">skipna</span><span class="o">=</span><span class="n">skipna</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">max</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">numeric_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">skipna</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">numeric_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Scalar</span><span class="p">,</span> <span class="s2">&quot;Series&quot;</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the maximum of the values.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        axis : {index (0), columns (1)}</span>
+<span class="sd">        axis: {index (0), columns (1)}</span>
 <span class="sd">            Axis for the function to be applied on.</span>
-<span class="sd">        numeric_only : bool, default None</span>
+<span class="sd">        skipna: bool, default True</span>
+<span class="sd">            Exclude NA/null values when computing the result.</span>
+
+<span class="sd">            .. versionchanged:: 3.4.0</span>
+<span class="sd">               Supported including NA/null values.</span>
+<span class="sd">        numeric_only: bool, default None</span>
 <span class="sd">            If True, include only float, int, boolean columns. This parameter is mainly for</span>
 <span class="sd">            pandas compatibility. False is supported; however, the columns should</span>
 <span class="sd">            be all numeric or all non-numeric.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        max : scalar for a Series, and a Series for a DataFrame.</span>
+<span class="sd">        max: scalar for a Series, and a Series for a DataFrame.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -1807,6 +1869,7 @@
             <span class="n">name</span><span class="o">=</span><span class="s2">&quot;max&quot;</span><span class="p">,</span>
             <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span>
             <span class="n">numeric_only</span><span class="o">=</span><span class="n">numeric_only</span><span class="p">,</span>
+            <span class="n">skipna</span><span class="o">=</span><span class="n">skipna</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">count</span><span class="p">(</span>
@@ -1819,16 +1882,16 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        axis : {0 or ‘index’, 1 or ‘columns’}, default 0</span>
+<span class="sd">        axis: {0 or ‘index’, 1 or ‘columns’}, default 0</span>
 <span class="sd">            If 0 or ‘index’ counts are generated for each column. If 1 or ‘columns’ counts are</span>
 <span class="sd">            generated for each row.</span>
-<span class="sd">        numeric_only : bool, default False</span>
+<span class="sd">        numeric_only: bool, default False</span>
 <span class="sd">            If True, include only float, int, boolean columns. This parameter is mainly for</span>
 <span class="sd">            pandas compatibility.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        max : scalar for a Series, and a Series for a DataFrame.</span>
+<span class="sd">        max: scalar for a Series, and a Series for a DataFrame.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
@@ -1884,25 +1947,39 @@
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">std</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ddof</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">numeric_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">skipna</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">ddof</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">numeric_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Scalar</span><span class="p">,</span> <span class="s2">&quot;Series&quot;</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return sample standard deviation.</span>
 
+<span class="sd">        .. versionadded:: 3.3.0</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        axis : {index (0), columns (1)}</span>
+<span class="sd">        axis: {index (0), columns (1)}</span>
 <span class="sd">            Axis for the function to be applied on.</span>
-<span class="sd">        ddof : int, default 1</span>
+<span class="sd">        skipna: bool, default True</span>
+<span class="sd">            Exclude NA/null values when computing the result.</span>
+
+<span class="sd">            .. versionchanged:: 3.4.0</span>
+<span class="sd">               Supported including NA/null values.</span>
+<span class="sd">        ddof: int, default 1</span>
 <span class="sd">            Delta Degrees of Freedom. The divisor used in calculations is N - ddof,</span>
 <span class="sd">            where N represents the number of elements.</span>
-<span class="sd">        numeric_only : bool, default None</span>
+
+<span class="sd">            .. versionchanged:: 3.4.0</span>
+<span class="sd">               Supported including arbitary integers.</span>
+<span class="sd">        numeric_only: bool, default None</span>
 <span class="sd">            Include only float, int, boolean columns. False is not supported. This parameter</span>
 <span class="sd">            is mainly for pandas compatibility.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        std : scalar for a Series, and a Series for a DataFrame.</span>
+<span class="sd">        std: scalar for a Series, and a Series for a DataFrame.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -1915,6 +1992,11 @@
 <span class="sd">        &gt;&gt;&gt; df.std()</span>
 <span class="sd">        a    1.0</span>
 <span class="sd">        b    0.1</span>
+<span class="sd">        dtype: float64</span>
+
+<span class="sd">        &gt;&gt;&gt; df.std(ddof=2)</span>
+<span class="sd">        a    1.414214</span>
+<span class="sd">        b    0.141421</span>
 <span class="sd">        dtype: float64</span>
 
 <span class="sd">        &gt;&gt;&gt; df.std(axis=1)</span>
@@ -1936,8 +2018,12 @@
 
 <span class="sd">        &gt;&gt;&gt; df[&#39;a&#39;].std(ddof=0)</span>
 <span class="sd">        0.816496580927726</span>
+
+<span class="sd">        &gt;&gt;&gt; df[&#39;a&#39;].std(ddof=-1)</span>
+<span class="sd">        0.707106...</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="n">ddof</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ddof</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;ddof must be integer&quot;</span><span class="p">)</span>
 
         <span class="n">axis</span> <span class="o">=</span> <span class="n">validate_axis</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
 
@@ -1955,13 +2041,10 @@
                         <span class="n">spark_type_to_pandas_dtype</span><span class="p">(</span><span class="n">spark_type</span><span class="p">),</span> <span class="n">spark_type</span><span class="o">.</span><span class="n">simpleString</span><span class="p">()</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
-            <span class="k">if</span> <span class="n">ddof</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">stddev_pop</span><span class="p">(</span><span class="n">spark_column</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">stddev_samp</span><span class="p">(</span><span class="n">spark_column</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">SF</span><span class="o">.</span><span class="n">stddev</span><span class="p">(</span><span class="n">spark_column</span><span class="p">,</span> <span class="n">ddof</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reduce_for_stat_function</span><span class="p">(</span>
-            <span class="n">std</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;std&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">numeric_only</span><span class="o">=</span><span class="n">numeric_only</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="n">ddof</span>
+            <span class="n">std</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;std&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">numeric_only</span><span class="o">=</span><span class="n">numeric_only</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="n">ddof</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="n">skipna</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">var</span><span class="p">(</span>
@@ -1970,20 +2053,25 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return unbiased variance.</span>
 
+<span class="sd">        .. versionadded:: 3.3.0</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        axis : {index (0), columns (1)}</span>
+<span class="sd">        axis: {index (0), columns (1)}</span>
 <span class="sd">            Axis for the function to be applied on.</span>
-<span class="sd">        ddof : int, default 1</span>
+<span class="sd">        ddof: int, default 1</span>
 <span class="sd">            Delta Degrees of Freedom. The divisor used in calculations is N - ddof,</span>
 <span class="sd">            where N represents the number of elements.</span>
-<span class="sd">        numeric_only : bool, default None</span>
+
+<span class="sd">            .. versionchanged:: 3.4.0</span>
+<span class="sd">               Supported including arbitary integers.</span>
+<span class="sd">        numeric_only: bool, default None</span>
 <span class="sd">            Include only float, int, boolean columns. False is not supported. This parameter</span>
 <span class="sd">            is mainly for pandas compatibility.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        var : scalar for a Series, and a Series for a DataFrame.</span>
+<span class="sd">        var: scalar for a Series, and a Series for a DataFrame.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -1996,6 +2084,11 @@
 <span class="sd">        &gt;&gt;&gt; df.var()</span>
 <span class="sd">        a    1.00</span>
 <span class="sd">        b    0.01</span>
+<span class="sd">        dtype: float64</span>
+
+<span class="sd">        &gt;&gt;&gt; df.var(ddof=2)</span>
+<span class="sd">        a    2.00</span>
+<span class="sd">        b    0.02</span>
 <span class="sd">        dtype: float64</span>
 
 <span class="sd">        &gt;&gt;&gt; df.var(axis=1)</span>
@@ -2017,8 +2110,12 @@
 
 <span class="sd">        &gt;&gt;&gt; df[&#39;a&#39;].var(ddof=0)</span>
 <span class="sd">        0.6666666666666666</span>
+
+<span class="sd">        &gt;&gt;&gt; df[&#39;a&#39;].var(ddof=-2)</span>
+<span class="sd">        0.4</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="n">ddof</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ddof</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;ddof must be integer&quot;</span><span class="p">)</span>
 
         <span class="n">axis</span> <span class="o">=</span> <span class="n">validate_axis</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
 
@@ -2036,17 +2133,18 @@
                         <span class="n">spark_type_to_pandas_dtype</span><span class="p">(</span><span class="n">spark_type</span><span class="p">),</span> <span class="n">spark_type</span><span class="o">.</span><span class="n">simpleString</span><span class="p">()</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
-            <span class="k">if</span> <span class="n">ddof</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">var_pop</span><span class="p">(</span><span class="n">spark_column</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">var_samp</span><span class="p">(</span><span class="n">spark_column</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">SF</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">spark_column</span><span class="p">,</span> <span class="n">ddof</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reduce_for_stat_function</span><span class="p">(</span>
             <span class="n">var</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;var&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">numeric_only</span><span class="o">=</span><span class="n">numeric_only</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="n">ddof</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">median</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">numeric_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">accuracy</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">skipna</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">numeric_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">accuracy</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10000</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Scalar</span><span class="p">,</span> <span class="s2">&quot;Series&quot;</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the median of the values for the requested axis.</span>
@@ -2057,18 +2155,23 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        axis : {index (0), columns (1)}</span>
+<span class="sd">        axis: {index (0), columns (1)}</span>
 <span class="sd">            Axis for the function to be applied on.</span>
-<span class="sd">        numeric_only : bool, default None</span>
+<span class="sd">        skipna: bool, default True</span>
+<span class="sd">            Exclude NA/null values when computing the result.</span>
+
+<span class="sd">            .. versionchanged:: 3.4.0</span>
+<span class="sd">               Supported including NA/null values.</span>
+<span class="sd">        numeric_only: bool, default None</span>
 <span class="sd">            Include only float, int, boolean columns. False is not supported. This parameter</span>
 <span class="sd">            is mainly for pandas compatibility.</span>
-<span class="sd">        accuracy : int, optional</span>
+<span class="sd">        accuracy: int, optional</span>
 <span class="sd">            Default accuracy of approximation. Larger value means better accuracy.</span>
 <span class="sd">            The relative error can be deduced by 1.0 / accuracy.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        median : scalar or Series</span>
+<span class="sd">        median: scalar or Series</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -2153,23 +2256,41 @@
                 <span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reduce_for_stat_function</span><span class="p">(</span>
-            <span class="n">median</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;median&quot;</span><span class="p">,</span> <span class="n">numeric_only</span><span class="o">=</span><span class="n">numeric_only</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span>
+            <span class="n">median</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;median&quot;</span><span class="p">,</span>
+            <span class="n">numeric_only</span><span class="o">=</span><span class="n">numeric_only</span><span class="p">,</span>
+            <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span>
+            <span class="n">skipna</span><span class="o">=</span><span class="n">skipna</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">sem</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ddof</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">numeric_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">axis</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Axis</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">skipna</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">ddof</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">numeric_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">Scalar</span><span class="p">,</span> <span class="s2">&quot;Series&quot;</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return unbiased standard error of the mean over requested axis.</span>
 
+<span class="sd">        .. versionadded:: 3.3.0</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        axis : {index (0), columns (1)}</span>
+<span class="sd">        axis: {index (0), columns (1)}</span>
 <span class="sd">            Axis for the function to be applied on.</span>
-<span class="sd">        ddof : int, default 1</span>
+<span class="sd">        skipna: bool, default True</span>
+<span class="sd">            Exclude NA/null values when computing the result.</span>
+
+<span class="sd">            .. versionchanged:: 3.4.0</span>
+<span class="sd">               Supported including NA/null values.</span>
+<span class="sd">        ddof: int, default 1</span>
 <span class="sd">            Delta Degrees of Freedom. The divisor used in calculations is N - ddof,</span>
 <span class="sd">            where N represents the number of elements.</span>
-<span class="sd">        numeric_only : bool, default None</span>
+
+<span class="sd">            .. versionchanged:: 3.4.0</span>
+<span class="sd">               Supported including arbitary integers.</span>
+<span class="sd">        numeric_only: bool, default None</span>
 <span class="sd">            Include only float, int, boolean columns. False is not supported. This parameter</span>
 <span class="sd">            is mainly for pandas compatibility.</span>
 
@@ -2196,6 +2317,11 @@
 <span class="sd">        b    0.471405</span>
 <span class="sd">        dtype: float64</span>
 
+<span class="sd">        &gt;&gt;&gt; psdf.sem(ddof=2)</span>
+<span class="sd">        a    0.816497</span>
+<span class="sd">        b    0.816497</span>
+<span class="sd">        dtype: float64</span>
+
 <span class="sd">        &gt;&gt;&gt; psdf.sem(axis=1)</span>
 <span class="sd">        0    1.5</span>
 <span class="sd">        1    1.5</span>
@@ -2217,7 +2343,8 @@
 <span class="sd">        &gt;&gt;&gt; psser.sem(ddof=0)</span>
 <span class="sd">        0.47140452079103173</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">assert</span> <span class="n">ddof</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ddof</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;ddof must be integer&quot;</span><span class="p">)</span>
 
         <span class="n">axis</span> <span class="o">=</span> <span class="n">validate_axis</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span>
 
@@ -2235,16 +2362,18 @@
                         <span class="n">spark_type_to_pandas_dtype</span><span class="p">(</span><span class="n">spark_type</span><span class="p">),</span> <span class="n">spark_type</span><span class="o">.</span><span class="n">simpleString</span><span class="p">()</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
-            <span class="k">if</span> <span class="n">ddof</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">stddev_pop</span><span class="p">(</span><span class="n">spark_column</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">F</span><span class="o">.</span><span class="n">stddev_samp</span><span class="p">(</span><span class="n">spark_column</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">SF</span><span class="o">.</span><span class="n">stddev</span><span class="p">(</span><span class="n">spark_column</span><span class="p">,</span> <span class="n">ddof</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">sem</span><span class="p">(</span><span class="n">psser</span><span class="p">:</span> <span class="s2">&quot;Series&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Column</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">std</span><span class="p">(</span><span class="n">psser</span><span class="p">)</span> <span class="o">/</span> <span class="nb">pow</span><span class="p">(</span><span class="n">Frame</span><span class="o">.</span><span class="n">_count_expr</span><span class="p">(</span><span class="n">psser</span><span class="p">),</span> <span class="mf">0.5</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">std</span><span class="p">(</span><span class="n">psser</span><span class="p">)</span> <span class="o">/</span> <span class="n">F</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Frame</span><span class="o">.</span><span class="n">_count_expr</span><span class="p">(</span><span class="n">psser</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reduce_for_stat_function</span><span class="p">(</span>
-            <span class="n">sem</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sem&quot;</span><span class="p">,</span> <span class="n">numeric_only</span><span class="o">=</span><span class="n">numeric_only</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="n">ddof</span>
+            <span class="n">sem</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;sem&quot;</span><span class="p">,</span>
+            <span class="n">numeric_only</span><span class="o">=</span><span class="n">numeric_only</span><span class="p">,</span>
+            <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span>
+            <span class="n">ddof</span><span class="o">=</span><span class="n">ddof</span><span class="p">,</span>
+            <span class="n">skipna</span><span class="o">=</span><span class="n">skipna</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -2281,7 +2410,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        abs : Series/DataFrame containing the absolute value of each element.</span>
+<span class="sd">        abs: Series/DataFrame containing the absolute value of each element.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -2348,18 +2477,18 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        by : Series, label, or list of labels</span>
+<span class="sd">        by: Series, label, or list of labels</span>
 <span class="sd">            Used to determine the groups for the groupby.</span>
 <span class="sd">            If Series is passed, the Series or dict VALUES</span>
 <span class="sd">            will be used to determine the groups. A label or list of</span>
 <span class="sd">            labels may be passed to group by the columns in ``self``.</span>
-<span class="sd">        axis : int, default 0 or &#39;index&#39;</span>
-<span class="sd">            Can only be set to 0 at the moment.</span>
-<span class="sd">        as_index : bool, default True</span>
+<span class="sd">        axis: int, default 0 or &#39;index&#39;</span>
+<span class="sd">            Can only be set to 0 now.</span>
+<span class="sd">        as_index: bool, default True</span>
 <span class="sd">            For aggregated output, return object with group labels as the</span>
 <span class="sd">            index. Only relevant for DataFrame input. as_index=False is</span>
 <span class="sd">            effectively &quot;SQL-style&quot; grouped output.</span>
-<span class="sd">        dropna : bool, default True</span>
+<span class="sd">        dropna: bool, default True</span>
 <span class="sd">            If True, and if group keys contain NA values,</span>
 <span class="sd">            NA values together with row/column will be dropped.</span>
 <span class="sd">            If False, NA values will also be treated as the key in groups.</span>
@@ -2509,8 +2638,6 @@
             <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ps</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
             <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;bool() expects DataFrame or Series; however, &quot;</span> <span class="s2">&quot;got [</span><span class="si">%s</span><span class="s2">]&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="p">,))</span>
         <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">_to_internal_pandas</span><span class="p">()</span><span class="o">.</span><span class="n">bool</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">first_valid_index</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Scalar</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Scalar</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]:</span>
@@ -2730,16 +2857,16 @@
 
 <span class="sd">        .. note:: &#39;min_periods&#39; in pandas-on-Spark works as a fixed window size unlike pandas.</span>
 <span class="sd">            Unlike pandas, NA is also counted as the period. This might be changed</span>
-<span class="sd">            in the near future.</span>
+<span class="sd">            soon.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        window : int, or offset</span>
+<span class="sd">        window: int, or offset</span>
 <span class="sd">            Size of the moving window.</span>
 <span class="sd">            This is the number of observations used for calculating the statistic.</span>
 <span class="sd">            Each window will be a fixed size.</span>
 
-<span class="sd">        min_periods : int, default None</span>
+<span class="sd">        min_periods: int, default None</span>
 <span class="sd">            Minimum number of observations in window required to have a value</span>
 <span class="sd">            (otherwise result is NA).</span>
 <span class="sd">            For a window that is specified by an offset, min_periods will default to 1.</span>
@@ -2747,7 +2874,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        a Window sub-classed for the particular operation</span>
+<span class="sd">        a Window sub-classed for the operation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">pyspark.pandas.window</span> <span class="kn">import</span> <span class="n">Rolling</span>
 
@@ -2761,21 +2888,93 @@
 
 <span class="sd">        .. note:: &#39;min_periods&#39; in pandas-on-Spark works as a fixed window size unlike pandas.</span>
 <span class="sd">            Unlike pandas, NA is also counted as the period. This might be changed</span>
-<span class="sd">            in the near future.</span>
+<span class="sd">            soon.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        min_periods : int, default 1</span>
+<span class="sd">        min_periods: int, default 1</span>
 <span class="sd">            Minimum number of observations in window required to have a value</span>
 <span class="sd">            (otherwise result is NA).</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        a Window sub-classed for the particular operation</span>
+<span class="sd">        a Window sub-classed for the operation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">pyspark.pandas.window</span> <span class="kn">import</span> <span class="n">Expanding</span>
 
         <span class="k">return</span> <span class="n">Expanding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="n">min_periods</span><span class="p">)</span>
+
+    <span class="c1"># TODO: &#39;adjust&#39;, &#39;axis&#39;, &#39;method&#39; parameter should be implemented.</span>
+    <span class="k">def</span> <span class="nf">ewm</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">FrameLike</span><span class="p">,</span>
+        <span class="n">com</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">span</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">halflife</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_periods</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ignore_na</span><span class="p">:</span> <span class="n">bool_type</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ExponentialMoving[FrameLike]&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Provide exponentially weighted window transformations.</span>
+
+<span class="sd">        .. note:: &#39;min_periods&#39; in pandas-on-Spark works as a fixed window size unlike pandas.</span>
+<span class="sd">            Unlike pandas, NA is also counted as the period. This might be changed</span>
+<span class="sd">            soon.</span>
+
+<span class="sd">        .. versionadded:: 3.4.0</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        com: float, optional</span>
+<span class="sd">            Specify decay in terms of center of mass.</span>
+<span class="sd">            alpha = 1 / (1 + com), for com &gt;= 0.</span>
+
+<span class="sd">        span: float, optional</span>
+<span class="sd">            Specify decay in terms of span.</span>
+<span class="sd">            alpha = 2 / (span + 1), for span &gt;= 1.</span>
+
+<span class="sd">        halflife: float, optional</span>
+<span class="sd">            Specify decay in terms of half-life.</span>
+<span class="sd">            alpha = 1 - exp(-ln(2) / halflife), for halflife &gt; 0.</span>
+
+<span class="sd">        alpha: float, optional</span>
+<span class="sd">            Specify smoothing factor alpha directly.</span>
+<span class="sd">            0 &lt; alpha &lt;= 1.</span>
+
+<span class="sd">        min_periods: int, default None</span>
+<span class="sd">            Minimum number of observations in window required to have a value</span>
+<span class="sd">            (otherwise result is NA).</span>
+
+<span class="sd">        ignore_na: bool, default False</span>
+<span class="sd">            Ignore missing values when calculating weights.</span>
+
+<span class="sd">            - When ``ignore_na=False`` (default), weights are based on absolute positions.</span>
+<span class="sd">              For example, the weights of :math:`x_0` and :math:`x_2` used in calculating</span>
+<span class="sd">              the final weighted average of [:math:`x_0`, None, :math:`x_2`] are</span>
+<span class="sd">              :math:`(1-\alpha)^2` and :math:`1` if ``adjust=True``, and</span>
+<span class="sd">              :math:`(1-\alpha)^2` and :math:`\alpha` if ``adjust=False``.</span>
+
+<span class="sd">            - When ``ignore_na=True``, weights are based</span>
+<span class="sd">              on relative positions. For example, the weights of :math:`x_0` and :math:`x_2`</span>
+<span class="sd">              used in calculating the final weighted average of</span>
+<span class="sd">              [:math:`x_0`, None, :math:`x_2`] are :math:`1-\alpha` and :math:`1` if</span>
+<span class="sd">              ``adjust=True``, and :math:`1-\alpha` and :math:`\alpha` if ``adjust=False``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        a Window sub-classed for the operation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">pyspark.pandas.window</span> <span class="kn">import</span> <span class="n">ExponentialMoving</span>
+
+        <span class="k">return</span> <span class="n">ExponentialMoving</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">com</span><span class="o">=</span><span class="n">com</span><span class="p">,</span>
+            <span class="n">span</span><span class="o">=</span><span class="n">span</span><span class="p">,</span>
+            <span class="n">halflife</span><span class="o">=</span><span class="n">halflife</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+            <span class="n">min_periods</span><span class="o">=</span><span class="n">min_periods</span><span class="p">,</span>
+            <span class="n">ignore_na</span><span class="o">=</span><span class="n">ignore_na</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2784,11 +2983,11 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        key : object</span>
+<span class="sd">        key: object</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        value : same type as items contained in object</span>
+<span class="sd">        value: same type as items contained in object</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -2843,7 +3042,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        axis : {0 or &#39;index&#39;, 1 or &#39;columns&#39;, None}, default None</span>
+<span class="sd">        axis: {0 or &#39;index&#39;, 1 or &#39;columns&#39;, None}, default None</span>
 <span class="sd">            A specific axis to squeeze. By default, all length-1 axes are</span>
 <span class="sd">            squeezed.</span>
 
@@ -2854,9 +3053,9 @@
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        Series.iloc : Integer-location based indexing for selecting scalars.</span>
-<span class="sd">        DataFrame.iloc : Integer-location based indexing for selecting Series.</span>
-<span class="sd">        Series.to_frame : Inverse of DataFrame.squeeze for a</span>
+<span class="sd">        Series.iloc: Integer-location based indexing for selecting scalars.</span>
+<span class="sd">        DataFrame.iloc: Integer-location based indexing for selecting Series.</span>
+<span class="sd">        Series.to_frame: Inverse of DataFrame.squeeze for a</span>
 <span class="sd">            single-column DataFrame.</span>
 
 <span class="sd">        Examples</span>
@@ -2905,7 +3104,7 @@
 <span class="sd">        0  1</span>
 <span class="sd">        1  3</span>
 
-<span class="sd">        So the columns can be squeezed down, resulting in a Series:</span>
+<span class="sd">        The columns can be squeezed down, resulting in a Series:</span>
 
 <span class="sd">        &gt;&gt;&gt; df_a.squeeze(&#39;columns&#39;)</span>
 <span class="sd">        0    1</span>
@@ -2978,13 +3177,13 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        before : date, str, int</span>
+<span class="sd">        before: date, str, int</span>
 <span class="sd">            Truncate all rows before this index value.</span>
-<span class="sd">        after : date, str, int</span>
+<span class="sd">        after: date, str, int</span>
 <span class="sd">            Truncate all rows after this index value.</span>
-<span class="sd">        axis : {0 or &#39;index&#39;, 1 or &#39;columns&#39;}, optional</span>
+<span class="sd">        axis: {0 or &#39;index&#39;, 1 or &#39;columns&#39;}, optional</span>
 <span class="sd">            Axis to truncate. Truncates the index (rows) by default.</span>
-<span class="sd">        copy : bool, default is True,</span>
+<span class="sd">        copy: bool, default is True,</span>
 <span class="sd">            Return a copy of the truncated section.</span>
 
 <span class="sd">        Returns</span>
@@ -2994,8 +3193,8 @@
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        DataFrame.loc : Select a subset of a DataFrame by label.</span>
-<span class="sd">        DataFrame.iloc : Select a subset of a DataFrame by position.</span>
+<span class="sd">        DataFrame.loc: Select a subset of a DataFrame by label.</span>
+<span class="sd">        DataFrame.iloc: Select a subset of a DataFrame by position.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -3092,11 +3291,11 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ps</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">indexes_increasing</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="n">first_series</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">before</span><span class="p">:</span><span class="n">after</span><span class="p">]</span>  <span class="c1"># type: ignore[arg-type, assignment]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">before</span><span class="p">:</span><span class="n">after</span><span class="p">]</span>  <span class="c1"># type: ignore[arg-type]</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">=</span> <span class="n">first_series</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">after</span><span class="p">:</span><span class="n">before</span><span class="p">]</span>  <span class="c1"># type: ignore[arg-type,assignment]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">after</span><span class="p">:</span><span class="n">before</span><span class="p">]</span>  <span class="c1"># type: ignore[arg-type]</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ps</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">axis</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -3120,11 +3319,11 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        buf : writable buffer, defaults to sys.stdout</span>
+<span class="sd">        buf: writable buffer, defaults to sys.stdout</span>
 <span class="sd">            Where to send the output. By default, the output is printed to</span>
 <span class="sd">            sys.stdout. Pass a writable buffer if you need to further process</span>
 <span class="sd">            the output.</span>
-<span class="sd">        mode : str, optional</span>
+<span class="sd">        mode: str, optional</span>
 <span class="sd">            Mode in which file is opened.</span>
 <span class="sd">        **kwargs</span>
 <span class="sd">            These parameters will be passed to `tabulate`.</span>
@@ -3192,17 +3391,17 @@
 <span class="sd">        Synonym for `DataFrame.fillna()` or `Series.fillna()` with ``method=`bfill```.</span>
 
 <span class="sd">        .. note:: the current implementation of &#39;bfill&#39; uses Spark&#39;s Window</span>
-<span class="sd">            without specifying partition specification. This leads to move all data into</span>
-<span class="sd">            single partition in single machine and could cause serious</span>
-<span class="sd">            performance degradation. Avoid this method against very large dataset.</span>
+<span class="sd">            without specifying partition specification. This leads to moveing all data into a</span>
+<span class="sd">            single partition in a single machine and could cause serious</span>
+<span class="sd">            performance degradation. Avoid this method with very large datasets.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        axis : {0 or `index`}</span>
+<span class="sd">        axis: {0 or `index`}</span>
 <span class="sd">            1 and `columns` are not supported.</span>
-<span class="sd">        inplace : boolean, default False</span>
+<span class="sd">        inplace: boolean, default False</span>
 <span class="sd">            Fill in place (do not create a new object)</span>
-<span class="sd">        limit : int, default None</span>
+<span class="sd">        limit: int, default None</span>
 <span class="sd">            If method is specified, this is the maximum number of consecutive NaN values to</span>
 <span class="sd">            forward/backward fill. In other words, if there is a gap with more than this number of</span>
 <span class="sd">            consecutive NaNs, it will only be partially filled. If method is not specified,</span>
@@ -3271,17 +3470,17 @@
 <span class="sd">        Synonym for `DataFrame.fillna()` or `Series.fillna()` with ``method=`ffill```.</span>
 
 <span class="sd">        .. note:: the current implementation of &#39;ffill&#39; uses Spark&#39;s Window</span>
-<span class="sd">            without specifying partition specification. This leads to move all data into</span>
-<span class="sd">            single partition in single machine and could cause serious</span>
-<span class="sd">            performance degradation. Avoid this method against very large dataset.</span>
+<span class="sd">            without specifying partition specification. This leads to moveing all data into a</span>
+<span class="sd">            single a partition in a single machine and could cause serious</span>
+<span class="sd">            performance degradation. Avoid this method with very large datasets.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        axis : {0 or `index`}</span>
+<span class="sd">        axis: {0 or `index`}</span>
 <span class="sd">            1 and `columns` are not supported.</span>
-<span class="sd">        inplace : boolean, default False</span>
+<span class="sd">        inplace: boolean, default False</span>
 <span class="sd">            Fill in place (do not create a new object)</span>
-<span class="sd">        limit : int, default None</span>
+<span class="sd">        limit: int, default None</span>
 <span class="sd">            If method is specified, this is the maximum number of consecutive NaN values to</span>
 <span class="sd">            forward/backward fill. In other words, if there is a gap with more than this number of</span>
 <span class="sd">            consecutive NaNs, it will only be partially filled. If method is not specified,</span>
@@ -3338,6 +3537,105 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;ffill&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="n">inplace</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">)</span>
 
     <span class="n">pad</span> <span class="o">=</span> <span class="n">ffill</span>
+
+    <span class="c1"># TODO: add &#39;axis&#39;, &#39;inplace&#39;, &#39;downcast&#39;</span>
+    <span class="k">def</span> <span class="nf">interpolate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">:</span> <span class="n">FrameLike</span><span class="p">,</span>
+        <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+        <span class="n">limit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">limit_direction</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">limit_area</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FrameLike</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fill NaN values using an interpolation method.</span>
+
+<span class="sd">        .. note:: the current implementation of interpolate uses Spark&#39;s Window without</span>
+<span class="sd">            specifying partition specification. This leads to moveing all data into a</span>
+<span class="sd">            single partition in a single machine and could cause serious</span>
+<span class="sd">            performance degradation. Avoid this method with very large datasets.</span>
+
+<span class="sd">        .. versionadded:: 3.4.0</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        method: str, default &#39;linear&#39;</span>
+<span class="sd">            Interpolation technique to use. One of:</span>
+
+<span class="sd">            * &#39;linear&#39;: Ignore the index and treat the values as equally</span>
+<span class="sd">              spaced.</span>
+
+<span class="sd">        limit: int, optional</span>
+<span class="sd">            Maximum number of consecutive NaNs to fill. Must be greater than</span>
+<span class="sd">            0.</span>
+
+<span class="sd">        limit_direction: str, default None</span>
+<span class="sd">            Consecutive NaNs will be filled in this direction.</span>
+<span class="sd">            One of {{&#39;forward&#39;, &#39;backward&#39;, &#39;both&#39;}}.</span>
+
+<span class="sd">        limit_area: str, default None</span>
+<span class="sd">            If limit is specified, consecutive NaNs will be filled with this restriction. One of:</span>
+
+<span class="sd">            * None: No fill restriction.</span>
+<span class="sd">            * &#39;inside&#39;: Only fill NaNs surrounded by valid values (interpolate).</span>
+<span class="sd">            * &#39;outside&#39;: Only fill NaNs outside valid values (extrapolate).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Series or DataFrame or None</span>
+<span class="sd">            Returns the same object type as the caller, interpolated at</span>
+<span class="sd">            some or all NA values.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        fillna: Fill missing values using different methods.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Filling in NA via linear interpolation.</span>
+
+<span class="sd">        &gt;&gt;&gt; s = ps.Series([0, 1, np.nan, 3])</span>
+<span class="sd">        &gt;&gt;&gt; s</span>
+<span class="sd">        0    0.0</span>
+<span class="sd">        1    1.0</span>
+<span class="sd">        2    NaN</span>
+<span class="sd">        3    3.0</span>
+<span class="sd">        dtype: float64</span>
+<span class="sd">        &gt;&gt;&gt; s.interpolate()</span>
+<span class="sd">        0    0.0</span>
+<span class="sd">        1    1.0</span>
+<span class="sd">        2    2.0</span>
+<span class="sd">        3    3.0</span>
+<span class="sd">        dtype: float64</span>
+
+<span class="sd">        Fill the DataFrame forward (that is, going down) along each column</span>
+<span class="sd">        using linear interpolation.</span>
+
+<span class="sd">        Note how the last entry in column &#39;a&#39; is interpolated differently,</span>
+<span class="sd">        because there is no entry after it to use for interpolation.</span>
+<span class="sd">        Note how the first entry in column &#39;b&#39; remains NA, because there</span>
+<span class="sd">        is no entry before it to use for interpolation.</span>
+
+<span class="sd">        &gt;&gt;&gt; df = ps.DataFrame([(0.0, np.nan, -1.0, 1.0),</span>
+<span class="sd">        ...                    (np.nan, 2.0, np.nan, np.nan),</span>
+<span class="sd">        ...                    (2.0, 3.0, np.nan, 9.0),</span>
+<span class="sd">        ...                    (np.nan, 4.0, -4.0, 16.0)],</span>
+<span class="sd">        ...                   columns=list(&#39;abcd&#39;))</span>
+<span class="sd">        &gt;&gt;&gt; df</span>
+<span class="sd">             a    b    c     d</span>
+<span class="sd">        0  0.0  NaN -1.0   1.0</span>
+<span class="sd">        1  NaN  2.0  NaN   NaN</span>
+<span class="sd">        2  2.0  3.0  NaN   9.0</span>
+<span class="sd">        3  NaN  4.0 -4.0  16.0</span>
+<span class="sd">        &gt;&gt;&gt; df.interpolate(method=&#39;linear&#39;)</span>
+<span class="sd">             a    b    c     d</span>
+<span class="sd">        0  0.0  NaN -1.0   1.0</span>
+<span class="sd">        1  1.0  2.0 -2.0   5.0</span>
+<span class="sd">        2  2.0  3.0 -3.0   9.0</span>
+<span class="sd">        3  2.0  4.0 -4.0  16.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span>
+            <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span> <span class="n">limit_direction</span><span class="o">=</span><span class="n">limit_direction</span><span class="p">,</span> <span class="n">limit_area</span><span class="o">=</span><span class="n">limit_area</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">at</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AtIndexer</span><span class="p">:</span>

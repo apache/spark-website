@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>pyspark.resource.ResourceProfile &#8212; PySpark 3.3.2 documentation</title>
+    <title>pyspark.resource.ResourceProfile &#8212; PySpark 3.4.0 documentation</title>
     
   <link rel="stylesheet" href="../../_static/css/index.73d71520a4ca3b99cfee5594769eaaae.css">
 
@@ -64,11 +64,15 @@
         
         
         <li class="nav-item ">
+            <a class="nav-link" href="../../index.html">Overview</a>
+        </li>
+        
+        <li class="nav-item ">
             <a class="nav-link" href="../../getting_started/index.html">Getting Started</a>
         </li>
         
         <li class="nav-item ">
-            <a class="nav-link" href="../../user_guide/index.html">User Guide</a>
+            <a class="nav-link" href="../../user_guide/index.html">User Guides</a>
         </li>
         
         <li class="nav-item active">
@@ -80,7 +84,7 @@
         </li>
         
         <li class="nav-item ">
-            <a class="nav-link" href="../../migration_guide/index.html">Migration Guide</a>
+            <a class="nav-link" href="../../migration_guide/index.html">Migration Guides</a>
         </li>
         
         
@@ -117,6 +121,8 @@
         
         
         
+        
+        
           
             
                 <li class="">
@@ -144,7 +150,7 @@
           
             
                 <li class="">
-                    <a href="../pyspark.streaming.html">Spark Streaming</a>
+                    <a href="../pyspark.streaming.html">Spark Streaming (Legacy)</a>
                 </li>
             
           
@@ -163,6 +169,12 @@
             
                 <li class="active">
                     <a href="../pyspark.resource.html">Resource Management</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="../pyspark.errors.html">Errors</a>
                 </li>
             
           
@@ -212,6 +224,43 @@ stages. This is meant to be immutable so user cannot change it after building.</
 </div>
 <p class="rubric">Notes</p>
 <p>This API is evolving.</p>
+<p class="rubric">Examples</p>
+<p>Create Executor resource requests.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">executor_requests</span> <span class="o">=</span> <span class="p">(</span>
+<span class="gp">... </span>    <span class="n">ExecutorResourceRequests</span><span class="p">()</span>
+<span class="gp">... </span>    <span class="o">.</span><span class="n">cores</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="o">.</span><span class="n">memory</span><span class="p">(</span><span class="s2">&quot;6g&quot;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="o">.</span><span class="n">memoryOverhead</span><span class="p">(</span><span class="s2">&quot;1g&quot;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="o">.</span><span class="n">pysparkMemory</span><span class="p">(</span><span class="s2">&quot;2g&quot;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="o">.</span><span class="n">offheapMemory</span><span class="p">(</span><span class="s2">&quot;3g&quot;</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s2">&quot;gpu&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;testGpus&quot;</span><span class="p">,</span> <span class="s2">&quot;nvidia.com&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Create task resource requasts.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">task_requests</span> <span class="o">=</span> <span class="n">TaskResourceRequests</span><span class="p">()</span><span class="o">.</span><span class="n">cpus</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">resource</span><span class="p">(</span><span class="s2">&quot;gpu&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Create a resource profile.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">builder</span> <span class="o">=</span> <span class="n">ResourceProfileBuilder</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">resource_profile</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="n">executor_requests</span><span class="p">)</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="n">task_requests</span><span class="p">)</span><span class="o">.</span><span class="n">build</span>
+</pre></div>
+</div>
+<p>Create an RDD with the resource profile.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">rdd</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span><span class="o">.</span><span class="n">withResources</span><span class="p">(</span><span class="n">resource_profile</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rdd</span><span class="o">.</span><span class="n">getResourceProfile</span><span class="p">()</span>
+<span class="go">&lt;pyspark.resource.profile.ResourceProfile object ...&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rdd</span><span class="o">.</span><span class="n">getResourceProfile</span><span class="p">()</span><span class="o">.</span><span class="n">taskResources</span>
+<span class="go">{&#39;cpus&#39;: &lt;...TaskResourceRequest...&gt;, &#39;gpu&#39;: &lt;...TaskResourceRequest...&gt;}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rdd</span><span class="o">.</span><span class="n">getResourceProfile</span><span class="p">()</span><span class="o">.</span><span class="n">executorResources</span>
+<span class="go">{&#39;gpu&#39;: &lt;...ExecutorResourceRequest...&gt;,</span>
+<span class="go"> &#39;cores&#39;: &lt;...ExecutorResourceRequest...&gt;,</span>
+<span class="go"> &#39;offHeap&#39;: &lt;...ExecutorResourceRequest...&gt;,</span>
+<span class="go"> &#39;memoryOverhead&#39;: &lt;...ExecutorResourceRequest...&gt;,</span>
+<span class="go"> &#39;pyspark.memory&#39;: &lt;...ExecutorResourceRequest...&gt;,</span>
+<span class="go"> &#39;memory&#39;: &lt;...ExecutorResourceRequest...&gt;}</span>
+</pre></div>
+</div>
 <p class="rubric">Attributes</p>
 <table class="longtable table autosummary">
 <colgroup>
@@ -220,13 +269,25 @@ stages. This is meant to be immutable so user cannot change it after building.</
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">executorResources</span></code></p></td>
-<td><p></p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">id</span></code></p></td>
-<td><p></p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">taskResources</span></code></p></td>
-<td><p></p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+</p></td>
 </tr>
 </tbody>
 </table>

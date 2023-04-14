@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>pyspark.pandas.base &#8212; PySpark 3.3.2 documentation</title>
+    <title>pyspark.pandas.base &#8212; PySpark 3.4.0 documentation</title>
     
   <link rel="stylesheet" href="../../../_static/css/index.73d71520a4ca3b99cfee5594769eaaae.css">
 
@@ -62,11 +62,15 @@
         
         
         <li class="nav-item ">
+            <a class="nav-link" href="../../../index.html">Overview</a>
+        </li>
+        
+        <li class="nav-item ">
             <a class="nav-link" href="../../../getting_started/index.html">Getting Started</a>
         </li>
         
         <li class="nav-item ">
-            <a class="nav-link" href="../../../user_guide/index.html">User Guide</a>
+            <a class="nav-link" href="../../../user_guide/index.html">User Guides</a>
         </li>
         
         <li class="nav-item ">
@@ -78,7 +82,7 @@
         </li>
         
         <li class="nav-item ">
-            <a class="nav-link" href="../../../migration_guide/index.html">Migration Guide</a>
+            <a class="nav-link" href="../../../migration_guide/index.html">Migration Guides</a>
         </li>
         
         
@@ -109,6 +113,8 @@
     
   
     <ul class="nav bd-sidenav">
+        
+        
         
         
         
@@ -167,6 +173,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Base and utility classes for pandas-on-Spark objects.</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span><span class="p">,</span> <span class="n">partial</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
@@ -187,7 +194,6 @@
     <span class="n">NATURAL_ORDER_COLUMN_NAME</span><span class="p">,</span>
     <span class="n">SPARK_DEFAULT_INDEX_NAME</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pyspark.pandas.spark</span> <span class="kn">import</span> <span class="n">functions</span> <span class="k">as</span> <span class="n">SF</span>
 <span class="kn">from</span> <span class="nn">pyspark.pandas.spark.accessors</span> <span class="kn">import</span> <span class="n">SparkIndexOpsMethods</span>
 <span class="kn">from</span> <span class="nn">pyspark.pandas.typedef</span> <span class="kn">import</span> <span class="n">extension_dtypes</span>
 <span class="kn">from</span> <span class="nn">pyspark.pandas.utils</span> <span class="kn">import</span> <span class="p">(</span>
@@ -361,7 +367,7 @@
         <span class="kn">from</span> <span class="nn">pyspark.pandas.indexes.base</span> <span class="kn">import</span> <span class="n">Index</span>
         <span class="kn">from</span> <span class="nn">pyspark.pandas.series</span> <span class="kn">import</span> <span class="n">Series</span>
 
-        <span class="c1"># It is possible for the function `f` takes other arguments than Spark Column.</span>
+        <span class="c1"># It is possible for the function `f` to take other arguments than Spark Column.</span>
         <span class="c1"># To cover this case, explicitly check if the argument is pandas-on-Spark Series and</span>
         <span class="c1"># extract Spark Column. For other arguments, they are used as are.</span>
         <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">arg</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="p">(</span><span class="n">Series</span><span class="p">,</span> <span class="n">Index</span><span class="p">))]</span>
@@ -421,7 +427,7 @@
 <span class="k">class</span> <span class="nc">IndexOpsMixin</span><span class="p">(</span><span class="nb">object</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;common ops mixin to support a unified interface / docs for Series / Index</span>
 
-<span class="sd">    Assuming there are following attributes or properties and function.</span>
+<span class="sd">    Assuming there are following attributes or properties and functions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@property</span>
@@ -476,8 +482,9 @@
     <span class="k">def</span> <span class="fm">__truediv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SeriesOrIndex</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        __truediv__ has different behaviour between pandas and PySpark for several cases.</span>
-<span class="sd">        1. When divide np.inf by zero, PySpark returns null whereas pandas returns np.inf</span>
-<span class="sd">        2. When divide positive number by zero, PySpark returns null whereas pandas returns np.inf</span>
+<span class="sd">        1. When dividing np.inf by zero, PySpark returns null whereas pandas returns np.inf</span>
+<span class="sd">        2. When dividing a positive number by zero, PySpark returns null</span>
+<span class="sd">        whereas pandas returns np.inf</span>
 <span class="sd">        3. When divide -np.inf by zero, PySpark returns null whereas pandas returns -np.inf</span>
 <span class="sd">        4. When divide negative number by zero, PySpark returns null whereas pandas returns -np.inf</span>
 
@@ -510,8 +517,9 @@
     <span class="k">def</span> <span class="fm">__floordiv__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SeriesOrIndex</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        __floordiv__ has different behaviour between pandas and PySpark for several cases.</span>
-<span class="sd">        1. When divide np.inf by zero, PySpark returns null whereas pandas returns np.inf</span>
-<span class="sd">        2. When divide positive number by zero, PySpark returns null whereas pandas returns np.inf</span>
+<span class="sd">        1. When dividing np.inf by zero, PySpark returns null whereas pandas returns np.inf</span>
+<span class="sd">        2. When dividing a positive number by zero, PySpark returns null</span>
+<span class="sd">        whereas pandas returns np.inf</span>
 <span class="sd">        3. When divide -np.inf by zero, PySpark returns null whereas pandas returns -np.inf</span>
 <span class="sd">        4. When divide negative number by zero, PySpark returns null whereas pandas returns -np.inf</span>
 
@@ -641,7 +649,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">empty</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns true if the current object is empty. Otherwise, returns false.</span>
+<span class="sd">        Returns true if the current object is empty. Otherwise, it returns false.</span>
 
 <span class="sd">        &gt;&gt;&gt; ps.range(10).id.empty</span>
 <span class="sd">        False</span>
@@ -686,11 +694,13 @@
 
 <span class="sd">        .. note:: the current implementation of is_monotonic requires to shuffle</span>
 <span class="sd">            and aggregate multiple times to check the order locally and globally,</span>
-<span class="sd">            which is potentially expensive. In case of multi-index, all data are</span>
-<span class="sd">            transferred to single node which can easily cause out-of-memory error currently.</span>
+<span class="sd">            which is potentially expensive. In case of multi-index, all data is</span>
+<span class="sd">            transferred to a single node which can easily cause out-of-memory errors.</span>
 
 <span class="sd">        .. note:: Disable the Spark config `spark.sql.optimizer.nestedSchemaPruning.enabled`</span>
 <span class="sd">            for multi-index if you&#39;re using pandas-on-Spark &lt; 1.7.0 with PySpark 3.1.1.</span>
+
+<span class="sd">        .. deprecated:: 3.4.0</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -753,9 +763,88 @@
 <span class="sd">        &gt;&gt;&gt; midx.is_monotonic</span>
 <span class="sd">        False</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;is_monotonic is deprecated and will be removed in a future version. &quot;</span>
+            <span class="s2">&quot;Use is_monotonic_increasing instead.&quot;</span><span class="p">,</span>
+            <span class="ne">FutureWarning</span><span class="p">,</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_monotonic</span><span class="p">(</span><span class="s2">&quot;increasing&quot;</span><span class="p">)</span>
 
-    <span class="n">is_monotonic_increasing</span> <span class="o">=</span> <span class="n">is_monotonic</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_monotonic_increasing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return boolean if values in the object are monotonically increasing.</span>
+
+<span class="sd">        .. note:: the current implementation of is_monotonic_increasing requires to shuffle</span>
+<span class="sd">            and aggregate multiple times to check the order locally and globally,</span>
+<span class="sd">            which is potentially expensive. In case of multi-index, all data is</span>
+<span class="sd">            transferred to a single node which can easily cause out-of-memory errors.</span>
+
+<span class="sd">        .. note:: Disable the Spark config `spark.sql.optimizer.nestedSchemaPruning.enabled`</span>
+<span class="sd">            for multi-index if you&#39;re using pandas-on-Spark &lt; 1.7.0 with PySpark 3.1.1.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        is_monotonic : bool</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; ser = ps.Series([&#39;1/1/2018&#39;, &#39;3/1/2018&#39;, &#39;4/1/2018&#39;])</span>
+<span class="sd">        &gt;&gt;&gt; ser.is_monotonic_increasing</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &gt;&gt;&gt; df = ps.DataFrame({&#39;dates&#39;: [None, &#39;1/1/2018&#39;, &#39;2/1/2018&#39;, &#39;3/1/2018&#39;]})</span>
+<span class="sd">        &gt;&gt;&gt; df.dates.is_monotonic_increasing</span>
+<span class="sd">        False</span>
+
+<span class="sd">        &gt;&gt;&gt; df.index.is_monotonic_increasing</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &gt;&gt;&gt; ser = ps.Series([1])</span>
+<span class="sd">        &gt;&gt;&gt; ser.is_monotonic_increasing</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &gt;&gt;&gt; ser = ps.Series([])</span>
+<span class="sd">        &gt;&gt;&gt; ser.is_monotonic_increasing</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &gt;&gt;&gt; ser.rename(&quot;a&quot;).to_frame().set_index(&quot;a&quot;).index.is_monotonic_increasing</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &gt;&gt;&gt; ser = ps.Series([5, 4, 3, 2, 1], index=[1, 2, 3, 4, 5])</span>
+<span class="sd">        &gt;&gt;&gt; ser.is_monotonic_increasing</span>
+<span class="sd">        False</span>
+
+<span class="sd">        &gt;&gt;&gt; ser.index.is_monotonic_increasing</span>
+<span class="sd">        True</span>
+
+<span class="sd">        Support for MultiIndex</span>
+
+<span class="sd">        &gt;&gt;&gt; midx = ps.MultiIndex.from_tuples(</span>
+<span class="sd">        ... [(&#39;x&#39;, &#39;a&#39;), (&#39;x&#39;, &#39;b&#39;), (&#39;y&#39;, &#39;c&#39;), (&#39;y&#39;, &#39;d&#39;), (&#39;z&#39;, &#39;e&#39;)])</span>
+<span class="sd">        &gt;&gt;&gt; midx  # doctest: +SKIP</span>
+<span class="sd">        MultiIndex([(&#39;x&#39;, &#39;a&#39;),</span>
+<span class="sd">                    (&#39;x&#39;, &#39;b&#39;),</span>
+<span class="sd">                    (&#39;y&#39;, &#39;c&#39;),</span>
+<span class="sd">                    (&#39;y&#39;, &#39;d&#39;),</span>
+<span class="sd">                    (&#39;z&#39;, &#39;e&#39;)],</span>
+<span class="sd">                   )</span>
+<span class="sd">        &gt;&gt;&gt; midx.is_monotonic_increasing</span>
+<span class="sd">        True</span>
+
+<span class="sd">        &gt;&gt;&gt; midx = ps.MultiIndex.from_tuples(</span>
+<span class="sd">        ... [(&#39;z&#39;, &#39;a&#39;), (&#39;z&#39;, &#39;b&#39;), (&#39;y&#39;, &#39;c&#39;), (&#39;y&#39;, &#39;d&#39;), (&#39;x&#39;, &#39;e&#39;)])</span>
+<span class="sd">        &gt;&gt;&gt; midx  # doctest: +SKIP</span>
+<span class="sd">        MultiIndex([(&#39;z&#39;, &#39;a&#39;),</span>
+<span class="sd">                    (&#39;z&#39;, &#39;b&#39;),</span>
+<span class="sd">                    (&#39;y&#39;, &#39;c&#39;),</span>
+<span class="sd">                    (&#39;y&#39;, &#39;d&#39;),</span>
+<span class="sd">                    (&#39;x&#39;, &#39;e&#39;)],</span>
+<span class="sd">                   )</span>
+<span class="sd">        &gt;&gt;&gt; midx.is_monotonic_increasing</span>
+<span class="sd">        False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_monotonic</span><span class="p">(</span><span class="s2">&quot;increasing&quot;</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_monotonic_decreasing</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -764,8 +853,8 @@
 
 <span class="sd">        .. note:: the current implementation of is_monotonic_decreasing requires to shuffle</span>
 <span class="sd">            and aggregate multiple times to check the order locally and globally,</span>
-<span class="sd">            which is potentially expensive. In case of multi-index, all data are transferred</span>
-<span class="sd">            to single node which can easily cause out-of-memory error currently.</span>
+<span class="sd">            which is potentially expensive. In case of multi-index, all data is transferred</span>
+<span class="sd">            to a single node which can easily cause out-of-memory errors.</span>
 
 <span class="sd">        .. note:: Disable the Spark config `spark.sql.optimizer.nestedSchemaPruning.enabled`</span>
 <span class="sd">            for multi-index if you&#39;re using pandas-on-Spark &lt; 1.7.0 with PySpark 3.1.1.</span>
@@ -873,14 +962,14 @@
             <span class="o">.</span><span class="n">agg</span><span class="p">(</span>
                 <span class="n">F</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;__origin&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;__partition_min&quot;</span><span class="p">),</span>
                 <span class="n">F</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;__origin&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;__partition_max&quot;</span><span class="p">),</span>
-                <span class="n">F</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">coalesce</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;__comparison_within_partition&quot;</span><span class="p">),</span> <span class="n">SF</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">True</span><span class="p">)))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
+                <span class="n">F</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">coalesce</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;__comparison_within_partition&quot;</span><span class="p">),</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">True</span><span class="p">)))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span>
                     <span class="s2">&quot;__comparison_within_partition&quot;</span>
                 <span class="p">),</span>
             <span class="p">)</span>
         <span class="p">)</span>
 
         <span class="c1"># Now we&#39;re windowing the aggregation results without partition specification.</span>
-        <span class="c1"># The number of rows here will be as the same of partitions, which is expected</span>
+        <span class="c1"># The number of rows here will be the same as partitions, which is expected</span>
         <span class="c1"># to be small.</span>
         <span class="n">window</span> <span class="o">=</span> <span class="n">Window</span><span class="o">.</span><span class="n">orderBy</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;__partition_id&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">rowsBetween</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">order</span> <span class="o">==</span> <span class="s2">&quot;increasing&quot;</span><span class="p">:</span>
@@ -898,8 +987,8 @@
         <span class="p">)</span>
 
         <span class="n">ret</span> <span class="o">=</span> <span class="n">sdf</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
-            <span class="n">F</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">coalesce</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;__comparison_between_partitions&quot;</span><span class="p">),</span> <span class="n">SF</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">True</span><span class="p">)))</span>
-            <span class="o">&amp;</span> <span class="n">F</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">coalesce</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;__comparison_within_partition&quot;</span><span class="p">),</span> <span class="n">SF</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">True</span><span class="p">)))</span>
+            <span class="n">F</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">coalesce</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;__comparison_between_partitions&quot;</span><span class="p">),</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">True</span><span class="p">)))</span>
+            <span class="o">&amp;</span> <span class="n">F</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">coalesce</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;__comparison_within_partition&quot;</span><span class="p">),</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">True</span><span class="p">)))</span>
         <span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">ret</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
@@ -1016,8 +1105,8 @@
 <span class="sd">        5    False</span>
 <span class="sd">        Name: animal, dtype: bool</span>
 
-<span class="sd">        &gt;&gt;&gt; s.rename(&quot;a&quot;).to_frame().set_index(&quot;a&quot;).index.isin([&#39;lama&#39;])</span>
-<span class="sd">        Index([True, False, True, False, True, False], dtype=&#39;object&#39;, name=&#39;a&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; s.rename(&quot;a&quot;).to_frame().set_index(&quot;a&quot;).index.isin([&#39;lama&#39;])  # doctest: +SKIP</span>
+<span class="sd">        Index([True, False, True, False, True, False], dtype=&#39;bool&#39;, name=&#39;a&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">is_list_like</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
@@ -1029,7 +1118,7 @@
             <span class="n">cast</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="k">else</span> <span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
         <span class="p">)</span>
 
-        <span class="n">other</span> <span class="o">=</span> <span class="p">[</span><span class="n">SF</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+        <span class="n">other</span> <span class="o">=</span> <span class="p">[</span><span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
         <span class="n">scol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">column</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
         <span class="n">field</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_internal</span><span class="o">.</span><span class="n">data_fields</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span>
             <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;bool&quot;</span><span class="p">),</span> <span class="n">spark_type</span><span class="o">=</span><span class="n">BooleanType</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span>
@@ -1041,7 +1130,7 @@
 <span class="sd">        Detect existing (non-missing) values.</span>
 
 <span class="sd">        Return a boolean same-sized object indicating if the values are NA.</span>
-<span class="sd">        NA values, such as None or numpy.NaN, gets mapped to True values.</span>
+<span class="sd">        NA values, such as None or numpy.NaN, get mapped to True values.</span>
 <span class="sd">        Everything else gets mapped to False values. Characters such as empty strings &#39;&#39; or</span>
 <span class="sd">        numpy.inf are not considered NA values</span>
 <span class="sd">        (unless you set pandas.options.mode.use_inf_as_na = True).</span>
@@ -1060,8 +1149,8 @@
 <span class="sd">        2     True</span>
 <span class="sd">        dtype: bool</span>
 
-<span class="sd">        &gt;&gt;&gt; ser.rename(&quot;a&quot;).to_frame().set_index(&quot;a&quot;).index.isna()</span>
-<span class="sd">        Index([False, False, True], dtype=&#39;object&#39;, name=&#39;a&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; ser.rename(&quot;a&quot;).to_frame().set_index(&quot;a&quot;).index.isna()  # doctest: +SKIP</span>
+<span class="sd">        Index([False, False, True], dtype=&#39;bool&#39;, name=&#39;a&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">pyspark.pandas.indexes</span> <span class="kn">import</span> <span class="n">MultiIndex</span>
 
@@ -1103,8 +1192,8 @@
 <span class="sd">        2    False</span>
 <span class="sd">        dtype: bool</span>
 
-<span class="sd">        &gt;&gt;&gt; ser.rename(&quot;a&quot;).to_frame().set_index(&quot;a&quot;).index.notna()</span>
-<span class="sd">        Index([True, True, False], dtype=&#39;object&#39;, name=&#39;a&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; ser.rename(&quot;a&quot;).to_frame().set_index(&quot;a&quot;).index.notna()  # doctest: +SKIP</span>
+<span class="sd">        Index([True, True, False], dtype=&#39;bool&#39;, name=&#39;a&#39;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">pyspark.pandas.indexes</span> <span class="kn">import</span> <span class="n">MultiIndex</span>
 
@@ -1131,9 +1220,11 @@
 <span class="sd">              original column labels.</span>
 
 <span class="sd">        skipna : boolean, default True</span>
-<span class="sd">            Exclude NA/null values. If an entire row/column is NA and skipna is True,</span>
+<span class="sd">            Exclude NA values, such as None or numpy.NaN.</span>
+<span class="sd">            If an entire row/column is NA values and `skipna` is True,</span>
 <span class="sd">            then the result will be True, as for an empty row/column.</span>
-<span class="sd">            If skipna is False, then NA are treated as True, because these are not equal to zero.</span>
+<span class="sd">            If `skipna` is False, numpy.NaNs are treated as True because these are</span>
+<span class="sd">            not equal to zero, Nones are treated as False.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
@@ -1189,11 +1280,11 @@
         <span class="c1"># We use min as its alternative as below.</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">data_type</span><span class="p">,</span> <span class="n">NumericType</span><span class="p">)</span> <span class="ow">or</span> <span class="n">skipna</span><span class="p">:</span>
             <span class="c1"># np.nan takes no effect to the result; None takes no effect if `skipna`</span>
-            <span class="n">ret</span> <span class="o">=</span> <span class="n">sdf</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">coalesce</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;boolean&quot;</span><span class="p">),</span> <span class="n">SF</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">True</span><span class="p">))))</span><span class="o">.</span><span class="n">collect</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">sdf</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">coalesce</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;boolean&quot;</span><span class="p">),</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">True</span><span class="p">))))</span><span class="o">.</span><span class="n">collect</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Take None as False when not `skipna`</span>
             <span class="n">ret</span> <span class="o">=</span> <span class="n">sdf</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
-                <span class="n">F</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">isNull</span><span class="p">(),</span> <span class="n">SF</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">False</span><span class="p">))</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;boolean&quot;</span><span class="p">)))</span>
+                <span class="n">F</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">isNull</span><span class="p">(),</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">False</span><span class="p">))</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;boolean&quot;</span><span class="p">)))</span>
             <span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">ret</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1206,7 +1297,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return whether any element is True.</span>
 
-<span class="sd">        Returns False unless there at least one element within a series that is</span>
+<span class="sd">        Returns False unless there is at least one element within a series that is</span>
 <span class="sd">        True or equivalent (e.g. non-zero or non-empty).</span>
 
 <span class="sd">        Parameters</span>
@@ -1258,7 +1349,7 @@
         <span class="c1"># any and every was added as of Spark 3.0</span>
         <span class="c1"># ret = sdf.select(F.expr(&quot;any(CAST(`%s` AS BOOLEAN))&quot; % sdf.columns[0])).collect()[0][0]</span>
         <span class="c1"># Here we use max as its alternative:</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="n">sdf</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">coalesce</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;boolean&quot;</span><span class="p">),</span> <span class="n">SF</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">False</span><span class="p">))))</span><span class="o">.</span><span class="n">collect</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">sdf</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">coalesce</span><span class="p">(</span><span class="n">col</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;boolean&quot;</span><span class="p">),</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">False</span><span class="p">))))</span><span class="o">.</span><span class="n">collect</span><span class="p">()[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">ret</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1272,9 +1363,9 @@
 <span class="sd">        Shift Series/Index by desired number of periods.</span>
 
 <span class="sd">        .. note:: the current implementation of shift uses Spark&#39;s Window without</span>
-<span class="sd">            specifying partition specification. This leads to move all data into</span>
-<span class="sd">            single partition in single machine and could cause serious</span>
-<span class="sd">            performance degradation. Avoid this method against very large dataset.</span>
+<span class="sd">            specifying partition specification. This leads to moveing all data into</span>
+<span class="sd">            a single partition in a single machine and could cause serious</span>
+<span class="sd">            performance degradation. Avoid this method with very large datasets.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1325,6 +1416,9 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">IndexOpsLike</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">periods</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;periods should be an int; however, got [</span><span class="si">%s</span><span class="s2">]&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">periods</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">periods</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
         <span class="n">col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">column</span>
         <span class="n">window</span> <span class="o">=</span> <span class="p">(</span>
@@ -1512,7 +1606,7 @@
 
         <span class="k">if</span> <span class="n">normalize</span><span class="p">:</span>
             <span class="n">drop_sum</span> <span class="o">=</span> <span class="n">sdf_dropna</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
-            <span class="n">sdf</span> <span class="o">=</span> <span class="n">sdf</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="n">SF</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">drop_sum</span><span class="p">))</span>
+            <span class="n">sdf</span> <span class="o">=</span> <span class="n">sdf</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;count&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">drop_sum</span><span class="p">))</span>
 
         <span class="n">internal</span> <span class="o">=</span> <span class="n">InternalFrame</span><span class="p">(</span>
             <span class="n">spark_frame</span><span class="o">=</span><span class="n">sdf</span><span class="p">,</span>
@@ -1684,6 +1778,8 @@
 <span class="sd">            Value to mark &quot;not found&quot;. If None, will not drop the NaN</span>
 <span class="sd">            from the uniques of the values.</span>
 
+<span class="sd">            .. deprecated:: 3.4.0</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        codes : Series or Index</span>
@@ -1750,12 +1846,12 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">CategoricalDtype</span><span class="p">):</span>
             <span class="n">categories</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">categories</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">categories</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">scol</span> <span class="o">=</span> <span class="n">SF</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+                <span class="n">scol</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">kvs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
                     <span class="n">chain</span><span class="p">(</span>
                         <span class="o">*</span><span class="p">[</span>
-                            <span class="p">(</span><span class="n">SF</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">code</span><span class="p">),</span> <span class="n">SF</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">category</span><span class="p">))</span>
+                            <span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">code</span><span class="p">),</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">category</span><span class="p">))</span>
                             <span class="k">for</span> <span class="n">code</span><span class="p">,</span> <span class="n">category</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">categories</span><span class="p">)</span>
                         <span class="p">]</span>
                     <span class="p">)</span>
@@ -1803,14 +1899,14 @@
             <span class="n">code</span> <span class="o">+=</span> <span class="mi">1</span>
 
         <span class="n">kvs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-            <span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="p">([(</span><span class="n">SF</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">unique</span><span class="p">),</span> <span class="n">SF</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">code</span><span class="p">))</span> <span class="k">for</span> <span class="n">unique</span><span class="p">,</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">unique_to_code</span><span class="o">.</span><span class="n">items</span><span class="p">()]))</span>
+            <span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="p">([(</span><span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">unique</span><span class="p">),</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">code</span><span class="p">))</span> <span class="k">for</span> <span class="n">unique</span><span class="p">,</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">unique_to_code</span><span class="o">.</span><span class="n">items</span><span class="p">()]))</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kvs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># uniques are all missing values</span>
-            <span class="n">new_scol</span> <span class="o">=</span> <span class="n">SF</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">na_sentinel_code</span><span class="p">)</span>
+            <span class="n">new_scol</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">na_sentinel_code</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">map_scol</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">create_map</span><span class="p">(</span><span class="o">*</span><span class="n">kvs</span><span class="p">)</span>
-            <span class="n">null_scol</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">column</span><span class="p">,</span> <span class="n">SF</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">na_sentinel_code</span><span class="p">))</span>
+            <span class="n">null_scol</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">when</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">column</span><span class="p">,</span> <span class="n">F</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">na_sentinel_code</span><span class="p">))</span>
             <span class="n">new_scol</span> <span class="o">=</span> <span class="n">null_scol</span><span class="o">.</span><span class="n">otherwise</span><span class="p">(</span><span class="n">map_scol</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">column</span><span class="p">])</span>
 
         <span class="n">codes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_with_new_scol</span><span class="p">(</span><span class="n">new_scol</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_internal</span><span class="o">.</span><span class="n">data_spark_column_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>

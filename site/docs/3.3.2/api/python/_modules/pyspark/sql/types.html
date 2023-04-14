@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>pyspark.sql.types &#8212; PySpark 3.3.2 documentation</title>
+    <title>pyspark.sql.types &#8212; PySpark 3.4.0 documentation</title>
     
   <link rel="stylesheet" href="../../../_static/css/index.73d71520a4ca3b99cfee5594769eaaae.css">
 
@@ -62,11 +62,15 @@
         
         
         <li class="nav-item ">
+            <a class="nav-link" href="../../../index.html">Overview</a>
+        </li>
+        
+        <li class="nav-item ">
             <a class="nav-link" href="../../../getting_started/index.html">Getting Started</a>
         </li>
         
         <li class="nav-item ">
-            <a class="nav-link" href="../../../user_guide/index.html">User Guide</a>
+            <a class="nav-link" href="../../../user_guide/index.html">User Guides</a>
         </li>
         
         <li class="nav-item ">
@@ -78,7 +82,7 @@
         </li>
         
         <li class="nav-item ">
-            <a class="nav-link" href="../../../migration_guide/index.html">Migration Guide</a>
+            <a class="nav-link" href="../../../migration_guide/index.html">Migration Guides</a>
         </li>
         
         
@@ -109,6 +113,8 @@
     
   
     <ul class="nav bd-sidenav">
+        
+        
         
         
         
@@ -176,6 +182,7 @@
 <span class="kn">from</span> <span class="nn">array</span> <span class="kn">import</span> <span class="n">array</span>
 <span class="kn">import</span> <span class="nn">ctypes</span>
 <span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">cast</span><span class="p">,</span>
     <span class="n">overload</span><span class="p">,</span>
@@ -190,12 +197,17 @@
     <span class="n">Tuple</span><span class="p">,</span>
     <span class="n">Type</span><span class="p">,</span>
     <span class="n">TypeVar</span><span class="p">,</span>
+    <span class="n">TYPE_CHECKING</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">py4j.protocol</span> <span class="kn">import</span> <span class="n">register_input_converter</span>
-<span class="kn">from</span> <span class="nn">py4j.java_gateway</span> <span class="kn">import</span> <span class="n">GatewayClient</span><span class="p">,</span> <span class="n">JavaClass</span><span class="p">,</span> <span class="n">JavaObject</span>
+<span class="kn">from</span> <span class="nn">py4j.java_gateway</span> <span class="kn">import</span> <span class="n">GatewayClient</span><span class="p">,</span> <span class="n">JavaClass</span><span class="p">,</span> <span class="n">JavaGateway</span><span class="p">,</span> <span class="n">JavaObject</span>
 
 <span class="kn">from</span> <span class="nn">pyspark.serializers</span> <span class="kn">import</span> <span class="n">CloudPickleSerializer</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.utils</span> <span class="kn">import</span> <span class="n">has_numpy</span>
+
+<span class="k">if</span> <span class="n">has_numpy</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
 <span class="n">U</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;U&quot;</span><span class="p">)</span>
@@ -203,7 +215,9 @@
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;DataType&quot;</span><span class="p">,</span>
     <span class="s2">&quot;NullType&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CharType&quot;</span><span class="p">,</span>
     <span class="s2">&quot;StringType&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;VarcharType&quot;</span><span class="p">,</span>
     <span class="s2">&quot;BinaryType&quot;</span><span class="p">,</span>
     <span class="s2">&quot;BooleanType&quot;</span><span class="p">,</span>
     <span class="s2">&quot;DateType&quot;</span><span class="p">,</span>
@@ -222,6 +236,10 @@
     <span class="s2">&quot;StructField&quot;</span><span class="p">,</span>
     <span class="s2">&quot;StructType&quot;</span><span class="p">,</span>
 <span class="p">]</span>
+
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
 <div class="viewcode-block" id="DataType"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.types.DataType.html#pyspark.sql.DataType">[docs]</a><span class="k">class</span> <span class="nc">DataType</span><span class="p">:</span>
@@ -324,6 +342,50 @@
     <span class="k">pass</span></div>
 
 
+<div class="viewcode-block" id="CharType"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.types.CharType.html#pyspark.sql.CharType">[docs]</a><span class="k">class</span> <span class="nc">CharType</span><span class="p">(</span><span class="n">AtomicType</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Char data type</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    length : int</span>
+<span class="sd">        the length limitation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">length</span>
+
+<div class="viewcode-block" id="CharType.simpleString"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.types.CharType.html#pyspark.sql.CharType.simpleString">[docs]</a>    <span class="k">def</span> <span class="nf">simpleString</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;char(</span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CharType.jsonValue"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.types.CharType.html#pyspark.sql.CharType.jsonValue">[docs]</a>    <span class="k">def</span> <span class="nf">jsonValue</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;char(</span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;CharType(</span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VarcharType"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.types.VarcharType.html#pyspark.sql.VarcharType">[docs]</a><span class="k">class</span> <span class="nc">VarcharType</span><span class="p">(</span><span class="n">AtomicType</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Varchar data type</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    length : int</span>
+<span class="sd">        the length limitation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">length</span>
+
+<div class="viewcode-block" id="VarcharType.simpleString"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.types.VarcharType.html#pyspark.sql.VarcharType.simpleString">[docs]</a>    <span class="k">def</span> <span class="nf">simpleString</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;varchar(</span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VarcharType.jsonValue"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.types.VarcharType.html#pyspark.sql.VarcharType.jsonValue">[docs]</a>    <span class="k">def</span> <span class="nf">jsonValue</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;varchar(</span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;VarcharType(</span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="BinaryType"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.types.BinaryType.html#pyspark.sql.BinaryType">[docs]</a><span class="k">class</span> <span class="nc">BinaryType</span><span class="p">(</span><span class="n">AtomicType</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">DataTypeSingleton</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Binary (byte array) data type.&quot;&quot;&quot;</span>
 
@@ -372,27 +434,27 @@
             <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">ts</span> <span class="o">//</span> <span class="mi">1000000</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">microsecond</span><span class="o">=</span><span class="n">ts</span> <span class="o">%</span> <span class="mi">1000000</span><span class="p">)</span></div></div>
 
 
-<span class="k">class</span> <span class="nc">TimestampNTZType</span><span class="p">(</span><span class="n">AtomicType</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">DataTypeSingleton</span><span class="p">):</span>
+<div class="viewcode-block" id="TimestampNTZType"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.types.TimestampNTZType.html#pyspark.sql.TimestampNTZType">[docs]</a><span class="k">class</span> <span class="nc">TimestampNTZType</span><span class="p">(</span><span class="n">AtomicType</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">DataTypeSingleton</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Timestamp (datetime.datetime) data type without timezone information.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">needConversion</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">True</span>
+<div class="viewcode-block" id="TimestampNTZType.needConversion"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.types.TimestampNTZType.html#pyspark.sql.TimestampNTZType.needConversion">[docs]</a>    <span class="k">def</span> <span class="nf">needConversion</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
 
-    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="TimestampNTZType.typeName"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.types.TimestampNTZType.html#pyspark.sql.TimestampNTZType.typeName">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">typeName</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;timestamp_ntz&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;timestamp_ntz&quot;</span></div>
 
-    <span class="k">def</span> <span class="nf">toInternal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<div class="viewcode-block" id="TimestampNTZType.toInternal"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.types.TimestampNTZType.html#pyspark.sql.TimestampNTZType.toInternal">[docs]</a>    <span class="k">def</span> <span class="nf">toInternal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">dt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">seconds</span> <span class="o">=</span> <span class="n">calendar</span><span class="o">.</span><span class="n">timegm</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">timetuple</span><span class="p">())</span>
-            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000000</span> <span class="o">+</span> <span class="n">dt</span><span class="o">.</span><span class="n">microsecond</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span> <span class="o">*</span> <span class="mi">1000000</span> <span class="o">+</span> <span class="n">dt</span><span class="o">.</span><span class="n">microsecond</span></div>
 
-    <span class="k">def</span> <span class="nf">fromInternal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ts</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">:</span>
+<div class="viewcode-block" id="TimestampNTZType.fromInternal"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.types.TimestampNTZType.html#pyspark.sql.TimestampNTZType.fromInternal">[docs]</a>    <span class="k">def</span> <span class="nf">fromInternal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ts</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">ts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># using int to avoid precision loss in float</span>
             <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span><span class="n">ts</span> <span class="o">//</span> <span class="mi">1000000</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
                 <span class="n">microsecond</span><span class="o">=</span><span class="n">ts</span> <span class="o">%</span> <span class="mi">1000000</span>
-            <span class="p">)</span>
+            <span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="DecimalType"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.types.DecimalType.html#pyspark.sql.DecimalType">[docs]</a><span class="k">class</span> <span class="nc">DecimalType</span><span class="p">(</span><span class="n">FractionalType</span><span class="p">):</span>
@@ -545,6 +607,14 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from pyspark.sql.types import ArrayType, StringType, StructField, StructType</span>
+
+<span class="sd">    The below example demonstrates how to create class:`ArrayType`:</span>
+
+<span class="sd">    &gt;&gt;&gt; arr = ArrayType(StringType())</span>
+
+<span class="sd">    The array can contain null (None) values by default:</span>
+
 <span class="sd">    &gt;&gt;&gt; ArrayType(StringType()) == ArrayType(StringType(), True)</span>
 <span class="sd">    True</span>
 <span class="sd">    &gt;&gt;&gt; ArrayType(StringType(), False) == ArrayType(StringType())</span>
@@ -608,6 +678,14 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from pyspark.sql.types import IntegerType, FloatType, MapType, StringType</span>
+
+<span class="sd">    The below example demonstrates how to create class:`MapType`:</span>
+
+<span class="sd">    &gt;&gt;&gt; map_type = MapType(StringType(), IntegerType())</span>
+
+<span class="sd">    The values of the map can contain null (``None``) values by default:</span>
+
 <span class="sd">    &gt;&gt;&gt; (MapType(StringType(), IntegerType())</span>
 <span class="sd">    ...        == MapType(StringType(), IntegerType(), True))</span>
 <span class="sd">    True</span>
@@ -685,6 +763,7 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from pyspark.sql.types import StringType, StructField</span>
 <span class="sd">    &gt;&gt;&gt; (StructField(&quot;f1&quot;, StringType(), True)</span>
 <span class="sd">    ...      == StructField(&quot;f1&quot;, StringType(), True))</span>
 <span class="sd">    True</span>
@@ -758,6 +837,7 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from pyspark.sql.types import *</span>
 <span class="sd">    &gt;&gt;&gt; struct1 = StructType([StructField(&quot;f1&quot;, StringType(), True)])</span>
 <span class="sd">    &gt;&gt;&gt; struct1[&quot;f1&quot;]</span>
 <span class="sd">    StructField(&#39;f1&#39;, StringType(), True)</span>
@@ -768,11 +848,41 @@
 <span class="sd">    &gt;&gt;&gt; struct2 = StructType([StructField(&quot;f1&quot;, StringType(), True)])</span>
 <span class="sd">    &gt;&gt;&gt; struct1 == struct2</span>
 <span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; struct1 = StructType([StructField(&quot;f1&quot;, CharType(10), True)])</span>
+<span class="sd">    &gt;&gt;&gt; struct2 = StructType([StructField(&quot;f1&quot;, CharType(10), True)])</span>
+<span class="sd">    &gt;&gt;&gt; struct1 == struct2</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; struct1 = StructType([StructField(&quot;f1&quot;, VarcharType(10), True)])</span>
+<span class="sd">    &gt;&gt;&gt; struct2 = StructType([StructField(&quot;f1&quot;, VarcharType(10), True)])</span>
+<span class="sd">    &gt;&gt;&gt; struct1 == struct2</span>
+<span class="sd">    True</span>
 <span class="sd">    &gt;&gt;&gt; struct1 = StructType([StructField(&quot;f1&quot;, StringType(), True)])</span>
 <span class="sd">    &gt;&gt;&gt; struct2 = StructType([StructField(&quot;f1&quot;, StringType(), True),</span>
 <span class="sd">    ...     StructField(&quot;f2&quot;, IntegerType(), False)])</span>
 <span class="sd">    &gt;&gt;&gt; struct1 == struct2</span>
 <span class="sd">    False</span>
+
+<span class="sd">    The below example demonstrates how to create a DataFrame based on a struct created</span>
+<span class="sd">    using class:`StructType` and class:`StructField`:</span>
+
+<span class="sd">    &gt;&gt;&gt; data = [(&quot;Alice&quot;, [&quot;Java&quot;, &quot;Scala&quot;]), (&quot;Bob&quot;, [&quot;Python&quot;, &quot;Scala&quot;])]</span>
+<span class="sd">    &gt;&gt;&gt; schema = StructType([</span>
+<span class="sd">    ...     StructField(&quot;name&quot;, StringType()),</span>
+<span class="sd">    ...     StructField(&quot;languagesSkills&quot;, ArrayType(StringType())),</span>
+<span class="sd">    ... ])</span>
+<span class="sd">    &gt;&gt;&gt; df = spark.createDataFrame(data=data, schema=schema)</span>
+<span class="sd">    &gt;&gt;&gt; df.printSchema()</span>
+<span class="sd">    root</span>
+<span class="sd">     |-- name: string (nullable = true)</span>
+<span class="sd">     |-- languagesSkills: array (nullable = true)</span>
+<span class="sd">     |    |-- element: string (containsNull = true)</span>
+<span class="sd">    &gt;&gt;&gt; df.show()</span>
+<span class="sd">    +-----+---------------+</span>
+<span class="sd">    | name|languagesSkills|</span>
+<span class="sd">    +-----+---------------+</span>
+<span class="sd">    |Alice|  [Java, Scala]|</span>
+<span class="sd">    |  Bob|[Python, Scala]|</span>
+<span class="sd">    +-----+---------------+</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">StructField</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -836,8 +946,9 @@
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.sql.types import IntegerType, StringType, StructField, StructType</span>
 <span class="sd">        &gt;&gt;&gt; struct1 = StructType().add(&quot;f1&quot;, StringType(), True).add(&quot;f2&quot;, StringType(), True, None)</span>
-<span class="sd">        &gt;&gt;&gt; struct2 = StructType([StructField(&quot;f1&quot;, StringType(), True), \\</span>
+<span class="sd">        &gt;&gt;&gt; struct2 = StructType([StructField(&quot;f1&quot;, StringType(), True),</span>
 <span class="sd">        ...     StructField(&quot;f2&quot;, StringType(), True, None)])</span>
 <span class="sd">        &gt;&gt;&gt; struct1 == struct2</span>
 <span class="sd">        True</span>
@@ -904,6 +1015,97 @@
 
 <div class="viewcode-block" id="StructType.fromJson"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.types.StructType.html#pyspark.sql.StructType.fromJson">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">fromJson</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">json</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;StructType&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructs :class:`StructType` from a schema defined in JSON format.</span>
+
+<span class="sd">        Below is a JSON schema it must adhere to::</span>
+
+<span class="sd">            {</span>
+<span class="sd">              &quot;title&quot;:&quot;StructType&quot;,</span>
+<span class="sd">              &quot;description&quot;:&quot;Schema of StructType in json format&quot;,</span>
+<span class="sd">              &quot;type&quot;:&quot;object&quot;,</span>
+<span class="sd">              &quot;properties&quot;:{</span>
+<span class="sd">                 &quot;fields&quot;:{</span>
+<span class="sd">                    &quot;description&quot;:&quot;Array of struct fields&quot;,</span>
+<span class="sd">                    &quot;type&quot;:&quot;array&quot;,</span>
+<span class="sd">                    &quot;items&quot;:{</span>
+<span class="sd">                        &quot;type&quot;:&quot;object&quot;,</span>
+<span class="sd">                        &quot;properties&quot;:{</span>
+<span class="sd">                           &quot;name&quot;:{</span>
+<span class="sd">                              &quot;description&quot;:&quot;Name of the field&quot;,</span>
+<span class="sd">                              &quot;type&quot;:&quot;string&quot;</span>
+<span class="sd">                           },</span>
+<span class="sd">                           &quot;type&quot;:{</span>
+<span class="sd">                              &quot;description&quot;: &quot;Type of the field. Can either be</span>
+<span class="sd">                                              another nested StructType or primitive type&quot;,</span>
+<span class="sd">                              &quot;type&quot;:&quot;object/string&quot;</span>
+<span class="sd">                           },</span>
+<span class="sd">                           &quot;nullable&quot;:{</span>
+<span class="sd">                              &quot;description&quot;:&quot;If nulls are allowed&quot;,</span>
+<span class="sd">                              &quot;type&quot;:&quot;boolean&quot;</span>
+<span class="sd">                           },</span>
+<span class="sd">                           &quot;metadata&quot;:{</span>
+<span class="sd">                              &quot;description&quot;:&quot;Additional metadata to supply&quot;,</span>
+<span class="sd">                              &quot;type&quot;:&quot;object&quot;</span>
+<span class="sd">                           },</span>
+<span class="sd">                           &quot;required&quot;:[</span>
+<span class="sd">                              &quot;name&quot;,</span>
+<span class="sd">                              &quot;type&quot;,</span>
+<span class="sd">                              &quot;nullable&quot;,</span>
+<span class="sd">                              &quot;metadata&quot;</span>
+<span class="sd">                           ]</span>
+<span class="sd">                        }</span>
+<span class="sd">                   }</span>
+<span class="sd">                }</span>
+<span class="sd">             }</span>
+<span class="sd">           }</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        json : dict or a dict-like object e.g. JSON object</span>
+<span class="sd">            This &quot;dict&quot; must have &quot;fields&quot; key that returns an array of fields</span>
+<span class="sd">            each of which must have specific keys (name, type, nullable, metadata).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`StructType`</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; json_str = &#39;&#39;&#39;</span>
+<span class="sd">        ...  {</span>
+<span class="sd">        ...      &quot;fields&quot;: [</span>
+<span class="sd">        ...          {</span>
+<span class="sd">        ...              &quot;metadata&quot;: {},</span>
+<span class="sd">        ...              &quot;name&quot;: &quot;Person&quot;,</span>
+<span class="sd">        ...              &quot;nullable&quot;: true,</span>
+<span class="sd">        ...              &quot;type&quot;: {</span>
+<span class="sd">        ...                  &quot;fields&quot;: [</span>
+<span class="sd">        ...                      {</span>
+<span class="sd">        ...                          &quot;metadata&quot;: {},</span>
+<span class="sd">        ...                          &quot;name&quot;: &quot;name&quot;,</span>
+<span class="sd">        ...                          &quot;nullable&quot;: false,</span>
+<span class="sd">        ...                          &quot;type&quot;: &quot;string&quot;</span>
+<span class="sd">        ...                      },</span>
+<span class="sd">        ...                      {</span>
+<span class="sd">        ...                          &quot;metadata&quot;: {},</span>
+<span class="sd">        ...                          &quot;name&quot;: &quot;surname&quot;,</span>
+<span class="sd">        ...                          &quot;nullable&quot;: false,</span>
+<span class="sd">        ...                          &quot;type&quot;: &quot;string&quot;</span>
+<span class="sd">        ...                      }</span>
+<span class="sd">        ...                  ],</span>
+<span class="sd">        ...                  &quot;type&quot;: &quot;struct&quot;</span>
+<span class="sd">        ...              }</span>
+<span class="sd">        ...          }</span>
+<span class="sd">        ...      ],</span>
+<span class="sd">        ...      &quot;type&quot;: &quot;struct&quot;</span>
+<span class="sd">        ...  }</span>
+<span class="sd">        ...  &#39;&#39;&#39;</span>
+<span class="sd">        &gt;&gt;&gt; import json</span>
+<span class="sd">        &gt;&gt;&gt; scheme = StructType.fromJson(json.loads(json_str))</span>
+<span class="sd">        &gt;&gt;&gt; scheme.simpleString()</span>
+<span class="sd">        &#39;struct&lt;Person:struct&lt;name:string,surname:string&gt;&gt;&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">StructType</span><span class="p">([</span><span class="n">StructField</span><span class="o">.</span><span class="n">fromJson</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">json</span><span class="p">[</span><span class="s2">&quot;fields&quot;</span><span class="p">]])</span></div>
 
 <div class="viewcode-block" id="StructType.fieldNames"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.types.StructType.html#pyspark.sql.StructType.fieldNames">[docs]</a>    <span class="k">def</span> <span class="nf">fieldNames</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -912,6 +1114,7 @@
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.sql.types import StringType, StructField, StructType</span>
 <span class="sd">        &gt;&gt;&gt; struct = StructType([StructField(&quot;f1&quot;, StringType(), True)])</span>
 <span class="sd">        &gt;&gt;&gt; struct.fieldNames()</span>
 <span class="sd">        [&#39;f1&#39;]</span>
@@ -1087,6 +1290,8 @@
 
 <span class="n">_atomic_types</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">DataType</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">StringType</span><span class="p">,</span>
+    <span class="n">CharType</span><span class="p">,</span>
+    <span class="n">VarcharType</span><span class="p">,</span>
     <span class="n">BinaryType</span><span class="p">,</span>
     <span class="n">BooleanType</span><span class="p">,</span>
     <span class="n">DecimalType</span><span class="p">,</span>
@@ -1108,7 +1313,8 @@
     <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">typeName</span><span class="p">(),</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_complex_types</span>
 <span class="p">)</span>
 
-
+<span class="n">_LENGTH_CHAR</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;char\(\s*(\d+)\s*\)&quot;</span><span class="p">)</span>
+<span class="n">_LENGTH_VARCHAR</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;varchar\(\s*(\d+)\s*\)&quot;</span><span class="p">)</span>
 <span class="n">_FIXED_DECIMAL</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;decimal\(\s*(\d+)\s*,\s*(-?\d+)\s*\)&quot;</span><span class="p">)</span>
 <span class="n">_INTERVAL_DAYTIME</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;interval (day|hour|minute|second)( to (day|hour|minute|second))?&quot;</span><span class="p">)</span>
 
@@ -1130,6 +1336,10 @@
 <span class="sd">    StructType([StructField(&#39;a&#39;, ByteType(), True), StructField(&#39;b&#39;, DecimalType(16,8), True)])</span>
 <span class="sd">    &gt;&gt;&gt; _parse_datatype_string(&quot;a DOUBLE, b STRING&quot;)</span>
 <span class="sd">    StructType([StructField(&#39;a&#39;, DoubleType(), True), StructField(&#39;b&#39;, StringType(), True)])</span>
+<span class="sd">    &gt;&gt;&gt; _parse_datatype_string(&quot;a DOUBLE, b CHAR( 50 )&quot;)</span>
+<span class="sd">    StructType([StructField(&#39;a&#39;, DoubleType(), True), StructField(&#39;b&#39;, CharType(50), True)])</span>
+<span class="sd">    &gt;&gt;&gt; _parse_datatype_string(&quot;a DOUBLE, b VARCHAR( 50 )&quot;)</span>
+<span class="sd">    StructType([StructField(&#39;a&#39;, DoubleType(), True), StructField(&#39;b&#39;, VarcharType(50), True)])</span>
 <span class="sd">    &gt;&gt;&gt; _parse_datatype_string(&quot;a: array&lt; short&gt;&quot;)</span>
 <span class="sd">    StructType([StructField(&#39;a&#39;, ArrayType(ShortType(), True), True)])</span>
 <span class="sd">    &gt;&gt;&gt; _parse_datatype_string(&quot; map&lt;string , string &gt; &quot;)</span>
@@ -1198,7 +1408,10 @@
 <span class="sd">    ...     python_datatype = _parse_datatype_json_string(scala_datatype.json())</span>
 <span class="sd">    ...     assert datatype == python_datatype</span>
 <span class="sd">    &gt;&gt;&gt; for cls in _all_atomic_types.values():</span>
-<span class="sd">    ...     check_datatype(cls())</span>
+<span class="sd">    ...     if cls is not VarcharType and cls is not CharType:</span>
+<span class="sd">    ...         check_datatype(cls())</span>
+<span class="sd">    ...     else:</span>
+<span class="sd">    ...         check_datatype(cls(1))</span>
 
 <span class="sd">    &gt;&gt;&gt; # Simple ArrayType.</span>
 <span class="sd">    &gt;&gt;&gt; simple_arraytype = ArrayType(StringType(), True)</span>
@@ -1222,6 +1435,8 @@
 <span class="sd">    ...     StructField(&quot;simpleMap&quot;, simple_maptype, True),</span>
 <span class="sd">    ...     StructField(&quot;simpleStruct&quot;, simple_structtype, True),</span>
 <span class="sd">    ...     StructField(&quot;boolean&quot;, BooleanType(), False),</span>
+<span class="sd">    ...     StructField(&quot;chars&quot;, CharType(10), False),</span>
+<span class="sd">    ...     StructField(&quot;words&quot;, VarcharType(10), False),</span>
 <span class="sd">    ...     StructField(&quot;withMeta&quot;, DoubleType(), False, {&quot;name&quot;: &quot;age&quot;})])</span>
 <span class="sd">    &gt;&gt;&gt; check_datatype(complex_structtype)</span>
 
@@ -1254,6 +1469,12 @@
             <span class="k">if</span> <span class="n">first_field</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">second_field</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">DayTimeIntervalType</span><span class="p">(</span><span class="n">first_field</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">DayTimeIntervalType</span><span class="p">(</span><span class="n">first_field</span><span class="p">,</span> <span class="n">second_field</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">_LENGTH_CHAR</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">json_value</span><span class="p">):</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">_LENGTH_CHAR</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">json_value</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">CharType</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>  <span class="c1"># type: ignore[union-attr]</span>
+        <span class="k">elif</span> <span class="n">_LENGTH_VARCHAR</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">json_value</span><span class="p">):</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">_LENGTH_VARCHAR</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">json_value</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">VarcharType</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>  <span class="c1"># type: ignore[union-attr]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Could not parse datatype: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">json_value</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -1361,9 +1582,30 @@
     <span class="n">_array_type_mappings</span><span class="p">[</span><span class="s2">&quot;u&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">StringType</span>
 
 
+<span class="k">def</span> <span class="nf">_from_numpy_type</span><span class="p">(</span><span class="n">nt</span><span class="p">:</span> <span class="s2">&quot;np.dtype&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">DataType</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert NumPy type to Spark data type.&quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+    <span class="k">if</span> <span class="n">nt</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;int8&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ByteType</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">nt</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;int16&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">ShortType</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">nt</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;int32&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">IntegerType</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">nt</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;int64&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">LongType</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">nt</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">FloatType</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">nt</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">DoubleType</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="kc">None</span>
+
+
 <span class="k">def</span> <span class="nf">_infer_type</span><span class="p">(</span>
     <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="n">infer_dict_as_struct</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">infer_array_from_first_element</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">prefer_timestamp_ntz</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataType</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Infer the DataType from obj&quot;&quot;&quot;</span>
@@ -1390,23 +1632,48 @@
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">struct</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-                        <span class="n">key</span><span class="p">,</span> <span class="n">_infer_type</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">infer_dict_as_struct</span><span class="p">,</span> <span class="n">prefer_timestamp_ntz</span><span class="p">),</span> <span class="kc">True</span>
+                        <span class="n">key</span><span class="p">,</span>
+                        <span class="n">_infer_type</span><span class="p">(</span>
+                            <span class="n">value</span><span class="p">,</span>
+                            <span class="n">infer_dict_as_struct</span><span class="p">,</span>
+                            <span class="n">infer_array_from_first_element</span><span class="p">,</span>
+                            <span class="n">prefer_timestamp_ntz</span><span class="p">,</span>
+                        <span class="p">),</span>
+                        <span class="kc">True</span><span class="p">,</span>
                     <span class="p">)</span>
             <span class="k">return</span> <span class="n">struct</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">MapType</span><span class="p">(</span>
-                        <span class="n">_infer_type</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">infer_dict_as_struct</span><span class="p">,</span> <span class="n">prefer_timestamp_ntz</span><span class="p">),</span>
-                        <span class="n">_infer_type</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">infer_dict_as_struct</span><span class="p">,</span> <span class="n">prefer_timestamp_ntz</span><span class="p">),</span>
+                        <span class="n">_infer_type</span><span class="p">(</span>
+                            <span class="n">key</span><span class="p">,</span>
+                            <span class="n">infer_dict_as_struct</span><span class="p">,</span>
+                            <span class="n">infer_array_from_first_element</span><span class="p">,</span>
+                            <span class="n">prefer_timestamp_ntz</span><span class="p">,</span>
+                        <span class="p">),</span>
+                        <span class="n">_infer_type</span><span class="p">(</span>
+                            <span class="n">value</span><span class="p">,</span>
+                            <span class="n">infer_dict_as_struct</span><span class="p">,</span>
+                            <span class="n">infer_array_from_first_element</span><span class="p">,</span>
+                            <span class="n">prefer_timestamp_ntz</span><span class="p">,</span>
+                        <span class="p">),</span>
                         <span class="kc">True</span><span class="p">,</span>
                     <span class="p">)</span>
             <span class="k">return</span> <span class="n">MapType</span><span class="p">(</span><span class="n">NullType</span><span class="p">(),</span> <span class="n">NullType</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">infer_array_from_first_element</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">ArrayType</span><span class="p">(</span>
                     <span class="n">_infer_type</span><span class="p">(</span><span class="n">obj</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">infer_dict_as_struct</span><span class="p">,</span> <span class="n">prefer_timestamp_ntz</span><span class="p">),</span> <span class="kc">True</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">ArrayType</span><span class="p">(</span>
+                    <span class="n">reduce</span><span class="p">(</span>
+                        <span class="n">_merge_type</span><span class="p">,</span>
+                        <span class="p">(</span><span class="n">_infer_type</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">infer_dict_as_struct</span><span class="p">,</span> <span class="n">prefer_timestamp_ntz</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">),</span>
+                    <span class="p">),</span>
+                    <span class="kc">True</span><span class="p">,</span>
                 <span class="p">)</span>
         <span class="k">return</span> <span class="n">ArrayType</span><span class="p">(</span><span class="n">NullType</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">array</span><span class="p">):</span>
@@ -1416,7 +1683,11 @@
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;not supported type: array(</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">obj</span><span class="o">.</span><span class="n">typecode</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">_infer_schema</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">infer_dict_as_struct</span><span class="o">=</span><span class="n">infer_dict_as_struct</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">_infer_schema</span><span class="p">(</span>
+                <span class="n">obj</span><span class="p">,</span>
+                <span class="n">infer_dict_as_struct</span><span class="o">=</span><span class="n">infer_dict_as_struct</span><span class="p">,</span>
+                <span class="n">infer_array_from_first_element</span><span class="o">=</span><span class="n">infer_array_from_first_element</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;not supported type: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
 
@@ -1425,6 +1696,7 @@
     <span class="n">row</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="n">names</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">infer_dict_as_struct</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">infer_array_from_first_element</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">prefer_timestamp_ntz</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StructType</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Infer the schema from dict/namedtuple/object&quot;&quot;&quot;</span>
@@ -1454,7 +1726,16 @@
     <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">StructField</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">_infer_type</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">infer_dict_as_struct</span><span class="p">,</span> <span class="n">prefer_timestamp_ntz</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+                <span class="n">StructField</span><span class="p">(</span>
+                    <span class="n">k</span><span class="p">,</span>
+                    <span class="n">_infer_type</span><span class="p">(</span>
+                        <span class="n">v</span><span class="p">,</span>
+                        <span class="n">infer_dict_as_struct</span><span class="p">,</span>
+                        <span class="n">infer_array_from_first_element</span><span class="p">,</span>
+                        <span class="n">prefer_timestamp_ntz</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="ne">TypeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Unable to infer the type of the field </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">))</span> <span class="kn">from</span> <span class="nn">e</span>
@@ -1522,6 +1803,10 @@
         <span class="k">return</span> <span class="n">a</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">TimestampNTZType</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">TimestampType</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">b</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">AtomicType</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">StringType</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">b</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">StringType</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">AtomicType</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">a</span>
     <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">type</span><span class="p">(</span><span class="n">b</span><span class="p">):</span>
         <span class="c1"># TODO: type cast (such as int -&gt; long)</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">new_msg</span><span class="p">(</span><span class="s2">&quot;Can not merge type </span><span class="si">%s</span><span class="s2"> and </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">b</span><span class="p">))))</span>
@@ -1632,6 +1917,8 @@
     <span class="n">DoubleType</span><span class="p">:</span> <span class="p">(</span><span class="nb">float</span><span class="p">,),</span>
     <span class="n">DecimalType</span><span class="p">:</span> <span class="p">(</span><span class="n">decimal</span><span class="o">.</span><span class="n">Decimal</span><span class="p">,),</span>
     <span class="n">StringType</span><span class="p">:</span> <span class="p">(</span><span class="nb">str</span><span class="p">,),</span>
+    <span class="n">CharType</span><span class="p">:</span> <span class="p">(</span><span class="nb">str</span><span class="p">,),</span>
+    <span class="n">VarcharType</span><span class="p">:</span> <span class="p">(</span><span class="nb">str</span><span class="p">,),</span>
     <span class="n">BinaryType</span><span class="p">:</span> <span class="p">(</span><span class="nb">bytearray</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">),</span>
     <span class="n">DateType</span><span class="p">:</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">),</span>
     <span class="n">TimestampType</span><span class="p">:</span> <span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="p">,),</span>
@@ -1742,8 +2029,8 @@
                 <span class="n">new_msg</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> can not accept object </span><span class="si">%r</span><span class="s2"> in type </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dataType</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">obj</span><span class="p">)))</span>
             <span class="p">)</span>
 
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataType</span><span class="p">,</span> <span class="n">StringType</span><span class="p">):</span>
-        <span class="c1"># StringType can work with any types</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dataType</span><span class="p">,</span> <span class="p">(</span><span class="n">StringType</span><span class="p">,</span> <span class="n">CharType</span><span class="p">,</span> <span class="n">VarcharType</span><span class="p">)):</span>
+        <span class="c1"># StringType, CharType and VarcharType can work with any types</span>
         <span class="k">def</span> <span class="nf">verify_value</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">pass</span>
 
@@ -1908,6 +2195,7 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from pyspark.sql import Row</span>
 <span class="sd">    &gt;&gt;&gt; row = Row(name=&quot;Alice&quot;, age=11)</span>
 <span class="sd">    &gt;&gt;&gt; row</span>
 <span class="sd">    Row(name=&#39;Alice&#39;, age=11)</span>
@@ -1981,6 +2269,7 @@
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from pyspark.sql import Row</span>
 <span class="sd">        &gt;&gt;&gt; Row(name=&quot;Alice&quot;, age=11).asDict() == {&#39;name&#39;: &#39;Alice&#39;, &#39;age&#39;: 11}</span>
 <span class="sd">        True</span>
 <span class="sd">        &gt;&gt;&gt; row = Row(key=1, value=Row(name=&#39;a&#39;, age=2))</span>
@@ -2130,24 +2419,78 @@
         <span class="p">)</span>
 
 
+<span class="k">class</span> <span class="nc">NumpyScalarConverter</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">can_convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">has_numpy</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">generic</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="s2">&quot;np.generic&quot;</span><span class="p">,</span> <span class="n">gateway_client</span><span class="p">:</span> <span class="n">GatewayClient</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">NumpyArrayConverter</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_from_numpy_type_to_java_type</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">nt</span><span class="p">:</span> <span class="s2">&quot;np.dtype&quot;</span><span class="p">,</span> <span class="n">gateway</span><span class="p">:</span> <span class="n">JavaGateway</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">JavaClass</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert NumPy type to Py4J Java type.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">nt</span> <span class="ow">in</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;int8&quot;</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;int16&quot;</span><span class="p">)]:</span>
+            <span class="c1"># Mapping int8 to gateway.jvm.byte causes</span>
+            <span class="c1">#   TypeError: &#39;bytes&#39; object does not support item assignment</span>
+            <span class="k">return</span> <span class="n">gateway</span><span class="o">.</span><span class="n">jvm</span><span class="o">.</span><span class="n">short</span>
+        <span class="k">elif</span> <span class="n">nt</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;int32&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">gateway</span><span class="o">.</span><span class="n">jvm</span><span class="o">.</span><span class="n">int</span>
+        <span class="k">elif</span> <span class="n">nt</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;int64&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">gateway</span><span class="o">.</span><span class="n">jvm</span><span class="o">.</span><span class="n">long</span>
+        <span class="k">elif</span> <span class="n">nt</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;float32&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">gateway</span><span class="o">.</span><span class="n">jvm</span><span class="o">.</span><span class="n">float</span>
+        <span class="k">elif</span> <span class="n">nt</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">gateway</span><span class="o">.</span><span class="n">jvm</span><span class="o">.</span><span class="n">double</span>
+        <span class="k">elif</span> <span class="n">nt</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;bool&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">gateway</span><span class="o">.</span><span class="n">jvm</span><span class="o">.</span><span class="n">boolean</span>
+
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">can_convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">has_numpy</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="s2">&quot;np.ndarray&quot;</span><span class="p">,</span> <span class="n">gateway_client</span><span class="p">:</span> <span class="n">GatewayClient</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JavaObject</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">pyspark</span> <span class="kn">import</span> <span class="n">SparkContext</span>
+
+        <span class="n">gateway</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_gateway</span>
+        <span class="k">assert</span> <span class="n">gateway</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">plist</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">plist</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">jtpe</span> <span class="o">=</span> <span class="n">gateway</span><span class="o">.</span><span class="n">jvm</span><span class="o">.</span><span class="n">String</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">jtpe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_from_numpy_type_to_java_type</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">gateway</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">jtpe</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The type of array scalar &#39;</span><span class="si">%s</span><span class="s2">&#39; is not supported&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">dtype</span><span class="p">))</span>
+        <span class="n">jarr</span> <span class="o">=</span> <span class="n">gateway</span><span class="o">.</span><span class="n">new_array</span><span class="p">(</span><span class="n">jtpe</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">plist</span><span class="p">)):</span>
+            <span class="n">jarr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">plist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">jarr</span>
+
+
 <span class="c1"># datetime is a subclass of date, we should register DatetimeConverter first</span>
 <span class="n">register_input_converter</span><span class="p">(</span><span class="n">DatetimeNTZConverter</span><span class="p">())</span>
 <span class="n">register_input_converter</span><span class="p">(</span><span class="n">DatetimeConverter</span><span class="p">())</span>
 <span class="n">register_input_converter</span><span class="p">(</span><span class="n">DateConverter</span><span class="p">())</span>
 <span class="n">register_input_converter</span><span class="p">(</span><span class="n">DayTimeIntervalTypeConverter</span><span class="p">())</span>
+<span class="n">register_input_converter</span><span class="p">(</span><span class="n">NumpyScalarConverter</span><span class="p">())</span>
+<span class="c1"># NumPy array satisfies py4j.java_collections.ListConverter,</span>
+<span class="c1"># so prepend NumpyArrayConverter</span>
+<span class="n">register_input_converter</span><span class="p">(</span><span class="n">NumpyArrayConverter</span><span class="p">(),</span> <span class="n">prepend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_test</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">doctest</span>
-    <span class="kn">from</span> <span class="nn">pyspark.context</span> <span class="kn">import</span> <span class="n">SparkContext</span>
     <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">SparkSession</span>
 
     <span class="n">globs</span> <span class="o">=</span> <span class="nb">globals</span><span class="p">()</span>
-    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="p">(</span><span class="s2">&quot;local[4]&quot;</span><span class="p">,</span> <span class="s2">&quot;PythonTest&quot;</span><span class="p">)</span>
-    <span class="n">globs</span><span class="p">[</span><span class="s2">&quot;sc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sc</span>
     <span class="n">globs</span><span class="p">[</span><span class="s2">&quot;spark&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
-    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span> <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span><span class="p">)</span>
-    <span class="n">globs</span><span class="p">[</span><span class="s2">&quot;sc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span>
+        <span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span> <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span> <span class="o">|</span> <span class="n">doctest</span><span class="o">.</span><span class="n">NORMALIZE_WHITESPACE</span>
+    <span class="p">)</span>
     <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 

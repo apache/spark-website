@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>pyspark.TaskContext &#8212; PySpark 3.3.2 documentation</title>
+    <title>pyspark.TaskContext &#8212; PySpark 3.4.0 documentation</title>
     
   <link rel="stylesheet" href="../../_static/css/index.73d71520a4ca3b99cfee5594769eaaae.css">
 
@@ -64,11 +64,15 @@
         
         
         <li class="nav-item ">
+            <a class="nav-link" href="../../index.html">Overview</a>
+        </li>
+        
+        <li class="nav-item ">
             <a class="nav-link" href="../../getting_started/index.html">Getting Started</a>
         </li>
         
         <li class="nav-item ">
-            <a class="nav-link" href="../../user_guide/index.html">User Guide</a>
+            <a class="nav-link" href="../../user_guide/index.html">User Guides</a>
         </li>
         
         <li class="nav-item active">
@@ -80,7 +84,7 @@
         </li>
         
         <li class="nav-item ">
-            <a class="nav-link" href="../../migration_guide/index.html">Migration Guide</a>
+            <a class="nav-link" href="../../migration_guide/index.html">Migration Guides</a>
         </li>
         
         
@@ -117,6 +121,8 @@
         
         
         
+        
+        
           
             
                 <li class="">
@@ -144,7 +150,7 @@
           
             
                 <li class="">
-                    <a href="../pyspark.streaming.html">Spark Streaming</a>
+                    <a href="../pyspark.streaming.html">Spark Streaming (Legacy)</a>
                 </li>
             
           
@@ -163,6 +169,12 @@
             
                 <li class="">
                     <a href="../pyspark.resource.html">Resource Management</a>
+                </li>
+            
+          
+            
+                <li class="">
+                    <a href="../pyspark.errors.html">Errors</a>
                 </li>
             
           
@@ -206,6 +218,96 @@
 <dd><p>Contextual information about a task which can be read or mutated during
 execution. To access the TaskContext for a running task, use:
 <a class="reference internal" href="pyspark.TaskContext.get.html#pyspark.TaskContext.get" title="pyspark.TaskContext.get"><code class="xref py py-meth docutils literal notranslate"><span class="pre">TaskContext.get()</span></code></a>.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 2.2.0.</span></p>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark</span> <span class="kn">import</span> <span class="n">TaskContext</span>
+</pre></div>
+</div>
+<p>Get a task context instance from <a class="reference internal" href="pyspark.RDD.html#pyspark.RDD" title="pyspark.RDD"><code class="xref py py-class docutils literal notranslate"><span class="pre">RDD</span></code></a>.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">spark</span><span class="o">.</span><span class="n">sparkContext</span><span class="o">.</span><span class="n">setLocalProperty</span><span class="p">(</span><span class="s2">&quot;key1&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">taskcontext</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">sparkContext</span><span class="o">.</span><span class="n">parallelize</span><span class="p">([</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="n">TaskContext</span><span class="o">.</span><span class="n">get</span><span class="p">())</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">taskcontext</span><span class="o">.</span><span class="n">attemptNumber</span><span class="p">(),</span> <span class="nb">int</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">taskcontext</span><span class="o">.</span><span class="n">partitionId</span><span class="p">(),</span> <span class="nb">int</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">taskcontext</span><span class="o">.</span><span class="n">stageId</span><span class="p">(),</span> <span class="nb">int</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">taskcontext</span><span class="o">.</span><span class="n">taskAttemptId</span><span class="p">(),</span> <span class="nb">int</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">taskcontext</span><span class="o">.</span><span class="n">getLocalProperty</span><span class="p">(</span><span class="s2">&quot;key1&quot;</span><span class="p">)</span>
+<span class="go">&#39;value&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">taskcontext</span><span class="o">.</span><span class="n">cpus</span><span class="p">(),</span> <span class="nb">int</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>Get a task context instance from a dataframe via Python UDF.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">Row</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="kn">import</span> <span class="n">udf</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@udf</span><span class="p">(</span><span class="s2">&quot;STRUCT&lt;anum: INT, partid: INT, stageid: INT, taskaid: INT, prop: STRING, cpus: INT&gt;&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">def</span> <span class="nf">taskcontext_as_row</span><span class="p">():</span>
+<span class="gp">... </span>   <span class="n">taskcontext</span> <span class="o">=</span> <span class="n">TaskContext</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+<span class="gp">... </span>   <span class="k">return</span> <span class="n">Row</span><span class="p">(</span>
+<span class="gp">... </span>       <span class="n">anum</span><span class="o">=</span><span class="n">taskcontext</span><span class="o">.</span><span class="n">attemptNumber</span><span class="p">(),</span>
+<span class="gp">... </span>       <span class="n">partid</span><span class="o">=</span><span class="n">taskcontext</span><span class="o">.</span><span class="n">partitionId</span><span class="p">(),</span>
+<span class="gp">... </span>       <span class="n">stageid</span><span class="o">=</span><span class="n">taskcontext</span><span class="o">.</span><span class="n">stageId</span><span class="p">(),</span>
+<span class="gp">... </span>       <span class="n">taskaid</span><span class="o">=</span><span class="n">taskcontext</span><span class="o">.</span><span class="n">taskAttemptId</span><span class="p">(),</span>
+<span class="gp">... </span>       <span class="n">prop</span><span class="o">=</span><span class="n">taskcontext</span><span class="o">.</span><span class="n">getLocalProperty</span><span class="p">(</span><span class="s2">&quot;key2&quot;</span><span class="p">),</span>
+<span class="gp">... </span>       <span class="n">cpus</span><span class="o">=</span><span class="n">taskcontext</span><span class="o">.</span><span class="n">cpus</span><span class="p">())</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spark</span><span class="o">.</span><span class="n">sparkContext</span><span class="o">.</span><span class="n">setLocalProperty</span><span class="p">(</span><span class="s2">&quot;key2&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[(</span><span class="n">anum</span><span class="p">,</span> <span class="n">partid</span><span class="p">,</span> <span class="n">stageid</span><span class="p">,</span> <span class="n">taskaid</span><span class="p">,</span> <span class="n">prop</span><span class="p">,</span> <span class="n">cpus</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span>
+<span class="gp">... </span>    <span class="n">spark</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">taskcontext_as_row</span><span class="p">())</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">anum</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">partid</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">stageid</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">taskaid</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prop</span>
+<span class="go">&#39;value&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">cpus</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+<p>Get a task context instance from a dataframe via Pandas UDF.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="kn">import</span> <span class="n">pandas_udf</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nd">@pandas_udf</span><span class="p">(</span><span class="s2">&quot;STRUCT&lt;&quot;</span>
+<span class="gp">... </span>    <span class="s2">&quot;anum: INT, partid: INT, stageid: INT, taskaid: INT, prop: STRING, cpus: INT&gt;&quot;</span><span class="p">)</span>
+<span class="gp">... </span><span class="k">def</span> <span class="nf">taskcontext_as_row</span><span class="p">(</span><span class="n">_</span><span class="p">):</span>
+<span class="gp">... </span>   <span class="n">taskcontext</span> <span class="o">=</span> <span class="n">TaskContext</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+<span class="gp">... </span>   <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+<span class="gp">... </span>       <span class="s2">&quot;anum&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">taskcontext</span><span class="o">.</span><span class="n">attemptNumber</span><span class="p">()],</span>
+<span class="gp">... </span>       <span class="s2">&quot;partid&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">taskcontext</span><span class="o">.</span><span class="n">partitionId</span><span class="p">()],</span>
+<span class="gp">... </span>       <span class="s2">&quot;stageid&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">taskcontext</span><span class="o">.</span><span class="n">stageId</span><span class="p">()],</span>
+<span class="gp">... </span>       <span class="s2">&quot;taskaid&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">taskcontext</span><span class="o">.</span><span class="n">taskAttemptId</span><span class="p">()],</span>
+<span class="gp">... </span>       <span class="s2">&quot;prop&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">taskcontext</span><span class="o">.</span><span class="n">getLocalProperty</span><span class="p">(</span><span class="s2">&quot;key3&quot;</span><span class="p">)],</span>
+<span class="gp">... </span>       <span class="s2">&quot;cpus&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">taskcontext</span><span class="o">.</span><span class="n">cpus</span><span class="p">()]</span>
+<span class="gp">... </span>   <span class="p">})</span>  
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">spark</span><span class="o">.</span><span class="n">sparkContext</span><span class="o">.</span><span class="n">setLocalProperty</span><span class="p">(</span><span class="s2">&quot;key3&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[(</span><span class="n">anum</span><span class="p">,</span> <span class="n">partid</span><span class="p">,</span> <span class="n">stageid</span><span class="p">,</span> <span class="n">taskaid</span><span class="p">,</span> <span class="n">prop</span><span class="p">,</span> <span class="n">cpus</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span>
+<span class="gp">... </span>    <span class="n">spark</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">taskcontext_as_row</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="gp">... </span><span class="p">)</span>  
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">anum</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">partid</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">stageid</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">taskaid</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">prop</span>
+<span class="go">&#39;value&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">isinstance</span><span class="p">(</span><span class="n">cpus</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
 <p class="rubric">Methods</p>
 <table class="longtable table autosummary">
 <colgroup>
@@ -214,14 +316,13 @@ execution. To access the TaskContext for a running task, use:
 </colgroup>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="pyspark.TaskContext.attemptNumber.html#pyspark.TaskContext.attemptNumber" title="pyspark.TaskContext.attemptNumber"><code class="xref py py-obj docutils literal notranslate"><span class="pre">attemptNumber</span></code></a>()</p></td>
-<td><p><p>”</p>
-</p></td>
+<td><p>How many times this task has been attempted.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">cpus</span></code>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="pyspark.TaskContext.cpus.html#pyspark.TaskContext.cpus" title="pyspark.TaskContext.cpus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cpus</span></code></a>()</p></td>
 <td><p>CPUs allocated to the task.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="pyspark.TaskContext.get.html#pyspark.TaskContext.get" title="pyspark.TaskContext.get"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get</span></code></a>()</p></td>
-<td><p>Return the currently active TaskContext.</p></td>
+<td><p>Return the currently active <a class="reference internal" href="#pyspark.TaskContext" title="pyspark.TaskContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">TaskContext</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="pyspark.TaskContext.getLocalProperty.html#pyspark.TaskContext.getLocalProperty" title="pyspark.TaskContext.getLocalProperty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getLocalProperty</span></code></a>(key)</p></td>
 <td><p>Get a local property set upstream in the driver, or None if it is missing.</p></td>
@@ -236,7 +337,7 @@ execution. To access the TaskContext for a running task, use:
 <td><p>The ID of the stage that this task belong to.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="pyspark.TaskContext.taskAttemptId.html#pyspark.TaskContext.taskAttemptId" title="pyspark.TaskContext.taskAttemptId"><code class="xref py py-obj docutils literal notranslate"><span class="pre">taskAttemptId</span></code></a>()</p></td>
-<td><p>An ID that is unique to this task attempt (within the same SparkContext, no two task attempts will share the same attempt ID).</p></td>
+<td><p>An ID that is unique to this task attempt (within the same <a class="reference internal" href="pyspark.SparkContext.html#pyspark.SparkContext" title="pyspark.SparkContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">SparkContext</span></code></a>, no two task attempts will share the same attempt ID).</p></td>
 </tr>
 </tbody>
 </table>

@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>pyspark.sql.session &#8212; PySpark 3.3.2 documentation</title>
+    <title>pyspark.sql.session &#8212; PySpark 3.4.0 documentation</title>
     
   <link rel="stylesheet" href="../../../_static/css/index.73d71520a4ca3b99cfee5594769eaaae.css">
 
@@ -62,11 +62,15 @@
         
         
         <li class="nav-item ">
+            <a class="nav-link" href="../../../index.html">Overview</a>
+        </li>
+        
+        <li class="nav-item ">
             <a class="nav-link" href="../../../getting_started/index.html">Getting Started</a>
         </li>
         
         <li class="nav-item ">
-            <a class="nav-link" href="../../../user_guide/index.html">User Guide</a>
+            <a class="nav-link" href="../../../user_guide/index.html">User Guides</a>
         </li>
         
         <li class="nav-item ">
@@ -78,7 +82,7 @@
         </li>
         
         <li class="nav-item ">
-            <a class="nav-link" href="../../../migration_guide/index.html">Migration Guide</a>
+            <a class="nav-link" href="../../../migration_guide/index.html">Migration Guides</a>
         </li>
         
         
@@ -109,6 +113,8 @@
     
   
     <ul class="nav bd-sidenav">
+        
+        
         
         
         
@@ -163,9 +169,10 @@
 <span class="c1"># See the License for the specific language governing permissions and</span>
 <span class="c1"># limitations under the License.</span>
 <span class="c1">#</span>
-
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Sized</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
 <span class="kn">from</span> <span class="nn">threading</span> <span class="kn">import</span> <span class="n">RLock</span>
 <span class="kn">from</span> <span class="nn">types</span> <span class="kn">import</span> <span class="n">TracebackType</span>
@@ -187,7 +194,7 @@
 
 <span class="kn">from</span> <span class="nn">py4j.java_gateway</span> <span class="kn">import</span> <span class="n">JavaObject</span>
 
-<span class="kn">from</span> <span class="nn">pyspark</span> <span class="kn">import</span> <span class="n">SparkConf</span><span class="p">,</span> <span class="n">SparkContext</span><span class="p">,</span> <span class="n">since</span>
+<span class="kn">from</span> <span class="nn">pyspark</span> <span class="kn">import</span> <span class="n">SparkConf</span><span class="p">,</span> <span class="n">SparkContext</span>
 <span class="kn">from</span> <span class="nn">pyspark.rdd</span> <span class="kn">import</span> <span class="n">RDD</span>
 <span class="kn">from</span> <span class="nn">pyspark.sql.conf</span> <span class="kn">import</span> <span class="n">RuntimeConfig</span>
 <span class="kn">from</span> <span class="nn">pyspark.sql.dataframe</span> <span class="kn">import</span> <span class="n">DataFrame</span>
@@ -198,6 +205,7 @@
 <span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">AtomicType</span><span class="p">,</span>
     <span class="n">DataType</span><span class="p">,</span>
+    <span class="n">StructField</span><span class="p">,</span>
     <span class="n">StructType</span><span class="p">,</span>
     <span class="n">_make_type_verifier</span><span class="p">,</span>
     <span class="n">_infer_schema</span><span class="p">,</span>
@@ -205,13 +213,15 @@
     <span class="n">_merge_type</span><span class="p">,</span>
     <span class="n">_create_converter</span><span class="p">,</span>
     <span class="n">_parse_datatype_string</span><span class="p">,</span>
+    <span class="n">_from_numpy_type</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">pyspark.sql.utils</span> <span class="kn">import</span> <span class="n">install_exception_handler</span><span class="p">,</span> <span class="n">is_timestamp_ntz_preferred</span>
+<span class="kn">from</span> <span class="nn">pyspark.errors.exceptions.captured</span> <span class="kn">import</span> <span class="n">install_exception_handler</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.utils</span> <span class="kn">import</span> <span class="n">is_timestamp_ntz_preferred</span><span class="p">,</span> <span class="n">to_str</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">pyspark.sql._typing</span> <span class="kn">import</span> <span class="n">AtomicValue</span><span class="p">,</span> <span class="n">RowLike</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql._typing</span> <span class="kn">import</span> <span class="n">AtomicValue</span><span class="p">,</span> <span class="n">RowLike</span><span class="p">,</span> <span class="n">OptionalPrimitiveType</span>
     <span class="kn">from</span> <span class="nn">pyspark.sql.catalog</span> <span class="kn">import</span> <span class="n">Catalog</span>
-    <span class="kn">from</span> <span class="nn">pyspark.sql.pandas._typing</span> <span class="kn">import</span> <span class="n">DataFrameLike</span> <span class="k">as</span> <span class="n">PandasDataFrameLike</span>
+    <span class="kn">from</span> <span class="nn">pyspark.sql.pandas._typing</span> <span class="kn">import</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">DataFrameLike</span> <span class="k">as</span> <span class="n">PandasDataFrameLike</span>
     <span class="kn">from</span> <span class="nn">pyspark.sql.streaming</span> <span class="kn">import</span> <span class="n">StreamingQueryManager</span>
     <span class="kn">from</span> <span class="nn">pyspark.sql.udf</span> <span class="kn">import</span> <span class="n">UDFRegistration</span>
 
@@ -245,54 +255,98 @@
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; rdd.toDF().collect()</span>
-<span class="sd">        [Row(name=&#39;Alice&#39;, age=1)]</span>
+<span class="sd">        &gt;&gt;&gt; rdd = spark.range(1).rdd.map(lambda x: tuple(x))</span>
+<span class="sd">        &gt;&gt;&gt; rdd.collect()</span>
+<span class="sd">        [(0,)]</span>
+<span class="sd">        &gt;&gt;&gt; rdd.toDF().show()</span>
+<span class="sd">        +---+</span>
+<span class="sd">        | _1|</span>
+<span class="sd">        +---+</span>
+<span class="sd">        |  0|</span>
+<span class="sd">        +---+</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">sparkSession</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">sampleRatio</span><span class="p">)</span>
 
     <span class="n">RDD</span><span class="o">.</span><span class="n">toDF</span> <span class="o">=</span> <span class="n">toDF</span>  <span class="c1"># type: ignore[assignment]</span>
 
 
+<span class="c1"># TODO(SPARK-38912): This method can be dropped once support for Python 3.8 is dropped</span>
+<span class="c1"># In Python 3.9, the @property decorator has been made compatible with the</span>
+<span class="c1"># @classmethod decorator (https://docs.python.org/3.9/library/functions.html#classmethod)</span>
+<span class="c1">#</span>
+<span class="c1"># @classmethod + @property is also affected by a bug in Python&#39;s docstring which was backported</span>
+<span class="c1"># to Python 3.9.6 (https://github.com/python/cpython/pull/28838)</span>
+<span class="k">class</span> <span class="nc">classproperty</span><span class="p">(</span><span class="nb">property</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Same as Python&#39;s @property decorator, but for class attributes.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; class Builder:</span>
+<span class="sd">    ...    def build(self):</span>
+<span class="sd">    ...        return MyClass()</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; class MyClass:</span>
+<span class="sd">    ...     @classproperty</span>
+<span class="sd">    ...     def builder(cls):</span>
+<span class="sd">    ...         print(&quot;instantiating new builder&quot;)</span>
+<span class="sd">    ...         return Builder()</span>
+<span class="sd">    ...</span>
+<span class="sd">    &gt;&gt;&gt; c1 = MyClass.builder</span>
+<span class="sd">    instantiating new builder</span>
+<span class="sd">    &gt;&gt;&gt; c2 = MyClass.builder</span>
+<span class="sd">    instantiating new builder</span>
+<span class="sd">    &gt;&gt;&gt; c1 == c2</span>
+<span class="sd">    False</span>
+<span class="sd">    &gt;&gt;&gt; isinstance(c1.build(), MyClass)</span>
+<span class="sd">    True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparkSession.Builder&quot;</span><span class="p">:</span>
+        <span class="c1"># The &quot;type: ignore&quot; below silences the following error from mypy:</span>
+        <span class="c1"># error: Argument 1 to &quot;classmethod&quot; has incompatible</span>
+        <span class="c1"># type &quot;Optional[Callable[[Any], Any]]&quot;;</span>
+        <span class="c1"># expected &quot;Callable[..., Any]&quot;  [arg-type]</span>
+        <span class="k">return</span> <span class="nb">classmethod</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fget</span><span class="p">)</span><span class="o">.</span><span class="fm">__get__</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">owner</span><span class="p">)()</span>  <span class="c1"># type: ignore</span>
+
+
 <div class="viewcode-block" id="SparkSession"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.SparkSession.html#pyspark.sql.SparkSession">[docs]</a><span class="k">class</span> <span class="nc">SparkSession</span><span class="p">(</span><span class="n">SparkConversionMixin</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The entry point to programming Spark with the Dataset and DataFrame API.</span>
 
-<span class="sd">    A SparkSession can be used create :class:`DataFrame`, register :class:`DataFrame` as</span>
+<span class="sd">    A SparkSession can be used to create :class:`DataFrame`, register :class:`DataFrame` as</span>
 <span class="sd">    tables, execute SQL over tables, cache tables, and read parquet files.</span>
 <span class="sd">    To create a :class:`SparkSession`, use the following builder pattern:</span>
+
+<span class="sd">    .. versionchanged:: 3.4.0</span>
+<span class="sd">        Support Spark Connect.</span>
 
 <span class="sd">    .. autoattribute:: builder</span>
 <span class="sd">       :annotation:</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; spark = SparkSession.builder \\</span>
-<span class="sd">    ...     .master(&quot;local&quot;) \\</span>
-<span class="sd">    ...     .appName(&quot;Word Count&quot;) \\</span>
-<span class="sd">    ...     .config(&quot;spark.some.config.option&quot;, &quot;some-value&quot;) \\</span>
-<span class="sd">    ...     .getOrCreate()</span>
+<span class="sd">    Create a Spark session.</span>
 
-<span class="sd">    &gt;&gt;&gt; from datetime import datetime</span>
-<span class="sd">    &gt;&gt;&gt; from pyspark.sql import Row</span>
+<span class="sd">    &gt;&gt;&gt; spark = (</span>
+<span class="sd">    ...     SparkSession.builder</span>
+<span class="sd">    ...         .master(&quot;local&quot;)</span>
+<span class="sd">    ...         .appName(&quot;Word Count&quot;)</span>
+<span class="sd">    ...         .config(&quot;spark.some.config.option&quot;, &quot;some-value&quot;)</span>
+<span class="sd">    ...         .getOrCreate()</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    Create a Spark session from a Spark context.</span>
+
+<span class="sd">    &gt;&gt;&gt; sc = spark.sparkContext</span>
 <span class="sd">    &gt;&gt;&gt; spark = SparkSession(sc)</span>
-<span class="sd">    &gt;&gt;&gt; allTypes = sc.parallelize([Row(i=1, s=&quot;string&quot;, d=1.0, l=1,</span>
-<span class="sd">    ...     b=True, list=[1, 2, 3], dict={&quot;s&quot;: 0}, row=Row(a=1),</span>
-<span class="sd">    ...     time=datetime(2014, 8, 1, 14, 1, 5))])</span>
-<span class="sd">    &gt;&gt;&gt; df = allTypes.toDF()</span>
-<span class="sd">    &gt;&gt;&gt; df.createOrReplaceTempView(&quot;allTypes&quot;)</span>
-<span class="sd">    &gt;&gt;&gt; spark.sql(&#39;select i+1, d+1, not b, list[1], dict[&quot;s&quot;], time, row.a &#39;</span>
-<span class="sd">    ...            &#39;from allTypes where b and i &gt; 0&#39;).collect()</span>
-<span class="sd">    [Row((i + 1)=2, (d + 1)=2.0, (NOT b)=False, list[1]=2, \</span>
-<span class="sd">        dict[s]=0, time=datetime.datetime(2014, 8, 1, 14, 1, 5), a=1)]</span>
-<span class="sd">    &gt;&gt;&gt; df.rdd.map(lambda x: (x.i, x.s, x.d, x.l, x.b, x.time, x.row.a, x.list)).collect()</span>
-<span class="sd">    [(1, &#39;string&#39;, 1.0, 1, True, datetime.datetime(2014, 8, 1, 14, 1, 5), 1, [1, 2, 3])]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">class</span> <span class="nc">Builder</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Builder for :class:`SparkSession`.&quot;&quot;&quot;</span>
 
         <span class="n">_lock</span> <span class="o">=</span> <span class="n">RLock</span><span class="p">()</span>
-        <span class="n">_options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">_sc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SparkContext</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="nd">@overload</span>
         <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">conf</span><span class="p">:</span> <span class="n">SparkConf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparkSession.Builder&quot;</span><span class="p">:</span>
@@ -302,16 +356,25 @@
         <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparkSession.Builder&quot;</span><span class="p">:</span>
             <span class="o">...</span>
 
+        <span class="nd">@overload</span>
+        <span class="k">def</span> <span class="nf">config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="nb">map</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;OptionalPrimitiveType&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparkSession.Builder&quot;</span><span class="p">:</span>
+            <span class="o">...</span>
+
         <span class="k">def</span> <span class="nf">config</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">key</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">conf</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SparkConf</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">*</span><span class="p">,</span>
+            <span class="nb">map</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="s2">&quot;OptionalPrimitiveType&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparkSession.Builder&quot;</span><span class="p">:</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;Sets a config option. Options set using this method are automatically propagated to</span>
 <span class="sd">            both :class:`SparkConf` and :class:`SparkSession`&#39;s own configuration.</span>
 
 <span class="sd">            .. versionadded:: 2.0.0</span>
+
+<span class="sd">            .. versionchanged:: 3.4.0</span>
+<span class="sd">                Support Spark Connect.</span>
 
 <span class="sd">            Parameters</span>
 <span class="sd">            ----------</span>
@@ -321,27 +384,74 @@
 <span class="sd">                a value for configuration property</span>
 <span class="sd">            conf : :class:`SparkConf`, optional</span>
 <span class="sd">                an instance of :class:`SparkConf`</span>
+<span class="sd">            map: dictionary, optional</span>
+<span class="sd">                a dictionary of configurations to set</span>
+
+<span class="sd">                .. versionadded:: 3.4.0</span>
+
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            :class:`SparkSession.Builder`</span>
 
 <span class="sd">            Examples</span>
 <span class="sd">            --------</span>
-<span class="sd">            For an existing SparkConf, use `conf` parameter.</span>
+<span class="sd">            For an existing class:`SparkConf`, use `conf` parameter.</span>
 
 <span class="sd">            &gt;&gt;&gt; from pyspark.conf import SparkConf</span>
 <span class="sd">            &gt;&gt;&gt; SparkSession.builder.config(conf=SparkConf())</span>
-<span class="sd">            &lt;pyspark.sql.session...</span>
+<span class="sd">            &lt;pyspark.sql.session.SparkSession.Builder...</span>
 
 <span class="sd">            For a (key, value) pair, you can omit parameter names.</span>
 
 <span class="sd">            &gt;&gt;&gt; SparkSession.builder.config(&quot;spark.some.config.option&quot;, &quot;some-value&quot;)</span>
-<span class="sd">            &lt;pyspark.sql.session...</span>
+<span class="sd">            &lt;pyspark.sql.session.SparkSession.Builder...</span>
 
+<span class="sd">            Additionally, you can pass a dictionary of configurations to set.</span>
+
+<span class="sd">            &gt;&gt;&gt; SparkSession.builder.config(</span>
+<span class="sd">            ...     map={&quot;spark.some.config.number&quot;: 123, &quot;spark.some.config.float&quot;: 0.123})</span>
+<span class="sd">            &lt;pyspark.sql.session.SparkSession.Builder...</span>
 <span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="k">def</span> <span class="nf">check_startup_urls</span><span class="p">(</span><span class="n">k</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;spark.master&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s2">&quot;spark.remote&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span> <span class="ow">or</span> <span class="s2">&quot;SPARK_REMOTE&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                            <span class="s2">&quot;Spark master cannot be configured with Spark Connect server; &quot;</span>
+                            <span class="s2">&quot;however, found URL for Spark Connect [</span><span class="si">%s</span><span class="s2">]&quot;</span>
+                            <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;spark.remote&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SPARK_REMOTE&quot;</span><span class="p">))</span>
+                        <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">k</span> <span class="o">==</span> <span class="s2">&quot;spark.remote&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="s2">&quot;spark.master&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span> <span class="ow">or</span> <span class="s2">&quot;MASTER&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                            <span class="s2">&quot;Spark Connect server cannot be configured with Spark master; &quot;</span>
+                            <span class="s2">&quot;however, found URL for Spark master [</span><span class="si">%s</span><span class="s2">]&quot;</span>
+                            <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;spark.master&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;MASTER&quot;</span><span class="p">))</span>
+                        <span class="p">)</span>
+
+                    <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;SPARK_REMOTE&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;SPARK_REMOTE&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">v</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+                        <span class="s2">&quot;SPARK_LOCAL_REMOTE&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">v</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;local&quot;</span><span class="p">)</span>
+                    <span class="p">):</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                            <span class="s2">&quot;Only one Spark Connect client URL can be set; however, got a &quot;</span>
+                            <span class="s2">&quot;different URL [</span><span class="si">%s</span><span class="s2">] from the existing [</span><span class="si">%s</span><span class="s2">]&quot;</span>
+                            <span class="o">%</span> <span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;SPARK_REMOTE&quot;</span><span class="p">],</span> <span class="n">v</span><span class="p">)</span>
+                        <span class="p">)</span>
+
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">conf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">[</span><span class="n">cast</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">key</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">conf</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">conf</span><span class="o">.</span><span class="n">getAll</span><span class="p">():</span>
+                        <span class="n">check_startup_urls</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+                <span class="k">elif</span> <span class="nb">map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>  <span class="c1"># type: ignore[assignment]</span>
+                        <span class="n">v</span> <span class="o">=</span> <span class="n">to_str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>  <span class="c1"># type: ignore[assignment]</span>
+                        <span class="n">check_startup_urls</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">to_str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                    <span class="n">check_startup_urls</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">[</span><span class="n">cast</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">key</span><span class="p">)]</span> <span class="o">=</span> <span class="n">value</span>
                 <span class="k">return</span> <span class="bp">self</span>
 
         <span class="k">def</span> <span class="nf">master</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">master</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparkSession.Builder&quot;</span><span class="p">:</span>
@@ -355,8 +465,39 @@
 <span class="sd">            ----------</span>
 <span class="sd">            master : str</span>
 <span class="sd">                a url for spark master</span>
+
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            :class:`SparkSession.Builder`</span>
+
+<span class="sd">            Examples</span>
+<span class="sd">            --------</span>
+<span class="sd">            &gt;&gt;&gt; SparkSession.builder.master(&quot;local&quot;)</span>
+<span class="sd">            &lt;pyspark.sql.session.SparkSession.Builder...</span>
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s2">&quot;spark.master&quot;</span><span class="p">,</span> <span class="n">master</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">remote</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparkSession.Builder&quot;</span><span class="p">:</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Sets the Spark remote URL to connect to, such as &quot;sc://host:port&quot; to run</span>
+<span class="sd">            it via Spark Connect server.</span>
+
+<span class="sd">            .. versionadded:: 3.4.0</span>
+
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            url : str</span>
+<span class="sd">                URL to Spark Connect server</span>
+
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            :class:`SparkSession.Builder`</span>
+
+<span class="sd">            Examples</span>
+<span class="sd">            --------</span>
+<span class="sd">            &gt;&gt;&gt; SparkSession.builder.remote(&quot;sc://localhost&quot;)  # doctest: +SKIP</span>
+<span class="sd">            &lt;pyspark.sql.session.SparkSession.Builder...</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s2">&quot;spark.remote&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">appName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparkSession.Builder&quot;</span><span class="p">:</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;Sets a name for the application, which will be shown in the Spark web UI.</span>
@@ -365,17 +506,39 @@
 
 <span class="sd">            .. versionadded:: 2.0.0</span>
 
+<span class="sd">            .. versionchanged:: 3.4.0</span>
+<span class="sd">                Support Spark Connect.</span>
+
 <span class="sd">            Parameters</span>
 <span class="sd">            ----------</span>
 <span class="sd">            name : str</span>
 <span class="sd">                an application name</span>
+
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            :class:`SparkSession.Builder`</span>
+
+<span class="sd">            Examples</span>
+<span class="sd">            --------</span>
+<span class="sd">            &gt;&gt;&gt; SparkSession.builder.appName(&quot;My app&quot;)</span>
+<span class="sd">            &lt;pyspark.sql.session.SparkSession.Builder...</span>
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s2">&quot;spark.app.name&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
 
-        <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
         <span class="k">def</span> <span class="nf">enableHiveSupport</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparkSession.Builder&quot;</span><span class="p">:</span>
 <span class="w">            </span><span class="sd">&quot;&quot;&quot;Enables Hive support, including connectivity to a persistent Hive metastore, support</span>
 <span class="sd">            for Hive SerDes, and Hive user-defined functions.</span>
+
+<span class="sd">            .. versionadded:: 2.0.0</span>
+
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            :class:`SparkSession.Builder`</span>
+
+<span class="sd">            Examples</span>
+<span class="sd">            --------</span>
+<span class="sd">            &gt;&gt;&gt; SparkSession.builder.enableHiveSupport()</span>
+<span class="sd">            &lt;pyspark.sql.session.SparkSession.Builder...</span>
 <span class="sd">            &quot;&quot;&quot;</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s2">&quot;spark.sql.catalogImplementation&quot;</span><span class="p">,</span> <span class="s2">&quot;hive&quot;</span><span class="p">)</span>
 
@@ -384,6 +547,13 @@
 <span class="sd">            new one based on the options set in this builder.</span>
 
 <span class="sd">            .. versionadded:: 2.0.0</span>
+
+<span class="sd">            .. versionchanged:: 3.4.0</span>
+<span class="sd">                Support Spark Connect.</span>
+
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            :class:`SparkSession`</span>
 
 <span class="sd">            Examples</span>
 <span class="sd">            --------</span>
@@ -396,18 +566,55 @@
 <span class="sd">            &gt;&gt;&gt; s1.conf.get(&quot;k1&quot;) == &quot;v1&quot;</span>
 <span class="sd">            True</span>
 
+<span class="sd">            The configuration of the SparkSession can be changed afterwards</span>
+
+<span class="sd">            &gt;&gt;&gt; s1.conf.set(&quot;k1&quot;, &quot;v1_new&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; s1.conf.get(&quot;k1&quot;) == &quot;v1_new&quot;</span>
+<span class="sd">            True</span>
+
 <span class="sd">            In case an existing SparkSession is returned, the config options specified</span>
 <span class="sd">            in this builder will be applied to the existing SparkSession.</span>
 
 <span class="sd">            &gt;&gt;&gt; s2 = SparkSession.builder.config(&quot;k2&quot;, &quot;v2&quot;).getOrCreate()</span>
-<span class="sd">            &gt;&gt;&gt; s1.conf.get(&quot;k1&quot;) == s2.conf.get(&quot;k1&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; s1.conf.get(&quot;k1&quot;) == s2.conf.get(&quot;k1&quot;) == &quot;v1_new&quot;</span>
 <span class="sd">            True</span>
-<span class="sd">            &gt;&gt;&gt; s1.conf.get(&quot;k2&quot;) == s2.conf.get(&quot;k2&quot;)</span>
+<span class="sd">            &gt;&gt;&gt; s1.conf.get(&quot;k2&quot;) == s2.conf.get(&quot;k2&quot;) == &quot;v2&quot;</span>
 <span class="sd">            True</span>
 <span class="sd">            &quot;&quot;&quot;</span>
+            <span class="kn">from</span> <span class="nn">pyspark.context</span> <span class="kn">import</span> <span class="n">SparkContext</span>
+            <span class="kn">from</span> <span class="nn">pyspark.conf</span> <span class="kn">import</span> <span class="n">SparkConf</span>
+
+            <span class="n">opts</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">)</span>
+
             <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
-                <span class="kn">from</span> <span class="nn">pyspark.context</span> <span class="kn">import</span> <span class="n">SparkContext</span>
-                <span class="kn">from</span> <span class="nn">pyspark.conf</span> <span class="kn">import</span> <span class="n">SparkConf</span>
+                <span class="k">if</span> <span class="s2">&quot;SPARK_REMOTE&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span> <span class="ow">or</span> <span class="s2">&quot;spark.remote&quot;</span> <span class="ow">in</span> <span class="n">opts</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="n">SparkContext</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+                        <span class="kn">from</span> <span class="nn">pyspark.sql.connect.session</span> <span class="kn">import</span> <span class="n">SparkSession</span> <span class="k">as</span> <span class="n">RemoteSparkSession</span>
+
+                        <span class="k">if</span> <span class="p">(</span>
+                            <span class="n">SparkContext</span><span class="o">.</span><span class="n">_active_spark_context</span> <span class="ow">is</span> <span class="kc">None</span>
+                            <span class="ow">and</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">_instantiatedSession</span> <span class="ow">is</span> <span class="kc">None</span>
+                        <span class="p">):</span>
+                            <span class="n">url</span> <span class="o">=</span> <span class="n">opts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;spark.remote&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SPARK_REMOTE&quot;</span><span class="p">))</span>
+
+                            <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;local&quot;</span><span class="p">):</span>
+                                <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;SPARK_LOCAL_REMOTE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;1&quot;</span>
+                                <span class="n">RemoteSparkSession</span><span class="o">.</span><span class="n">_start_connect_server</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">opts</span><span class="p">)</span>
+                                <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;sc://localhost&quot;</span>
+
+                            <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;SPARK_REMOTE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">url</span>
+                            <span class="n">opts</span><span class="p">[</span><span class="s2">&quot;spark.remote&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">url</span>
+                            <span class="k">return</span> <span class="n">RemoteSparkSession</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="nb">map</span><span class="o">=</span><span class="n">opts</span><span class="p">)</span><span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+                        <span class="k">elif</span> <span class="s2">&quot;SPARK_LOCAL_REMOTE&quot;</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+                            <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;sc://localhost&quot;</span>
+                            <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;SPARK_REMOTE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">url</span>
+                            <span class="n">opts</span><span class="p">[</span><span class="s2">&quot;spark.remote&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">url</span>
+                            <span class="k">return</span> <span class="n">RemoteSparkSession</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="nb">map</span><span class="o">=</span><span class="n">opts</span><span class="p">)</span><span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                                <span class="s2">&quot;Cannot start a remote Spark session because there &quot;</span>
+                                <span class="s2">&quot;is a regular Spark session already running.&quot;</span>
+                            <span class="p">)</span>
 
                 <span class="n">session</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">_instantiatedSession</span>
                 <span class="k">if</span> <span class="n">session</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">session</span><span class="o">.</span><span class="n">_sc</span><span class="o">.</span><span class="n">_jsc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -425,8 +632,18 @@
                     <span class="p">)</span><span class="o">.</span><span class="n">applyModifiableSettings</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">_jsparkSession</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">session</span>
 
-    <span class="n">builder</span> <span class="o">=</span> <span class="n">Builder</span><span class="p">()</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A class attribute having a :class:`Builder` to construct :class:`SparkSession` instances.&quot;&quot;&quot;</span>
+    <span class="c1"># TODO(SPARK-38912): Replace @classproperty with @classmethod + @property once support for</span>
+    <span class="c1"># Python 3.8 is dropped.</span>
+    <span class="c1">#</span>
+    <span class="c1"># In Python 3.9, the @property decorator has been made compatible with the</span>
+    <span class="c1"># @classmethod decorator (https://docs.python.org/3.9/library/functions.html#classmethod)</span>
+    <span class="c1">#</span>
+    <span class="c1"># @classmethod + @property is also affected by a bug in Python&#39;s docstring which was backported</span>
+    <span class="c1"># to Python 3.9.6 (https://github.com/python/cpython/pull/28838)</span>
+<div class="viewcode-block" id="SparkSession.builder"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.SparkSession.html#pyspark.sql.SparkSession.builder">[docs]</a>    <span class="nd">@classproperty</span>
+    <span class="k">def</span> <span class="nf">builder</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Builder</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a :class:`Builder` for constructing a :class:`SparkSession`.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">Builder</span><span class="p">()</span></div>
 
     <span class="n">_instantiatedSession</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SparkSession&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">_activeSession</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="s2">&quot;SparkSession&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -490,12 +707,23 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Accessor for the JVM SQL-specific configurations&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jsparkSession</span><span class="o">.</span><span class="n">sessionState</span><span class="p">()</span><span class="o">.</span><span class="n">conf</span><span class="p">()</span>
 
-<div class="viewcode-block" id="SparkSession.newSession"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.SparkSession.newSession.html#pyspark.sql.SparkSession.newSession">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">newSession</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparkSession&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="SparkSession.newSession"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.SparkSession.newSession.html#pyspark.sql.SparkSession.newSession">[docs]</a>    <span class="k">def</span> <span class="nf">newSession</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparkSession&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a new :class:`SparkSession` as new session, that has separate SQLConf,</span>
 <span class="sd">        registered temporary views and UDFs, but shared :class:`SparkContext` and</span>
 <span class="sd">        table cache.</span>
+
+<span class="sd">        .. versionadded:: 2.0.0</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`SparkSession`</span>
+<span class="sd">            Spark session if an active session exists for the current thread</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; spark.newSession()</span>
+<span class="sd">        &lt;...SparkSession object ...&gt;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jsparkSession</span><span class="o">.</span><span class="n">newSession</span><span class="p">())</span></div>
 
@@ -514,11 +742,13 @@
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        &gt;&gt;&gt; s = SparkSession.getActiveSession()</span>
-<span class="sd">        &gt;&gt;&gt; l = [(&#39;Alice&#39;, 1)]</span>
-<span class="sd">        &gt;&gt;&gt; rdd = s.sparkContext.parallelize(l)</span>
-<span class="sd">        &gt;&gt;&gt; df = s.createDataFrame(rdd, [&#39;name&#39;, &#39;age&#39;])</span>
-<span class="sd">        &gt;&gt;&gt; df.select(&quot;age&quot;).collect()</span>
-<span class="sd">        [Row(age=1)]</span>
+<span class="sd">        &gt;&gt;&gt; df = s.createDataFrame([(&#39;Alice&#39;, 1)], [&#39;name&#39;, &#39;age&#39;])</span>
+<span class="sd">        &gt;&gt;&gt; df.select(&quot;age&quot;).show()</span>
+<span class="sd">        +---+</span>
+<span class="sd">        |age|</span>
+<span class="sd">        +---+</span>
+<span class="sd">        |  1|</span>
+<span class="sd">        +---+</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">pyspark</span> <span class="kn">import</span> <span class="n">SparkContext</span>
 
@@ -533,20 +763,49 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="kc">None</span></div>
 
-    <span class="nd">@property</span>  <span class="c1"># type: ignore[misc]</span>
-    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">sparkContext</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SparkContext</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the underlying :class:`SparkContext`.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the underlying :class:`SparkContext`.</span>
+
+<span class="sd">        .. versionadded:: 2.0.0</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        :class:`SparkContext`</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; spark.sparkContext</span>
+<span class="sd">        &lt;SparkContext master=... appName=...&gt;</span>
+
+<span class="sd">        Create an RDD from the Spark context</span>
+
+<span class="sd">        &gt;&gt;&gt; rdd = spark.sparkContext.parallelize([1, 2, 3])</span>
+<span class="sd">        &gt;&gt;&gt; rdd.collect()</span>
+<span class="sd">        [1, 2, 3]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sc</span>
 
-    <span class="nd">@property</span>  <span class="c1"># type: ignore[misc]</span>
-    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">version</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The version of Spark on which this application is running.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The version of Spark on which this application is running.</span>
+
+<span class="sd">        .. versionadded:: 2.0.0</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            the version of Spark in string.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; _ = spark.version</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jsparkSession</span><span class="o">.</span><span class="n">version</span><span class="p">()</span>
 
-    <span class="nd">@property</span>  <span class="c1"># type: ignore[misc]</span>
-    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">conf</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RuntimeConfig</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Runtime configuration interface for Spark.</span>
 
@@ -554,9 +813,22 @@
 <span class="sd">        configurations that are relevant to Spark SQL. When getting the value of a config,</span>
 <span class="sd">        this defaults to the value set in the underlying :class:`SparkContext`, if any.</span>
 
+<span class="sd">        .. versionadded:: 2.0.0</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        :class:`pyspark.sql.conf.RuntimeConfig`</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; spark.conf</span>
+<span class="sd">        &lt;pyspark.sql.conf.RuntimeConfig object ...&gt;</span>
+
+<span class="sd">        Set a runtime configuration for the session</span>
+
+<span class="sd">        &gt;&gt;&gt; spark.conf.set(&quot;key&quot;, &quot;value&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; spark.conf.get(&quot;key&quot;)</span>
+<span class="sd">        &#39;value&#39;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_conf&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span> <span class="o">=</span> <span class="n">RuntimeConfig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jsparkSession</span><span class="o">.</span><span class="n">conf</span><span class="p">())</span>
@@ -569,9 +841,24 @@
 
 <span class="sd">        .. versionadded:: 2.0.0</span>
 
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        :class:`Catalog`</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; spark.catalog</span>
+<span class="sd">        &lt;...Catalog object ...&gt;</span>
+
+<span class="sd">        Create a temp view, show the list, and drop it.</span>
+
+<span class="sd">        &gt;&gt;&gt; spark.range(1).createTempView(&quot;test_view&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; spark.catalog.listTables()</span>
+<span class="sd">        [Table(name=&#39;test_view&#39;, catalog=None, namespace=[], description=None, ...</span>
+<span class="sd">        &gt;&gt;&gt; _ = spark.catalog.dropTempView(&quot;test_view&quot;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">pyspark.sql.catalog</span> <span class="kn">import</span> <span class="n">Catalog</span>
 
@@ -585,9 +872,24 @@
 
 <span class="sd">        .. versionadded:: 2.0.0</span>
 
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        :class:`UDFRegistration`</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        Register a Python UDF, and use it in SQL.</span>
+
+<span class="sd">        &gt;&gt;&gt; strlen = spark.udf.register(&quot;strlen&quot;, lambda x: len(x))</span>
+<span class="sd">        &gt;&gt;&gt; spark.sql(&quot;SELECT strlen(&#39;test&#39;)&quot;).show()</span>
+<span class="sd">        +------------+</span>
+<span class="sd">        |strlen(test)|</span>
+<span class="sd">        +------------+</span>
+<span class="sd">        |           4|</span>
+<span class="sd">        +------------+</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">pyspark.sql.udf</span> <span class="kn">import</span> <span class="n">UDFRegistration</span>
 
@@ -607,6 +909,9 @@
 
 <span class="sd">        .. versionadded:: 2.0.0</span>
 
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        start : int</span>
@@ -624,13 +929,25 @@
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; spark.range(1, 7, 2).collect()</span>
-<span class="sd">        [Row(id=1), Row(id=3), Row(id=5)]</span>
+<span class="sd">        &gt;&gt;&gt; spark.range(1, 7, 2).show()</span>
+<span class="sd">        +---+</span>
+<span class="sd">        | id|</span>
+<span class="sd">        +---+</span>
+<span class="sd">        |  1|</span>
+<span class="sd">        |  3|</span>
+<span class="sd">        |  5|</span>
+<span class="sd">        +---+</span>
 
 <span class="sd">        If only one argument is specified, it will be used as the end value.</span>
 
-<span class="sd">        &gt;&gt;&gt; spark.range(3).collect()</span>
-<span class="sd">        [Row(id=0), Row(id=1), Row(id=2)]</span>
+<span class="sd">        &gt;&gt;&gt; spark.range(3).show()</span>
+<span class="sd">        +---+</span>
+<span class="sd">        | id|</span>
+<span class="sd">        +---+</span>
+<span class="sd">        |  0|</span>
+<span class="sd">        |  1|</span>
+<span class="sd">        |  2|</span>
+<span class="sd">        +---+</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">numPartitions</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">numPartitions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sc</span><span class="o">.</span><span class="n">defaultParallelism</span>
@@ -662,10 +979,20 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;can not infer schema from empty dataset&quot;</span><span class="p">)</span>
         <span class="n">infer_dict_as_struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jconf</span><span class="o">.</span><span class="n">inferDictAsStruct</span><span class="p">()</span>
+        <span class="n">infer_array_from_first_element</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jconf</span><span class="o">.</span><span class="n">legacyInferArrayTypeFromFirstElement</span><span class="p">()</span>
         <span class="n">prefer_timestamp_ntz</span> <span class="o">=</span> <span class="n">is_timestamp_ntz_preferred</span><span class="p">()</span>
         <span class="n">schema</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span>
             <span class="n">_merge_type</span><span class="p">,</span>
-            <span class="p">(</span><span class="n">_infer_schema</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">infer_dict_as_struct</span><span class="p">,</span> <span class="n">prefer_timestamp_ntz</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span><span class="p">),</span>
+            <span class="p">(</span>
+                <span class="n">_infer_schema</span><span class="p">(</span>
+                    <span class="n">row</span><span class="p">,</span>
+                    <span class="n">names</span><span class="p">,</span>
+                    <span class="n">infer_dict_as_struct</span><span class="o">=</span><span class="n">infer_dict_as_struct</span><span class="p">,</span>
+                    <span class="n">infer_array_from_first_element</span><span class="o">=</span><span class="n">infer_array_from_first_element</span><span class="p">,</span>
+                    <span class="n">prefer_timestamp_ntz</span><span class="o">=</span><span class="n">prefer_timestamp_ntz</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">data</span>
+            <span class="p">),</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">_has_nulltype</span><span class="p">(</span><span class="n">schema</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Some of types cannot be determined after inferring&quot;</span><span class="p">)</span>
@@ -693,10 +1020,11 @@
 <span class="sd">        :class:`pyspark.sql.types.StructType`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">first</span> <span class="o">=</span> <span class="n">rdd</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">first</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The first row in RDD is empty, &quot;</span> <span class="s2">&quot;can not infer schema&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">Sized</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">first</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The first row in RDD is empty, can not infer schema&quot;</span><span class="p">)</span>
 
         <span class="n">infer_dict_as_struct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jconf</span><span class="o">.</span><span class="n">inferDictAsStruct</span><span class="p">()</span>
+        <span class="n">infer_array_from_first_element</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jconf</span><span class="o">.</span><span class="n">legacyInferArrayTypeFromFirstElement</span><span class="p">()</span>
         <span class="n">prefer_timestamp_ntz</span> <span class="o">=</span> <span class="n">is_timestamp_ntz_preferred</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">samplingRatio</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">schema</span> <span class="o">=</span> <span class="n">_infer_schema</span><span class="p">(</span>
@@ -713,6 +1041,7 @@
                             <span class="n">row</span><span class="p">,</span>
                             <span class="n">names</span><span class="o">=</span><span class="n">names</span><span class="p">,</span>
                             <span class="n">infer_dict_as_struct</span><span class="o">=</span><span class="n">infer_dict_as_struct</span><span class="p">,</span>
+                            <span class="n">infer_array_from_first_element</span><span class="o">=</span><span class="n">infer_array_from_first_element</span><span class="p">,</span>
                             <span class="n">prefer_timestamp_ntz</span><span class="o">=</span><span class="n">prefer_timestamp_ntz</span><span class="p">,</span>
                         <span class="p">),</span>
                     <span class="p">)</span>
@@ -731,6 +1060,7 @@
                     <span class="n">row</span><span class="p">,</span>
                     <span class="n">names</span><span class="p">,</span>
                     <span class="n">infer_dict_as_struct</span><span class="o">=</span><span class="n">infer_dict_as_struct</span><span class="p">,</span>
+                    <span class="n">infer_array_from_first_element</span><span class="o">=</span><span class="n">infer_array_from_first_element</span><span class="p">,</span>
                     <span class="n">prefer_timestamp_ntz</span><span class="o">=</span><span class="n">prefer_timestamp_ntz</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="p">)</span><span class="o">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">_merge_type</span><span class="p">)</span>
@@ -915,50 +1245,52 @@
 
 <div class="viewcode-block" id="SparkSession.createDataFrame"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.SparkSession.createDataFrame.html#pyspark.sql.SparkSession.createDataFrame">[docs]</a>    <span class="k">def</span> <span class="nf">createDataFrame</span><span class="p">(</span>  <span class="c1"># type: ignore[misc]</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">RDD</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="s2">&quot;PandasDataFrameLike&quot;</span><span class="p">],</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">RDD</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="s2">&quot;PandasDataFrameLike&quot;</span><span class="p">,</span> <span class="s2">&quot;ArrayLike&quot;</span><span class="p">],</span>
         <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">AtomicType</span><span class="p">,</span> <span class="n">StructType</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">samplingRatio</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">verifySchema</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Creates a :class:`DataFrame` from an :class:`RDD`, a list or a :class:`pandas.DataFrame`.</span>
-
-<span class="sd">        When ``schema`` is a list of column names, the type of each column</span>
-<span class="sd">        will be inferred from ``data``.</span>
-
-<span class="sd">        When ``schema`` is ``None``, it will try to infer the schema (column names and types)</span>
-<span class="sd">        from ``data``, which should be an RDD of either :class:`Row`,</span>
-<span class="sd">        :class:`namedtuple`, or :class:`dict`.</span>
-
-<span class="sd">        When ``schema`` is :class:`pyspark.sql.types.DataType` or a datatype string, it must match</span>
-<span class="sd">        the real data, or an exception will be thrown at runtime. If the given schema is not</span>
-<span class="sd">        :class:`pyspark.sql.types.StructType`, it will be wrapped into a</span>
-<span class="sd">        :class:`pyspark.sql.types.StructType` as its only field, and the field name will be &quot;value&quot;.</span>
-<span class="sd">        Each record will also be wrapped into a tuple, which can be converted to row later.</span>
-
-<span class="sd">        If schema inference is needed, ``samplingRatio`` is used to determined the ratio of</span>
-<span class="sd">        rows used for schema inference. The first row will be used if ``samplingRatio`` is ``None``.</span>
+<span class="sd">        Creates a :class:`DataFrame` from an :class:`RDD`, a list, a :class:`pandas.DataFrame`</span>
+<span class="sd">        or a :class:`numpy.ndarray`.</span>
 
 <span class="sd">        .. versionadded:: 2.0.0</span>
 
-<span class="sd">        .. versionchanged:: 2.1.0</span>
-<span class="sd">           Added verifySchema.</span>
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        data : :class:`RDD` or iterable</span>
 <span class="sd">            an RDD of any kind of SQL data representation (:class:`Row`,</span>
-<span class="sd">            :class:`tuple`, ``int``, ``boolean``, etc.), or :class:`list`, or</span>
-<span class="sd">            :class:`pandas.DataFrame`.</span>
+<span class="sd">            :class:`tuple`, ``int``, ``boolean``, etc.), or :class:`list`,</span>
+<span class="sd">            :class:`pandas.DataFrame` or :class:`numpy.ndarray`.</span>
 <span class="sd">        schema : :class:`pyspark.sql.types.DataType`, str or list, optional</span>
 <span class="sd">            a :class:`pyspark.sql.types.DataType` or a datatype string or a list of</span>
 <span class="sd">            column names, default is None.  The data type string format equals to</span>
 <span class="sd">            :class:`pyspark.sql.types.DataType.simpleString`, except that top level struct type can</span>
 <span class="sd">            omit the ``struct&lt;&gt;``.</span>
+
+<span class="sd">            When ``schema`` is a list of column names, the type of each column</span>
+<span class="sd">            will be inferred from ``data``.</span>
+
+<span class="sd">            When ``schema`` is ``None``, it will try to infer the schema (column names and types)</span>
+<span class="sd">            from ``data``, which should be an RDD of either :class:`Row`,</span>
+<span class="sd">            :class:`namedtuple`, or :class:`dict`.</span>
+
+<span class="sd">            When ``schema`` is :class:`pyspark.sql.types.DataType` or a datatype string, it must</span>
+<span class="sd">            match the real data, or an exception will be thrown at runtime. If the given schema is</span>
+<span class="sd">            not :class:`pyspark.sql.types.StructType`, it will be wrapped into a</span>
+<span class="sd">            :class:`pyspark.sql.types.StructType` as its only field, and the field name will be</span>
+<span class="sd">            &quot;value&quot;. Each record will also be wrapped into a tuple, which can be converted to row</span>
+<span class="sd">            later.</span>
 <span class="sd">        samplingRatio : float, optional</span>
-<span class="sd">            the sample ratio of rows used for inferring</span>
+<span class="sd">            the sample ratio of rows used for inferring. The first few rows will be used</span>
+<span class="sd">            if ``samplingRatio`` is ``None``.</span>
 <span class="sd">        verifySchema : bool, optional</span>
 <span class="sd">            verify data types of every row against schema. Enabled by default.</span>
+
+<span class="sd">            .. versionadded:: 2.1.0</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -966,26 +1298,33 @@
 
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
-<span class="sd">        Usage with spark.sql.execution.arrow.pyspark.enabled=True is experimental.</span>
+<span class="sd">        Usage with `spark.sql.execution.arrow.pyspark.enabled=True` is experimental.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; l = [(&#39;Alice&#39;, 1)]</span>
-<span class="sd">        &gt;&gt;&gt; spark.createDataFrame(l).collect()</span>
+<span class="sd">        Create a DataFrame from a list of tuples.</span>
+
+<span class="sd">        &gt;&gt;&gt; spark.createDataFrame([(&#39;Alice&#39;, 1)]).collect()</span>
 <span class="sd">        [Row(_1=&#39;Alice&#39;, _2=1)]</span>
-<span class="sd">        &gt;&gt;&gt; spark.createDataFrame(l, [&#39;name&#39;, &#39;age&#39;]).collect()</span>
+<span class="sd">        &gt;&gt;&gt; spark.createDataFrame([(&#39;Alice&#39;, 1)], [&#39;name&#39;, &#39;age&#39;]).collect()</span>
 <span class="sd">        [Row(name=&#39;Alice&#39;, age=1)]</span>
+
+<span class="sd">        Create a DataFrame from a list of dictionaries</span>
 
 <span class="sd">        &gt;&gt;&gt; d = [{&#39;name&#39;: &#39;Alice&#39;, &#39;age&#39;: 1}]</span>
 <span class="sd">        &gt;&gt;&gt; spark.createDataFrame(d).collect()</span>
 <span class="sd">        [Row(age=1, name=&#39;Alice&#39;)]</span>
 
-<span class="sd">        &gt;&gt;&gt; rdd = sc.parallelize(l)</span>
+<span class="sd">        Create a DataFrame from an RDD.</span>
+
+<span class="sd">        &gt;&gt;&gt; rdd = spark.sparkContext.parallelize([(&#39;Alice&#39;, 1)])</span>
 <span class="sd">        &gt;&gt;&gt; spark.createDataFrame(rdd).collect()</span>
 <span class="sd">        [Row(_1=&#39;Alice&#39;, _2=1)]</span>
 <span class="sd">        &gt;&gt;&gt; df = spark.createDataFrame(rdd, [&#39;name&#39;, &#39;age&#39;])</span>
 <span class="sd">        &gt;&gt;&gt; df.collect()</span>
 <span class="sd">        [Row(name=&#39;Alice&#39;, age=1)]</span>
+
+<span class="sd">        Create a DataFrame from Row instances.</span>
 
 <span class="sd">        &gt;&gt;&gt; from pyspark.sql import Row</span>
 <span class="sd">        &gt;&gt;&gt; Person = Row(&#39;name&#39;, &#39;age&#39;)</span>
@@ -993,6 +1332,8 @@
 <span class="sd">        &gt;&gt;&gt; df2 = spark.createDataFrame(person)</span>
 <span class="sd">        &gt;&gt;&gt; df2.collect()</span>
 <span class="sd">        [Row(name=&#39;Alice&#39;, age=1)]</span>
+
+<span class="sd">        Create a DataFrame with the explicit schema specified.</span>
 
 <span class="sd">        &gt;&gt;&gt; from pyspark.sql.types import *</span>
 <span class="sd">        &gt;&gt;&gt; schema = StructType([</span>
@@ -1002,16 +1343,23 @@
 <span class="sd">        &gt;&gt;&gt; df3.collect()</span>
 <span class="sd">        [Row(name=&#39;Alice&#39;, age=1)]</span>
 
+<span class="sd">        Create a DataFrame from a pandas DataFrame.</span>
+
 <span class="sd">        &gt;&gt;&gt; spark.createDataFrame(df.toPandas()).collect()  # doctest: +SKIP</span>
 <span class="sd">        [Row(name=&#39;Alice&#39;, age=1)]</span>
 <span class="sd">        &gt;&gt;&gt; spark.createDataFrame(pandas.DataFrame([[1, 2]])).collect()  # doctest: +SKIP</span>
 <span class="sd">        [Row(0=1, 1=2)]</span>
+
+<span class="sd">        Create  a DataFrame from an RDD with the schema in DDL formatted string.</span>
 
 <span class="sd">        &gt;&gt;&gt; spark.createDataFrame(rdd, &quot;a: string, b: int&quot;).collect()</span>
 <span class="sd">        [Row(a=&#39;Alice&#39;, b=1)]</span>
 <span class="sd">        &gt;&gt;&gt; rdd = rdd.map(lambda row: row[1])</span>
 <span class="sd">        &gt;&gt;&gt; spark.createDataFrame(rdd, &quot;int&quot;).collect()</span>
 <span class="sd">        [Row(value=1)]</span>
+
+<span class="sd">        When the type is unmatched, it throws an exception.</span>
+
 <span class="sd">        &gt;&gt;&gt; spark.createDataFrame(rdd, &quot;boolean&quot;).collect() # doctest: +IGNORE_EXCEPTION_DETAIL</span>
 <span class="sd">        Traceback (most recent call last):</span>
 <span class="sd">            ...</span>
@@ -1030,12 +1378,45 @@
             <span class="n">schema</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">schema</span><span class="p">]</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="kn">import</span> <span class="nn">pandas</span>
+            <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
             <span class="n">has_pandas</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="n">has_pandas</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="n">has_pandas</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+            <span class="n">has_numpy</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">has_numpy</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">has_numpy</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="c1"># `data` of numpy.ndarray type will be converted to a pandas DataFrame,</span>
+            <span class="c1"># so pandas is required.</span>
+            <span class="kn">from</span> <span class="nn">pyspark.sql.pandas.utils</span> <span class="kn">import</span> <span class="n">require_minimum_pandas_version</span>
+
+            <span class="n">require_minimum_pandas_version</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;NumPy array input should be of 1 or 2 dimensions.&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">column_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">column_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+
+            <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_jconf</span><span class="o">.</span><span class="n">arrowPySparkEnabled</span><span class="p">():</span>
+                <span class="c1"># Construct `schema` from `np.dtype` of the input NumPy array</span>
+                <span class="c1"># TODO: Apply the logic below when self._jconf.arrowPySparkEnabled() is True</span>
+                <span class="n">spark_type</span> <span class="o">=</span> <span class="n">_from_numpy_type</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">spark_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">(</span>
+                        <span class="p">[</span><span class="n">StructField</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">spark_type</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">column_names</span><span class="p">]</span>
+                    <span class="p">)</span>
+
+            <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">column_names</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">has_pandas</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
             <span class="c1"># Create a DataFrame from pandas DataFrame.</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">SparkSession</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span>  <span class="c1"># type: ignore[call-overload]</span>
                 <span class="n">data</span><span class="p">,</span> <span class="n">schema</span><span class="p">,</span> <span class="n">samplingRatio</span><span class="p">,</span> <span class="n">verifySchema</span>
@@ -1090,17 +1471,26 @@
         <span class="n">df</span><span class="o">.</span><span class="n">_schema</span> <span class="o">=</span> <span class="n">struct</span>
         <span class="k">return</span> <span class="n">df</span>
 
-<div class="viewcode-block" id="SparkSession.sql"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.SparkSession.sql.html#pyspark.sql.SparkSession.sql">[docs]</a>    <span class="k">def</span> <span class="nf">sql</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sqlQuery</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
+<div class="viewcode-block" id="SparkSession.sql"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.SparkSession.sql.html#pyspark.sql.SparkSession.sql">[docs]</a>    <span class="k">def</span> <span class="nf">sql</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sqlQuery</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a :class:`DataFrame` representing the result of the given query.</span>
 <span class="sd">        When ``kwargs`` is specified, this method formats the given string by using the Python</span>
-<span class="sd">        standard formatter.</span>
+<span class="sd">        standard formatter. The method binds named parameters to SQL literals from `args`.</span>
 
 <span class="sd">        .. versionadded:: 2.0.0</span>
+
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect and parameterized SQL.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        sqlQuery : str</span>
 <span class="sd">            SQL query string.</span>
+<span class="sd">        args : dict</span>
+<span class="sd">            A dictionary of named parameters that begin from the `:` marker and</span>
+<span class="sd">            their SQL literals for substituting.</span>
+
+<span class="sd">            .. versionadded:: 3.4.0</span>
+
 <span class="sd">        kwargs : dict</span>
 <span class="sd">            Other variables that the user wants to set that can be referenced in the query</span>
 
@@ -1174,13 +1564,22 @@
 <span class="sd">        |  2|  4|</span>
 <span class="sd">        |  3|  6|</span>
 <span class="sd">        +---+---+</span>
+
+<span class="sd">        And substitude named parameters with the `:` prefix by SQL literals.</span>
+
+<span class="sd">        &gt;&gt;&gt; spark.sql(&quot;SELECT * FROM {df} WHERE {df[B]} &gt; :minB&quot;, {&quot;minB&quot; : &quot;5&quot;}, df=mydf).show()</span>
+<span class="sd">        +---+---+</span>
+<span class="sd">        |  A|  B|</span>
+<span class="sd">        +---+---+</span>
+<span class="sd">        |  3|  6|</span>
+<span class="sd">        +---+---+</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">formatter</span> <span class="o">=</span> <span class="n">SQLStringFormatter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">sqlQuery</span> <span class="o">=</span> <span class="n">formatter</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sqlQuery</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jsparkSession</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="n">sqlQuery</span><span class="p">),</span> <span class="bp">self</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jsparkSession</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="n">sqlQuery</span><span class="p">,</span> <span class="n">args</span> <span class="ow">or</span> <span class="p">{}),</span> <span class="bp">self</span><span class="p">)</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">formatter</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
@@ -1190,16 +1589,31 @@
 
 <span class="sd">        .. versionadded:: 2.0.0</span>
 
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        tableName : str</span>
+<span class="sd">            the table name to retrieve.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        :class:`DataFrame`</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; df.createOrReplaceTempView(&quot;table1&quot;)</span>
-<span class="sd">        &gt;&gt;&gt; df2 = spark.table(&quot;table1&quot;)</span>
-<span class="sd">        &gt;&gt;&gt; sorted(df.collect()) == sorted(df2.collect())</span>
-<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; spark.range(5).createOrReplaceTempView(&quot;table1&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; spark.table(&quot;table1&quot;).sort(&quot;id&quot;).show()</span>
+<span class="sd">        +---+</span>
+<span class="sd">        | id|</span>
+<span class="sd">        +---+</span>
+<span class="sd">        |  0|</span>
+<span class="sd">        |  1|</span>
+<span class="sd">        |  2|</span>
+<span class="sd">        |  3|</span>
+<span class="sd">        |  4|</span>
+<span class="sd">        +---+</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jsparkSession</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="n">tableName</span><span class="p">),</span> <span class="bp">self</span><span class="p">)</span></div>
 
@@ -1211,9 +1625,34 @@
 
 <span class="sd">        .. versionadded:: 2.0.0</span>
 
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
+
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        :class:`DataFrameReader`</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; spark.read</span>
+<span class="sd">        &lt;...DataFrameReader object ...&gt;</span>
+
+<span class="sd">        Write a DataFrame into a JSON file and read it back.</span>
+
+<span class="sd">        &gt;&gt;&gt; import tempfile</span>
+<span class="sd">        &gt;&gt;&gt; with tempfile.TemporaryDirectory() as d:</span>
+<span class="sd">        ...     # Write a DataFrame into a JSON file</span>
+<span class="sd">        ...     spark.createDataFrame(</span>
+<span class="sd">        ...         [{&quot;age&quot;: 100, &quot;name&quot;: &quot;Hyukjin Kwon&quot;}]</span>
+<span class="sd">        ...     ).write.mode(&quot;overwrite&quot;).format(&quot;json&quot;).save(d)</span>
+<span class="sd">        ...</span>
+<span class="sd">        ...     # Read the JSON file as a DataFrame.</span>
+<span class="sd">        ...     spark.read.format(&#39;json&#39;).load(d).show()</span>
+<span class="sd">        +---+------------+</span>
+<span class="sd">        |age|        name|</span>
+<span class="sd">        +---+------------+</span>
+<span class="sd">        |100|Hyukjin Kwon|</span>
+<span class="sd">        +---+------------+</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">DataFrameReader</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
@@ -1232,6 +1671,22 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        :class:`DataStreamReader`</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; spark.readStream</span>
+<span class="sd">        &lt;pyspark.sql.streaming.readwriter.DataStreamReader object ...&gt;</span>
+
+<span class="sd">        The example below uses Rate source that generates rows continuously.</span>
+<span class="sd">        After that, we operate a modulo by 3, and then write the stream out to the console.</span>
+<span class="sd">        The streaming query stops in 3 seconds.</span>
+
+<span class="sd">        &gt;&gt;&gt; import time</span>
+<span class="sd">        &gt;&gt;&gt; df = spark.readStream.format(&quot;rate&quot;).load()</span>
+<span class="sd">        &gt;&gt;&gt; df = df.selectExpr(&quot;value % 3 as v&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; q = df.writeStream.format(&quot;console&quot;).start()</span>
+<span class="sd">        &gt;&gt;&gt; time.sleep(3)</span>
+<span class="sd">        &gt;&gt;&gt; q.stop()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">DataStreamReader</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
@@ -1249,14 +1704,38 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        :class:`StreamingQueryManager`</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; spark.streams</span>
+<span class="sd">        &lt;pyspark.sql.streaming.query.StreamingQueryManager object ...&gt;</span>
+
+<span class="sd">        Get the list of active streaming queries</span>
+
+<span class="sd">        &gt;&gt;&gt; sq = spark.readStream.format(</span>
+<span class="sd">        ...     &quot;rate&quot;).load().writeStream.format(&#39;memory&#39;).queryName(&#39;this_query&#39;).start()</span>
+<span class="sd">        &gt;&gt;&gt; sqm = spark.streams</span>
+<span class="sd">        &gt;&gt;&gt; [q.name for q in sqm.active]</span>
+<span class="sd">        [&#39;this_query&#39;]</span>
+<span class="sd">        &gt;&gt;&gt; sq.stop()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">pyspark.sql.streaming</span> <span class="kn">import</span> <span class="n">StreamingQueryManager</span>
 
         <span class="k">return</span> <span class="n">StreamingQueryManager</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jsparkSession</span><span class="o">.</span><span class="n">streams</span><span class="p">())</span>
 
-<div class="viewcode-block" id="SparkSession.stop"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.SparkSession.stop.html#pyspark.sql.SparkSession.stop">[docs]</a>    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stop the underlying :class:`SparkContext`.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SparkSession.stop"><a class="viewcode-back" href="../../../reference/pyspark.sql/api/pyspark.sql.SparkSession.stop.html#pyspark.sql.SparkSession.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Stop the underlying :class:`SparkContext`.</span>
+
+<span class="sd">        .. versionadded:: 2.0.0</span>
+
+<span class="sd">        .. versionchanged:: 3.4.0</span>
+<span class="sd">            Support Spark Connect.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; spark.stop()  # doctest: +SKIP</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="kn">from</span> <span class="nn">pyspark.sql.context</span> <span class="kn">import</span> <span class="n">SQLContext</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_sc</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
@@ -1268,14 +1747,28 @@
         <span class="n">SparkSession</span><span class="o">.</span><span class="n">_activeSession</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">SQLContext</span><span class="o">.</span><span class="n">_instantiatedContext</span> <span class="o">=</span> <span class="kc">None</span></div>
 
-    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
     <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;SparkSession&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Enable &#39;with SparkSession.builder.(...).getOrCreate() as session: app&#39; syntax.</span>
+
+<span class="sd">        .. versionadded:: 2.0.0</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; with SparkSession.builder.master(&quot;local&quot;).getOrCreate() as session:</span>
+<span class="sd">        ...     session.range(5).show()  # doctest: +SKIP</span>
+<span class="sd">        +---+</span>
+<span class="sd">        | id|</span>
+<span class="sd">        +---+</span>
+<span class="sd">        |  0|</span>
+<span class="sd">        |  1|</span>
+<span class="sd">        |  2|</span>
+<span class="sd">        |  3|</span>
+<span class="sd">        |  4|</span>
+<span class="sd">        +---+</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="nd">@since</span><span class="p">(</span><span class="mf">2.0</span><span class="p">)</span>
     <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">exc_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]],</span>
@@ -1286,6 +1779,22 @@
 <span class="sd">        Enable &#39;with SparkSession.builder.(...).getOrCreate() as session: app&#39; syntax.</span>
 
 <span class="sd">        Specifically stop the SparkSession on exit of the with block.</span>
+
+<span class="sd">        .. versionadded:: 2.0.0</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; with SparkSession.builder.master(&quot;local&quot;).getOrCreate() as session:</span>
+<span class="sd">        ...     session.range(5).show()  # doctest: +SKIP</span>
+<span class="sd">        +---+</span>
+<span class="sd">        | id|</span>
+<span class="sd">        +---+</span>
+<span class="sd">        |  0|</span>
+<span class="sd">        |  1|</span>
+<span class="sd">        |  2|</span>
+<span class="sd">        |  3|</span>
+<span class="sd">        |  4|</span>
+<span class="sd">        +---+</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div>
 
@@ -1293,30 +1802,20 @@
 <span class="k">def</span> <span class="nf">_test</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">os</span>
     <span class="kn">import</span> <span class="nn">doctest</span>
-    <span class="kn">from</span> <span class="nn">pyspark.context</span> <span class="kn">import</span> <span class="n">SparkContext</span>
-    <span class="kn">from</span> <span class="nn">pyspark.sql</span> <span class="kn">import</span> <span class="n">Row</span>
     <span class="kn">import</span> <span class="nn">pyspark.sql.session</span>
 
     <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;SPARK_HOME&quot;</span><span class="p">])</span>
 
     <span class="n">globs</span> <span class="o">=</span> <span class="n">pyspark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">session</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">sc</span> <span class="o">=</span> <span class="n">SparkContext</span><span class="p">(</span><span class="s2">&quot;local[4]&quot;</span><span class="p">,</span> <span class="s2">&quot;PythonTest&quot;</span><span class="p">)</span>
-    <span class="n">globs</span><span class="p">[</span><span class="s2">&quot;sc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sc</span>
-    <span class="n">globs</span><span class="p">[</span><span class="s2">&quot;spark&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="p">(</span><span class="n">sc</span><span class="p">)</span>
-    <span class="n">globs</span><span class="p">[</span><span class="s2">&quot;rdd&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rdd</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="p">(</span>
-        <span class="p">[</span>
-            <span class="n">Row</span><span class="p">(</span><span class="n">field1</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">field2</span><span class="o">=</span><span class="s2">&quot;row1&quot;</span><span class="p">),</span>
-            <span class="n">Row</span><span class="p">(</span><span class="n">field1</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">field2</span><span class="o">=</span><span class="s2">&quot;row2&quot;</span><span class="p">),</span>
-            <span class="n">Row</span><span class="p">(</span><span class="n">field1</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">field2</span><span class="o">=</span><span class="s2">&quot;row3&quot;</span><span class="p">),</span>
-        <span class="p">]</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s2">&quot;spark&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">master</span><span class="p">(</span><span class="s2">&quot;local[4]&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;sql.session tests&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
     <span class="p">)</span>
-    <span class="n">globs</span><span class="p">[</span><span class="s2">&quot;df&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rdd</span><span class="o">.</span><span class="n">toDF</span><span class="p">()</span>
     <span class="p">(</span><span class="n">failure_count</span><span class="p">,</span> <span class="n">test_count</span><span class="p">)</span> <span class="o">=</span> <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span>
         <span class="n">pyspark</span><span class="o">.</span><span class="n">sql</span><span class="o">.</span><span class="n">session</span><span class="p">,</span>
         <span class="n">globs</span><span class="o">=</span><span class="n">globs</span><span class="p">,</span>
         <span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span> <span class="o">|</span> <span class="n">doctest</span><span class="o">.</span><span class="n">NORMALIZE_WHITESPACE</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">globs</span><span class="p">[</span><span class="s2">&quot;sc&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+    <span class="n">globs</span><span class="p">[</span><span class="s2">&quot;spark&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">failure_count</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
