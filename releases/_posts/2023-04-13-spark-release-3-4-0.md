@@ -17,8 +17,6 @@ This release introduces Python client for Spark Connect, augments Structured Str
 
 To download Apache Spark 3.4.0, visit the [downloads](https://spark.apache.org/downloads.html) page. You can consult JIRA for the [detailed changes](https://s.apache.org/spark-3.4.0). We have curated a list of high level changes here, grouped by major modules.
 
-* This will become a table of contents (this text will be scraped).
-  {:toc}
 
 ### Highlight
 
