@@ -3,11 +3,11 @@ layout: post
 title: Spark 3.4.0 released
 categories:
 - News
-  tags: []
-  status: publish
-  type: post
-  published: true
-  meta:
+tags: []
+status: publish
+type: post
+published: true
+meta:
   _edit_last: '4'
   _wpas_done_all: '1'
 ---
