@@ -18,6 +18,35 @@ non-public list that will reach the Apache Security team, as well as the Spark P
 
 <h2>Known security issues</h2>
 
+<h3 id="CVE-2023-22946">CVE-2023-22946: Apache Spark proxy-user privilege escalation from malicious configuration class</h3>
+
+Severity: Medium
+
+Vendor: The Apache Software Foundation
+
+Versions Affected:
+
+- Versions prior to 3.4.0
+
+Description:
+
+In Apache Spark versions prior to 3.4.0, applications using spark-submit can specify a 'proxy-user' to run as, 
+limiting privileges. The application can execute code with the privileges of the submitting user, however, by 
+providing malicious configuration-related classes on the classpath. This affects architectures relying on 
+proxy-user, for example those using Apache Livy to manage submitted applications.
+
+This issue is being tracked as SPARK-41958
+
+Mitigation:
+
+- Update to Apache Spark 3.4.0 or later, and ensure that `spark.submit.proxyUser.allowCustomClasspathInClusterMode` is set to its default of "false", and is not overridden by submitted applications.
+
+Credit:
+
+- Hideyuki Furue (finder)
+- Yi Wu (Databricks) (remediation developer)
+
+
 <h3 id="CVE-2022-31777">CVE-2022-31777: Apache Spark XSS vulnerability in log viewer UI Javascript</h3>
 
 Severity: Medium
