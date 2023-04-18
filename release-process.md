@@ -397,16 +397,13 @@ $ git log v1.1.1 --grep "$expr" --shortstat --oneline | grep -B 1 -e "[3-9][0-9]
 
 <h4>Create and upload Spark Docker Images</h4>
 
-Please contact <a href="mailto:holden@apache.org">Holden Karau</a>, <a href="mailto:gengliang@apache.org">Gengliang Wang</a> or <a href="mailto:dongjoon@apache.org">Dongjoon Hyun</a> to do this step because of the [ASF has a limited number of Docker Hub seats](https://infra.apache.org/docker-hub-policy.html).
-
-
-The Spark docker images are created using the `./bin/docker-image-tool.sh` that is included in the release artifacts.
-
-
-You should install `docker buildx` so that you can cross-compile for multiple archs as ARM is becoming increasing popular. If you have access to both an ARM and an x86 machine you should set up a [remote builder as described here](https://scalingpythonml.com/2020/12/11/some-sharp-corners-with-docker-buildx.html), but if you only have one [docker buildx with QEMU works fine as we don't use cgo](https://docs.docker.com/buildx/working-with-buildx/).
-
-
-Once you have your cross-platform docker build environment setup, extract the build artifact (e.g. `tar -xvf spark-3.3.0-bin-hadoop3.tgz`), go into the directory (e.g. `cd spark-3.3.0-bin-hadoop3`) and build the containers and publish them to the Spark dockerhub (e.g. `./bin/docker-image-tool.sh -r docker.io/apache -p ./kubernetes/dockerfiles/spark/bindings/python/Dockerfile -t v3.3.0 -X -b java_image_tag=11-jre-slim build`)
+The apache/spark-docker provides dockerfiles and Github Action for Spark Docker images publish.
+1. Upload Spark Dockerfiles to apache/spark-docker repository, please refer to [link](https://github.com/apache/spark-docker/pull/33).
+2. Publish Spark Docker Images:
+    1. Enter [publish page](https://github.com/apache/spark-docker/actions/workflows/publish.yml).
+    2. Click "Run workflow".
+    3. Select "The Spark version of Spark image", click "Publish the image or not", select "apache" as target registry.
+    4. Click "Run workflow" button to publish the image to Apache dockerhub.
 
 <h4>Create an announcement</h4>
 
