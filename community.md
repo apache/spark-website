@@ -166,10 +166,13 @@ Spark Meetups are grass-roots events organized and hosted by individuals in the 
     <a href="https://www.meetup.com/Apache-Spark-Maryland/">Maryland Spark Meetup</a>
   </li>
   <li>
-    <a href="https://www.meetup.com/Mumbai-Spark-Meetup/">Mumbai Spark Meetup</a>
+    <a href="https://www.meetup.com/es/apache-spark-mexicocity/">México City Spark Meetup</a>
   </li>
   <li>
     <a href="https://www.meetup.com/Apache-Spark-in-Moscow/">Moscow Spark Meetup</a>
+  </li>
+  <li>
+    <a href="https://www.meetup.com/Mumbai-Spark-Meetup/">Mumbai Spark Meetup</a>
   </li>
   <li>
     <a href="https://www.meetup.com/Spark-NYC/">NYC Spark Meetup</a>
