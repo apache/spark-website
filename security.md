@@ -18,6 +18,11 @@ non-public list that will reach the Apache Security team, as well as the Spark P
 
 <h2>Known security issues</h2>
 
+<h3 id="CVE-2023-32007">CVE-2023-32007: Apache Spark shell command injection vulnerability via Spark UI</h3>
+
+This CVE is only an update to [CVE-2022-33891](#CVE-2022-33891) to clarify that version 3.1.3 is also
+affected. It is otherwise not a new vulnerability. Note that Apache Spark 3.1.x is EOL now.
+
 <h3 id="CVE-2023-22946">CVE-2023-22946: Apache Spark proxy-user privilege escalation from malicious configuration class</h3>
 
 Severity: Medium
@@ -81,7 +86,7 @@ Vendor: The Apache Software Foundation
 
 Versions Affected:
 
-- 3.1.3 and earlier
+- 3.1.3 and earlier (previously, this was marked as fixed in 3.1.3; this change is tracked as [CVE-2023-32007](#CVE-2023-32007))
 - 3.2.0 to 3.2.1
 
 Description:
