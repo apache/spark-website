@@ -92,6 +92,7 @@ navigation:
 |Reynold Xin|Databricks|
 |Weichen Xu|Databricks|
 |Takeshi Yamamuro|NTT|
+|Jie Yang|Baidu|
 |Kent Yao|NetEase|
 |Burak Yavuz|Databricks|
 |Matei Zaharia|Databricks, Stanford|
