@@ -15,7 +15,7 @@ Spark 3.4.1 is a maintenance release containing stability fixes. This release is
 
 ### Notable changes
 
-  - [[SPARK-32559]](https://issues.apache.org/jira/browse/SPARK-32559): Fix the trim logic did't handle ASCII control characters correctly
+  - [[SPARK-44383]](https://issues.apache.org/jira/browse/SPARK-44383): Fix the trim logic did't handle ASCII control characters correctly
   - [[SPARK-37829]](https://issues.apache.org/jira/browse/SPARK-37829): Dataframe.joinWith outer-join should return a null value for unmatched row
   - [[SPARK-42078]](https://issues.apache.org/jira/browse/SPARK-42078): Add `CapturedException` to utils
   - [[SPARK-42290]](https://issues.apache.org/jira/browse/SPARK-42290): Fix the OOM error can't be reported when AQE on
