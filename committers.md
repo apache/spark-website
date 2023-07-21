@@ -95,6 +95,7 @@ navigation:
 |Jie Yang|Baidu|
 |Kent Yao|NetEase|
 |Burak Yavuz|Databricks|
+|Xiduo You|NetEase|
 |Matei Zaharia|Databricks, Stanford|
 |Ruifeng Zheng|Databricks|
 |Shixiong Zhu|Databricks|
