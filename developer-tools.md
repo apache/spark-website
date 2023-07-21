@@ -120,7 +120,7 @@ If you'd prefer, you can run all of these commands on the command line (but this
 $ build/sbt "core/testOnly *DAGSchedulerSuite -- -z SPARK-12345"
 ```
 
-For more about how to run individual tests with sbt, see the [sbt documentation](https://www.scala-sbt.org/0.13/docs/Testing.html).
+For more about how to run individual tests with sbt, see the [sbt documentation](https://www.scala-sbt.org/1.x/docs/Testing.html).
 
 <h4>Testing with Maven</h4>
 
@@ -242,7 +242,7 @@ build/sbt "testOnly org.apache.spark.rdd.SortingSuite"
 
 <h3>Binary compatibility</h3>
 
-To ensure binary compatibility, Spark uses [MiMa](https://github.com/typesafehub/migration-manager).
+To ensure binary compatibility, Spark uses [MiMa](https://github.com/lightbend/mima).
 
 <h4>Ensuring binary compatibility</h4>
 
@@ -548,4 +548,4 @@ Please see the full YourKit documentation for the full list of profiler agent
 When running Spark tests through SBT, add `javaOptions in Test += "-agentpath:/path/to/yjp"`
 to `SparkBuild.scala` to launch the tests with the YourKit profiler agent enabled.  
 The platform-specific paths to the profiler agents are listed in the 
-<a href="http://www.yourkit.com/docs/80/help/agent.jsp">YourKit documentation</a>.
+<a href="https://www.yourkit.com/docs/java/help/agent.jsp">YourKit documentation</a>.
