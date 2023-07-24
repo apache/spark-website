@@ -79,6 +79,7 @@ navigation:
 |Chao Sun|Apple|
 |Maciej Szymkiewicz||
 |Jose Torres|Databricks|
+|Peter Toth|Cloudera|
 |DB Tsai|Apple|
 |Takuya Ueshin|Databricks|
 |Marcelo Vanzin|Cloudera|
