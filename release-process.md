@@ -102,7 +102,7 @@ Note that the last 8 digits (26A27D33) of the public key is the <a href="https:/
 After generating the public key, we should upload it to <a href="https://infra.apache.org/release-signing.html#keyserver">public key server</a>:
 
 ```
-$ gpg --keyserver keys.openpgp.org --send-key 26A27D33
+$ gpg --keyserver hkps://keys.openpgp.org --send-key 26A27D33
 ```
 
 Please refer to <a href="https://infra.apache.org/release-signing.html#keyserver-upload">keyserver-upload</a> for details.
