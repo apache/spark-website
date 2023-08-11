@@ -131,6 +131,7 @@ and external data sources, driving holistic and actionable insights.
 - <a href="http://www.infoobjects.com">InfoObjects</a>
   - Award winning Big Data consulting company with focus on Spark and Hadoop
 - <a href="http://en.inspur.com">Inspur</a>
+- <a href="https://iomete.com">IOMETE</a> - IOMETE offers a modern Cloud-Prem Data Lakehouse platform, extending cloud-like experience to on-premise and private clouds. Utilizing Apache Spark as the query engine, we enable running Spark Jobs and ML applications on AWS, Azure, GCP, or On-Prem. Discover more at <a href="https://iomete.com">IOMETE</a>.
 - <a href="http://www.sehir.edu.tr/en/">Istanbul Sehir University</a>
 - <a href="http://www.kenshoo.com/">Kenshoo</a>
   - Digital marketing solutions and predictive media optimization
