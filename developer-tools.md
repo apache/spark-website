@@ -549,3 +549,12 @@ When running Spark tests through SBT, add `javaOptions in Test += "-agentpath:/p
 to `SparkBuild.scala` to launch the tests with the YourKit profiler agent enabled.  
 The platform-specific paths to the profiler agents are listed in the 
 <a href="https://www.yourkit.com/docs/java/help/agent.jsp">YourKit documentation</a>.
+
+<h2>Generative tooling usage</h2>
+
+In general, the ASF allows contributions co-authored using generative AI tools. However, there are several considerations when you submit a patch containing generated content.
+
+Foremost, you are required to disclose usage of such tool. Furthermore, you are responsible for ensuring that the terms and conditions of the tool in question are
+compatible with usage in an Open Source project and inclusion of the generated content doesn't pose a risk of copyright violation.
+
+Please refer to <a href="https://www.apache.org/legal/generative-tooling.html">The ASF Generative Tooling Guidance</a> for details and developments.
