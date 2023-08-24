@@ -50,7 +50,8 @@ function codeTabs() {
         var buttonLabel = ""
       }
       tabBar.append(
-        '<li class="nav-item"><a class="nav-link tab_' + lang + '" href="#' + id + '" data-toggle="tab">' + buttonLabel + '</a></li>'
+        '<li class="nav-item"><a class="nav-link tab_' + lang + '" href="#' + id +
+          '" data-tab-lang="tab_' + lang + '" data-toggle="tab">' + buttonLabel + '</a></li>'
       );
     });
 
@@ -63,7 +64,7 @@ function codeTabs() {
     // while retaining the scroll position
     e.preventDefault();
     var scrollOffset = $(this).offset().top - $(document).scrollTop();
-    $("." + $(this).attr('class')).tab('show');
+    $("." + $(this).attr('data-tab-lang')).tab('show');
     $(document).scrollTop($(this).offset().top - scrollOffset);
   });
 }
