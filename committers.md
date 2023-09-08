@@ -197,8 +197,8 @@ origin	git@github.com:[your username]/spark.git (push)
 For the `apache` repo, you will need to set up command-line authentication to GitHub. This may
 include setting up an SSH key and/or personal access token. See:
 
-- https://help.github.com/articles/connecting-to-github-with-ssh/
-- https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/
+- [https://docs.github.com/en/authentication/connecting-to-github-with-ssh](https://docs.github.com/en/authentication/connecting-to-github-with-ssh)
+- [https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
 
 To check whether the necessary write access are already granted please visit [GitBox](https://gitbox.apache.org/setup/).
 
@@ -221,8 +221,8 @@ You can verify the result is one change with `git log`. Then resume the script i
 Also, please remember to set Assignee on JIRAs where applicable when they are resolved. The script 
 can do this automatically in most cases. However where the contributor is not yet a part of the
 Contributors group for the Spark project in ASF JIRA, it won't work until they are added. Ask
-an admin to add the person to Contributors at 
-https://issues.apache.org/jira/plugins/servlet/project-config/SPARK/roles .
+an admin to add the person to Contributors at
+[https://issues.apache.org/jira/plugins/servlet/project-config/SPARK/roles](https://issues.apache.org/jira/plugins/servlet/project-config/SPARK/roles) .
 
 Once a PR is merged please leave a comment on the PR stating which branch(es) it has been merged with.
 

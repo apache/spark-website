@@ -193,7 +193,7 @@ Please check other available options via `python/run-tests[-with-coverage] --hel
 
 Although GitHub Action provide both K8s unit test and integration test coverage, you can run it locally. For example, Volcano batch scheduler integration test should be done manually. Please refer the integration test documentation for the detail.
 
-https://github.com/apache/spark/blob/master/resource-managers/kubernetes/integration-tests/README.md
+[https://github.com/apache/spark/blob/master/resource-managers/kubernetes/integration-tests/README.md](https://github.com/apache/spark/blob/master/resource-managers/kubernetes/integration-tests/README.md)
 
 <h3>Testing with GitHub actions workflow</h3>
 

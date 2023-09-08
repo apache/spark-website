@@ -244,7 +244,7 @@ Mitigation:
 
 Enable authentication on any Spark standalone cluster that is not otherwise secured
 from unwanted access, for example by network-level restrictions. Use `spark.authenticate`
-and related security properties described at https://spark.apache.org/docs/latest/security.html
+and related security properties described at [https://spark.apache.org/docs/latest/security.html](https://spark.apache.org/docs/latest/security.html)
 
 Credit:
 
