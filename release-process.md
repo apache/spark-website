@@ -31,9 +31,9 @@ The release manager role in Spark means you are responsible for a few different 
 
 If you are a new Release Manager, you can read up on the process from the followings:
 
-- release signing https://www.apache.org/dev/release-signing.html
-- gpg for signing https://www.apache.org/dev/openpgp.html
-- svn https://www.apache.org/dev/version-control.html#https-svn
+- release signing [https://www.apache.org/dev/release-signing.html](https://www.apache.org/dev/release-signing.html)
+- gpg for signing [https://www.apache.org/dev/openpgp.html](https://www.apache.org/dev/openpgp.html)
+- svn [https://infra.apache.org/version-control.html#svn](https://infra.apache.org/version-control.html#svn)
 
 <h3>Preparing gpg key</h3>
 
@@ -222,8 +222,11 @@ It may take a while for them to be visible. This will be mirrored throughout the
 Check the release checker result of the release at <a href="https://checker.apache.org/projs/spark.html">https://checker.apache.org/projs/spark.html</a>.
 
 
-For Maven Central Repository, you can Release from the <a href="https://repository.apache.org/">Apache Nexus Repository Manager</a>. This is already populated by the `release-build.sh publish-release` step. Log in, open Staging Repositories, find the one voted on (eg. orgapachespark-1257 for https://repository.apache.org/content/repositories/orgapachespark-1257/), select and click Release and confirm. If successful, it should show up under https://repository.apache.org/content/repositories/releases/org/apache/spark/spark-core_2.11/2.2.1/
-and the same under https://repository.apache.org/content/groups/maven-staging-group/org/apache/spark/spark-core_2.11/2.2.1/ (look for the correct release version). After some time this will be sync'd to <a href="https://search.maven.org/">Maven Central</a> automatically.
+For Maven Central Repository, you can Release from the <a href="https://repository.apache.org/">Apache Nexus Repository Manager</a>. This is already populated by the `release-build.sh publish-release` step. Log in,
+open Staging Repositories, find the one voted on (eg. orgapachespark-1257 for [https://repository.apache.org/content/repositories/orgapachespark-1257/](https://repository.apache.org/content/repositories/orgapachespark-1257/)),
+select and click Release and confirm. If successful, it should show up under [https://repository.apache.org/content/repositories/releases/org/apache/spark/spark-core_2.11/2.2.1/](https://repository.apache.org/content/repositories/releases/org/apache/spark/spark-core_2.11/2.2.1/)
+and the same under [https://repository.apache.org/content/groups/maven-staging-group/org/apache/spark/spark-core_2.11/2.2.1/](https://repository.apache.org/content/groups/maven-staging-group/org/apache/spark/spark-core_2.11/2.2.1/)
+(look for the correct release version). After some time this will be sync'd to <a href="https://search.maven.org/">Maven Central</a> automatically.
 
 
 <h4>Upload to PyPI</h4>
@@ -347,7 +350,8 @@ commit to force synchronization between ASF's git and the web site, and also the
 For some reason synchronization seems to not be reliable for this repository.
 
 On a related note, make sure the version is marked as released on JIRA. Go find the release page as above, eg.,
-`https://issues.apache.org/jira/projects/SPARK/versions/12340295`, and click the "Release" button on the right and enter the release date.
+[`https://issues.apache.org/jira/projects/SPARK/versions/12340295`](https://issues.apache.org/jira/projects/SPARK/versions/12340295),
+and click the "Release" button on the right and enter the release date.
 
 (Generally, this is only for major and minor, but not patch releases) The contributors list can be automatically generated through
 <a href="https://github.com/apache/spark/blob/branch-1.1/dev/create-release/generate-contributors.py">this script</a>.
