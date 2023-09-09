@@ -219,10 +219,7 @@ Then, in a separate window, modify the code and push a commit. Run `git rebase -
 You can verify the result is one change with `git log`. Then resume the script in the other window.
 
 Also, please remember to set Assignee on JIRAs where applicable when they are resolved. The script 
-can do this automatically in most cases. However where the contributor is not yet a part of the
-Contributors group for the Spark project in ASF JIRA, it won't work until they are added. Ask
-an admin to add the person to Contributors at
-[https://issues.apache.org/jira/plugins/servlet/project-config/SPARK/roles](https://issues.apache.org/jira/plugins/servlet/project-config/SPARK/roles) .
+can do this automatically in most cases.
 
 Once a PR is merged please leave a comment on the PR stating which branch(es) it has been merged with.
 

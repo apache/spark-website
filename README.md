@@ -7,7 +7,7 @@ Building the site requires [Jekyll](http://jekyllrb.com/docs)
 The easiest way to install the right version of these tools is using
 [Bundler](https://bundler.io/) and running `bundle install` in this directory.
 
-See also https://github.com/apache/spark/blob/master/docs/README.md
+See also [https://github.com/apache/spark/blob/master/docs/README.md](https://github.com/apache/spark/blob/master/docs/README.md)
 
 A site build will update the directories and files in the `site` directory with the generated files.
 Using Jekyll via `bundle exec jekyll` locks it to the right version.
