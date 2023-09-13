@@ -27,6 +27,7 @@ var packagesV13 = [hadoop3p, hadoop3pscala213, hadoop2p, hadoopFree, sources];
 // 3.4.0+
 var packagesV14 = [hadoop3p, hadoop3pscala213, hadoopFree, sources];
 
+addRelease("3.5.0", new Date("09/13/2023"), packagesV14, true);
 addRelease("3.4.1", new Date("06/23/2023"), packagesV14, true);
 addRelease("3.3.3", new Date("08/21/2023"), packagesV13, true);
 addRelease("3.2.4", new Date("04/13/2023"), packagesV12, true);
