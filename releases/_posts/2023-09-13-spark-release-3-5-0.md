@@ -315,7 +315,7 @@ To download Apache Spark 3.5.0, please visit the [downloads](https://spark.apach
 ### Removals, Behavior Changes and Deprecations
 
 #### Upcoming Removal
-For the the following features will be removed in the next Spark major release
+The following features will be removed in the next Spark major release
 - Support for Java 8 and Java 11, and the minimal supported Java version will be Java 17
 - Support for Scala 2.12, and the minimal supported Scala version will be 2.13
 
