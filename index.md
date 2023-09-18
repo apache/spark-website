@@ -88,11 +88,13 @@ navigation:
         <div class="tab-content py-5 spark-install" id="nav-tabContent">
             <div class="tab-pane fade show active" id="nav-python" role="tabpanel" aria-labelledby="nav-python-tab">
                 <div class="mb-2 title">Run now</div>
-                <div style="font-size: 16px;">Installing with 'pip'
+                <div style="font-size: 16px;">Install with 'pip' or try offical image
                 </div>
                 <div class="code">
                     <p>$ pip install pyspark</p>
                     <p>$ pyspark</p>
+                    <p>$ </p>
+                    <p>$ docker run -it --rm spark:python3 /opt/spark/bin/pyspark</p>
                 </div>
                 <div class="examples mt-5">
                     <div class="window"><span class="circle red"></span><span class="circle yellow"></span><span
@@ -155,7 +157,7 @@ filtered_df.summary().show()
             <div class="tab-pane fade" id="nav-sql" role="tabpanel" aria-labelledby="nav-sql-tab">
                 <div class="mb-2 title">Run now</div>
                 <div class="code">
-                    <p>$ docker run -it --rm apache/spark /opt/spark/bin/spark-sql</p>
+                    <p>$ docker run -it --rm spark /opt/spark/bin/spark-sql</p>
                     <p>spark-sql></p>
                 </div>
                 <div class="examples mt-5">
@@ -175,7 +177,7 @@ FROM json.`logs.json`
             <div class="tab-pane fade" id="nav-scala" role="tabpanel" aria-labelledby="nav-scala-tab">
                 <div class="mb-2 title">Run now</div>
                 <div class="code">
-                    <p>$ docker run -it --rm apache/spark /opt/spark/bin/spark-shell</p>
+                    <p>$ docker run -it --rm spark /opt/spark/bin/spark-shell</p>
                     <p>scala></p>
                 </div>
                 <div class="examples mt-5">
@@ -193,7 +195,7 @@ df.where("age > 21")
             <div class="tab-pane fade" id="nav-java" role="tabpanel" aria-labelledby="nav-java-tab">
                 <div class="mb-2 title">Run now</div>
                 <div class="code">
-                    <p>$ docker run -it --rm apache/spark /opt/spark/bin/spark-shell</p>
+                    <p>$ docker run -it --rm spark /opt/spark/bin/spark-shell</p>
                     <p>scala></p>
                 </div>
                 <div class="examples mt-5">
@@ -210,7 +212,7 @@ df.where("age > 21")
             <div class="tab-pane fade" id="nav-r" role="tabpanel" aria-labelledby="nav-r-tab">
                 <div class="mb-2 title">Run now</div>
                 <div class="code">
-                    <p>$ SPARK-HOME/bin/sparkR</p>
+                    <p>$ docker run -it --rm spark:r /opt/spark/bin/sparkR</p>
                     <p>></p>
                 </div>
                 <div class="examples mt-5">
