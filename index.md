@@ -88,12 +88,15 @@ navigation:
         <div class="tab-content py-5 spark-install" id="nav-tabContent">
             <div class="tab-pane fade show active" id="nav-python" role="tabpanel" aria-labelledby="nav-python-tab">
                 <div class="mb-2 title">Run now</div>
-                <div style="font-size: 16px;">Install with 'pip' or try offical image
+                <div style="font-size: 16px;">Install with 'pip'
                 </div>
                 <div class="code">
                     <p>$ pip install pyspark</p>
                     <p>$ pyspark</p>
-                    <p>$ </p>
+                </div>
+                <div style="font-size: 16px;">Use the official Docker image
+                </div>
+                <div class="code">
                     <p>$ docker run -it --rm spark:python3 /opt/spark/bin/pyspark</p>
                 </div>
                 <div class="examples mt-5">
