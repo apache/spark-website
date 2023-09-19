@@ -94,11 +94,10 @@ navigation:
                     <p>$ pip install pyspark</p>
                     <p>$ pyspark</p>
                 </div>
-                <div style="font-size: 16px;">Try offical image
+                <div style="font-size: 16px;">Use the official Docker image
                 </div>
                 <div class="code">
                     <p>$ docker run -it --rm spark:python3 /opt/spark/bin/pyspark</p>
-                    <p>$ </p>
                 </div>
                 <div class="examples mt-5">
                     <div class="window"><span class="circle red"></span><span class="circle yellow"></span><span
