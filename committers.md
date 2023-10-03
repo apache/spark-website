@@ -100,6 +100,7 @@ navigation:
 |Matei Zaharia|Databricks, Stanford|
 |Ruifeng Zheng|Databricks|
 |Shixiong Zhu|Databricks|
+|Jiaan Geng|Kyligence|
 
 <h3>Becoming a committer</h3>
 
