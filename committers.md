@@ -29,6 +29,7 @@ navigation:
 |Wenchen Fan|Databricks|
 |Huaxin Gao|Apple|
 |Max Gekk|Databricks|
+|Jiaan Geng|Kyligence|
 |Joseph Gonzalez|UC Berkeley|
 |Thomas Graves|NVIDIA|
 |Stephen Haberman|LinkedIn|
@@ -100,7 +101,6 @@ navigation:
 |Matei Zaharia|Databricks, Stanford|
 |Ruifeng Zheng|Databricks|
 |Shixiong Zhu|Databricks|
-|Jiaan Geng|Kyligence|
 
 <h3>Becoming a committer</h3>
 
