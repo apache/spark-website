@@ -14,18 +14,18 @@ Apache Spark community uses various resources to maintain the community test cov
 <h3 id="github_action">GitHub Action</h3>
 
 [GitHub Action](https://github.com/apache/spark/actions) provides the following on Ubuntu 22.04.
-- Scala 2.12/2.13 SBT build with Java 8
-- Scala 2.12 Maven build with Java 11/17
-- Java/Scala/Python/R unit tests with Java 8/Scala 2.12/SBT
+- Scala 2.13 SBT build with Java 17
+- Scala 2.13 Maven build with Java 17/21
+- Java/Scala/Python/R unit tests with Java 17/Scala 2.13/SBT
 - TPC-DS benchmark with scale factor 1
 - JDBC Docker integration tests
 - Kubernetes integration tests
-- Daily Java/Scala/Python/R unit tests with Java 11/17 and Scala 2.12/SBT
+- Daily Java/Scala/Python/R unit tests with Java 21 and Scala 2.13/SBT
 
 <h3 id="appveyor">AppVeyor</h3>
 
 [AppVeyor](https://ci.appveyor.com/project/ApacheSoftwareFoundation/spark) provides the following on Windows.
-- R unit tests with Java 8/Scala 2.12/SBT
+- R unit tests with Java 17/Scala 2.13/SBT
 
 <h3 id="scaleway">Scaleway</h3>
 
