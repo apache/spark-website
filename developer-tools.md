@@ -14,6 +14,9 @@ Apache Spark community uses various resources to maintain the community test cov
 <h3 id="github_action">GitHub Action</h3>
 
 [GitHub Action](https://github.com/apache/spark/actions) provides the following on Ubuntu 22.04.
+
+<h4 id="spark_4x">Spark 4.x</h4>
+
 - Scala 2.13 SBT build with Java 17
 - Scala 2.13 Maven build with Java 17/21
 - Java/Scala/Python/R unit tests with Java 17/Scala 2.13/SBT
@@ -21,6 +24,16 @@ Apache Spark community uses various resources to maintain the community test cov
 - JDBC Docker integration tests
 - Kubernetes integration tests
 - Daily Java/Scala/Python/R unit tests with Java 21 and Scala 2.13/SBT
+
+<h4 id="spark_3x">Spark 3.x</h4>
+
+- Scala 2.12 SBT build with Java 8
+- Scala 2.12 Maven build with Java 11/17
+- Java/Scala/Python/R unit tests with Java 8/Scala 2.12/SBT
+- Kubernetes integration tests
+- Daily Java/Scala/Python/R unit tests with Java 8 and Scala 2.13/SBT
+- Daily JDBC Docker integration tests with Java 8 and Scala 2.13/SBT
+- Daily TPC-DS benchmark with scale factor 1 with Java 8 and Scala 2.12/SBT
 
 <h3 id="appveyor">AppVeyor</h3>
 
