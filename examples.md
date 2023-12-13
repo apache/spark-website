@@ -43,7 +43,9 @@ Also, programs based on DataFrame API will be automatically optimized by Sparkâ€
 <div class="code code-tab">
 {% highlight python %}
 df = spark.read.text("hdfs://...").toDF("text")
-df.groupBy("text").agg(count(lit(0)).alias("count")) \
+df.select(explode(split(col("text"), " ")).alias("word")) \
+  .groupBy("word") \
+  .agg(count(lit(0)).alias("count")) \
   .write.parquet("hdfs://...")
 {% endhighlight %}
 </div>
@@ -53,7 +55,9 @@ df.groupBy("text").agg(count(lit(0)).alias("count")) \
 <div class="code code-tab">
 {% highlight scala %}
 val df = spark.read.text("hdfs://...").toDF("text")
-df.groupBy("text").agg(count(lit(0)).alias("count")) \
+df.select(explode(split(col("text"), " ")).alias("word")) \
+  .groupBy("word") \
+  .agg(count(lit(0)).alias("count")) \
   .write.parquet("hdfs://...")
 {% endhighlight %}
 </div>
@@ -63,7 +67,9 @@ df.groupBy("text").agg(count(lit(0)).alias("count")) \
 <div class="code code-tab">
 {% highlight java %}
 DataFrame df = spark.read.text("hdfs://...").toDF("text");
-df.groupBy("text").agg(count(lit(0)).alias("count")) \
+df.select(explode(split(col("text"), " ")).alias("word")) \
+  .groupBy("word") \
+  .agg(count(lit(0)).alias("count")) \
   .write.parquet("hdfs://...");
 {% endhighlight %}
 </div>
