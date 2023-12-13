@@ -19,113 +19,6 @@ On top of Spark’s RDD API, high level APIs are provided, e.g.
 [DataFrame API](https://spark.apache.org/docs/latest/sql-programming-guide.html#datasets-and-dataframes) and
 [Machine Learning API](https://spark.apache.org/docs/latest/mllib-guide.html).
 These high level APIs provide a concise way to conduct certain data operations.
-In this page, we will show examples using RDD API as well as examples using high level APIs.
-
-<h2>RDD API examples</h2>
-
-<h3>Word count</h3>
-<p>In this example, we use a few transformations to build a dataset of (String, Int) pairs called <code>counts</code> and then save it to a file.</p>
-
-<ul class="nav nav-tabs">
-  <li class="lang-tab lang-tab-python active"><a href="#">Python</a></li>
-  <li class="lang-tab lang-tab-scala"><a href="#">Scala</a></li>
-  <li class="lang-tab lang-tab-java"><a href="#">Java</a></li>
-</ul>
-
-<div class="tab-content">
-<div class="tab-pane tab-pane-python active">
-<div class="code code-tab">
-{% highlight python %}
-text_file = sc.textFile("hdfs://...")
-counts = text_file.flatMap(lambda line: line.split(" ")) \
-             .map(lambda word: (word, 1)) \
-             .reduceByKey(lambda a, b: a + b)
-counts.saveAsTextFile("hdfs://...")
-{% endhighlight %}
-</div>
-</div>
-
-<div class="tab-pane tab-pane-scala">
-<div class="code code-tab">
-{% highlight scala %}
-val textFile = sc.textFile("hdfs://...")
-val counts = textFile.flatMap(line => line.split(" "))
-                 .map(word => (word, 1))
-                 .reduceByKey(_ + _)
-counts.saveAsTextFile("hdfs://...")
-{% endhighlight %}
-</div>
-</div>
-
-<div class="tab-pane tab-pane-java">
-<div class="code code-tab">
-{% highlight java %}
-JavaRDD<String> textFile = sc.textFile("hdfs://...");
-JavaPairRDD<String, Integer> counts = textFile
-    .flatMap(s -> Arrays.asList(s.split(" ")).iterator())
-    .mapToPair(word -> new Tuple2<>(word, 1))
-    .reduceByKey((a, b) -> a + b);
-counts.saveAsTextFile("hdfs://...");
-{% endhighlight %}
-</div>
-</div>
-</div>
-
-<h3>Pi estimation</h3>
-<p>Spark can also be used for compute-intensive tasks. This code estimates <span style="font-family: serif; font-size: 120%;">π</span> by "throwing darts" at a circle. We pick random points in the unit square ((0, 0) to (1,1)) and see how many fall in the unit circle. The fraction should be <span style="font-family: serif; font-size: 120%;">π / 4</span>, so we use this to get our estimate.</p>
-
-<ul class="nav nav-tabs">
-  <li class="lang-tab lang-tab-python active"><a href="#">Python</a></li>
-  <li class="lang-tab lang-tab-scala"><a href="#">Scala</a></li>
-  <li class="lang-tab lang-tab-java"><a href="#">Java</a></li>
-</ul>
-
-<div class="tab-content">
-<div class="tab-pane tab-pane-python active">
-<div class="code code-tab">
-{% highlight python %}
-def inside(p):
-    x, y = random.random(), random.random()
-    return x*x + y*y < 1
-
-count = sc.parallelize(range(0, NUM_SAMPLES)) \
-             .filter(inside).count()
-print("Pi is roughly %f" % (4.0 * count / NUM_SAMPLES))
-{% endhighlight %}
-</div>
-</div>
-
-<div class="tab-pane tab-pane-scala">
-<div class="code code-tab">
-{% highlight scala %}
-val count = sc.parallelize(1 to NUM_SAMPLES).filter { _ =>
-  val x = math.random
-  val y = math.random
-  x*x + y*y < 1
-}.count()
-println(s"Pi is roughly ${4.0 * count / NUM_SAMPLES}")
-{% endhighlight %}
-</div>
-</div>
-
-<div class="tab-pane tab-pane-java">
-<div class="code code-tab">
-{% highlight java %}
-List<Integer> l = new ArrayList<>(NUM_SAMPLES);
-for (int i = 0; i < NUM_SAMPLES; i++) {
-  l.add(i);
-}
-
-long count = sc.parallelize(l).filter(i -> {
-  double x = Math.random();
-  double y = Math.random();
-  return x*x + y*y < 1;
-}).count();
-System.out.println("Pi is roughly " + 4.0 * count / NUM_SAMPLES);
-{% endhighlight %}
-</div>
-</div>
-</div>
 
 <h2>DataFrame API examples</h2>
 <p>
@@ -149,10 +42,8 @@ Also, programs based on DataFrame API will be automatically optimized by Spark�
 <div class="tab-pane tab-pane-python active">
 <div class="code code-tab">
 {% highlight python %}
-textFile = sc.textFile("hdfs://...")
-
 # Creates a DataFrame having a single column named "line"
-df = textFile.map(lambda r: Row(r)).toDF(["line"])
+df = spark.read.text("hdfs://...").toDF("line")
 errors = df.filter(col("line").like("%ERROR%"))
 # Counts all the errors
 errors.count()
@@ -167,10 +58,8 @@ errors.filter(col("line").like("%MySQL%")).collect()
 <div class="tab-pane tab-pane-scala">
 <div class="code code-tab">
 {% highlight scala %}
-val textFile = sc.textFile("hdfs://...")
-
 // Creates a DataFrame having a single column named "line"
-val df = textFile.toDF("line")
+val df = spark.read.text("hdfs://...").toDF("line")
 val errors = df.filter(col("line").like("%ERROR%"))
 // Counts all the errors
 errors.count()
@@ -186,13 +75,7 @@ errors.filter(col("line").like("%MySQL%")).collect()
 <div class="code code-tab">
 {% highlight java %}
 // Creates a DataFrame having a single column named "line"
-JavaRDD<String> textFile = sc.textFile("hdfs://...");
-JavaRDD<Row> rowRDD = textFile.map(RowFactory::create);
-List<StructField> fields = Arrays.asList(
-  DataTypes.createStructField("line", DataTypes.StringType, true));
-StructType schema = DataTypes.createStructType(fields);
-DataFrame df = sqlContext.createDataFrame(rowRDD, schema);
-
+DataFrame df = spark.read.text("hdfs://...").toDF("line");
 DataFrame errors = df.filter(col("line").like("%ERROR%"));
 // Counts all the errors
 errors.count();
@@ -227,7 +110,7 @@ A simple MySQL table "people" is used in the example and this table has two colu
 # stored in a MySQL database.
 url = \
   "jdbc:mysql://yourIP:yourPort/test?user=yourUsername;password=yourPassword"
-df = sqlContext \
+df = spark \
   .read \
   .format("jdbc") \
   .option("url", url) \
@@ -254,7 +137,7 @@ countsByAge.write.format("json").save("s3a://...")
 // stored in a MySQL database.
 val url =
   "jdbc:mysql://yourIP:yourPort/test?user=yourUsername;password=yourPassword"
-val df = sqlContext
+val df = spark
   .read
   .format("jdbc")
   .option("url", url)
@@ -281,7 +164,7 @@ countsByAge.write.format("json").save("s3a://...")
 // stored in a MySQL database.
 String url =
   "jdbc:mysql://yourIP:yourPort/test?user=yourUsername;password=yourPassword";
-DataFrame df = sqlContext
+DataFrame df = spark
   .read()
   .format("jdbc")
   .option("url", url)
@@ -329,7 +212,7 @@ We learn to predict the labels from feature vectors using the Logistic Regressio
 {% highlight python %}
 # Every record of this DataFrame contains the label and
 # features represented by a vector.
-df = sqlContext.createDataFrame(data, ["label", "features"])
+df = spark.createDataFrame(data, ["label", "features"])
 
 # Set parameters for the algorithm.
 # Here, we limit the number of iterations to 10.
@@ -349,7 +232,7 @@ model.transform(df).show()
 {% highlight scala %}
 // Every record of this DataFrame contains the label and
 // features represented by a vector.
-val df = sqlContext.createDataFrame(data).toDF("label", "features")
+val df = spark.createDataFrame(data).toDF("label", "features")
 
 // Set parameters for the algorithm.
 // Here, we limit the number of iterations to 10.
@@ -376,7 +259,7 @@ StructType schema = new StructType(new StructField[]{
   new StructField("label", DataTypes.DoubleType, false, Metadata.empty()),
   new StructField("features", new VectorUDT(), false, Metadata.empty()),
 });
-DataFrame df = jsql.createDataFrame(data, schema);
+DataFrame df = spark.createDataFrame(data, schema);
 
 // Set parameters for the algorithm.
 // Here, we limit the number of iterations to 10.
