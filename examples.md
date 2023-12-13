@@ -43,6 +43,7 @@ Also, programs based on DataFrame API will be automatically optimized by Sparkâ€
 <div class="code code-tab">
 {% highlight python %}
 df = spark.read.text("hdfs://...").toDF("text")
+
 df.select(explode(split(col("text"), " ")).alias("word")) \
   .groupBy("word") \
   .agg(count(lit(0)).alias("count")) \
@@ -55,9 +56,10 @@ df.select(explode(split(col("text"), " ")).alias("word")) \
 <div class="code code-tab">
 {% highlight scala %}
 val df = spark.read.text("hdfs://...").toDF("text")
-df.select(explode(split(col("text"), " ")).alias("word")) \
-  .groupBy("word") \
-  .agg(count(lit(0)).alias("count")) \
+
+df.select(explode(split(col("text"), " ")).alias("word"))
+  .groupBy("word")
+  .agg(count(lit(0)).alias("count"))
   .write.parquet("hdfs://...")
 {% endhighlight %}
 </div>
@@ -67,9 +69,10 @@ df.select(explode(split(col("text"), " ")).alias("word")) \
 <div class="code code-tab">
 {% highlight java %}
 DataFrame df = spark.read.text("hdfs://...").toDF("text");
-df.select(explode(split(col("text"), " ")).alias("word")) \
-  .groupBy("word") \
-  .agg(count(lit(0)).alias("count")) \
+
+df.select(explode(split(col("text"), " ")).alias("word"))
+  .groupBy("word")
+  .agg(count(lit(0)).alias("count"))
   .write.parquet("hdfs://...");
 {% endhighlight %}
 </div>
@@ -103,8 +106,8 @@ print("Pi is roughly %f" % (4.0 * count / NUM_SAMPLES))
 <div class="tab-pane tab-pane-scala">
 <div class="code code-tab">
 {% highlight scala %}
-val df = spark.range(NUM_SAMPLES) \
-  .withColumn("x", rand(41)) \
+val df = spark.range(NUM_SAMPLES)
+  .withColumn("x", rand(41))
   .withColumn("y", rand(42))
 
 val count = df.where(col("x") * col("x") + col("y") * col("y") < 1).count()
@@ -117,8 +120,8 @@ println(s"Pi is roughly ${4.0 * count / NUM_SAMPLES}")
 <div class="tab-pane tab-pane-java">
 <div class="code code-tab">
 {% highlight java %}
-DataFrame df = spark.range(NUM_SAMPLES) \
-  .withColumn("x", rand(41)) \
+DataFrame df = spark.range(NUM_SAMPLES)
+  .withColumn("x", rand(41))
   .withColumn("y", rand(42));
 
 long count = df.where(col("x") * col("x") + col("y") * col("y") < 1).count();
