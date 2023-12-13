@@ -162,6 +162,100 @@ data sources and Spark’s built-in distributed collections without providing sp
 Also, programs based on DataFrame API will be automatically optimized by Spark’s built-in optimizer, Catalyst.
 </p>
 
+<h3>Word count</h3>
+<p>In this example, we use a few transformations to build a dataset of (String, Long) pairs and then save it to a file.</p>
+
+<ul class="nav nav-tabs">
+  <li class="lang-tab lang-tab-python active"><a href="#">Python</a></li>
+  <li class="lang-tab lang-tab-scala"><a href="#">Scala</a></li>
+  <li class="lang-tab lang-tab-java"><a href="#">Java</a></li>
+</ul>
+
+<div class="tab-content">
+<div class="tab-pane tab-pane-python active">
+<div class="code code-tab">
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="p">.</span><span class="n">read</span><span class="p">.</span><span class="n">text</span><span class="p">(</span><span class="s">"hdfs://..."</span><span class="p">).</span><span class="n">toDF</span><span class="p">(</span><span class="s">"text"</span><span class="p">)</span>
+<span class="n">df</span><span class="p">.</span><span class="n">groupBy</span><span class="p">(</span><span class="s">"text"</span><span class="p">).</span><span class="n">agg</span><span class="p">(</span><span class="n">count</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">0</span><span class="p">)).</span><span class="n">alias</span><span class="p">(</span><span class="s">"count"</span><span class="p">))</span> \
+  <span class="p">.</span><span class="n">write</span><span class="p">.</span><span class="n">parquet</span><span class="p">(</span><span class="s">"hdfs://..."</span><span class="p">)</span></code></pre></figure>
+
+</div>
+</div>
+
+<div class="tab-pane tab-pane-scala">
+<div class="code code-tab">
+
+<figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">val</span> <span class="nv">df</span> <span class="k">=</span> <span class="nv">spark</span><span class="o">.</span><span class="py">read</span><span class="o">.</span><span class="py">text</span><span class="o">(</span><span class="s">"hdfs://..."</span><span class="o">).</span><span class="py">toDF</span><span class="o">(</span><span class="s">"text"</span><span class="o">)</span>
+<span class="nv">df</span><span class="o">.</span><span class="py">groupBy</span><span class="o">(</span><span class="s">"text"</span><span class="o">).</span><span class="py">agg</span><span class="o">(</span><span class="nf">count</span><span class="o">(</span><span class="nf">lit</span><span class="o">(</span><span class="mi">0</span><span class="o">)).</span><span class="py">alias</span><span class="o">(</span><span class="s">"count"</span><span class="o">))</span> <span class="o">\</span>
+  <span class="o">.</span><span class="py">write</span><span class="o">.</span><span class="py">parquet</span><span class="o">(</span><span class="s">"hdfs://..."</span><span class="o">)</span></code></pre></figure>
+
+</div>
+</div>
+
+<div class="tab-pane tab-pane-java">
+<div class="code code-tab">
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="nc">DataFrame</span> <span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="na">read</span><span class="o">.</span><span class="na">text</span><span class="o">(</span><span class="s">"hdfs://..."</span><span class="o">).</span><span class="na">toDF</span><span class="o">(</span><span class="s">"text"</span><span class="o">);</span>
+<span class="n">df</span><span class="o">.</span><span class="na">groupBy</span><span class="o">(</span><span class="s">"text"</span><span class="o">).</span><span class="na">agg</span><span class="o">(</span><span class="n">count</span><span class="o">(</span><span class="n">lit</span><span class="o">(</span><span class="mi">0</span><span class="o">)).</span><span class="na">alias</span><span class="o">(</span><span class="s">"count"</span><span class="o">))</span> <span class="err">\</span>
+  <span class="o">.</span><span class="na">write</span><span class="o">.</span><span class="na">parquet</span><span class="o">(</span><span class="s">"hdfs://..."</span><span class="o">);</span></code></pre></figure>
+
+</div>
+</div>
+</div>
+
+<h3>Pi estimation</h3>
+<p>Spark can also be used for compute-intensive tasks. This code estimates <span style="font-family: serif; font-size: 120%;">π</span> by "throwing darts" at a circle. We pick random points in the unit square ((0, 0) to (1,1)) and see how many fall in the unit circle. The fraction should be <span style="font-family: serif; font-size: 120%;">π / 4</span>, so we use this to get our estimate.</p>
+
+<ul class="nav nav-tabs">
+  <li class="lang-tab lang-tab-python active"><a href="#">Python</a></li>
+  <li class="lang-tab lang-tab-scala"><a href="#">Scala</a></li>
+  <li class="lang-tab lang-tab-java"><a href="#">Java</a></li>
+</ul>
+
+<div class="tab-content">
+<div class="tab-pane tab-pane-python active">
+<div class="code code-tab">
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="p">.</span><span class="nb">range</span><span class="p">(</span><span class="n">NUM_SAMPLES</span><span class="p">)</span> \
+  <span class="p">.</span><span class="n">withColumn</span><span class="p">(</span><span class="s">"x"</span><span class="p">,</span> <span class="n">rand</span><span class="p">(</span><span class="mi">41</span><span class="p">))</span> \
+  <span class="p">.</span><span class="n">withColumn</span><span class="p">(</span><span class="s">"y"</span><span class="p">,</span> <span class="n">rand</span><span class="p">(</span><span class="mi">42</span><span class="p">))</span>
+
+<span class="n">count</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="n">where</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s">"x"</span><span class="p">)</span> <span class="o">*</span> <span class="n">col</span><span class="p">(</span><span class="s">"x"</span><span class="p">)</span> <span class="o">+</span> <span class="n">col</span><span class="p">(</span><span class="s">"y"</span><span class="p">)</span> <span class="o">*</span> <span class="n">col</span><span class="p">(</span><span class="s">"y"</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">).</span><span class="n">count</span><span class="p">()</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">"Pi is roughly %f"</span> <span class="o">%</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">count</span> <span class="o">/</span> <span class="n">NUM_SAMPLES</span><span class="p">))</span></code></pre></figure>
+
+</div>
+</div>
+
+<div class="tab-pane tab-pane-scala">
+<div class="code code-tab">
+
+<figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">val</span> <span class="nv">df</span> <span class="k">=</span> <span class="nv">spark</span><span class="o">.</span><span class="py">range</span><span class="o">(</span><span class="nc">NUM_SAMPLES</span><span class="o">)</span> <span class="o">\</span>
+  <span class="o">.</span><span class="py">withColumn</span><span class="o">(</span><span class="s">"x"</span><span class="o">,</span> <span class="nf">rand</span><span class="o">(</span><span class="mi">41</span><span class="o">))</span> <span class="o">\</span>
+  <span class="o">.</span><span class="py">withColumn</span><span class="o">(</span><span class="s">"y"</span><span class="o">,</span> <span class="nf">rand</span><span class="o">(</span><span class="mi">42</span><span class="o">))</span>
+
+<span class="k">val</span> <span class="nv">count</span> <span class="k">=</span> <span class="nv">df</span><span class="o">.</span><span class="py">where</span><span class="o">(</span><span class="nf">col</span><span class="o">(</span><span class="s">"x"</span><span class="o">)</span> <span class="o">*</span> <span class="nf">col</span><span class="o">(</span><span class="s">"x"</span><span class="o">)</span> <span class="o">+</span> <span class="nf">col</span><span class="o">(</span><span class="s">"y"</span><span class="o">)</span> <span class="o">*</span> <span class="nf">col</span><span class="o">(</span><span class="s">"y"</span><span class="o">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="o">).</span><span class="py">count</span><span class="o">()</span>
+
+<span class="nf">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Pi is roughly ${4.0 * count / NUM_SAMPLES}"</span><span class="o">)</span></code></pre></figure>
+
+</div>
+</div>
+
+<div class="tab-pane tab-pane-java">
+<div class="code code-tab">
+
+<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="nc">DataFrame</span> <span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="na">range</span><span class="o">(</span><span class="no">NUM_SAMPLES</span><span class="o">)</span> <span class="err">\</span>
+  <span class="o">.</span><span class="na">withColumn</span><span class="o">(</span><span class="s">"x"</span><span class="o">,</span> <span class="n">rand</span><span class="o">(</span><span class="mi">41</span><span class="o">))</span> <span class="err">\</span>
+  <span class="o">.</span><span class="na">withColumn</span><span class="o">(</span><span class="s">"y"</span><span class="o">,</span> <span class="n">rand</span><span class="o">(</span><span class="mi">42</span><span class="o">));</span>
+
+<span class="kt">long</span> <span class="n">count</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="na">where</span><span class="o">(</span><span class="n">col</span><span class="o">(</span><span class="s">"x"</span><span class="o">)</span> <span class="o">*</span> <span class="n">col</span><span class="o">(</span><span class="s">"x"</span><span class="o">)</span> <span class="o">+</span> <span class="n">col</span><span class="o">(</span><span class="s">"y"</span><span class="o">)</span> <span class="o">*</span> <span class="n">col</span><span class="o">(</span><span class="s">"y"</span><span class="o">)</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="o">).</span><span class="na">count</span><span class="o">();</span>
+
+<span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Pi is roughly "</span> <span class="o">+</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">count</span> <span class="o">/</span> <span class="no">NUM_SAMPLES</span><span class="o">);</span></code></pre></figure>
+
+</div>
+</div>
+</div>
+
 <h3>Text search</h3>
 <p>In this example, we search through the error messages in a log file.</p>
 

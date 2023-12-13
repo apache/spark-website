@@ -29,6 +29,100 @@ data sources and Spark’s built-in distributed collections without providing sp
 Also, programs based on DataFrame API will be automatically optimized by Spark’s built-in optimizer, Catalyst.
 </p>
 
+<h3>Word count</h3>
+<p>In this example, we use a few transformations to build a dataset of (String, Long) pairs and then save it to a file.</p>
+
+<ul class="nav nav-tabs">
+  <li class="lang-tab lang-tab-python active"><a href="#">Python</a></li>
+  <li class="lang-tab lang-tab-scala"><a href="#">Scala</a></li>
+  <li class="lang-tab lang-tab-java"><a href="#">Java</a></li>
+</ul>
+
+<div class="tab-content">
+<div class="tab-pane tab-pane-python active">
+<div class="code code-tab">
+{% highlight python %}
+df = spark.read.text("hdfs://...").toDF("text")
+df.groupBy("text").agg(count(lit(0)).alias("count")) \
+  .write.parquet("hdfs://...")
+{% endhighlight %}
+</div>
+</div>
+
+<div class="tab-pane tab-pane-scala">
+<div class="code code-tab">
+{% highlight scala %}
+val df = spark.read.text("hdfs://...").toDF("text")
+df.groupBy("text").agg(count(lit(0)).alias("count")) \
+  .write.parquet("hdfs://...")
+{% endhighlight %}
+</div>
+</div>
+
+<div class="tab-pane tab-pane-java">
+<div class="code code-tab">
+{% highlight java %}
+DataFrame df = spark.read.text("hdfs://...").toDF("text");
+df.groupBy("text").agg(count(lit(0)).alias("count")) \
+  .write.parquet("hdfs://...");
+{% endhighlight %}
+</div>
+</div>
+</div>
+
+<h3>Pi estimation</h3>
+<p>Spark can also be used for compute-intensive tasks. This code estimates <span style="font-family: serif; font-size: 120%;">π</span> by "throwing darts" at a circle. We pick random points in the unit square ((0, 0) to (1,1)) and see how many fall in the unit circle. The fraction should be <span style="font-family: serif; font-size: 120%;">π / 4</span>, so we use this to get our estimate.</p>
+
+<ul class="nav nav-tabs">
+  <li class="lang-tab lang-tab-python active"><a href="#">Python</a></li>
+  <li class="lang-tab lang-tab-scala"><a href="#">Scala</a></li>
+  <li class="lang-tab lang-tab-java"><a href="#">Java</a></li>
+</ul>
+
+<div class="tab-content">
+<div class="tab-pane tab-pane-python active">
+<div class="code code-tab">
+{% highlight python %}
+df = spark.range(NUM_SAMPLES) \
+  .withColumn("x", rand(41)) \
+  .withColumn("y", rand(42))
+
+count = df.where(col("x") * col("x") + col("y") * col("y") < 1).count()
+
+print("Pi is roughly %f" % (4.0 * count / NUM_SAMPLES))
+{% endhighlight %}
+</div>
+</div>
+
+<div class="tab-pane tab-pane-scala">
+<div class="code code-tab">
+{% highlight scala %}
+val df = spark.range(NUM_SAMPLES) \
+  .withColumn("x", rand(41)) \
+  .withColumn("y", rand(42))
+
+val count = df.where(col("x") * col("x") + col("y") * col("y") < 1).count()
+
+println(s"Pi is roughly ${4.0 * count / NUM_SAMPLES}")
+{% endhighlight %}
+</div>
+</div>
+
+<div class="tab-pane tab-pane-java">
+<div class="code code-tab">
+{% highlight java %}
+DataFrame df = spark.range(NUM_SAMPLES) \
+  .withColumn("x", rand(41)) \
+  .withColumn("y", rand(42));
+
+long count = df.where(col("x") * col("x") + col("y") * col("y") < 1).count();
+
+System.out.println("Pi is roughly " + 4.0 * count / NUM_SAMPLES);
+{% endhighlight %}
+</div>
+</div>
+</div>
+
 <h3>Text search</h3>
 <p>In this example, we search through the error messages in a log file.</p>
 
