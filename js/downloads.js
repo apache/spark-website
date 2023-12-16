@@ -13,15 +13,10 @@ function addRelease(version, releaseDate, packages, mirrored) {
 
 var sources = {pretty: "Source Code", tag: "sources"};
 var hadoopFree = {pretty: "Pre-built with user-provided Apache Hadoop", tag: "without-hadoop"};
-var hadoop2p7 = {pretty: "Pre-built for Apache Hadoop 2.7", tag: "hadoop2.7"};
-var hadoop3p3 = {pretty: "Pre-built for Apache Hadoop 3.2 and later", tag: "hadoop3.2"};
-var hadoop3p3scala213 = {pretty: "Pre-built for Apache Hadoop 3.2 and later (Scala 2.13)", tag: "hadoop3.2-scala2.13"};
 var hadoop2p = {pretty: "Pre-built for Apache Hadoop 2.7", tag: "hadoop2"};
 var hadoop3p = {pretty: "Pre-built for Apache Hadoop 3.3 and later", tag: "hadoop3"};
 var hadoop3pscala213 = {pretty: "Pre-built for Apache Hadoop 3.3 and later (Scala 2.13)", tag: "hadoop3-scala2.13"};
 
-// 3.2.0+
-var packagesV12 = [hadoop3p3, hadoop3p3scala213, hadoop2p7, hadoopFree, sources];
 // 3.3.0+
 var packagesV13 = [hadoop3p, hadoop3pscala213, hadoop2p, hadoopFree, sources];
 // 3.4.0+
@@ -29,8 +24,7 @@ var packagesV14 = [hadoop3p, hadoop3pscala213, hadoopFree, sources];
 
 addRelease("3.5.0", new Date("09/13/2023"), packagesV14, true);
 addRelease("3.4.2", new Date("11/30/2023"), packagesV14, true);
-addRelease("3.3.3", new Date("08/21/2023"), packagesV13, true);
-addRelease("3.2.4", new Date("04/13/2023"), packagesV12, true);
+addRelease("3.3.4", new Date("12/16/2023"), packagesV13, true);
 
 function append(el, contents) {
   el.innerHTML += contents;
