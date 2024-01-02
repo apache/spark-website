@@ -139,397 +139,343 @@
 <div class="container">
   <div class="row mt-4">
     <div class="col-12 col-md-9">
-      <h2>Apache Spark<span class="tm">&trade;</span> examples</h2>
+      <h1>Apache Spark<span class="tm">&trade;</span> examples</h1>
 
-<p>These examples give a quick overview of the Spark API.
-Spark is built on the concept of <em>distributed datasets</em>, which contain arbitrary Java or
-Python objects. You create a dataset from external data, then apply parallel operations
-to it. The building block of the Spark API is its <a href="https://spark.apache.org/docs/latest/rdd-programming-guide.html#resilient-distributed-datasets-rdds">RDD API</a>.
-In the RDD API,
-there are two types of operations: <em>transformations</em>, which define a new dataset based on previous ones,
-and <em>actions</em>, which kick off a job to execute on a cluster.
-On top of Spark’s RDD API, high level APIs are provided, e.g.
-<a href="https://spark.apache.org/docs/latest/sql-programming-guide.html#datasets-and-dataframes">DataFrame API</a> and
-<a href="https://spark.apache.org/docs/latest/mllib-guide.html">Machine Learning API</a>.
-These high level APIs provide a concise way to conduct certain data operations.
-In this page, we will show examples using RDD API as well as examples using high level APIs.</p>
+<p>This page shows you how to use different Apache Spark APIs with simple examples.</p>
 
-<h2>RDD API examples</h2>
+<p>Spark is a great engine for small and large datasets.  It can be used with single-node/localhost environments, or distributed clusters.  Spark’s expansive API, excellent performance, and flexibility make it a good option for many analyses.  This guide shows examples with the following Spark APIs:</p>
 
-<h3>Word count</h3>
-<p>In this example, we use a few transformations to build a dataset of (String, Int) pairs called <code>counts</code> and then save it to a file.</p>
-
-<ul class="nav nav-tabs">
-  <li class="lang-tab lang-tab-python active"><a href="#">Python</a></li>
-  <li class="lang-tab lang-tab-scala"><a href="#">Scala</a></li>
-  <li class="lang-tab lang-tab-java"><a href="#">Java</a></li>
+<ul>
+  <li>DataFrames</li>
+  <li>SQL</li>
+  <li>Structured Streaming</li>
+  <li>RDDs</li>
 </ul>
 
-<div class="tab-content">
-<div class="tab-pane tab-pane-python active">
-<div class="code code-tab">
-
-<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">text_file</span> <span class="o">=</span> <span class="n">sc</span><span class="p">.</span><span class="n">textFile</span><span class="p">(</span><span class="s">"hdfs://..."</span><span class="p">)</span>
-<span class="n">counts</span> <span class="o">=</span> <span class="n">text_file</span><span class="p">.</span><span class="n">flatMap</span><span class="p">(</span><span class="k">lambda</span> <span class="n">line</span><span class="p">:</span> <span class="n">line</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">" "</span><span class="p">))</span> \
-             <span class="p">.</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">word</span><span class="p">:</span> <span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> \
-             <span class="p">.</span><span class="n">reduceByKey</span><span class="p">(</span><span class="k">lambda</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span>
-<span class="n">counts</span><span class="p">.</span><span class="n">saveAsTextFile</span><span class="p">(</span><span class="s">"hdfs://..."</span><span class="p">)</span></code></pre></figure>
-
-</div>
-</div>
-
-<div class="tab-pane tab-pane-scala">
-<div class="code code-tab">
-
-<figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">val</span> <span class="nv">textFile</span> <span class="k">=</span> <span class="nv">sc</span><span class="o">.</span><span class="py">textFile</span><span class="o">(</span><span class="s">"hdfs://..."</span><span class="o">)</span>
-<span class="k">val</span> <span class="nv">counts</span> <span class="k">=</span> <span class="nv">textFile</span><span class="o">.</span><span class="py">flatMap</span><span class="o">(</span><span class="n">line</span> <span class="k">=&gt;</span> <span class="nv">line</span><span class="o">.</span><span class="py">split</span><span class="o">(</span><span class="s">" "</span><span class="o">))</span>
-                 <span class="o">.</span><span class="py">map</span><span class="o">(</span><span class="n">word</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">word</span><span class="o">,</span> <span class="mi">1</span><span class="o">))</span>
-                 <span class="o">.</span><span class="py">reduceByKey</span><span class="o">(</span><span class="k">_</span> <span class="o">+</span> <span class="k">_</span><span class="o">)</span>
-<span class="nv">counts</span><span class="o">.</span><span class="py">saveAsTextFile</span><span class="o">(</span><span class="s">"hdfs://..."</span><span class="o">)</span></code></pre></figure>
-
-</div>
-</div>
-
-<div class="tab-pane tab-pane-java">
-<div class="code code-tab">
-
-<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="nc">JavaRDD</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">textFile</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="na">textFile</span><span class="o">(</span><span class="s">"hdfs://..."</span><span class="o">);</span>
-<span class="nc">JavaPairRDD</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Integer</span><span class="o">&gt;</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">textFile</span>
-    <span class="o">.</span><span class="na">flatMap</span><span class="o">(</span><span class="n">s</span> <span class="o">-&gt;</span> <span class="nc">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">" "</span><span class="o">)).</span><span class="na">iterator</span><span class="o">())</span>
-    <span class="o">.</span><span class="na">mapToPair</span><span class="o">(</span><span class="n">word</span> <span class="o">-&gt;</span> <span class="k">new</span> <span class="nc">Tuple2</span><span class="o">&lt;&gt;(</span><span class="n">word</span><span class="o">,</span> <span class="mi">1</span><span class="o">))</span>
-    <span class="o">.</span><span class="na">reduceByKey</span><span class="o">((</span><span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="o">);</span>
-<span class="n">counts</span><span class="o">.</span><span class="na">saveAsTextFile</span><span class="o">(</span><span class="s">"hdfs://..."</span><span class="o">);</span></code></pre></figure>
-
-</div>
-</div>
-</div>
-
-<h3>Pi estimation</h3>
-<p>Spark can also be used for compute-intensive tasks. This code estimates <span style="font-family: serif; font-size: 120%;">π</span> by "throwing darts" at a circle. We pick random points in the unit square ((0, 0) to (1,1)) and see how many fall in the unit circle. The fraction should be <span style="font-family: serif; font-size: 120%;">π / 4</span>, so we use this to get our estimate.</p>
-
-<ul class="nav nav-tabs">
-  <li class="lang-tab lang-tab-python active"><a href="#">Python</a></li>
-  <li class="lang-tab lang-tab-scala"><a href="#">Scala</a></li>
-  <li class="lang-tab lang-tab-java"><a href="#">Java</a></li>
-</ul>
-
-<div class="tab-content">
-<div class="tab-pane tab-pane-python active">
-<div class="code code-tab">
-
-<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">inside</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
-    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">random</span><span class="p">.</span><span class="n">random</span><span class="p">(),</span> <span class="n">random</span><span class="p">.</span><span class="n">random</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">x</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="o">*</span><span class="n">y</span> <span class="o">&lt;</span> <span class="mi">1</span>
-
-<span class="n">count</span> <span class="o">=</span> <span class="n">sc</span><span class="p">.</span><span class="n">parallelize</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">NUM_SAMPLES</span><span class="p">))</span> \
-             <span class="p">.</span><span class="nb">filter</span><span class="p">(</span><span class="n">inside</span><span class="p">).</span><span class="n">count</span><span class="p">()</span>
-<span class="k">print</span><span class="p">(</span><span class="s">"Pi is roughly %f"</span> <span class="o">%</span> <span class="p">(</span><span class="mf">4.0</span> <span class="o">*</span> <span class="n">count</span> <span class="o">/</span> <span class="n">NUM_SAMPLES</span><span class="p">))</span></code></pre></figure>
-
-</div>
-</div>
-
-<div class="tab-pane tab-pane-scala">
-<div class="code code-tab">
-
-<figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">val</span> <span class="nv">count</span> <span class="k">=</span> <span class="nv">sc</span><span class="o">.</span><span class="py">parallelize</span><span class="o">(</span><span class="mi">1</span> <span class="n">to</span> <span class="nc">NUM_SAMPLES</span><span class="o">).</span><span class="py">filter</span> <span class="o">{</span> <span class="k">_</span> <span class="k">=&gt;</span>
-  <span class="k">val</span> <span class="nv">x</span> <span class="k">=</span> <span class="nv">math</span><span class="o">.</span><span class="py">random</span>
-  <span class="k">val</span> <span class="nv">y</span> <span class="k">=</span> <span class="nv">math</span><span class="o">.</span><span class="py">random</span>
-  <span class="n">x</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="o">*</span><span class="n">y</span> <span class="o">&lt;</span> <span class="mi">1</span>
-<span class="o">}.</span><span class="py">count</span><span class="o">()</span>
-<span class="nf">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Pi is roughly ${4.0 * count / NUM_SAMPLES}"</span><span class="o">)</span></code></pre></figure>
-
-</div>
-</div>
-
-<div class="tab-pane tab-pane-java">
-<div class="code code-tab">
-
-<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="nc">List</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">&gt;</span> <span class="n">l</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;&gt;(</span><span class="no">NUM_SAMPLES</span><span class="o">);</span>
-<span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="no">NUM_SAMPLES</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
-  <span class="n">l</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">i</span><span class="o">);</span>
-<span class="o">}</span>
-
-<span class="kt">long</span> <span class="n">count</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="na">parallelize</span><span class="o">(</span><span class="n">l</span><span class="o">).</span><span class="na">filter</span><span class="o">(</span><span class="n">i</span> <span class="o">-&gt;</span> <span class="o">{</span>
-  <span class="kt">double</span> <span class="n">x</span> <span class="o">=</span> <span class="nc">Math</span><span class="o">.</span><span class="na">random</span><span class="o">();</span>
-  <span class="kt">double</span> <span class="n">y</span> <span class="o">=</span> <span class="nc">Math</span><span class="o">.</span><span class="na">random</span><span class="o">();</span>
-  <span class="k">return</span> <span class="n">x</span><span class="o">*</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="o">*</span><span class="n">y</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="o">;</span>
-<span class="o">}).</span><span class="na">count</span><span class="o">();</span>
-<span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Pi is roughly "</span> <span class="o">+</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="n">count</span> <span class="o">/</span> <span class="no">NUM_SAMPLES</span><span class="o">);</span></code></pre></figure>
-
-</div>
-</div>
-</div>
-
-<h2>DataFrame API examples</h2>
-<p>
-In Spark, a <a href="https://spark.apache.org/docs/latest/sql-programming-guide.html#dataframes">DataFrame</a>
-is a distributed collection of data organized into named columns.
-Users can use DataFrame API to perform various relational operations on both external
-data sources and Spark’s built-in distributed collections without providing specific procedures for processing data.
-Also, programs based on DataFrame API will be automatically optimized by Spark’s built-in optimizer, Catalyst.
-</p>
-
-<h3>Text search</h3>
-<p>In this example, we search through the error messages in a log file.</p>
-
-<ul class="nav nav-tabs">
-  <li class="lang-tab lang-tab-python active"><a href="#">Python</a></li>
-  <li class="lang-tab lang-tab-scala"><a href="#">Scala</a></li>
-  <li class="lang-tab lang-tab-java"><a href="#">Java</a></li>
-</ul>
-
-<div class="tab-content">
-<div class="tab-pane tab-pane-python active">
-<div class="code code-tab">
-
-<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">textFile</span> <span class="o">=</span> <span class="n">sc</span><span class="p">.</span><span class="n">textFile</span><span class="p">(</span><span class="s">"hdfs://..."</span><span class="p">)</span>
-
-<span class="c1"># Creates a DataFrame having a single column named "line"
-</span><span class="n">df</span> <span class="o">=</span> <span class="n">textFile</span><span class="p">.</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">Row</span><span class="p">(</span><span class="n">r</span><span class="p">)).</span><span class="n">toDF</span><span class="p">([</span><span class="s">"line"</span><span class="p">])</span>
-<span class="n">errors</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="nb">filter</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s">"line"</span><span class="p">).</span><span class="n">like</span><span class="p">(</span><span class="s">"%ERROR%"</span><span class="p">))</span>
-<span class="c1"># Counts all the errors
-</span><span class="n">errors</span><span class="p">.</span><span class="n">count</span><span class="p">()</span>
-<span class="c1"># Counts errors mentioning MySQL
-</span><span class="n">errors</span><span class="p">.</span><span class="nb">filter</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s">"line"</span><span class="p">).</span><span class="n">like</span><span class="p">(</span><span class="s">"%MySQL%"</span><span class="p">)).</span><span class="n">count</span><span class="p">()</span>
-<span class="c1"># Fetches the MySQL errors as an array of strings
-</span><span class="n">errors</span><span class="p">.</span><span class="nb">filter</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s">"line"</span><span class="p">).</span><span class="n">like</span><span class="p">(</span><span class="s">"%MySQL%"</span><span class="p">)).</span><span class="n">collect</span><span class="p">()</span></code></pre></figure>
-
-</div>
-</div>
-
-<div class="tab-pane tab-pane-scala">
-<div class="code code-tab">
-
-<figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">val</span> <span class="nv">textFile</span> <span class="k">=</span> <span class="nv">sc</span><span class="o">.</span><span class="py">textFile</span><span class="o">(</span><span class="s">"hdfs://..."</span><span class="o">)</span>
-
-<span class="c1">// Creates a DataFrame having a single column named "line"</span>
-<span class="k">val</span> <span class="nv">df</span> <span class="k">=</span> <span class="nv">textFile</span><span class="o">.</span><span class="py">toDF</span><span class="o">(</span><span class="s">"line"</span><span class="o">)</span>
-<span class="k">val</span> <span class="nv">errors</span> <span class="k">=</span> <span class="nv">df</span><span class="o">.</span><span class="py">filter</span><span class="o">(</span><span class="nf">col</span><span class="o">(</span><span class="s">"line"</span><span class="o">).</span><span class="py">like</span><span class="o">(</span><span class="s">"%ERROR%"</span><span class="o">))</span>
-<span class="c1">// Counts all the errors</span>
-<span class="nv">errors</span><span class="o">.</span><span class="py">count</span><span class="o">()</span>
-<span class="c1">// Counts errors mentioning MySQL</span>
-<span class="nv">errors</span><span class="o">.</span><span class="py">filter</span><span class="o">(</span><span class="nf">col</span><span class="o">(</span><span class="s">"line"</span><span class="o">).</span><span class="py">like</span><span class="o">(</span><span class="s">"%MySQL%"</span><span class="o">)).</span><span class="py">count</span><span class="o">()</span>
-<span class="c1">// Fetches the MySQL errors as an array of strings</span>
-<span class="nv">errors</span><span class="o">.</span><span class="py">filter</span><span class="o">(</span><span class="nf">col</span><span class="o">(</span><span class="s">"line"</span><span class="o">).</span><span class="py">like</span><span class="o">(</span><span class="s">"%MySQL%"</span><span class="o">)).</span><span class="py">collect</span><span class="o">()</span></code></pre></figure>
-
-</div>
-</div>
-
-<div class="tab-pane tab-pane-java">
-<div class="code code-tab">
-
-<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="c1">// Creates a DataFrame having a single column named "line"</span>
-<span class="nc">JavaRDD</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">&gt;</span> <span class="n">textFile</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="na">textFile</span><span class="o">(</span><span class="s">"hdfs://..."</span><span class="o">);</span>
-<span class="nc">JavaRDD</span><span class="o">&lt;</span><span class="nc">Row</span><span class="o">&gt;</span> <span class="n">rowRDD</span> <span class="o">=</span> <span class="n">textFile</span><span class="o">.</span><span class="na">map</span><span class="o">(</span><span class="nl">RowFactory:</span><span class="o">:</span><span class="n">create</span><span class="o">);</span>
-<span class="nc">List</span><span class="o">&lt;</span><span class="nc">StructField</span><span class="o">&gt;</span> <span class="n">fields</span> <span class="o">=</span> <span class="nc">Arrays</span><span class="o">.</span><span class="na">asList</span><span class="o">(</span>
-  <span class="nc">DataTypes</span><span class="o">.</span><span class="na">createStructField</span><span class="o">(</span><span class="s">"line"</span><span class="o">,</span> <span class="nc">DataTypes</span><span class="o">.</span><span class="na">StringType</span><span class="o">,</span> <span class="kc">true</span><span class="o">));</span>
-<span class="nc">StructType</span> <span class="n">schema</span> <span class="o">=</span> <span class="nc">DataTypes</span><span class="o">.</span><span class="na">createStructType</span><span class="o">(</span><span class="n">fields</span><span class="o">);</span>
-<span class="nc">DataFrame</span> <span class="n">df</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="o">.</span><span class="na">createDataFrame</span><span class="o">(</span><span class="n">rowRDD</span><span class="o">,</span> <span class="n">schema</span><span class="o">);</span>
-
-<span class="nc">DataFrame</span> <span class="n">errors</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">col</span><span class="o">(</span><span class="s">"line"</span><span class="o">).</span><span class="na">like</span><span class="o">(</span><span class="s">"%ERROR%"</span><span class="o">));</span>
-<span class="c1">// Counts all the errors</span>
-<span class="n">errors</span><span class="o">.</span><span class="na">count</span><span class="o">();</span>
-<span class="c1">// Counts errors mentioning MySQL</span>
-<span class="n">errors</span><span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">col</span><span class="o">(</span><span class="s">"line"</span><span class="o">).</span><span class="na">like</span><span class="o">(</span><span class="s">"%MySQL%"</span><span class="o">)).</span><span class="na">count</span><span class="o">();</span>
-<span class="c1">// Fetches the MySQL errors as an array of strings</span>
-<span class="n">errors</span><span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">col</span><span class="o">(</span><span class="s">"line"</span><span class="o">).</span><span class="na">like</span><span class="o">(</span><span class="s">"%MySQL%"</span><span class="o">)).</span><span class="na">collect</span><span class="o">();</span></code></pre></figure>
-
-</div>
-</div>
-</div>
-
-<h3>Simple data operations</h3>
-<p>
-In this example, we read a table stored in a database and calculate the number of people for every age.
-Finally, we save the calculated result to S3 in the format of JSON.
-A simple MySQL table "people" is used in the example and this table has two columns,
-"name" and "age".
-</p>
-
-<ul class="nav nav-tabs">
-  <li class="lang-tab lang-tab-python active"><a href="#">Python</a></li>
-  <li class="lang-tab lang-tab-scala"><a href="#">Scala</a></li>
-  <li class="lang-tab lang-tab-java"><a href="#">Java</a></li>
-</ul>
-
-<div class="tab-content">
-<div class="tab-pane tab-pane-python active">
-<div class="code code-tab">
-
-<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c1"># Creates a DataFrame based on a table named "people"
-# stored in a MySQL database.
-</span><span class="n">url</span> <span class="o">=</span> \
-  <span class="s">"jdbc:mysql://yourIP:yourPort/test?user=yourUsername;password=yourPassword"</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">sqlContext</span> \
-  <span class="p">.</span><span class="n">read</span> \
-  <span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="s">"jdbc"</span><span class="p">)</span> \
-  <span class="p">.</span><span class="n">option</span><span class="p">(</span><span class="s">"url"</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span> \
-  <span class="p">.</span><span class="n">option</span><span class="p">(</span><span class="s">"dbtable"</span><span class="p">,</span> <span class="s">"people"</span><span class="p">)</span> \
-  <span class="p">.</span><span class="n">load</span><span class="p">()</span>
-
-<span class="c1"># Looks the schema of this DataFrame.
-</span><span class="n">df</span><span class="p">.</span><span class="n">printSchema</span><span class="p">()</span>
-
-<span class="c1"># Counts people by age
-</span><span class="n">countsByAge</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="n">groupBy</span><span class="p">(</span><span class="s">"age"</span><span class="p">).</span><span class="n">count</span><span class="p">()</span>
-<span class="n">countsByAge</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
-
-<span class="c1"># Saves countsByAge to S3 in the JSON format.
-</span><span class="n">countsByAge</span><span class="p">.</span><span class="n">write</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="s">"json"</span><span class="p">).</span><span class="n">save</span><span class="p">(</span><span class="s">"s3a://..."</span><span class="p">)</span></code></pre></figure>
-
-</div>
-</div>
-
-<div class="tab-pane tab-pane-scala">
-<div class="code code-tab">
-
-<figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="c1">// Creates a DataFrame based on a table named "people"</span>
-<span class="c1">// stored in a MySQL database.</span>
-<span class="k">val</span> <span class="nv">url</span> <span class="k">=</span>
-  <span class="s">"jdbc:mysql://yourIP:yourPort/test?user=yourUsername;password=yourPassword"</span>
-<span class="k">val</span> <span class="nv">df</span> <span class="k">=</span> <span class="n">sqlContext</span>
-  <span class="o">.</span><span class="py">read</span>
-  <span class="o">.</span><span class="py">format</span><span class="o">(</span><span class="s">"jdbc"</span><span class="o">)</span>
-  <span class="o">.</span><span class="py">option</span><span class="o">(</span><span class="s">"url"</span><span class="o">,</span> <span class="n">url</span><span class="o">)</span>
-  <span class="o">.</span><span class="py">option</span><span class="o">(</span><span class="s">"dbtable"</span><span class="o">,</span> <span class="s">"people"</span><span class="o">)</span>
-  <span class="o">.</span><span class="py">load</span><span class="o">()</span>
-
-<span class="c1">// Looks the schema of this DataFrame.</span>
-<span class="nv">df</span><span class="o">.</span><span class="py">printSchema</span><span class="o">()</span>
-
-<span class="c1">// Counts people by age</span>
-<span class="k">val</span> <span class="nv">countsByAge</span> <span class="k">=</span> <span class="nv">df</span><span class="o">.</span><span class="py">groupBy</span><span class="o">(</span><span class="s">"age"</span><span class="o">).</span><span class="py">count</span><span class="o">()</span>
-<span class="nv">countsByAge</span><span class="o">.</span><span class="py">show</span><span class="o">()</span>
-
-<span class="c1">// Saves countsByAge to S3 in the JSON format.</span>
-<span class="nv">countsByAge</span><span class="o">.</span><span class="py">write</span><span class="o">.</span><span class="py">format</span><span class="o">(</span><span class="s">"json"</span><span class="o">).</span><span class="py">save</span><span class="o">(</span><span class="s">"s3a://..."</span><span class="o">)</span></code></pre></figure>
-
-</div>
-</div>
-
-<div class="tab-pane tab-pane-java">
-<div class="code code-tab">
-
-<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="c1">// Creates a DataFrame based on a table named "people"</span>
-<span class="c1">// stored in a MySQL database.</span>
-<span class="nc">String</span> <span class="n">url</span> <span class="o">=</span>
-  <span class="s">"jdbc:mysql://yourIP:yourPort/test?user=yourUsername;password=yourPassword"</span><span class="o">;</span>
-<span class="nc">DataFrame</span> <span class="n">df</span> <span class="o">=</span> <span class="n">sqlContext</span>
-  <span class="o">.</span><span class="na">read</span><span class="o">()</span>
-  <span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">"jdbc"</span><span class="o">)</span>
-  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">"url"</span><span class="o">,</span> <span class="n">url</span><span class="o">)</span>
-  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">"dbtable"</span><span class="o">,</span> <span class="s">"people"</span><span class="o">)</span>
-  <span class="o">.</span><span class="na">load</span><span class="o">();</span>
-
-<span class="c1">// Looks the schema of this DataFrame.</span>
-<span class="n">df</span><span class="o">.</span><span class="na">printSchema</span><span class="o">();</span>
-
-<span class="c1">// Counts people by age</span>
-<span class="nc">DataFrame</span> <span class="n">countsByAge</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="na">groupBy</span><span class="o">(</span><span class="s">"age"</span><span class="o">).</span><span class="na">count</span><span class="o">();</span>
-<span class="n">countsByAge</span><span class="o">.</span><span class="na">show</span><span class="o">();</span>
-
-<span class="c1">// Saves countsByAge to S3 in the JSON format.</span>
-<span class="n">countsByAge</span><span class="o">.</span><span class="na">write</span><span class="o">().</span><span class="na">format</span><span class="o">(</span><span class="s">"json"</span><span class="o">).</span><span class="na">save</span><span class="o">(</span><span class="s">"s3a://..."</span><span class="o">);</span></code></pre></figure>
-
-</div>
-</div>
-</div>
-
-<h2>Machine learning example</h2>
-<p>
-<a href="https://spark.apache.org/docs/latest/mllib-guide.html">MLlib</a>, Spark’s Machine Learning (ML) library, provides many distributed ML algorithms.
-These algorithms cover tasks such as feature extraction, classification, regression, clustering,
-recommendation, and more. 
-MLlib also provides tools such as ML Pipelines for building workflows, CrossValidator for tuning parameters,
-and model persistence for saving and loading models.
-</p>
-
-<h3>Prediction with logistic regression</h3>
-<p>
-In this example, we take a dataset of labels and feature vectors.
-We learn to predict the labels from feature vectors using the Logistic Regression algorithm.
-</p>
-
-<ul class="nav nav-tabs">
-  <li class="lang-tab lang-tab-python active"><a href="#">Python</a></li>
-  <li class="lang-tab lang-tab-scala"><a href="#">Scala</a></li>
-  <li class="lang-tab lang-tab-java"><a href="#">Java</a></li>
-</ul>
-
-<div class="tab-content">
-<div class="tab-pane tab-pane-python active">
-<div class="code code-tab">
-
-<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="c1"># Every record of this DataFrame contains the label and
-# features represented by a vector.
-</span><span class="n">df</span> <span class="o">=</span> <span class="n">sqlContext</span><span class="p">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">[</span><span class="s">"label"</span><span class="p">,</span> <span class="s">"features"</span><span class="p">])</span>
-
-<span class="c1"># Set parameters for the algorithm.
-# Here, we limit the number of iterations to 10.
-</span><span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">maxIter</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-
-<span class="c1"># Fit the model to the data.
-</span><span class="n">model</span> <span class="o">=</span> <span class="n">lr</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-
-<span class="c1"># Given a dataset, predict each point's label, and show the results.
-</span><span class="n">model</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="n">df</span><span class="p">).</span><span class="n">show</span><span class="p">()</span></code></pre></figure>
-
-</div>
-</div>
-
-<div class="tab-pane tab-pane-scala">
-<div class="code code-tab">
-
-<figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="c1">// Every record of this DataFrame contains the label and</span>
-<span class="c1">// features represented by a vector.</span>
-<span class="k">val</span> <span class="nv">df</span> <span class="k">=</span> <span class="nv">sqlContext</span><span class="o">.</span><span class="py">createDataFrame</span><span class="o">(</span><span class="n">data</span><span class="o">).</span><span class="py">toDF</span><span class="o">(</span><span class="s">"label"</span><span class="o">,</span> <span class="s">"features"</span><span class="o">)</span>
-
-<span class="c1">// Set parameters for the algorithm.</span>
-<span class="c1">// Here, we limit the number of iterations to 10.</span>
-<span class="k">val</span> <span class="nv">lr</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">LogisticRegression</span><span class="o">().</span><span class="py">setMaxIter</span><span class="o">(</span><span class="mi">10</span><span class="o">)</span>
-
-<span class="c1">// Fit the model to the data.</span>
-<span class="k">val</span> <span class="nv">model</span> <span class="k">=</span> <span class="nv">lr</span><span class="o">.</span><span class="py">fit</span><span class="o">(</span><span class="n">df</span><span class="o">)</span>
-
-<span class="c1">// Inspect the model: get the feature weights.</span>
-<span class="k">val</span> <span class="nv">weights</span> <span class="k">=</span> <span class="nv">model</span><span class="o">.</span><span class="py">weights</span>
-
-<span class="c1">// Given a dataset, predict each point's label, and show the results.</span>
-<span class="nv">model</span><span class="o">.</span><span class="py">transform</span><span class="o">(</span><span class="n">df</span><span class="o">).</span><span class="py">show</span><span class="o">()</span></code></pre></figure>
-
-</div>
-</div>
-
-<div class="tab-pane tab-pane-java">
-<div class="code code-tab">
-
-<figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="c1">// Every record of this DataFrame contains the label and</span>
-<span class="c1">// features represented by a vector.</span>
-<span class="nc">StructType</span> <span class="n">schema</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">StructType</span><span class="o">(</span><span class="k">new</span> <span class="nc">StructField</span><span class="o">[]{</span>
-  <span class="k">new</span> <span class="nf">StructField</span><span class="o">(</span><span class="s">"label"</span><span class="o">,</span> <span class="nc">DataTypes</span><span class="o">.</span><span class="na">DoubleType</span><span class="o">,</span> <span class="kc">false</span><span class="o">,</span> <span class="nc">Metadata</span><span class="o">.</span><span class="na">empty</span><span class="o">()),</span>
-  <span class="k">new</span> <span class="nf">StructField</span><span class="o">(</span><span class="s">"features"</span><span class="o">,</span> <span class="k">new</span> <span class="nc">VectorUDT</span><span class="o">(),</span> <span class="kc">false</span><span class="o">,</span> <span class="nc">Metadata</span><span class="o">.</span><span class="na">empty</span><span class="o">()),</span>
-<span class="o">});</span>
-<span class="nc">DataFrame</span> <span class="n">df</span> <span class="o">=</span> <span class="n">jsql</span><span class="o">.</span><span class="na">createDataFrame</span><span class="o">(</span><span class="n">data</span><span class="o">,</span> <span class="n">schema</span><span class="o">);</span>
-
-<span class="c1">// Set parameters for the algorithm.</span>
-<span class="c1">// Here, we limit the number of iterations to 10.</span>
-<span class="nc">LogisticRegression</span> <span class="n">lr</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">LogisticRegression</span><span class="o">().</span><span class="na">setMaxIter</span><span class="o">(</span><span class="mi">10</span><span class="o">);</span>
-
-<span class="c1">// Fit the model to the data.</span>
-<span class="nc">LogisticRegressionModel</span> <span class="n">model</span> <span class="o">=</span> <span class="n">lr</span><span class="o">.</span><span class="na">fit</span><span class="o">(</span><span class="n">df</span><span class="o">);</span>
-
-<span class="c1">// Inspect the model: get the feature weights.</span>
-<span class="nc">Vector</span> <span class="n">weights</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="na">weights</span><span class="o">();</span>
-
-<span class="c1">// Given a dataset, predict each point's label, and show the results.</span>
-<span class="n">model</span><span class="o">.</span><span class="na">transform</span><span class="o">(</span><span class="n">df</span><span class="o">).</span><span class="na">show</span><span class="o">();</span></code></pre></figure>
-
-</div>
-</div>
-</div>
+<p>The examples use small datasets so the they are easy to follow.</p>
+
+<h2 id="spark-dataframe-example">Spark DataFrame example</h2>
+
+<p>This section shows you how to create a Spark DataFrame and run simple operations.  The examples are on a small DataFrame, so you can easily see the functionality.</p>
+
+<p>Let’s start by creating a Spark Session:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>from pyspark.sql import SparkSession
+
+spark = SparkSession.builder.appName("demo").getOrCreate()
+</code></pre></div></div>
+
+<p>Some Spark runtime environments come with pre-instantiated Spark Sessions.  The <code class="language-plaintext highlighter-rouge">getOrCreate()</code> method will use an existing Spark Session or create a new Spark Session if one does not already exist.</p>
+
+<p><strong><em>Create a Spark DataFrame</em></strong></p>
+
+<p>Start by creating a DataFrame with <code class="language-plaintext highlighter-rouge">first_name</code> and <code class="language-plaintext highlighter-rouge">age</code> columns and four rows of data:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>df = spark.createDataFrame(
+    [
+        ("sue", 32),
+        ("li", 3),
+        ("bob", 75),
+        ("heo", 13),
+    ],
+    ["first_name", "age"],
+)
+</code></pre></div></div>
+
+<p>Use the <code class="language-plaintext highlighter-rouge">show()</code> method to view the contents of the DataFrame:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>df.show()
+
++----------+---+
+|first_name|age|
++----------+---+
+|       sue| 32|
+|        li|  3|
+|       bob| 75|
+|       heo| 13|
++----------+---+
+</code></pre></div></div>
+
+<p>Now, let’s perform some data processing operations on the DataFrame.</p>
+
+<p><strong><em>Add a column to a Spark DataFrame</em></strong></p>
+
+<p>Let’s add a <code class="language-plaintext highlighter-rouge">life_stage</code> column to the DataFrame that returns “child” if the age is 12 or under, “teenager” if the age is between 13 and 19, and “adult” if the age is 20 or older.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>from pyspark.sql.functions import col, when
+
+df1 = df.withColumn(
+    "life_stage",
+    when(col("age") &lt; 13, "child")
+    .when(col("age").between(13, 19), "teenager")
+    .otherwise("adult"),
+)
+</code></pre></div></div>
+
+<p>It’s easy to add columns to a Spark DataFrame.  Let’s view the contents of <code class="language-plaintext highlighter-rouge">df1</code>.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>df1.show()
+
++----------+---+----------+
+|first_name|age|life_stage|
++----------+---+----------+
+|       sue| 32|     adult|
+|        li|  3|     child|
+|       bob| 75|     adult|
+|       heo| 13|  teenager|
++----------+---+----------+
+</code></pre></div></div>
+
+<p>Notice how the original DataFrame is unchanged:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>df.show()
+
++----------+---+
+|first_name|age|
++----------+---+
+|       sue| 32|
+|        li|  3|
+|       bob| 75|
+|       heo| 13|
++----------+---+
+</code></pre></div></div>
+
+<p>Spark operations don’t mutate the DataFrame.  You must assign the result to a new variable to access the DataFrame changes for subsequent operations.</p>
+
+<p><strong><em>Filter a Spark DataFrame</em></strong></p>
+
+<p>Now, filter the DataFrame so it only includes teenagers and adults.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>df1.where(col("life_stage").isin(["teenager", "adult"])).show()
+
++----------+---+----------+
+|first_name|age|life_stage|
++----------+---+----------+
+|       sue| 32|     adult|
+|       bob| 75|     adult|
+|       heo| 13|  teenager|
++----------+---+----------+
+</code></pre></div></div>
+
+<p><strong><em>Group by aggregation on Spark DataFrame</em></strong></p>
+
+<p>Now, let’s compute the average age for everyone in the dataset:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>from pyspark.sql.functions import avg
+
+df1.select(avg("age")).show()
+
++--------+
+|avg(age)|
++--------+
+|   30.75|
++--------+
+</code></pre></div></div>
+
+<p>You can also compute the average age for each <code class="language-plaintext highlighter-rouge">life_stage</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>df1.groupBy("life_stage").avg().show()
+
++----------+--------+
+|life_stage|avg(age)|
++----------+--------+
+|     adult|    53.5|
+|     child|     3.0|
+|  teenager|    13.0|
++----------+--------+
+</code></pre></div></div>
+
+<p>Spark lets you run queries on DataFrames with SQL if you don’t want to use the programmatic APIs.</p>
+
+<p><strong><em>Query the DataFrame with SQL</em></strong></p>
+
+<p>Here’s how you can compute the average age for everyone with SQL:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>spark.sql("select avg(age) from {df1}", df1=df1).show()
+
++--------+
+|avg(age)|
++--------+
+|   30.75|
++--------+
+</code></pre></div></div>
+
+<p>And here’s how to compute the average age by <code class="language-plaintext highlighter-rouge">life_stage</code> with SQL:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>spark.sql("select life_stage, avg(age) from {df1} group by life_stage", df1=df1).show()
+
++----------+--------+
+|life_stage|avg(age)|
++----------+--------+
+|     adult|    53.5|
+|     child|     3.0|
+|  teenager|    13.0|
++----------+--------+
+</code></pre></div></div>
+
+<p>Spark lets you use the programmatic API, the SQL API, or a combination of both.  This flexibility makes Spark accessible to a variety of users and powerfully expressive.</p>
+
+<h2 id="spark-sql-example">Spark SQL Example</h2>
+
+<p>Let’s persist the DataFrame in a named Parquet table that is easily accessible via the SQL API.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>df1.write.saveAsTable("some_people")
+</code></pre></div></div>
+
+<p>Make sure that the table is accessible via the table name:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>spark.sql("select * from some_people").show()
+
++----------+---+----------+
+|first_name|age|life_stage|
++----------+---+----------+
+|       heo| 13|  teenager|
+|       sue| 32|     adult|
+|       bob| 75|     adult|
+|        li|  3|     child|
++----------+---+----------+
+</code></pre></div></div>
+
+<p>Now, let’s use SQL to insert a few more rows of data into the table:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>spark.sql("INSERT INTO some_people VALUES ('frank', 4, 'child')")
+</code></pre></div></div>
+
+<p>Inspect the table contents to confirm the row was inserted:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>spark.sql("select * from some_people").show()
+
++----------+---+----------+
+|first_name|age|life_stage|
++----------+---+----------+
+|       heo| 13|  teenager|
+|       sue| 32|     adult|
+|       bob| 75|     adult|
+|        li|  3|     child|
+|     frank|  4|     child|
++----------+---+----------+
+</code></pre></div></div>
+
+<p>Run a query that returns the teenagers:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>spark.sql("select * from some_people where life_stage='teenager'").show()
+
++----------+---+----------+
+|first_name|age|life_stage|
++----------+---+----------+
+|       heo| 13|  teenager|
++----------+---+----------+
+</code></pre></div></div>
+
+<p>Spark makes it easy to register tables and query them with pure SQL.</p>
+
+<h2 id="spark-structured-streaming-example">Spark Structured Streaming Example</h2>
+
+<p>Spark also has Structured Streaming APIs that allow you to create batch or real-time streaming applications.</p>
+
+<p>Let’s see how to use Spark Structured Streaming to read data from Kafka and write it to a Parquet table hourly.</p>
+
+<p>Suppose you have a Kafka stream that’s continuously populated with the following data:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{"student_name":"someXXperson", "graduation_year":"2023", "major":"math"}
+{"student_name":"liXXyao", "graduation_year":"2025", "major":"physics"}
+</code></pre></div></div>
+
+<p>Here’s how to read the Kafka source into a Spark DataFrame:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>df = (
+    spark.readStream.format("kafka")
+    .option("kafka.bootstrap.servers", "host1:port1,host2:port2")
+    .option("subscribe", subscribeTopic)
+    .load()
+)
+</code></pre></div></div>
+
+<p>Create a function that cleans the input data.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>schema = StructType([
+ StructField("student_name", StringType()),
+ StructField("graduation_year", StringType()),
+ StructField("major", StringType()),
+])
+
+def with_normalized_names(df, schema):
+    parsed_df = (
+        df.withColumn("json_data", from_json(col("value").cast("string"), schema))
+        .withColumn("student_name", col("json_data.student_name"))
+        .withColumn("graduation_year", col("json_data.graduation_year"))
+        .withColumn("major", col("json_data.major"))
+        .drop(col("json_data"))
+        .drop(col("value"))
+    )
+    split_col = split(parsed_df["student_name"], "XX")
+    return (
+        parsed_df.withColumn("first_name", split_col.getItem(0))
+        .withColumn("last_name", split_col.getItem(1))
+        .drop("student_name")
+    )
+</code></pre></div></div>
+
+<p>Now, create a function that will read all of the new data in Kafka whenever it’s run.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>def perform_available_now_update():
+    checkpointPath = "data/tmp_students_checkpoint/"
+    path = "data/tmp_students"
+    return df.transform(lambda df: with_normalized_names(df)).writeStream.trigger(
+        availableNow=True
+    ).format("parquet").option("checkpointLocation", checkpointPath).start(path)
+</code></pre></div></div>
+
+<p>Invoke the <code class="language-plaintext highlighter-rouge">perform_available_now_update()</code> function and see the contents of the Parquet table.</p>
+
+<p>You can set up a cron job to run the <code class="language-plaintext highlighter-rouge">perform_available_now_update()</code> function every hour so your Parquet table is regularly updated.</p>
+
+<h2 id="spark-rdd-example">Spark RDD Example</h2>
+
+<p>The Spark RDD APIs are suitable for unstructured data.</p>
+
+<p>The Spark DataFrame API is easier and more performant for structured data.</p>
+
+<p>Suppose you have a text file called <code class="language-plaintext highlighter-rouge">some_text.txt</code> with the following three lines of data:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>these are words
+these are more words
+words in english
+</code></pre></div></div>
+
+<p>You would like to compute the count of each word in the text file.  Here is how to perform this computation with Spark RDDs:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>text_file = spark.sparkContext.textFile("some_words.txt")
+
+counts = (
+    text_file.flatMap(lambda line: line.split(" "))
+    .map(lambda word: (word, 1))
+    .reduceByKey(lambda a, b: a + b)
+)
+</code></pre></div></div>
+
+<p>Let’s take a look at the result:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>counts.collect()
+
+[('these', 2),
+ ('are', 2),
+ ('more', 1),
+ ('in', 1),
+ ('words', 3),
+ ('english', 1)]
+</code></pre></div></div>
+
+<p>Spark allows for efficient execution of the query because it parallelizes this computation.  Many other query engines aren’t capable of parallelizing computations.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>These examples have shown how Spark provides nice user APIs for computations on small datasets.  Spark can scale these same code examples to large datasets on distributed clusters.  It’s fantastic how Spark can handle both large and small datasets.</p>
+
+<p>Spark also has an expansive API compared with other query engines.  Spark allows you to perform DataFrame operations with programmatic APIs, write SQL, perform streaming analyses, and do machine learning.  Spark saves you from learning multiple frameworks and patching together various libraries to perform an analysis.</p>
 
 <p><a name="additional"></a></p>
-<h1>Additional examples</h1>
+<h2>Additional examples</h2>
 
 <p>Many additional examples are distributed with Spark:</p>
 
