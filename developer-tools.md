@@ -11,9 +11,9 @@ navigation:
 
 Apache Spark community uses various resources to maintain the community test coverage.
 
-<h3 id="github_action">GitHub Action</h3>
+<h3 id="github_action">GitHub Actions</h3>
 
-[GitHub Action](https://github.com/apache/spark/actions) provides the following on Ubuntu 22.04.
+[GitHub Actions](https://github.com/apache/spark/actions) provides the following on Ubuntu 22.04.
 
 <h4 id="apache-spark-4">Apache Spark 4</h4>
 
@@ -204,11 +204,16 @@ Please check other available options via `python/run-tests[-with-coverage] --hel
 
 <h4>Testing K8S</h4>
 
-Although GitHub Action provide both K8s unit test and integration test coverage, you can run it locally. For example, Volcano batch scheduler integration test should be done manually. Please refer the integration test documentation for the detail.
+Although GitHub Actions provide both K8s unit test and integration test coverage, you can run it locally. For example, Volcano batch scheduler integration test should be done manually. Please refer the integration test documentation for the detail.
 
 [https://github.com/apache/spark/blob/master/resource-managers/kubernetes/integration-tests/README.md](https://github.com/apache/spark/blob/master/resource-managers/kubernetes/integration-tests/README.md)
 
-<h3>Testing with GitHub actions workflow</h3>
+<h4>Running the Docker integration tests</h4>
+
+Docker integration tests are covered by GitHub Actions. However, you can run it locally to speedup deveplopment and testing.
+Please refer the [Docker integration test documentation](https://github.com/apache/spark/blob/master/connector/docker-integration-tests/README.md) for the detail.
+
+<h3>Testing with GitHub Actions workflow</h3>
 
 Apache Spark leverages GitHub Actions that enables continuous integration and a wide range of automation. Apache Spark repository provides several GitHub Actions workflows for developers to run before creating a pull request.
 
