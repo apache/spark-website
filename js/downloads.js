@@ -19,7 +19,7 @@ var hadoop3pscala213 = {pretty: "Pre-built for Apache Hadoop 3.3 and later (Scal
 // 3.4.0+
 var packagesV14 = [hadoop3p, hadoop3pscala213, hadoopFree, sources];
 
-addRelease("3.5.0", new Date("09/13/2023"), packagesV14, true);
+addRelease("3.5.1", new Date("02/21/2024"), packagesV14, true);
 addRelease("3.4.2", new Date("11/30/2023"), packagesV14, true);
 
 function append(el, contents) {
