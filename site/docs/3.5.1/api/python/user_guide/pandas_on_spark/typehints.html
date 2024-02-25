@@ -1,0 +1,636 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Type Hints in Pandas API on Spark &#8212; PySpark master documentation</title>
+    
+    <link href="../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+  
+    
+    <link rel="stylesheet"
+      href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+      href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+      href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+  
+    
+      
+  
+    
+    <link rel="stylesheet" href="../../_static/styles/pydata-sphinx-theme.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/pyspark.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css" />
+    
+    <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+  
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "tex2jax_ignore|mathjax_ignore|document", "processClass": "tex2jax_process|mathjax_process|math|output_area"}})</script>
+    <link rel="canonical" href="https://spark.apache.org/docs/latest/api/python/user_guide/pandas_on_spark/typehints.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="From/to other DBMSes" href="from_to_dbms.html" />
+    <link rel="prev" title="Type Support in Pandas API on Spark" href="types.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+
+<a class="navbar-brand" href="../../index.html">
+  <img src="../../_static/spark-logo-reverse.png" class="logo" alt="logo">
+</a>
+
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../index.html">
+  Overview
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../getting_started/index.html">
+  Getting Started
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="../index.html">
+  User Guides
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../reference/index.html">
+  API Reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../development/index.html">
+  Development
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../migration_guide/index.html">
+  Migration Guides
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <!--
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<div id="version-button" class="dropdown">
+    <button type="button" class="btn btn-secondary btn-sm navbar-btn dropdown-toggle" id="version_switcher_button" data-toggle="dropdown">
+        master
+        <span class="caret"></span>
+    </button>
+    <div id="version_switcher" class="dropdown-menu list-group-flush py-0" aria-labelledby="version_switcher_button">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+</div>
+
+<script type="text/javascript">
+// Function to construct the target URL from the JSON components
+function buildURL(entry) {
+    var template = "https://spark.apache.org/docs/{version}/api/python/index.html";  // supplied by jinja
+    template = template.replace("{version}", entry.version);
+    return template;
+}
+
+// Function to check if corresponding page path exists in other version of docs
+// and, if so, go there instead of the homepage of the other docs version
+function checkPageExistsAndRedirect(event) {
+    const currentFilePath = "user_guide/pandas_on_spark/typehints.html",
+          otherDocsHomepage = event.target.getAttribute("href");
+    let tryUrl = `${otherDocsHomepage}${currentFilePath}`;
+    $.ajax({
+        type: 'HEAD',
+        url: tryUrl,
+        // if the page exists, go there
+        success: function() {
+            location.href = tryUrl;
+        }
+    }).fail(function() {
+        location.href = otherDocsHomepage;
+    });
+    return false;
+}
+
+// Function to populate the version switcher
+(function () {
+    // get JSON config
+    $.getJSON("_static/versions.json", function(data, textStatus, jqXHR) {
+        // create the nodes first (before AJAX calls) to ensure the order is
+        // correct (for now, links will go to doc version homepage)
+        $.each(data, function(index, entry) {
+            // if no custom name specified (e.g., "latest"), use version string
+            if (!("name" in entry)) {
+                entry.name = entry.version;
+            }
+            // construct the appropriate URL, and add it to the dropdown
+            entry.url = buildURL(entry);
+            const node = document.createElement("a");
+            node.setAttribute("class", "list-group-item list-group-item-action py-1");
+            node.setAttribute("href", `${entry.url}`);
+            node.textContent = `${entry.name}`;
+            node.onclick = checkPageExistsAndRedirect;
+            $("#version_switcher").append(node);
+        });
+    });
+})();
+</script>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../python_packaging.html">
+   Python Package Management
+  </a>
+ </li>
+ <li class="toctree-l1 has-children">
+  <a class="reference internal" href="../sql/index.html">
+   Spark SQL
+  </a>
+  <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../sql/arrow_pandas.html">
+     Apache Arrow in PySpark
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="../sql/python_udtf.html">
+     Python User-defined Table Functions (UDTFs)
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="index.html">
+   Pandas API on Spark
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/>
+  <label for="toctree-checkbox-2">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="options.html">
+     Options and settings
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="pandas_pyspark.html">
+     From/to pandas and PySpark DataFrames
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="transform_apply.html">
+     Transform and apply a function
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="types.html">
+     Type Support in Pandas API on Spark
+    </a>
+   </li>
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="#">
+     Type Hints in Pandas API on Spark
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="from_to_dbms.html">
+     From/to other DBMSes
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="best_practices.html">
+     Best Practices
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="supported_pandas_api.html">
+     Supported pandas API
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="faq.html">
+     FAQ
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage pt-5 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#pandas-on-spark-dataframe-and-pandas-dataframe">
+   pandas-on-Spark DataFrame and Pandas DataFrame
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#type-hinting-with-names">
+   Type Hinting with Names
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#type-hinting-with-index">
+   Type Hinting with Index
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#index">
+     Index
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#multiindex">
+     MultiIndex
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <section id="type-hints-in-pandas-api-on-spark">
+<h1>Type Hints in Pandas API on Spark<a class="headerlink" href="#type-hints-in-pandas-api-on-spark" title="Permalink to this headline">¶</a></h1>
+<p>Pandas API on Spark, by default, infers the schema by taking some top records from the output,
+in particular, when you use APIs that allow users to apply a function against pandas-on-Spark DataFrame
+such as <a class="reference internal" href="../../reference/pyspark.pandas/api/pyspark.pandas.DataFrame.transform.html#pyspark.pandas.DataFrame.transform" title="pyspark.pandas.DataFrame.transform"><code class="xref py py-func docutils literal notranslate"><span class="pre">DataFrame.transform()</span></code></a>, <a class="reference internal" href="../../reference/pyspark.pandas/api/pyspark.pandas.DataFrame.apply.html#pyspark.pandas.DataFrame.apply" title="pyspark.pandas.DataFrame.apply"><code class="xref py py-func docutils literal notranslate"><span class="pre">DataFrame.apply()</span></code></a>, <a class="reference internal" href="../../reference/pyspark.pandas/api/pyspark.pandas.DataFrame.pandas_on_spark.apply_batch.html#pyspark.pandas.DataFrame.pandas_on_spark.apply_batch" title="pyspark.pandas.DataFrame.pandas_on_spark.apply_batch"><code class="xref py py-func docutils literal notranslate"><span class="pre">DataFrame.pandas_on_spark.apply_batch()</span></code></a>,
+<a class="reference internal" href="../../reference/pyspark.pandas/api/pyspark.pandas.DataFrame.pandas_on_spark.apply_batch.html#pyspark.pandas.DataFrame.pandas_on_spark.apply_batch" title="pyspark.pandas.DataFrame.pandas_on_spark.apply_batch"><code class="xref py py-func docutils literal notranslate"><span class="pre">DataFrame.pandas_on_spark.apply_batch()</span></code></a>, <code class="xref py py-func docutils literal notranslate"><span class="pre">Series.pandas_on_spark.apply_batch()</span></code>, etc.</p>
+<p>However, this is potentially expensive. If there are several expensive operations such as a shuffle
+in the upstream of the execution plan, pandas API on Spark will end up with executing the Spark job twice, once
+for schema inference, and once for processing actual data with the schema.</p>
+<p>To avoid the consequences, pandas API on Spark has its own type hinting style to specify the schema to avoid
+schema inference. Pandas API on Spark understands the type hints specified in the return type and converts it
+as a Spark schema for pandas UDFs used internally. The way of type hinting has evolved over time.</p>
+<p>This chapter covers the recommended way and the supported ways in detail.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The variadic generics support is experimental and unstable in pandas API on Spark.
+The way of typing can change between minor releases without a warning.
+See also <a class="reference external" href="https://www.python.org/dev/peps/pep-0646/">PEP 646</a> for variadic generics in Python.</p>
+</div>
+<section id="pandas-on-spark-dataframe-and-pandas-dataframe">
+<h2>pandas-on-Spark DataFrame and Pandas DataFrame<a class="headerlink" href="#pandas-on-spark-dataframe-and-pandas-dataframe" title="Permalink to this headline">¶</a></h2>
+<p>In the early pandas-on-Spark version, it was introduced to specify a type hint in the function in order to use
+it as a Spark schema. As an example, you can specify the return type hint as below by using pandas-on-Spark
+<a class="reference internal" href="../../reference/pyspark.pandas/api/pyspark.pandas.DataFrame.html#pyspark.pandas.DataFrame" title="pyspark.pandas.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">pandas_div</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ps</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="gp">... </span>   <span class="c1"># pdf is a pandas DataFrame.</span>
+<span class="gp">... </span>   <span class="k">return</span> <span class="n">pdf</span><span class="p">[[</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">]]</span> <span class="o">/</span> <span class="n">pdf</span><span class="p">[[</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">]]</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">],</span> <span class="s1">&#39;B&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">pandas_div</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Notice that the function <code class="docutils literal notranslate"><span class="pre">pandas_div</span></code> actually takes and outputs a pandas DataFrame instead of
+pandas-on-Spark <a class="reference internal" href="../../reference/pyspark.pandas/api/pyspark.pandas.DataFrame.html#pyspark.pandas.DataFrame" title="pyspark.pandas.DataFrame"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>. So, technically the correct types should be of pandas.</p>
+<p>With Python 3.8+, you can specify the type hints by using pandas instances as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">pandas_div</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="gp">... </span>   <span class="c1"># pdf is a pandas DataFrame.</span>
+<span class="gp">... </span>   <span class="k">return</span> <span class="n">pdf</span><span class="p">[[</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">]]</span> <span class="o">/</span> <span class="n">pdf</span><span class="p">[[</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="s1">&#39;C&#39;</span><span class="p">]]</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">],</span> <span class="s1">&#39;B&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">pandas_div</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Likewise, pandas Series can be also used as a type hints:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">sqrt</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">9</span><span class="p">]]</span> <span class="o">*</span> <span class="mi">3</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">sqrt</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Currently, both pandas API on Spark and pandas instances can be used to specify the type hints; however, pandas-on-Spark
+plans to move gradually towards using pandas instances only as the stability becomes proven.</p>
+</section>
+<section id="type-hinting-with-names">
+<h2>Type Hinting with Names<a class="headerlink" href="#type-hinting-with-names" title="Permalink to this headline">¶</a></h2>
+<p>This approach is to overcome the limitations in the existing type
+hinting especially for DataFrame. When you use a DataFrame as the return type hint, for example,
+<code class="docutils literal notranslate"><span class="pre">DataFrame[int,</span> <span class="pre">int]</span></code>, there is no way to specify the names of each Series. In the old way, pandas API on Spark just generates
+the column names as <code class="docutils literal notranslate"><span class="pre">c#</span></code> and this easily leads users to lose or forget the Series mappings. See the example below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="gp">... </span>    <span class="n">pdf</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">pdf</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ps</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">pandas_on_spark</span><span class="o">.</span><span class="n">apply_batch</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w">   </span>c0<span class="w">  </span>c1
+<span class="m">0</span><span class="w">   </span><span class="m">0</span><span class="w">   </span><span class="m">1</span>
+<span class="m">1</span><span class="w">   </span><span class="m">1</span><span class="w">   </span><span class="m">2</span>
+<span class="m">2</span><span class="w">   </span><span class="m">2</span><span class="w">   </span><span class="m">3</span>
+<span class="m">3</span><span class="w">   </span><span class="m">3</span><span class="w">   </span><span class="m">4</span>
+<span class="m">4</span><span class="w">   </span><span class="m">4</span><span class="w">   </span><span class="m">5</span>
+</pre></div>
+</div>
+<p>The new style of type hinting in pandas API on Spark is similar to the regular Python type hints in variables. The Series name
+is specified as a string, and the type is specified after a colon. The following example shows a simple case with
+the Series names, <code class="docutils literal notranslate"><span class="pre">id</span></code> and <code class="docutils literal notranslate"><span class="pre">A</span></code>, and <code class="docutils literal notranslate"><span class="pre">int</span></code> types respectively.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="gp">... </span>    <span class="n">pdf</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">pdf</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ps</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">pandas_on_spark</span><span class="o">.</span><span class="n">apply_batch</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="w">   </span>id<span class="w">   </span>A
+<span class="m">0</span><span class="w">   </span><span class="m">0</span><span class="w">   </span><span class="m">1</span>
+<span class="m">1</span><span class="w">   </span><span class="m">1</span><span class="w">   </span><span class="m">2</span>
+<span class="m">2</span><span class="w">   </span><span class="m">2</span><span class="w">   </span><span class="m">3</span>
+<span class="m">3</span><span class="w">   </span><span class="m">3</span><span class="w">   </span><span class="m">4</span>
+<span class="m">4</span><span class="w">   </span><span class="m">4</span><span class="w">   </span><span class="m">5</span>
+</pre></div>
+</div>
+<p>In addition, pandas API on Spark also dynamically supports <code class="docutils literal notranslate"><span class="pre">dtype</span></code> instances and the column index in pandas so that users can
+programmatically generate the return type and schema.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">[</span>
+<span class="go">..         zip(sample.columns, sample.dtypes)]:</span>
+<span class="go">...    return pdf + 1</span>
+<span class="go">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psdf</span><span class="o">.</span><span class="n">pandas_on_spark</span><span class="o">.</span><span class="n">apply_batch</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Likewise, <code class="docutils literal notranslate"><span class="pre">dtype</span></code> instances from pandas DataFrame can be used alone and let pandas API on Spark generate column names.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">[</span><span class="n">sample</span><span class="o">.</span><span class="n">dtypes</span><span class="p">]:</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">pdf</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psdf</span><span class="o">.</span><span class="n">pandas_on_spark</span><span class="o">.</span><span class="n">apply_batch</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="type-hinting-with-index">
+<h2>Type Hinting with Index<a class="headerlink" href="#type-hinting-with-index" title="Permalink to this headline">¶</a></h2>
+<p>When you omit index types in the type hints, pandas API on Spark attaches the default index (<cite>compute.default_index_type</cite>),
+and it loses the index column and information from the original data. The default index sometimes requires to have an
+expensive computation such as shuffle so it is best to specify the index type together.</p>
+<section id="index">
+<h3>Index<a class="headerlink" href="#index" title="Permalink to this headline">¶</a></h3>
+<p>With the pandas DataFrames below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">)})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sample</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>The ways below are allowed for a regular index:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+<span class="gp">... </span>    <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">pdf</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ps</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span><span class="o">.</span><span class="n">pandas_on_spark</span><span class="o">.</span><span class="n">apply_batch</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="n">sample</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">sample</span><span class="o">.</span><span class="n">dtypes</span><span class="p">]:</span>
+<span class="gp">... </span>    <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">pdf</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ps</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span><span class="o">.</span><span class="n">pandas_on_spark</span><span class="o">.</span><span class="n">apply_batch</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="p">(</span><span class="s2">&quot;idxA&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="p">[(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">)]]:</span>
+<span class="gp">... </span>    <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">pdf</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ps</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span><span class="o">.</span><span class="n">pandas_on_spark</span><span class="o">.</span><span class="n">apply_batch</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">sample</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="nb">zip</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">sample</span><span class="o">.</span><span class="n">dtypes</span><span class="p">)]:</span>
+<span class="gp">... </span>    <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">pdf</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ps</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span><span class="o">.</span><span class="n">pandas_on_spark</span><span class="o">.</span><span class="n">apply_batch</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="multiindex">
+<h3>MultiIndex<a class="headerlink" href="#multiindex" title="Permalink to this headline">¶</a></h3>
+<p>With the pandas DataFrames below:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">midx</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_arrays</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">4.5</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">)],</span>
+<span class="gp">... </span>    <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">midx</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sample</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sample</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>The ways below are allowed for multi-index:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">[[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+<span class="gp">... </span>    <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">pdf</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ps</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span><span class="o">.</span><span class="n">pandas_on_spark</span><span class="o">.</span><span class="n">apply_batch</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="n">sample</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">dtypes</span><span class="p">,</span> <span class="n">sample</span><span class="o">.</span><span class="n">dtypes</span><span class="p">]:</span>
+<span class="gp">... </span>    <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">pdf</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ps</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span><span class="o">.</span><span class="n">pandas_on_spark</span><span class="o">.</span><span class="n">apply_batch</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="p">[(</span><span class="s2">&quot;int&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;float&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">)],</span>
+<span class="gp">... </span>        <span class="p">[(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">)]]:</span>
+<span class="gp">... </span>    <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">pdf</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ps</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span><span class="o">.</span><span class="n">pandas_on_spark</span><span class="o">.</span><span class="n">apply_batch</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">[</span>
+<span class="gp">... </span>        <span class="nb">zip</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="n">sample</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">dtypes</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="nb">zip</span><span class="p">(</span><span class="n">sample</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">sample</span><span class="o">.</span><span class="n">dtypes</span><span class="p">)]:</span>
+<span class="gp">... </span>    <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;A&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="mi">1</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">pdf</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ps</span><span class="o">.</span><span class="n">from_pandas</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span><span class="o">.</span><span class="n">pandas_on_spark</span><span class="o">.</span><span class="n">apply_batch</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="types.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Type Support in Pandas API on Spark</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="from_to_dbms.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">From/to other DBMSes</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+    <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+  <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright .<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>
