@@ -254,7 +254,7 @@ Since it requires further manual steps, please also contact the <a href="mailto:
 
 <h4>Remove RC artifacts from repositories</h4>
 
-**NOTE! If you did not make a backup of docs for approved RC, this is the last time you can make a backup. Check out docs from svn before removing the directory.**
+**NOTE! If you did not make a backup of docs for approved RC, this is the last time you can make a backup. This will be used to upload the docs to the website in next few step. Check out docs from svn before removing the directory.**
 
 After the vote passes and you moved the approved RC to the release repository, you should delete
 the RC directories from the staging repository. For example:
