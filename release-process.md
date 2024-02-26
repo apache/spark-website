@@ -232,7 +232,7 @@ and the same under [https://repository.apache.org/content/groups/maven-staging-g
 <h4>Upload to PyPI</h4>
 
 You'll need the credentials for the `spark-upload` account, which can be found in
-<a href="https://lists.apache.org/thread.html/2789e448cd8a95361a3164b48f3f8b73a6d9d82aeb228bae2bc4dc7f@%3Cprivate.spark.apache.org%3E">this message</a>
+<a href="https://lists.apache.org/thread.html/2789e448cd8a95361a3164b48f3f8b73a6d9d82aeb228bae2bc4dc7f@%3Cprivate.spark.apache.org%3E">this message</a> and <a href="https://lists.apache.org/thread/j4hq7v4c6bl8dx6n7q5pt7q1lcg3zwjc">this message</a>
 (only visible to PMC members).
 
 The artifacts can be uploaded using <a href="https://pypi.org/project/twine/">twine</a>. Just run:
