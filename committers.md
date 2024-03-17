@@ -73,7 +73,7 @@ navigation:
 |Josh Rosen|Stripe|
 |Sandy Ryza|Remix|
 |Kousuke Saruta|NTT Data|
-|Saisai Shao|Tencent|
+|Saisai Shao|Datastrato|
 |Prashant Sharma|IBM|
 |Gabor Somogyi|Apple|
 |Ram Sriharsha|Databricks|
