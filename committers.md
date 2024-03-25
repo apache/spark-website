@@ -29,7 +29,7 @@ navigation:
 |Wenchen Fan|Databricks|
 |Huaxin Gao|Apple|
 |Max Gekk|Databricks|
-|Jiaan Geng|Kyligence|
+|Jiaan Geng|DataCyber|
 |Joseph Gonzalez|UC Berkeley|
 |Thomas Graves|NVIDIA|
 |Stephen Haberman|LinkedIn|
