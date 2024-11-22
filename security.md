@@ -7,6 +7,13 @@ navigation:
   show: true
 ---
 
+<h2>Security Model</h2>
+
+For information on what security properties to expect from Apache Spark
+and how to configure the various security features, see the
+[Spark Security](https://spark.apache.org/docs/latest/security.html)
+documentation.
+
 <h2>Reporting security issues</h2>
 
 Apache Spark uses the standard process outlined by the [Apache Security Team](https://www.apache.org/security/)
