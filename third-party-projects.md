@@ -34,6 +34,8 @@ This page tracks external software projects that supplement Apache Spark and add
 - [neo4j-spark-connector](https://github.com/neo4j-contrib/neo4j-spark-connector) - Neo4j Connector for Apache Spark
 - [starrocks-connector-for-apache-spark](https://github.com/StarRocks/starrocks-connector-for-apache-spark) - StarRocks Apache Spark connector
 - [tispark](https://github.com/pingcap/tispark) - TiSpark is built for running Apache Spark on top of TiDB/TiKV
+- [spark-pdf](https://stabrise.com/spark-pdf/) - PDF Datasource for Apache Spark
+
 
 ## Open table formats
 
