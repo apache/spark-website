@@ -68,6 +68,7 @@ transforming, and analyzing genomic data using Apache Spark
 - <a href="https://github.com/salesforce/TransmogrifAI">TransmogrifAI</a> - AutoML library for building modular, reusable, strongly typed machine learning workflows on Spark with minimal hand tuning
 - <a href="https://github.com/JohnSnowLabs/spark-nlp">Natural Language Processing for Apache Spark</a> - A library to provide simple, performant, and accurate NLP annotations for machine learning pipelines
 - <a href="http://rumbledb.org">Rumble for Apache Spark</a> - A JSONiq engine to query, with a functional language, large, nested, and heterogeneous JSON datasets that do not fit in dataframes.
+- <a href="https://github.com/zetaris/lightning-catalog">Lightning Catalog</a> - A data catalog for running ad-hoc queries, wrangling data by federating enterprise data assets, and building a unified semantic layer with data quality checks.
 
 <h2>Performance, monitoring, and debugging tools for Spark</h2>
 
