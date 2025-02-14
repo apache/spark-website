@@ -13,7 +13,7 @@ navigation:
 |Sameer Agarwal|Deductive AI|
 |Michael Armbrust|Databricks|
 |Dilip Biswal|Adobe|
-|Ryan Blue|Tabular|
+|Ryan Blue|Databricks|
 |Joseph Bradley|Databricks|
 |Matthew Cheah|Palantir|
 |Felix Cheung|NVIDIA|
@@ -37,16 +37,16 @@ navigation:
 |Mark Hamstra|ClearStory Data|
 |Seth Hendrickson|Stripe|
 |Herman van Hovell|Databricks|
-|Liang-Chi Hsieh|Apple|
+|Liang-Chi Hsieh|Databricks|
 |Yin Huai|Databricks|
 |Shane Huang|Intel|
 |Dongjoon Hyun|Apple|
 |Kazuaki Ishizaki|IBM|
 |Xingbo Jiang|Databricks|
 |Yikun Jiang|Huawei|
-|Holden Karau|Netflix|
+|Holden Karau|Fight Health Insurance|
 |Shane Knapp|UC Berkeley|
-|Cody Koeninger|Nexstar Digital|
+|Cody Koeninger||
 |Andy Konwinski|Databricks|
 |Hyukjin Kwon|Databricks|
 |Ryan LeCompte|Quantifind|
@@ -74,7 +74,7 @@ navigation:
 |Imran Rashid|Cloudera|
 |Charles Reiss|University of Virginia|
 |Josh Rosen|Databricks|
-|Sandy Ryza|Dagster|
+|Sandy Ryza|Databricks|
 |Kousuke Saruta|NTT Data|
 |Saisai Shao|Datastrato|
 |Prashant Sharma|IBM|
@@ -84,7 +84,7 @@ navigation:
 |Maciej Szymkiewicz||
 |Jose Torres|Databricks|
 |Peter Toth|Cloudera|
-|DB Tsai|Apple|
+|DB Tsai|Databricks|
 |Takuya Ueshin|Databricks|
 |Marcelo Vanzin|Cloudera|
 |Shivaram Venkataraman|University of Wisconsin, Madison|
