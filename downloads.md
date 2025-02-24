@@ -28,18 +28,20 @@ If you are not familiar with Spark Connect, the primary benefit is that it provi
 
 This table guides you to which of the two distributions to select based on the type of Spark workloads.
 
-| Workloads Types                                                                                     | Spark Distribution and PySpark Package Mode | Spark Config Change                         |
+| Workloads Types                                                                                     | Spark Distribution and PySpark Package Mode| Spark Config Change                         |
 |-----------------------------------------------------------------------------------------------------|--------------------------------------------|---------------------------------------------|
-| - Only use standard DataFrame and Spark SQL APIs                                                   | _connect_                                    | None                                        |
-| - Ability to access and debug Spark from IDE or interact in notebooks                              |                                            |                                             |
-| - Use of thin client to access Spark cluster from non-JVM languages                                |                                            |                                                  |
+| - Only use standard DataFrame and Spark SQL APIs                                                    | _connect_                                  | None                                        |
+| - Ability to access and debug Spark from IDE or interact in notebooks                               |                                            |                                             |
+| - Use of thin client to access Spark cluster from non-JVM languages                                 |                                            |                                             |
 ||||
-| - Access to RDD APIs                                                                               | _classic_                                    | None                                        |
-| - Access to SparkContext API and properties                                                       |                                            |                                             |
-| - Access to JVM properties                                                                         |                                            |                                             |
-| - Access to private catalyst APIs: custom analyzer/optimizer rules, custom query plans            |                                            |                                             |
+| - Access to RDD APIs                                                                                | _classic_                                  | None                                        |
+| - Access to SparkContext API and properties                                                         |                                            |                                             |
+| - Access to standard DataFrame and Spark SQL APIs                                                   |                                            |                                             |
+| - Ability to access and debug Spark from IDE or interact in notebooks                               |                                            |                                             |
+| - Access to JVM properties                                                                          |                                            |                                             |
+| - Access to private catalyst APIs: custom analyzer/optimizer rules, custom query plans              |                                            |                                             |
 ||||
-| - Able to switch between classic and connect                                                      | _classic_                                    | `spark.api.mode = {classic or connect}`     |
+| - Able to switch between classic and connect                                                        | _classic_                                  | `spark.api.mode = {classic or connect}`     |
 ||||
 
 ## Download Apache Spark&trade;
@@ -64,7 +66,7 @@ Spark artifacts are [hosted in Maven Central](https://search.maven.org/search?q=
     artifactId: spark-core_2.13
     version: 4.0.0
 
-### Installing with PyPi ###
+### Installing with PyPI ###
 Like the two distributions mentioned above, PyPI will also have two PySpark package versions. The default is the _classic_ __pyspark__, while the _connect_ version is __pyspark-connect__ and is dependent on __pyspark__.
 
 Use the decision matrix above to select which PyPI PySpark package to use for your Spark workloads. Both <a href="https://pypi.org/project/pyspark/">PySpark</a> package versions are available on PyPI.
