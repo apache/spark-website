@@ -17,7 +17,7 @@
 
 source "https://rubygems.org"
 
-gem "jekyll", "4.2.0"
+gem "jekyll", "4.4.1"
 gem "rouge", "3.26.0"
 
 gem "webrick", "~> 1.8.2"
