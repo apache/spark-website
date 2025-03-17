@@ -39,11 +39,8 @@ try to. Once they are marked "stable" they have to follow these guidelines.
 
 <h3>API compatibility</h3>
 
-In general, An API is any public class or interface documented in Spark.
-Rrelease A is API compatible with release B if code compiled against release
-A _compiles cleanly_ against B. Currently, does not guarantee that a compiled application that is
-linked against version A will link cleanly against version B without re-compiling. Link-level 
-compatibility is something we'll try to guarantee in future releases.
+In general, An API is any public class or interface documented in Spark, e.g., <a href="https://spark.apache.org/docs/latest/api/scala/org/apache/spark/index.html">ScalaDoc</a>.
+We try to guarantee both source compatibility and binary compatibility between releases.
 
 Note, however, that even for features "developer API" and "experimental", we strive to maintain 
 maximum compatibility. Code should not be merged into the project as "experimental" if there is 
