@@ -19,6 +19,7 @@ This page tracks external software projects that supplement Apache Spark and add
 - [datahub](https://github.com/datahub-project/datahub) - Metadata platform for the modern data stack
 - [dbt-spark](https://github.com/dbt-labs/dbt-spark) - Enables dbt to work with Apache Spark
 - [Hamilton](https://github.com/DAGWorks-Inc/hamilton) - Enables one to declaratively describe PySpark transformations that helps keep code testable, modular, and logically visualizable. 
+- [ScaleDP](https://stabrise.com/scaledp/) - An Open-Source Library for Processing Documents using AI/ML in Apache Spark.
 
 ## Connectors
 
