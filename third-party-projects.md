@@ -36,6 +36,7 @@ This page tracks external software projects that supplement Apache Spark and add
 - [starrocks-connector-for-apache-spark](https://github.com/StarRocks/starrocks-connector-for-apache-spark) - StarRocks Apache Spark connector
 - [tispark](https://github.com/pingcap/tispark) - TiSpark is built for running Apache Spark on top of TiDB/TiKV
 - [spark-pdf](https://stabrise.com/spark-pdf/) - PDF Datasource for Apache Spark
+- [spark-connector-oceanbase](https://github.com/oceanbase/spark-connector-oceanbase) - Apache Spark Connectors for OceanBase
 
 
 ## Open table formats
