@@ -31,8 +31,10 @@ Historically, we’ve received numerous code execution vulnerability reports, wh
 Full access to the provisioned application resources is expected; it is _not_ expected that a user application can
 affect resources outside of their provisioned resources from the resource manager, however.
 
-We strongly discourage users to expose Spark clusters to the public internet. Within company networks or 
-“cloud” accounts, we recommend restricting access to a Spark cluster via appropriate means.
+We strongly discourage exposing Spark clusters (including UIs and submission endpoints) directly to the public 
+internet or untrusted networks. We recommend access within trusted networks (company intranets, 
+private cloud environments), using restrict access to the Spark cluster with robust authentication, 
+authorization, and network controls.
 
 <h2>Known security issues</h2>
 
