@@ -18,7 +18,7 @@ non-public list that will reach the Apache Security team, as well as the Spark P
 
 <h2>Frequently Asked Questions</h2>
 
-<h3>During a security analysis of Flink, I noticed that Spark allows for remote code execution, is this an issue?</h3> 
+<h3>During a security analysis of Apache Spark, I noticed that Spark allows for remote code execution, is this an issue?</h3> 
 
 As with other similar projects like
 [Apache Flink](https://flink.apache.org/what-is-flink/security/#during-a-security-analysis-of-flink-i-noticed-that-flink-allows-for-remote-code-execution-is-this-an-issue), 
