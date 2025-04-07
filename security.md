@@ -16,6 +16,25 @@ responded.
 To report a possible security vulnerability, please email `security@spark.apache.org`. This is a
 non-public list that will reach the Apache Security team, as well as the Spark PMC.
 
+<h2>Frequently Asked Questions</h2>
+
+<h3>During a security analysis of Flink, I noticed that Spark allows for remote code execution, is this an issue?</h3> 
+
+As with other similar projects like
+[Apache Flink](https://flink.apache.org/what-is-flink/security/#during-a-security-analysis-of-flink-i-noticed-that-flink-allows-for-remote-code-execution-is-this-an-issue), 
+Apache Spark is a framework for executing user-supplied code in clusters. Users can submit code in Spark jobs, 
+which will be executed unconditionally, without any attempts to limit what code can run. Starting other processes, 
+establishing network connections or accessing and modifying local files are possible. Anyone able to use a Spark
+cluster generally already has total control over the resources assigned to their Spark application by the resource
+manager (YARN, Kubernetes, etc.).
+
+Historically, we’ve received numerous code execution vulnerability reports, which we have rejected, as this is by design.
+Full access to the provisioned application resources is expected; it is _not_ expected that a user application can
+affect resources outside of their provisioned resources from the resource manager, however.
+
+We strongly discourage users to expose Spark clusters to the public internet. Within company networks or 
+“cloud” accounts, we recommend restricting access to a Spark cluster via appropriate means.
+
 <h2>Known security issues</h2>
 
 <h3 id="CVE-2023-32007">CVE-2023-32007: Apache Spark shell command injection vulnerability via Spark UI</h3>
