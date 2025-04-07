@@ -20,9 +20,8 @@ non-public list that will reach the Apache Security team, as well as the Spark P
 
 <h3>During a security analysis of Apache Spark, I noticed that Spark allows for remote code execution, is this an issue?</h3> 
 
-As with other similar projects like
-[Apache Flink](https://flink.apache.org/what-is-flink/security/#during-a-security-analysis-of-flink-i-noticed-that-flink-allows-for-remote-code-execution-is-this-an-issue), 
-Apache Spark is a framework for executing user-supplied code in clusters. Users can submit code in Spark jobs, 
+No, this is not considered an issue or a vulnerability in itself, because remote code execution is fundamental 
+to Apache Spark's design and purpose. Users can submit code in Spark jobs, 
 which will be executed unconditionally, without any attempts to limit what code can run. Starting other processes, 
 establishing network connections or accessing and modifying local files are possible. Anyone able to use a Spark
 cluster generally already has total control over the resources assigned to their Spark application by the resource
