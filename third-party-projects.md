@@ -37,6 +37,7 @@ This page tracks external software projects that supplement Apache Spark and add
 - [tispark](https://github.com/pingcap/tispark) - TiSpark is built for running Apache Spark on top of TiDB/TiKV
 - [spark-pdf](https://stabrise.com/spark-pdf/) - PDF Datasource for Apache Spark
 - [spark-connector-oceanbase](https://github.com/oceanbase/spark-connector-oceanbase) - Apache Spark Connectors for OceanBase
+- [lance-spark](https://github.com/lancedb/lance-spark) - Apache Spark connector for Lance datasets
 
 
 ## Open table formats
@@ -44,6 +45,7 @@ This page tracks external software projects that supplement Apache Spark and add
 - <a href="https://delta.io">Delta Lake</a> - Storage layer that provides ACID transactions and scalable metadata handling for Apache Spark workloads
 - [Hudi](https://github.com/apache/hudi): Upserts, Deletes And Incremental Processing on Big Data
 - [Iceberg](https://github.com/apache/iceberg) - Open table format for analytic datasets
+- [Lance](https://github.com/lancedb/lance) - Modern columnar data format for ML and LLMs
 
 <h2>Infrastructure projects</h2>
 
