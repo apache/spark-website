@@ -607,6 +607,7 @@ To download Apache Spark 4.0.0, please visit the [downloads](https://spark.apach
 - [[SPARK-47993]](https://issues.apache.org/jira/browse/SPARK-47993) Drop Python 3.8 support
 - [[SPARK-49347]](https://issues.apache.org/jira/browse/SPARK-49347) Deprecate SparkR
 - [[SPARK-47923]](https://issues.apache.org/jira/browse/SPARK-47923) Upgrade minimum version of arrow R package to 10.0.0
+- [[SPARK-45179]](https://issues.apache.org/jira/browse/SPARK-45179) Upgrade the minimum version of NumPy to 1.21
 - [[SPARK-50657]](https://issues.apache.org/jira/browse/SPARK-50657) Upgrade the minimum version of pyarrow to 11.0.0
 - [[SPARK-50952]](https://issues.apache.org/jira/browse/SPARK-50952) Include jjwt-related libraries with jjwt-provided profile
 - [[SPARK-49964]](https://issues.apache.org/jira/browse/SPARK-49964) Remove ws-rs-api package
