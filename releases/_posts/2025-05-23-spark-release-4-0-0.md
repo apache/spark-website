@@ -15,7 +15,9 @@ Apache Spark 4.0.0 marks a significant milestone as the inaugural release in the
 
 Spark Connect continues its rapid advancement, delivering substantial improvements:
 - A new lightweight Python client ([pyspark-client](https://pypi.org/project/pyspark-client)) at just 1.5 MB.
+- An additional release tarball with Spark Connect enabled by default.
 - Full API compatibility for the Java client.
+- A new spark.api.mode configuration to easily turn on/off Spark Connect for your applications.
 - Greatly expanded API coverage.
 - ML on Spark Connect.
 - A new client implementation for [Swift](https://github.com/apache/spark-connect-swift).
@@ -331,7 +333,7 @@ To download Apache Spark 4.0.0, please visit the [downloads](https://spark.apach
 - [[SPARK-45673]](https://issues.apache.org/jira/browse/SPARK-45673) Enhancing clarity and usability of PySpark error messages
 
 
-### Spark Streaming Highlights
+### Structured Streaming Highlights
 
 - [[SPARK-46815]](https://issues.apache.org/jira/browse/SPARK-46815) Structured Streaming - Arbitrary State API v2
 - [[SPARK-45511]](https://issues.apache.org/jira/browse/SPARK-45511) SPIP: State Data Source - Reader
@@ -474,6 +476,8 @@ To download Apache Spark 4.0.0, please visit the [downloads](https://spark.apach
 - [[SPARK-48918]](https://issues.apache.org/jira/browse/SPARK-48918) Create a unified SQL Scala interface shared by regular SQL and Connect
 - [[SPARK-50812]](https://issues.apache.org/jira/browse/SPARK-50812) Support pyspark.ml on Connect
 - [[SPARK-47908]](https://issues.apache.org/jira/browse/SPARK-47908) Parent classes for Spark Connect and Spark Classic
+- [[SPARK-50605]](https://issues.apache.org/jira/browse/SPARK-50605) Add spark.api.mode for better compatibility with Spark Classic
+
 
 #### Other Spark Connect changes and improvements
 
@@ -602,90 +606,248 @@ To download Apache Spark 4.0.0, please visit the [downloads](https://spark.apach
 - [[SPARK-43831]](https://issues.apache.org/jira/browse/SPARK-43831) Build and Run Spark on Java 21
 - [[SPARK-47993]](https://issues.apache.org/jira/browse/SPARK-47993) Drop Python 3.8 support
 - [[SPARK-49347]](https://issues.apache.org/jira/browse/SPARK-49347) Deprecate SparkR
-- [[SPARK-49624]](https://issues.apache.org/jira/browse/SPARK-49624) Upgrade aircompressor to 2.0.2
-- [[SPARK-50439]](https://issues.apache.org/jira/browse/SPARK-50439) Upgrade Arrow to 18.1.0
-- [[SPARK-49965]](https://issues.apache.org/jira/browse/SPARK-49965) Upgrade ASM to 9.7.1
-- [[SPARK-50859]](https://issues.apache.org/jira/browse/SPARK-50859) Upgrade AWS SDK v2 to 2.25.53
-- [[SPARK-50738]](https://issues.apache.org/jira/browse/SPARK-50738) Upgrade black to 23.12.1
-- [[SPARK-48582]](https://issues.apache.org/jira/browse/SPARK-48582) Upgrade braces in ui-test to 3.0.3
-- [[SPARK-49842]](https://issues.apache.org/jira/browse/SPARK-49842) Add byte-buddy dep for mockito-core with Java 21
-- [[SPARK-50823]](https://issues.apache.org/jira/browse/SPARK-50823) Upgrade cloudpickle from 3.1.0 to 3.1.1
-- [[SPARK-49242]](https://issues.apache.org/jira/browse/SPARK-49242) Upgrade commons-cli to 1.9.0
-- [[SPARK-50754]](https://issues.apache.org/jira/browse/SPARK-50754) Upgrade commons-codec to 1.17.2
-- [[SPARK-49327]](https://issues.apache.org/jira/browse/SPARK-49327) Upgrade commons-compress to 1.27.1
-- [[SPARK-50375]](https://issues.apache.org/jira/browse/SPARK-50375) Upgrade commons-io to 2.18.0
-- [[SPARK-49483]](https://issues.apache.org/jira/browse/SPARK-49483) Upgrade commons-lang3 to 3.17.0
-- [[SPARK-50576]](https://issues.apache.org/jira/browse/SPARK-50576) Upgrade commons-text to 1.13.0
-- [[SPARK-50136]](https://issues.apache.org/jira/browse/SPARK-50136) Upgrade curator to 5.7.1
-- [[SPARK-49936]](https://issues.apache.org/jira/browse/SPARK-49936) Upgrade datasketches-java to 6.1.1
-- [[SPARK-50861]](https://issues.apache.org/jira/browse/SPARK-50861) Upgrade dropwizard metrics to 4.2.30
-- [[SPARK-50452]](https://issues.apache.org/jira/browse/SPARK-50452) Upgrade jackson to 2.18.2
-- [[SPARK-48826]](https://issues.apache.org/jira/browse/SPARK-48826) Upgrade fasterxml.jackson to 2.17.2
-- [[SPARK-51006]](https://issues.apache.org/jira/browse/SPARK-51006) Upgrade gcs-connector to 2.2.26
-- [[SPARK-49120]](https://issues.apache.org/jira/browse/SPARK-49120) Bump Gson to 2.11.0
-- [[SPARK-50972]](https://issues.apache.org/jira/browse/SPARK-50972) Upgrade Guava to 33.4.0
-- [[SPARK-49550]](https://issues.apache.org/jira/browse/SPARK-49550) Upgrade Hadoop to 3.4.1
-- [[SPARK-47715]](https://issues.apache.org/jira/browse/SPARK-47715) Upgrade hive‑service‑rpc to 4.0.0
-- [[SPARK-50794]](https://issues.apache.org/jira/browse/SPARK-50794) Upgrade Ivy to 2.5.3
-- [[SPARK-50047]](https://issues.apache.org/jira/browse/SPARK-50047) Upgrade jersey to 3.0.16
-- [[SPARK-49682]](https://issues.apache.org/jira/browse/SPARK-49682) Upgrade joda-time to 2.13.0
-- [[SPARK-47706]](https://issues.apache.org/jira/browse/SPARK-47706) Bump json4s to 4.0.7
-- [[SPARK-50677]](https://issues.apache.org/jira/browse/SPARK-50677) Upgrade jupiter-interface to 0.13.3 and JUnit5 to 5.11.4
-- [[SPARK-50345]](https://issues.apache.org/jira/browse/SPARK-50345) Upgrade Kafka to 3.9.0
-- [[SPARK-50493]](https://issues.apache.org/jira/browse/SPARK-50493) Migrate kubernetes-client from 6.x to 7.x
-- [[SPARK-50580]](https://issues.apache.org/jira/browse/SPARK-50580) Upgrade log4j2 to 2.24.3
-- [[SPARK-49335]](https://issues.apache.org/jira/browse/SPARK-49335) Upgrade Maven to 3.9.9
-- [[SPARK-48625]](https://issues.apache.org/jira/browse/SPARK-48625) Upgrade mssql-jdbc to 12.6.2.jre11
-- [[SPARK-47298]](https://issues.apache.org/jira/browse/SPARK-47298) Upgrade mysql-connector-j to 8.3.0 / mariadb-java-client to 2.7.12
-- [[SPARK-51054]](https://issues.apache.org/jira/browse/SPARK-51054) Upgrade Netty to 4.1.117.Final
-- [[SPARK-50278]](https://issues.apache.org/jira/browse/SPARK-50278) Upgrade netty-tcnative to 2.0.69.Final
-- [[SPARK-45590]](https://issues.apache.org/jira/browse/SPARK-45590) Upgrade okio to 1.17.6
-- [[SPARK-50728]](https://issues.apache.org/jira/browse/SPARK-50728) Update ORC to 2.1.0
-- [[SPARK-50425]](https://issues.apache.org/jira/browse/SPARK-50425) Bump Apache Parquet to 1.15.0
-- [[SPARK-48563]](https://issues.apache.org/jira/browse/SPARK-48563) Upgrade pickle to 1.5
-- [[SPARK-50894]](https://issues.apache.org/jira/browse/SPARK-50894) Postgres driver bump to 42.7.5
-- [[SPARK-50796]](https://issues.apache.org/jira/browse/SPARK-50796) Upgrade protobuf-java to 4.29.3
-- [[SPARK-50821]](https://issues.apache.org/jira/browse/SPARK-50821) Upgrade Py4J from 0.10.9.8 to 0.10.9.9
-- [[SPARK-47737]](https://issues.apache.org/jira/browse/SPARK-47737) Bump PyArrow to 10.0.0
 - [[SPARK-47923]](https://issues.apache.org/jira/browse/SPARK-47923) Upgrade minimum version of arrow R package to 10.0.0
-- [[SPARK-49708]](https://issues.apache.org/jira/browse/SPARK-49708) Upgrade RoaringBitmap to 1.3.0
-- [[SPARK-50862]](https://issues.apache.org/jira/browse/SPARK-50862) Upgrade rocksdbjni to 9.8.4
-- [[SPARK-50871]](https://issues.apache.org/jira/browse/SPARK-50871) Upgrade scala-parallel-collections to 1.2.0
-- [[SPARK-48427]](https://issues.apache.org/jira/browse/SPARK-48427) Upgrade scala-parser-combinators to 2.4
-- [[SPARK-48609]](https://issues.apache.org/jira/browse/SPARK-48609) Upgrade scala-xml to 2.3.0
-- [[SPARK-49187]](https://issues.apache.org/jira/browse/SPARK-49187) Upgrade slf4j to 2.0.16
-- [[SPARK-49170]](https://issues.apache.org/jira/browse/SPARK-49170) Upgrade snappy to 1.1.10.6
-- [[SPARK-50632]](https://issues.apache.org/jira/browse/SPARK-50632) Upgrade tink to 1.16.0
-- [[SPARK-49234]](https://issues.apache.org/jira/browse/SPARK-49234) Upgrade xz to 1.10
-- [[SPARK-50741]](https://issues.apache.org/jira/browse/SPARK-50741) Upgrade zstd-jni to 1.5.6-9
+- [[SPARK-50657]](https://issues.apache.org/jira/browse/SPARK-50657) Upgrade the minimum version of pyarrow to 11.0.0
 - [[SPARK-50952]](https://issues.apache.org/jira/browse/SPARK-50952) Include jjwt-related libraries with jjwt-provided profile
 - [[SPARK-49964]](https://issues.apache.org/jira/browse/SPARK-49964) Remove ws-rs-api package
 - [[SPARK-50383]](https://issues.apache.org/jira/browse/SPARK-50383) Support Virtual Threads in REST Submission API
 - [[SPARK-50811]](https://issues.apache.org/jira/browse/SPARK-50811) Support enabling JVM profiler on driver
-- [[SPARK-41634]](https://issues.apache.org/jira/browse/SPARK-41634) Upgrade minimatch to 3.1.2
-- [[SPARK-41704]](https://issues.apache.org/jira/browse/SPARK-41704) Upgrade sbt-assembly from 2.0.0 to 2.1.0
-- [[SPARK-41714]](https://issues.apache.org/jira/browse/SPARK-41714) Update maven-checkstyle-plugin from 3.1.2 to 3.2.0
-- [[SPARK-41750]](https://issues.apache.org/jira/browse/SPARK-41750) Upgrade dev.ludovic.netlib to 3.0.3
-- [[SPARK-41787]](https://issues.apache.org/jira/browse/SPARK-41787) Upgrade silencer to 1.7.12
-- [[SPARK-41798]](https://issues.apache.org/jira/browse/SPARK-41798) Upgrade hive-storage-api to 2.8.1
-- [[SPARK-41802]](https://issues.apache.org/jira/browse/SPARK-41802) Upgrade Apache httpcore to 4.4.16
-- [[SPARK-45956]](https://issues.apache.org/jira/browse/SPARK-45956) Upgrade Apache ZooKeeper to 3.9.1
-- [[SPARK-46174]](https://issues.apache.org/jira/browse/SPARK-46174) Upgrade gcs-connector to 2.2.18
-- [[SPARK-45850]](https://issues.apache.org/jira/browse/SPARK-45850) Upgrade oracle jdbc driver to 23.3.0.23.09
-- [[SPARK-45540]](https://issues.apache.org/jira/browse/SPARK-45540) Upgrade jetty to 9.4.53.v20231009
 - [[SPARK-45269]](https://issues.apache.org/jira/browse/SPARK-45269) Use Java 21-jre in K8s Dockerfile
 - [[SPARK-45284]](https://issues.apache.org/jira/browse/SPARK-45284) Update SparkR minimum SystemRequirements to Java 17
-- [[SPARK-45325]](https://issues.apache.org/jira/browse/SPARK-45325) Upgrade Avro to 1.11.3
-- [[SPARK-44366]](https://issues.apache.org/jira/browse/SPARK-44366) Upgrade antlr4 to 4.13.1
-- [[SPARK-45247]](https://issues.apache.org/jira/browse/SPARK-45247) Upgrade Pandas to 2.1.1
-- [[SPARK-45181]](https://issues.apache.org/jira/browse/SPARK-45181) Upgrade buf to v1.26.1
-- [[SPARK-45330]](https://issues.apache.org/jira/browse/SPARK-45330) Upgrade ammonite to 2.5.11
-- [[SPARK-45331]](https://issues.apache.org/jira/browse/SPARK-45331) Upgrade Scala to 2.13.12
-- [[SPARK-45636]](https://issues.apache.org/jira/browse/SPARK-45636) Upgrade jersey to 2.41
-- [[SPARK-45732]](https://issues.apache.org/jira/browse/SPARK-45732) Upgrade commons-text to 1.11.0
+- [[SPARK-49801]](https://issues.apache.org/jira/browse/SPARK-49801) Upgrade Pandas to 2.2.3
 - [[SPARK-44956]](https://issues.apache.org/jira/browse/SPARK-44956) Upgrade Jekyll to 4.3.2 & Webrick to 1.8.1
-- [[SPARK-44792]](https://issues.apache.org/jira/browse/SPARK-44792) Upgrade curator to 5.2.0
-- [[SPARK-45761]](https://issues.apache.org/jira/browse/SPARK-45761) Upgrade Volcano to 1.8.1
+
+#### Version upgrade of Java and Scala libraries
+
+| Library Name | Version Change |
+| :------------------------------- | :------------------ |
+| activation | 1.1.1 -> REMOVED |
+| aircompressor | 0.27 -> 2.0.2 |
+| algebra | 2.0.1 -> 2.8.0 |
+| aliyun-sdk-oss | 3.13.0 -> 3.13.2 |
+| antlr4-runtime | 4.9.3 -> 4.13.1 |
+| aopalliance-repackaged | 2.6.1 -> 3.0.6 |
+| arrow-format | 12.0.1 -> 18.1.0 |
+| arrow-memory-core | 12.0.1 -> 18.1.0 |
+| arrow-memory-netty | 12.0.1 -> 18.1.0 |
+| arrow-memory-netty-buffer-patch | -> 18.1.0 (NEW) |
+| arrow-vector | 12.0.1 -> 18.1.0 |
+| audience-annotations | 0.5.0 -> 0.12.0 |
+| avro | 1.11.4 -> 1.12.0 |
+| avro-ipc | 1.11.4 -> 1.12.0 |
+| avro-mapred | 1.11.4 -> 1.12.0 |
+| aws-java-sdk-bundle | 1.12.262 -> REMOVED |
+| bcprov-jdk18on | -> 1.80 (NEW) |
+| bonecp | 0.8.0.RELEASE -> REMOVED |
+| bundle | -> 2.25.53 (NEW) |
+| cats-kernel | 2.1.1 -> 2.8.0 |
+| checker-qual | -> 3.43.0 (NEW) |
+| chill | 0.10.0 -> 0.10.0 |
+| commons-cli | 1.5.0 -> 1.9.0 |
+| commons-codec | 1.16.1 -> 1.17.2 |
+| commons-compress | 1.23.0 -> 1.27.1 |
+| commons-io | 2.16.1 -> 2.18.0 |
+| commons-lang3 | 3.12.0 -> 3.17.0 |
+| commons-text | 1.10.0 -> 1.13.0 |
+| curator-client | 2.13.0 -> 5.7.1 |
+| curator-framework | 2.13.0 -> 5.7.1 |
+| curator-recipes | 2.13.0 -> 5.7.1 |
+| datasketches-java | 3.3.0 -> 6.1.1 |
+| datasketches-memory | 2.1.0 -> 3.0.2 |
+| derby | 10.14.2.0 -> 10.16.1.1 |
+| derbyshared | -> 10.16.1.1 (NEW) |
+| derbytools | -> 10.16.1.1 (NEW) |
+| error_prone_annotations | -> 2.36.0 (NEW) |
+| esdk-obs-java | -> 3.20.4.2 (NEW) |
+| failureaccess | -> 1.0.2 (NEW) |
+| flatbuffers-java | 1.12.0 -> 24.3.25 |
+| gcs-connector | hadoop3-2.2.14 -> hadoop3-2.2.26 |
+| gson | 2.2.4 -> 2.11.0 |
+| guava | 14.0.1 -> 33.4.0-jre |
+| hadoop-aliyun | 3.3.4 -> 3.4.1 |
+| hadoop-annotations | 3.3.4 -> 3.4.1 |
+| hadoop-aws | 3.3.4 -> 3.4.1 |
+| hadoop-azure | 3.3.4 -> 3.4.1 |
+| hadoop-azure-datalake | 3.3.4 -> 3.4.1 |
+| hadoop-client-api | 3.3.4 -> 3.4.1 |
+| hadoop-client-runtime | 3.3.4 -> 3.4.1 |
+| hadoop-cloud-storage | 3.3.4 -> 3.4.1 |
+| hadoop-huaweicloud | -> 3.4.1 (NEW) |
+| hadoop-openstack | 3.3.4 -> REMOVED |
+| hadoop-shaded-guava | 1.1.1 -> 1.3.0 |
+| hadoop-yarn-server-web-proxy | 3.3.4 -> REMOVED |
+| hive-beeline | 2.3.9 -> 2.3.10 |
+| hive-cli | 2.3.9 -> 2.3.10 |
+| hive-common | 2.3.9 -> 2.3.10 |
+| hive-exec | 2.3.9 -> 2.3.10 |
+| hive-jdbc | 2.3.9 -> 2.3.10 |
+| hive-llap-common | 2.3.9 -> REMOVED |
+| hive-metastore | 2.3.9 -> 2.3.10 |
+| hive-serde | 2.3.9 -> 2.3.10 |
+| hive-service-rpc | 3.1.3 -> 4.0.0 |
+| hive-shims | 2.3.9 -> 2.3.10 |
+| hive-shims-0.23 | 2.3.9 -> 2.3.10 |
+| hive-shims-common | 2.3.9 -> 2.3.10 |
+| hive-shims-scheduler | 2.3.9 -> 2.3.10 |
+| hk2-api | 2.6.1 -> 3.0.6 |
+| hk2-locator | 2.6.1 -> 3.0.6 |
+| hk2-utils | 2.6.1 -> 3.0.6 |
+| icu4j | -> 76.1 (NEW) |
+| istack-commons-runtime | 3.0.8 -> 4.1.2 |
+| ivy | 2.5.1 -> 2.5.3 |
+| j2objc-annotations | -> 3.0.0 (NEW) |
+| jackson-annotations | 2.15.2 -> 2.18.2 |
+| jackson-core | 2.15.2 -> 2.18.2 |
+| jackson-core-asl | 1.9.13 -> REMOVED |
+| jackson-databind | 2.15.2 -> 2.18.2 |
+| jackson-dataformat-cbor | 2.15.2 -> 2.18.2 |
+| jackson-dataformat-yaml | 2.15.2 -> 2.18.2 |
+| jackson-datatype-jsr310 | 2.15.2 -> 2.18.2 |
+| jackson-mapper-asl | 1.9.13 -> REMOVED |
+| jackson-module-scala | 2.15.2 -> 2.18.2 |
+| jakarta.activation-api | -> 2.1.3 (NEW) |
+| jakarta.annotation-api | 1.3.5 -> 2.1.1 |
+| jakarta.inject | 2.6.1 -> REMOVED |
+| jakarta.inject-api | -> 2.0.1 (NEW) |
+| jakarta.servlet-api | 4.0.3 -> 5.0.0 |
+| jakarta.validation-api | 2.0.2 -> 3.0.2 |
+| jakarta.ws.rs-api | 2.1.6 -> 3.0.0 |
+| jakarta.xml.bind-api | 2.3.2 -> 4.0.2 |
+| java-diff-utils | -> 4.15 (NEW) |
+| java-xmlbuilder | -> 1.2 (NEW) |
+| javassist | 3.29.2-GA -> 3.30.2-GA |
+| javax.servlet-api | 4.0.1 -> REMOVED |
+| jaxb-api | 2.2.11 -> REMOVED |
+| jaxb-core | -> 4.0.5 (NEW) |
+| jaxb-runtime | 2.3.2 -> 4.0.5 |
+| jcl-over-slf4j | 2.0.7 -> 2.0.16 |
+| jersey-client | 2.40 -> 3.0.16 |
+| jersey-common | 2.40 -> 3.0.16 |
+| jersey-container-servlet | 2.40 -> 3.0.16 |
+| jersey-container-servlet-core | 2.40 -> 3.0.16 |
+| jersey-hk2 | 2.40 -> 3.0.16 |
+| jersey-server | 2.40 -> 3.0.16 |
+| jettison | 1.1 -> 1.5.4 |
+| jetty-util | 9.4.56.v20240826 -> 11.0.24 |
+| jetty-util-ajax | 9.4.56.v20240826 -> 11.0.24 |
+| jjwt-api | -> 0.12.6 (NEW) |
+| jjwt-impl | -> 0.12.6 (NEW) |
+| jjwt-jackson | -> 0.12.6 (NEW) |
+| jline | 2.14.6 -> 3.27.1 |
+| joda-time | 2.12.5 -> 2.13.0 |
+| json4s-ast | 3.7.0-M11 -> 4.0.7 |
+| json4s-core | 3.7.0-M11 -> 4.0.7 |
+| json4s-jackson | 3.7.0-M11 -> 4.0.7 |
+| json4s-jackson-core | -> 4.0.7 (NEW) |
+| json4s-scalap | 3.7.0-M11 -> 4.0.7 |
+| jul-to-slf4j | 2.0.7 -> 2.0.16 |
+| kryo-shaded | 4.0.2 -> 4.0.3 |
+| kubernetes-client | 6.7.2 -> 7.1.0 |
+| kubernetes-client-api | 6.7.2 -> 7.1.0 |
+| kubernetes-httpclient-okhttp | 6.7.2 -> REMOVED |
+| kubernetes-httpclient-vertx | -> 7.1.0 (NEW) |
+| kubernetes-model-admissionregistration | 6.7.2 -> 7.1.0 |
+| kubernetes-model-apiextensions | 6.7.2 -> 7.1.0 |
+| kubernetes-model-apps | 6.7.2 -> 7.1.0 |
+| kubernetes-model-autoscaling | 6.7.2 -> 7.1.0 |
+| kubernetes-model-batch | 6.7.2 -> 7.1.0 |
+| kubernetes-model-certificates | 6.7.2 -> 7.1.0 |
+| kubernetes-model-common | 6.7.2 -> 7.1.0 |
+| kubernetes-model-coordination | 6.7.2 -> 7.1.0 |
+| kubernetes-model-core | 6.7.2 -> 7.1.0 |
+| kubernetes-model-discovery | 6.7.2 -> 7.1.0 |
+| kubernetes-model-events | 6.7.2 -> 7.1.0 |
+| kubernetes-model-extensions | 6.7.2 -> 7.1.0 |
+| kubernetes-model-flowcontrol | 6.7.2 -> 7.1.0 |
+| kubernetes-model-gatewayapi | 6.7.2 -> 7.1.0 |
+| kubernetes-model-metrics | 6.7.2 -> 7.1.0 |
+| kubernetes-model-networking | 6.7.2 -> 7.1.0 |
+| kubernetes-model-node | 6.7.2 -> 7.1.0 |
+| kubernetes-model-policy | 6.7.2 -> 7.1.0 |
+| kubernetes-model-rbac | 6.7.2 -> 7.1.0 |
+| kubernetes-model-resource | 6.7.2 -> 7.1.0 |
+| kubernetes-model-scheduling | 6.7.2 -> 7.1.0 |
+| kubernetes-model-storageclass | 6.7.2 -> 7.1.0 |
+| libthrift | 0.12.0 -> 0.16.0 |
+| listenablefuture | -> 9999.0-empty-to-avoid-conflict-with-guava (NEW) |
+| log4j-1.2-api | 2.20.0 -> 2.24.3 |
+| log4j-api | 2.20.0 -> 2.24.3 |
+| log4j-core | 2.20.0 -> 2.24.3 |
+| log4j-layout-template-json | -> 2.24.3 (NEW) |
+| log4j-slf4j2-impl | 2.20.0 -> 2.24.3 |
+| logging-interceptor | 3.12.12 -> REMOVED |
+| mesos | 1.4.3 -> REMOVED |
+| metrics-core | 4.2.19 -> 4.2.30 |
+| metrics-graphite | 4.2.19 -> 4.2.30 |
+| metrics-jmx | 4.2.19 -> 4.2.30 |
+| metrics-json | 4.2.19 -> 4.2.30 |
+| metrics-jvm | 4.2.19 -> 4.2.30 |
+| netty-all | 4.1.96.Final -> 4.1.118.Final |
+| netty-buffer | 4.1.96.Final -> 4.1.118.Final |
+| netty-codec | 4.1.96.Final -> 4.1.118.Final |
+| netty-codec-dns | -> 4.1.118.Final (NEW) |
+| netty-codec-http | 4.1.96.Final -> 4.1.118.Final |
+| netty-codec-http2 | 4.1.96.Final -> 4.1.118.Final |
+| netty-codec-socks | 4.1.96.Final -> 4.1.118.Final |
+| netty-common | 4.1.96.Final -> 4.1.118.Final |
+| netty-handler | 4.1.96.Final -> 4.1.118.Final |
+| netty-handler-proxy | 4.1.96.Final -> 4.1.118.Final |
+| netty-resolver | 4.1.96.Final -> 4.1.118.Final |
+| netty-resolver-dns | -> 4.1.118.Final (NEW) |
+| netty-tcnative-boringssl-static | -> 2.0.70.Final (NEW) |
+| netty-tcnative-classes | -> 2.0.70.Final (NEW) |
+| netty-transport | 4.1.96.Final -> 4.1.118.Final |
+| netty-transport-classes-epoll | 4.1.96.Final -> 4.1.118.Final |
+| netty-transport-classes-kqueue | 4.1.96.Final -> 4.1.118.Final |
+| netty-transport-native-epoll | 4.1.96.Final -> 4.1.118.Final |
+| netty-transport-native-kqueue | 4.1.96.Final -> 4.1.118.Final |
+| netty-transport-native-unix-common | 4.1.96.Final -> 4.1.118.Final |
+| orc-core | 1.9.6 -> 2.1.2 |
+| orc-format | -> 1.1.0 (NEW) |
+| orc-mapreduce | 1.9.6 -> 2.1.2 |
+| orc-shims | 1.9.6 -> 2.1.2 |
+| parquet-column | 1.13.1 -> 1.15.2 |
+| parquet-common | 1.13.1 -> 1.15.2 |
+| parquet-encoding | 1.13.1 -> 1.15.2 |
+| parquet-format-structures | 1.13.1 -> 1.15.2 |
+| parquet-hadoop | 1.13.1 -> 1.15.2 |
+| parquet-jackson | 1.13.1 -> 1.15.2 |
+| pickle | 1.3 -> 1.5 |
+| py4j | 0.10.9.7 -> 0.10.9.9 |
+| rocksdbjni | 8.3.2 -> 9.8.4 |
+| RoaringBitmap | 0.9.45 -> 1.3.0 |
+| scala-collection-compat | 2.7.0 -> 2.7.0 |
+| scala-compiler | 2.12.18 -> 2.13.16 |
+| scala-library | 2.12.18 -> 2.13.16 |
+| scala-parallel-collections | -> 1.2.0 (NEW) |
+| scala-parser-combinators | 2.3.0 -> 2.4.0 |
+| scala-reflect | 2.12.18 -> 2.13.16 |
+| scala-xml | 2.1.0 -> 2.3.0 |
+| shims | 0.9.45 -> REMOVED |
+| slf4j-api | 2.0.7 -> 2.0.16 |
+| snakeyaml | 2.0 -> 2.3 |
+| snakeyaml-engine | 2.6 -> 2.9 |
+| snappy-java | 1.1.10.5 -> 1.1.10.7 |
+| spire | 0.17.0 -> 0.18.0 |
+| spire-macros | 0.17.0 -> 0.18.0 |
+| spire-platform | 0.17.0 -> 0.18.0 |
+| spire-util | 0.17.0 -> 0.18.0 |
+| stream | 2.9.6 -> 2.9.8 |
+| threeten-extra | 1.7.1 -> 1.8.0 |
+| tink | 1.9.0 -> 1.16.0 |
+| transaction-api | 1.1 -> REMOVED |
+| vertx-auth-common | -> 4.5.12 (NEW) |
+| vertx-core | -> 4.5.12 (NEW) |
+| vertx-web-client | -> 4.5.12 (NEW) |
+| vertx-web-common | -> 4.5.12 (NEW) |
+| wildfly-openssl | 1.0.7.Final -> 2.2.5.Final |
+| xbean-asm9-shaded | 4.23 -> 4.26 |
+| xmlschema-core | -> 2.3.1 (NEW) |
+| xz | 1.9 -> 1.10 |
+| zjsonpatch | 0.3.0 -> 7.1.0 |
+| zookeeper | 3.6.3 -> 3.9.3 |
+| zookeeper-jute | 3.6.3 -> 3.9.3 |
+| zstd-jni | 1.5.5-4 -> 1.5.6-9 |
 
 
 ### Credits
