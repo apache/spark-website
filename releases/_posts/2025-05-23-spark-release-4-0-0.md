@@ -54,7 +54,6 @@ To download Apache Spark 4.0.0, please visit the [downloads](https://spark.apach
 
 - [[SPARK-49524]](https://issues.apache.org/jira/browse/SPARK-49524) Improve K8s support
 - [[SPARK-47240]](https://issues.apache.org/jira/browse/SPARK-47240) SPIP: Structured Logging Framework for Apache Spark
-- [[SPARK-44893]](https://issues.apache.org/jira/browse/SPARK-44893) `ThreadInfo` improvements for monitoring APIs
 - [[SPARK-46861]](https://issues.apache.org/jira/browse/SPARK-46861) Avoid Deadlock in DAGScheduler
 - [[SPARK-47764]](https://issues.apache.org/jira/browse/SPARK-47764) Cleanup shuffle dependencies based on `ShuffleCleanupMode`
 - [[SPARK-49459]](https://issues.apache.org/jira/browse/SPARK-49459) Support CRC32C for Shuffle Checksum
@@ -118,13 +117,11 @@ To download Apache Spark 4.0.0, please visit the [downloads](https://spark.apach
 
 - [[SPARK-46946]](https://issues.apache.org/jira/browse/SPARK-46946) Supporting broadcast of multiple filtering keys in `DynamicPruning`
 - [[SPARK-48445]](https://issues.apache.org/jira/browse/SPARK-48445) Don’t inline UDFs with expansive children
-- [[SPARK-41413]](https://issues.apache.org/jira/browse/SPARK-41413) Avoid shuffle in Storage-Partitioned Join when partition keys mismatch, but expressions are compatible
 - [[SPARK-46941]](https://issues.apache.org/jira/browse/SPARK-46941) Prevent insertion of window group limit node with `SizeBasedWindowFunction`
 - [[SPARK-46707]](https://issues.apache.org/jira/browse/SPARK-46707) Add throwable field to expressions to improve predicate pushdown
 - [[SPARK-47511]](https://issues.apache.org/jira/browse/SPARK-47511) Canonicalize `WITH` expressions by reassigning IDs
 - [[SPARK-46502]](https://issues.apache.org/jira/browse/SPARK-46502) Support timestamp types in `UnwrapCastInBinaryComparison`
 - [[SPARK-46069]](https://issues.apache.org/jira/browse/SPARK-46069) Support unwrap timestamp type to date type
-- [[SPARK-46219]](https://issues.apache.org/jira/browse/SPARK-46219) Unwrap cast in join predicates
 - [[SPARK-45606]](https://issues.apache.org/jira/browse/SPARK-45606) Release restrictions on multi-layer runtime filter
 - [[SPARK-45909]](https://issues.apache.org/jira/browse/SPARK-45909) Remove `NumericType` cast if it can safely up-cast in `IsNotNull`
 
@@ -134,7 +131,6 @@ To download Apache Spark 4.0.0, please visit the [downloads](https://spark.apach
 - [[SPARK-50258]](https://issues.apache.org/jira/browse/SPARK-50258) Fix output column order changed issue after AQE
 - [[SPARK-46693]](https://issues.apache.org/jira/browse/SPARK-46693) Inject `LocalLimitExec` when matching `OffsetAndLimit` or `LimitAndOffset`
 - [[SPARK-48873]](https://issues.apache.org/jira/browse/SPARK-48873) Use `UnsafeRow` in JSON parser
-- [[SPARK-41471]](https://issues.apache.org/jira/browse/SPARK-41471) Reduce Spark shuffle when only one side of a join is `KeyGroupedPartitioning`
 - [[SPARK-45452]](https://issues.apache.org/jira/browse/SPARK-45452) Improve `InMemoryFileIndex` to use` FileSystem.listFiles` API
 - [[SPARK-48649]](https://issues.apache.org/jira/browse/SPARK-48649) Add `ignoreInvalidPartitionPaths` configs for skipping invalid partition paths
 - [[SPARK-45882]](https://issues.apache.org/jira/browse/SPARK-45882) `BroadcastHashJoinExec` propagate partitioning should respect CoalescedHashPartitioning
@@ -162,6 +158,7 @@ To download Apache Spark 4.0.0, please visit the [downloads](https://spark.apach
 - [[SPARK-45328]](https://issues.apache.org/jira/browse/SPARK-45328) Remove Hive support prior to 2.0.0
 - [[SPARK-47101]](https://issues.apache.org/jira/browse/SPARK-47101) Allow comma in top-level column names and relax HiveExternalCatalog schema check
 - [[SPARK-45265]](https://issues.apache.org/jira/browse/SPARK-45265) Support Hive 4.0 metastore
+- [[SPARK-49489]](https://issues.apache.org/jira/browse/SPARK-49489) HMS client respects `hive.thrift.client.maxmessage.size`
 
 #### XML
 
