@@ -15,10 +15,15 @@ var sources = {pretty: "Source Code", tag: "sources"};
 var hadoopFree = {pretty: "Pre-built with user-provided Apache Hadoop", tag: "without-hadoop"};
 var hadoop3p = {pretty: "Pre-built for Apache Hadoop 3.3 and later", tag: "hadoop3"};
 var hadoop3pscala213 = {pretty: "Pre-built for Apache Hadoop 3.3 and later (Scala 2.13)", tag: "hadoop3-scala2.13"};
+var hadoop34p = {pretty: "Pre-built for Apache Hadoop 3.4 and later", tag: "hadoop3"};
+var hadoop34pSparkConnect = {pretty: "Pre-built for Apache Hadoop 3.4 and later with Spark Connect enabled", tag: "hadoop3-connect"};
 
 // 3.4.0+
 var packagesV14 = [hadoop3p, hadoop3pscala213, hadoopFree, sources];
+// 4.0.0+
+var packagesV15 = [hadoop34p, hadoop34pSparkConnect, hadoopFree, sources];
 
+addRelease("4.0.0", new Date("05/23/2025"), packagesV15, true);
 addRelease("3.5.5", new Date("02/27/2025"), packagesV14, true);
 addRelease("3.4.4", new Date("10/27/2024"), packagesV14, true);
 
