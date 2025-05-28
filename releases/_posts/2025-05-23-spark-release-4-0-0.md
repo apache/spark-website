@@ -240,7 +240,6 @@ To download Apache Spark 4.0.0, please visit the [downloads](https://spark.apach
 - [[SPARK-50790]](https://issues.apache.org/jira/browse/SPARK-50790) Implement `parse_json` in PySpark
 - [[SPARK-49306]](https://issues.apache.org/jira/browse/SPARK-49306) Create SQL function aliases for `zeroifnull` and `nullifzero`
 - [[SPARK-50132]](https://issues.apache.org/jira/browse/SPARK-50132) Add DataFrame API for Lateral Joins
-- [[SPARK-43295]](https://issues.apache.org/jira/browse/SPARK-43295) Support string type columns for `DataFrameGroupBy.sum`
 - [[SPARK-45575]](https://issues.apache.org/jira/browse/SPARK-45575) Support time travel options for `df.read` API
 - [[SPARK-45755]](https://issues.apache.org/jira/browse/SPARK-45755) Improve `Dataset.isEmpty()` by applying global limit 1
   - Improves performance of isEmpty() by pushing down a global limit of 1.
@@ -276,6 +275,7 @@ To download Apache Spark 4.0.0, please visit the [downloads](https://spark.apach
 - [[SPARK-43709]](https://issues.apache.org/jira/browse/SPARK-43709) Remove closed parameter from `ps.date_range` & enable test
 - [[SPARK-43453]](https://issues.apache.org/jira/browse/SPARK-43453) Ignore the names of` MultiIndex` when `axis=1` for `concat`
 - [[SPARK-43433]](https://issues.apache.org/jira/browse/SPARK-43433) Match `GroupBy.nth` behavior to the latest Pandas
+- [[SPARK-43295]](https://issues.apache.org/jira/browse/SPARK-43295) Support string type columns for `DataFrameGroupBy.sum`
 
 #### Other notable PySpark changes
 
@@ -404,8 +404,8 @@ To download Apache Spark 4.0.0, please visit the [downloads](https://spark.apach
 - [[SPARK-48463]](https://issues.apache.org/jira/browse/SPARK-48463) Make various ML transformers support nested input columns
 - [[SPARK-48463]](https://issues.apache.org/jira/browse/SPARK-48463) Make `StringIndexer` support nested input columns
 - [[SPARK-45757]](https://issues.apache.org/jira/browse/SPARK-45757) Avoid re-computation of NNZ in Binarizer
-- [[SPARK-45397]](https://issues.apache.org/jira/browse/SPARK-45397) Add array assembler feature transformer
 - [[SPARK-45547]](https://issues.apache.org/jira/browse/SPARK-45547) Validate Vectors with built-in function
+- [[SPARK-37178]](https://issues.apache.org/jira/browse/SPARK-37178) Add Target Encoding to ml.feature
 
 ### Spark UX Highlights
 
