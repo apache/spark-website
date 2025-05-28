@@ -242,10 +242,8 @@ To download Apache Spark 4.0.0, please visit the [downloads](https://spark.apach
 - [[SPARK-50132]](https://issues.apache.org/jira/browse/SPARK-50132) Add DataFrame API for Lateral Joins
 - [[SPARK-45575]](https://issues.apache.org/jira/browse/SPARK-45575) Support time travel options for `df.read` API
 - [[SPARK-45755]](https://issues.apache.org/jira/browse/SPARK-45755) Improve `Dataset.isEmpty()` by applying global limit 1
-  - Improves performance of isEmpty() by pushing down a global limit of 1.
 - [[SPARK-48761]](https://issues.apache.org/jira/browse/SPARK-48761) Introduce `clusterBy` DataFrameWriter API for Scala
 - [[SPARK-45929]](https://issues.apache.org/jira/browse/SPARK-45929) Support `groupingSets` operation in DataFrame API
-  - Extends `groupingSets(...)` to DataFrame/DS-level APIs.
 - [[SPARK-40178]](https://issues.apache.org/jira/browse/SPARK-40178) Support coalesce hints with ease for PySpark and R
 
 #### Pandas API on Spark
