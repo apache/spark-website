@@ -75,7 +75,7 @@ navigation:
 |Charles Reiss|University of Virginia|
 |Josh Rosen|Databricks|
 |Sandy Ryza|Databricks|
-|Kousuke Saruta|NTT Data|
+|Kousuke Saruta|AWS|
 |Saisai Shao|Datastrato|
 |Prashant Sharma|IBM|
 |Gabor Somogyi|Apple|
