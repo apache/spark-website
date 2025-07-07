@@ -83,6 +83,7 @@ navigation:
 |Ram Sriharsha|Pinecone|
 |Chao Sun|OpenAI|
 |Maciej Szymkiewicz||
+|Daniel Tenedorio|Databricks|
 |Jose Torres|Databricks|
 |Peter Toth|Cloudera|
 |DB Tsai|Databricks|
