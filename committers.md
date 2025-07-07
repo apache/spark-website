@@ -78,6 +78,7 @@ navigation:
 |Kousuke Saruta|AWS|
 |Saisai Shao|Datastrato|
 |Prashant Sharma|IBM|
+|Anish Shrigondekar|Databricks|
 |Gabor Somogyi|Apple|
 |Ram Sriharsha|Pinecone|
 |Chao Sun|OpenAI|
