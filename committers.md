@@ -85,7 +85,7 @@ navigation:
 |Maciej Szymkiewicz||
 |Daniel Tenedorio|Databricks|
 |Jose Torres|Databricks|
-|Peter Toth|Cloudera|
+|Peter Toth|Apple|
 |DB Tsai|Databricks|
 |Takuya Ueshin|Databricks|
 |Marcelo Vanzin|Cloudera|
