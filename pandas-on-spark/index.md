@@ -191,4 +191,4 @@ pandas on Spark uses syntax that’s familiar to pandas users, so it’s easy to
 
 pandas on Spark is also a great technology to be used in conjunction with pandas.  You can use the big-data and performant processing capabilities of pandas on Spark to process datasets before they’re converted into pandas DataFrames that are compatible with other technologies.
 
-Check out [the docs](https://spark.apache.org/docs/latest/api/python/user_guide/pandas_on_spark/index.html) to learn more about how to use pandas on Spark.
+Check out [the docs](https://spark.apache.org/docs/latest/api/python/reference/pyspark.pandas/index.html) to learn more about how to use pandas on Spark.
