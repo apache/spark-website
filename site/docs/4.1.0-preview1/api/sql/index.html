@@ -106,6 +106,8 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#approx_percentile">approx_percentile</a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#approx_top_k">approx_top_k</a>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#array">array</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#array_agg">array_agg</a>
@@ -281,6 +283,8 @@
     <li class="toctree-l2"><a class="reference internal" href="#current_date">current_date</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#current_schema">current_schema</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#current_time">current_time</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#current_timestamp">current_timestamp</a>
     </li>
@@ -522,6 +526,8 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#make_interval">make_interval</a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#make_time">make_time</a>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#make_timestamp">make_timestamp</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#make_timestamp_ltz">make_timestamp_ltz</a>
@@ -645,6 +651,8 @@
     <li class="toctree-l2"><a class="reference internal" href="#printf">printf</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#quarter">quarter</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#quote">quote</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#radians">radians</a>
     </li>
@@ -850,6 +858,8 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#to_protobuf">to_protobuf</a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#to_time">to_time</a>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#to_timestamp">to_timestamp</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#to_timestamp_ltz">to_timestamp_ltz</a>
@@ -913,6 +923,8 @@
     <li class="toctree-l2"><a class="reference internal" href="#try_to_binary">try_to_binary</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#try_to_number">try_to_number</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#try_to_time">try_to_time</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#try_to_timestamp">try_to_timestamp</a>
     </li>
@@ -1532,6 +1544,22 @@ percentage array.</p>
  [0 00:00:01.000000000,0 00:00:02.000000000]
 </code></pre>
 <p><strong>Since:</strong> 2.1.0</p>
+<p><br/></p>
+<h3 id="approx_top_k"><a class="toclink" href="#approx_top_k">approx_top_k</a></h3>
+<p>approx_top_k(expr, k, maxItemsTracked) - Returns top k items with their frequency.
+<code>k</code> An optional INTEGER literal greater than 0. If k is not specified, it defaults to 5.
+<code>maxItemsTracked</code> An optional INTEGER literal greater than or equal to k. If maxItemsTracked is not specified, it defaults to 10000.</p>
+<p><strong>Examples:</strong></p>
+<pre><code>&gt; SELECT approx_top_k(expr) FROM VALUES (0), (0), (1), (1), (2), (3), (4), (4) AS tab(expr);
+ [{&quot;item&quot;:0,&quot;count&quot;:2},{&quot;item&quot;:4,&quot;count&quot;:2},{&quot;item&quot;:1,&quot;count&quot;:2},{&quot;item&quot;:2,&quot;count&quot;:1},{&quot;item&quot;:3,&quot;count&quot;:1}]
+
+&gt; SELECT approx_top_k(expr, 2) FROM VALUES 'a', 'b', 'c', 'c', 'c', 'c', 'd', 'd' AS tab(expr);
+ [{&quot;item&quot;:&quot;c&quot;,&quot;count&quot;:4},{&quot;item&quot;:&quot;d&quot;,&quot;count&quot;:2}]
+
+&gt; SELECT approx_top_k(expr, 10, 100) FROM VALUES (0), (1), (1), (2), (2), (2) AS tab(expr);
+ [{&quot;item&quot;:2,&quot;count&quot;:3},{&quot;item&quot;:1,&quot;count&quot;:2},{&quot;item&quot;:0,&quot;count&quot;:1}]
+</code></pre>
+<p><strong>Since:</strong> 4.1.0</p>
 <p><br/></p>
 <h3 id="array"><a class="toclink" href="#array">array</a></h3>
 <p>array(expr, ...) - Returns an array with the given elements.</p>
@@ -2477,6 +2505,29 @@ cardinality estimation using sub-linear space.</p>
 </code></pre>
 <p><strong>Since:</strong> 3.4.0</p>
 <p><br/></p>
+<h3 id="current_time"><a class="toclink" href="#current_time">current_time</a></h3>
+<p>current_time([precision]) - Returns the current time at the start of query evaluation.
+All calls of current_time within the same query return the same value.</p>
+<p>current_time - Returns the current time at the start of query evaluation.</p>
+<p><strong>Arguments:</strong></p>
+<ul>
+<li>precision - An optional integer literal in the range [0..6], indicating how many
+              fractional digits of seconds to include. If omitted, the default is 6.</li>
+</ul>
+<p><strong>Examples:</strong></p>
+<pre><code>&gt; SELECT current_time();
+ 15:49:11.914120
+&gt; SELECT current_time;
+ 15:49:11.914120
+&gt; SELECT current_time(0);
+ 15:49:11
+&gt; SELECT current_time(3);
+ 15:49:11.914
+&gt; SELECT current_time(1+1);
+ 15:49:11.91
+</code></pre>
+<p><strong>Since:</strong> 4.1.0</p>
+<p><br/></p>
 <h3 id="current_timestamp"><a class="toclink" href="#current_timestamp">current_timestamp</a></h3>
 <p>current_timestamp() - Returns the current timestamp at the start of query evaluation. All calls of current_timestamp within the same query return the same value.</p>
 <p>current_timestamp - Returns the current timestamp at the start of query evaluation.</p>
@@ -2928,14 +2979,14 @@ but returns true if both are null, false if one of the them is null.</p>
 <h3 id="explode_outer"><a class="toclink" href="#explode_outer">explode_outer</a></h3>
 <p>explode_outer(expr) - Separates the elements of array <code>expr</code> into multiple rows, or the elements of map <code>expr</code> into multiple rows and columns. Unless specified otherwise, uses the default column name <code>col</code> for elements of the array or <code>key</code> and <code>value</code> for the elements of the map.</p>
 <p><strong>Examples:</strong></p>
-<pre><code>&gt; SELECT * FROM explode_outer(array(10, 20));
+<pre><code>&gt; SELECT explode_outer(array(10, 20));
  10
  20
-&gt; SELECT * FROM explode_outer(collection =&gt; array(10, 20));
+&gt; SELECT explode_outer(collection =&gt; array(10, 20));
  10
  20
 </code></pre>
-<p><strong>Since:</strong> 3.4.0</p>
+<p><strong>Since:</strong> 1.0.0</p>
 <p><br/></p>
 <h3 id="expm1"><a class="toclink" href="#expm1">expm1</a></h3>
 <p>expm1(expr) - Returns exp(<code>expr</code>) - 1.</p>
@@ -2946,7 +2997,7 @@ but returns true if both are null, false if one of the them is null.</p>
 <p><strong>Since:</strong> 1.4.0</p>
 <p><br/></p>
 <h3 id="extract"><a class="toclink" href="#extract">extract</a></h3>
-<p>extract(field FROM source) - Extracts a part of the date/timestamp or interval source.</p>
+<p>extract(field FROM source) - Extracts a part of the date or timestamp or time or interval source.</p>
 <p><strong>Arguments:</strong></p>
 <ul>
 <li>field - selects which part of the source should be extracted<ul>
@@ -2974,9 +3025,15 @@ but returns true if both are null, false if one of the them is null.</p>
 <li>"SECOND", ("S", "SEC", "SECONDS", "SECS") - how many second with fractions left after taking hours and minutes from <code>microseconds</code></li>
 </ul>
 </li>
+<li>Supported string values of <code>field</code> for time (which consists of <code>hour</code>, <code>minute</code>, <code>second</code>) are(case insensitive):<ul>
+<li>"HOUR", ("H", "HOURS", "HR", "HRS") - The hour field (0 - 23)</li>
+<li>"MINUTE", ("M", "MIN", "MINS", "MINUTES") - the minutes field (0 - 59)</li>
+<li>"SECOND", ("S", "SEC", "SECONDS", "SECS") - the seconds field, including fractional parts up to micro second precision. Returns a DECIMAL(8, 6) precision value.</li>
 </ul>
 </li>
-<li>source - a date/timestamp or interval column from where <code>field</code> should be extracted</li>
+</ul>
+</li>
+<li>source - a date or timestamp or time or interval column from where <code>field</code> should be extracted</li>
 </ul>
 <p><strong>Examples:</strong></p>
 <pre><code>&gt; SELECT extract(YEAR FROM TIMESTAMP '2019-08-12 01:00:00.123456');
@@ -2995,6 +3052,12 @@ but returns true if both are null, false if one of the them is null.</p>
  11
 &gt; SELECT extract(MINUTE FROM INTERVAL '123 23:55:59.002001' DAY TO SECOND);
  55
+&gt; SELECT extract(HOUR FROM time '09:08:01.000001');
+ 9
+&gt; SELECT extract(MINUTE FROM time '09:08:01.000001');
+ 8
+&gt; SELECT extract(SECOND FROM time '09:08:01.000001');
+ 1.000001
 </code></pre>
 <p><strong>Note:</strong></p>
 <p>The extract function is equivalent to <code>date_part(field, source)</code>.</p>
@@ -3227,6 +3290,10 @@ outside of the array boundaries, then this function returns NULL.</p>
 <p><strong>Examples:</strong></p>
 <pre><code>&gt; SELECT get_json_object('{&quot;a&quot;:&quot;b&quot;}', '$.a');
  b
+&gt; SELECT get_json_object('[{&quot;a&quot;:&quot;b&quot;},{&quot;a&quot;:&quot;c&quot;}]', '$[0].a');
+ b
+&gt; SELECT get_json_object('[{&quot;a&quot;:&quot;b&quot;},{&quot;a&quot;:&quot;c&quot;}]', '$[*].a');
+ [&quot;b&quot;,&quot;c&quot;]
 </code></pre>
 <p><strong>Since:</strong> 1.5.0</p>
 <p><br/></p>
@@ -3355,15 +3422,20 @@ to be unioned (defaults to false).</p>
 <p><strong>Since:</strong> 3.5.0</p>
 <p><br/></p>
 <h3 id="hour"><a class="toclink" href="#hour">hour</a></h3>
-<p>hour(timestamp) - Returns the hour component of the string/timestamp.</p>
+<p>hour(expr) - Returns the hour component of the given expression.</p>
+<p>If <code>expr</code> is a TIMESTAMP or a string that can be cast to timestamp,
+it returns the hour of that timestamp.
+If <code>expr</code> is a TIME type (since 4.1.0), it returns the hour of the time-of-day.</p>
 <p><strong>Examples:</strong></p>
-<pre><code>&gt; SELECT hour('2009-07-30 12:58:59');
+<pre><code>&gt; SELECT hour('2018-02-14 12:58:59');
  12
+&gt; SELECT hour(TIME'13:59:59.999999');
+ 13
 </code></pre>
 <p><strong>Since:</strong> 1.5.0</p>
 <p><br/></p>
 <h3 id="hypot"><a class="toclink" href="#hypot">hypot</a></h3>
-<p>hypot(expr1, expr2) - Returns sqrt(<code>expr1</code><strong>2 + <code>expr2</code></strong>2).</p>
+<p>hypot(expr1, expr2) - Returns sqrt(<code>expr1</code>² + <code>expr2</code>²).</p>
 <p><strong>Examples:</strong></p>
 <pre><code>&gt; SELECT hypot(3, 4);
  5.0
@@ -3458,26 +3530,26 @@ All other letters are in lowercase. Words are delimited by white space.</p>
 <h3 id="inline"><a class="toclink" href="#inline">inline</a></h3>
 <p>inline(expr) - Explodes an array of structs into a table. Uses column names col1, col2, etc. by default unless specified otherwise.</p>
 <p><strong>Examples:</strong></p>
-<pre><code>&gt; SELECT inline(array(struct(1, 'a'), struct(2, 'b')));
+<pre><code>&gt; SELECT * FROM inline(array(struct(1, 'a'), struct(2, 'b')));
  1  a
  2  b
-&gt; SELECT inline(input =&gt; array(struct(1, 'a'), struct(2, 'b')));
- 1  a
- 2  b
-</code></pre>
-<p><strong>Since:</strong> 2.0.0</p>
-<p><br/></p>
-<h3 id="inline_outer"><a class="toclink" href="#inline_outer">inline_outer</a></h3>
-<p>inline_outer(expr) - Explodes an array of structs into a table. Uses column names col1, col2, etc. by default unless specified otherwise.</p>
-<p><strong>Examples:</strong></p>
-<pre><code>&gt; SELECT * FROM inline_outer(array(struct(1, 'a'), struct(2, 'b')));
- 1  a
- 2  b
-&gt; SELECT * FROM inline_outer(input =&gt; array(struct(1, 'a'), struct(2, 'b')));
+&gt; SELECT * FROM inline(input =&gt; array(struct(1, 'a'), struct(2, 'b')));
  1  a
  2  b
 </code></pre>
 <p><strong>Since:</strong> 3.4.0</p>
+<p><br/></p>
+<h3 id="inline_outer"><a class="toclink" href="#inline_outer">inline_outer</a></h3>
+<p>inline_outer(expr) - Explodes an array of structs into a table. Uses column names col1, col2, etc. by default unless specified otherwise.</p>
+<p><strong>Examples:</strong></p>
+<pre><code>&gt; SELECT inline_outer(array(struct(1, 'a'), struct(2, 'b')));
+ 1  a
+ 2  b
+&gt; SELECT inline_outer(input =&gt; array(struct(1, 'a'), struct(2, 'b')));
+ 1  a
+ 2  b
+</code></pre>
+<p><strong>Since:</strong> 2.0.0</p>
 <p><br/></p>
 <h3 id="input_file_block_length"><a class="toclink" href="#input_file_block_length">input_file_block_length</a></h3>
 <p>input_file_block_length() - Returns the length of the block being read, or -1 if not available.</p>
@@ -3828,13 +3900,13 @@ true
 <p><br/></p>
 <h3 id="listagg"><a class="toclink" href="#listagg">listagg</a></h3>
 <p>listagg(expr[, delimiter])[ WITHIN GROUP (ORDER BY key [ASC | DESC] [,...])] - Returns
-the concatenation of non-null input values, separated by the delimiter ordered by key.
-If all values are null, null is returned.</p>
+the concatenation of non-NULL input values, separated by the delimiter ordered by key.
+If all values are NULL, NULL is returned.</p>
 <p><strong>Arguments:</strong></p>
 <ul>
 <li>expr - a string or binary expression to be concatenated.</li>
 <li>delimiter - an optional string or binary foldable expression used to separate the input values.
-  If null, the concatenation will be performed without a delimiter. Default is null.</li>
+  If NULL, the concatenation will be performed without a delimiter. Default is NULL.</li>
 <li>key - an optional expression for ordering the input values. Multiple keys can be specified.
   If none are specified, the order of the rows in the result is non-deterministic.</li>
 </ul>
@@ -4035,6 +4107,22 @@ numbers to distinguish valid numbers from mistyped, incorrect numbers.</p>
 </code></pre>
 <p><strong>Since:</strong> 3.0.0</p>
 <p><br/></p>
+<h3 id="make_time"><a class="toclink" href="#make_time">make_time</a></h3>
+<p>make_time(hour, minute, second) - Create time from hour, minute and second fields. For invalid inputs it will throw an error.</p>
+<p><strong>Arguments:</strong></p>
+<ul>
+<li>hour - the hour to represent, from 0 to 23</li>
+<li>minute - the minute to represent, from 0 to 59</li>
+<li>second - the second to represent, from 0 to 59.999999</li>
+</ul>
+<p><strong>Examples:</strong></p>
+<pre><code>&gt; SELECT make_time(6, 30, 45.887);
+ 06:30:45.887
+&gt; SELECT make_time(NULL, 30, 0);
+ NULL
+</code></pre>
+<p><strong>Since:</strong> 4.1.0</p>
+<p><br/></p>
 <h3 id="make_timestamp"><a class="toclink" href="#make_timestamp">make_timestamp</a></h3>
 <p>make_timestamp(year, month, day, hour, min, sec[, timezone]) - Create timestamp from year, month, day, hour, min, sec and timezone fields. The result data type is consistent with the value of configuration <code>spark.sql.timestampType</code>. If the configuration <code>spark.sql.ansi.enabled</code> is false, the function returns NULL on invalid inputs. Otherwise, it will throw an error instead.</p>
 <p><strong>Arguments:</strong></p>
@@ -4092,6 +4180,7 @@ numbers to distinguish valid numbers from mistyped, incorrect numbers.</p>
 <p><br/></p>
 <h3 id="make_timestamp_ntz"><a class="toclink" href="#make_timestamp_ntz">make_timestamp_ntz</a></h3>
 <p>make_timestamp_ntz(year, month, day, hour, min, sec) - Create local date-time from year, month, day, hour, min, sec fields. If the configuration <code>spark.sql.ansi.enabled</code> is false, the function returns NULL on invalid inputs. Otherwise, it will throw an error instead.</p>
+<p>make_timestamp_ntz(date, time) - Create a local date-time from date and time fields.</p>
 <p><strong>Arguments:</strong></p>
 <ul>
 <li>year - the year to represent, from 1 to 9999</li>
@@ -4102,6 +4191,8 @@ numbers to distinguish valid numbers from mistyped, incorrect numbers.</p>
 <li>sec - the second-of-minute and its micro-fraction to represent, from
         0 to 60. If the sec argument equals to 60, the seconds field is set
         to 0 and 1 minute is added to the final timestamp.</li>
+<li>date - a date to represent, from 0001-01-01 to 9999-12-31</li>
+<li>time - a local time to represent, from 00:00:00 to 23:59:59.999999</li>
 </ul>
 <p><strong>Examples:</strong></p>
 <pre><code>&gt; SELECT make_timestamp_ntz(2014, 12, 28, 6, 30, 45.887);
@@ -4110,6 +4201,8 @@ numbers to distinguish valid numbers from mistyped, incorrect numbers.</p>
  2019-07-01 00:00:00
 &gt; SELECT make_timestamp_ntz(null, 7, 22, 15, 30, 0);
  NULL
+&gt; SELECT make_timestamp_ntz(DATE'2014-12-28', TIME'6:30:45.887');
+ 2014-12-28 06:30:45.887
 </code></pre>
 <p><strong>Since:</strong> 3.4.0</p>
 <p><br/></p>
@@ -4349,10 +4442,15 @@ those associated the same values of <code>x</code>.</p>
 <p><strong>Since:</strong> 3.0.0</p>
 <p><br/></p>
 <h3 id="minute"><a class="toclink" href="#minute">minute</a></h3>
-<p>minute(timestamp) - Returns the minute component of the string/timestamp.</p>
+<p>minute(expr) - Returns the minute component of the given expression.</p>
+<p>If <code>expr</code> is a TIMESTAMP or a string that can be cast to timestamp,
+it returns the minute of that timestamp.
+If <code>expr</code> is a TIME type (since 4.1.0), it returns the minute of the time-of-day.</p>
 <p><strong>Examples:</strong></p>
 <pre><code>&gt; SELECT minute('2009-07-30 12:58:59');
  58
+&gt; SELECT minute(TIME'23:59:59.999999');
+ 59
 </code></pre>
 <p><strong>Since:</strong> 1.5.0</p>
 <p><br/></p>
@@ -4803,6 +4901,14 @@ The given <code>pos</code> and return value are 1-based.</p>
  3
 </code></pre>
 <p><strong>Since:</strong> 1.5.0</p>
+<p><br/></p>
+<h3 id="quote"><a class="toclink" href="#quote">quote</a></h3>
+<p>quote(str) - Returns <code>str</code> enclosed by single quotes and each instance of single quote in it is preceded by a backslash.</p>
+<p><strong>Examples:</strong></p>
+<pre><code>&gt; SELECT quote('Don\'t');
+ 'Don\'t'
+</code></pre>
+<p><strong>Since:</strong> 4.1.0</p>
 <p><br/></p>
 <h3 id="radians"><a class="toclink" href="#radians">radians</a></h3>
 <p>radians(expr) - Converts degrees to radians.</p>
@@ -5508,9 +5614,14 @@ a character string, and with zeros if it is a binary string.</p>
 <p><strong>Since:</strong> 3.3.0</p>
 <p><br/></p>
 <h3 id="second"><a class="toclink" href="#second">second</a></h3>
-<p>second(timestamp) - Returns the second component of the string/timestamp.</p>
+<p>second(expr) - Returns the second component of the given expression.</p>
+<p>If <code>expr</code> is a TIMESTAMP or a string that can be cast to timestamp,
+it returns the second of that timestamp.
+If <code>expr</code> is a TIME type (since 4.1.0), it returns the second of the time-of-day.</p>
 <p><strong>Examples:</strong></p>
-<pre><code>&gt; SELECT second('2009-07-30 12:58:59');
+<pre><code>&gt; SELECT second('2018-02-14 12:58:59');
+ 59
+&gt; SELECT second(TIME'13:25:59.999999');
  59
 </code></pre>
 <p><strong>Since:</strong> 1.5.0</p>
@@ -5929,13 +6040,13 @@ Both left or right must be of STRING or BINARY type.</p>
 <p><br/></p>
 <h3 id="string_agg"><a class="toclink" href="#string_agg">string_agg</a></h3>
 <p>string_agg(expr[, delimiter])[ WITHIN GROUP (ORDER BY key [ASC | DESC] [,...])] - Returns
-the concatenation of non-null input values, separated by the delimiter ordered by key.
-If all values are null, null is returned.</p>
+the concatenation of non-NULL input values, separated by the delimiter ordered by key.
+If all values are NULL, NULL is returned.</p>
 <p><strong>Arguments:</strong></p>
 <ul>
 <li>expr - a string or binary expression to be concatenated.</li>
 <li>delimiter - an optional string or binary foldable expression used to separate the input values.
-  If null, the concatenation will be performed without a delimiter. Default is null.</li>
+  If NULL, the concatenation will be performed without a delimiter. Default is NULL.</li>
 <li>key - an optional expression for ordering the input values. Multiple keys can be specified.
   If none are specified, the order of the rows in the result is non-deterministic.</li>
 </ul>
@@ -6256,6 +6367,24 @@ Protobuf format result.</p>
  [true]
 </code></pre>
 <p><strong>Since:</strong> 4.0.0</p>
+<p><br/></p>
+<h3 id="to_time"><a class="toclink" href="#to_time">to_time</a></h3>
+<p>to_time(str[, format]) - Parses the <code>str</code> expression with the <code>format</code> expression to a time.
+If <code>format</code> is malformed or its application does not result in a well formed time, the function
+raises an error. By default, it follows casting rules to a time if the <code>format</code> is omitted.</p>
+<p><strong>Arguments:</strong></p>
+<ul>
+<li>str - A string to be parsed to time.</li>
+<li>format - Time format pattern to follow. See <a href="https://spark.apache.org/docs/latest/sql-ref-datetime-pattern.html">Datetime Patterns</a> for valid
+           time format patterns.</li>
+</ul>
+<p><strong>Examples:</strong></p>
+<pre><code>&gt; SELECT to_time('00:12:00');
+ 00:12:00
+&gt; SELECT to_time('12.10.05', 'HH.mm.ss');
+ 12:10:05
+</code></pre>
+<p><strong>Since:</strong> 4.1.0</p>
 <p><br/></p>
 <h3 id="to_timestamp"><a class="toclink" href="#to_timestamp">to_timestamp</a></h3>
 <p>to_timestamp(timestamp_str[, fmt]) - Parses the <code>timestamp_str</code> expression with the <code>fmt</code> expression
@@ -6670,6 +6799,7 @@ if the key is not contained in the map.</p>
 <p><br/></p>
 <h3 id="try_make_timestamp_ntz"><a class="toclink" href="#try_make_timestamp_ntz">try_make_timestamp_ntz</a></h3>
 <p>try_make_timestamp_ntz(year, month, day, hour, min, sec) - Try to create local date-time from year, month, day, hour, min, sec fields. The function returns NULL on invalid inputs.</p>
+<p>try_make_timestamp_ntz(date, time) - Create a local date-time from date and time fields.</p>
 <p><strong>Arguments:</strong></p>
 <ul>
 <li>year - the year to represent, from 1 to 9999</li>
@@ -6680,6 +6810,8 @@ if the key is not contained in the map.</p>
 <li>sec - the second-of-minute and its micro-fraction to represent, from
         0 to 60. If the sec argument equals to 60, the seconds field is set
         to 0 and 1 minute is added to the final timestamp.</li>
+<li>date - a date to represent, from 0001-01-01 to 9999-12-31</li>
+<li>time - a local time to represent, from 00:00:00 to 23:59:59.999999</li>
 </ul>
 <p><strong>Examples:</strong></p>
 <pre><code>&gt; SELECT try_make_timestamp_ntz(2014, 12, 28, 6, 30, 45.887);
@@ -6690,6 +6822,8 @@ if the key is not contained in the map.</p>
  NULL
 &gt; SELECT try_make_timestamp_ntz(2024, 13, 22, 15, 30, 0);
  NULL
+&gt; SELECT try_make_timestamp_ntz(DATE'2014-12-28', TIME'6:30:45.887');
+ 2014-12-28 06:30:45.887
 </code></pre>
 <p><strong>Since:</strong> 4.0.0</p>
 <p><br/></p>
@@ -6816,6 +6950,26 @@ same semantics as the to_number function.</p>
  -12454.8
 </code></pre>
 <p><strong>Since:</strong> 3.3.0</p>
+<p><br/></p>
+<h3 id="try_to_time"><a class="toclink" href="#try_to_time">try_to_time</a></h3>
+<p>try_to_time(str[, format]) - Parses the <code>str</code> expression with the <code>format</code> expression to a time.
+If <code>format</code> is malformed or its application does not result in a well formed time, the function
+returns NULL. By default, it follows casting rules to a time if the <code>format</code> is omitted.</p>
+<p><strong>Arguments:</strong></p>
+<ul>
+<li>str - A string to be parsed to time.</li>
+<li>format - Time format pattern to follow. See <a href="https://spark.apache.org/docs/latest/sql-ref-datetime-pattern.html">Datetime Patterns</a> for valid
+           time format patterns.</li>
+</ul>
+<p><strong>Examples:</strong></p>
+<pre><code>&gt; SELECT try_to_time('00:12:00.001');
+ 00:12:00.001
+&gt; SELECT try_to_time('12.10.05.999999', 'HH.mm.ss.SSSSSS');
+ 12:10:05.999999
+&gt; SELECT try_to_time('foo', 'HH:mm:ss');
+ NULL
+</code></pre>
+<p><strong>Since:</strong> 4.1.0</p>
 <p><br/></p>
 <h3 id="try_to_timestamp"><a class="toclink" href="#try_to_timestamp">try_to_timestamp</a></h3>
 <p>try_to_timestamp(timestamp_str[, fmt]) - Parses the <code>timestamp_str</code> expression with the <code>fmt</code> expression
@@ -7406,5 +7560,5 @@ See <a href="https://spark.apache.org/docs/latest/structured-streaming-programmi
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2025-02-05 05:30:16.572539+00:00
+Build Date UTC : 2025-07-08 11:34:47.536731+00:00
 -->

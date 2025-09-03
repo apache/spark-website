@@ -9,14 +9,13 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <title>State Data Source Integration Guide - Spark 4.1.0 Documentation</title>
+        <title>State Data Source Integration Guide - Spark 4.1.0-preview1 Documentation</title>
         
 
         
 
 
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <link rel="stylesheet" href="../css/bootstrap.min.css">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
@@ -24,9 +23,26 @@
         <script src="../js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
 
         <link rel="stylesheet" href="../css/pygments-default.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+        <link rel="stylesheet" href="../css/docsearch.min.css" />
         <link rel="stylesheet" href="../css/docsearch.css">
 
+        
+        <!-- Matomo -->
+        <script>
+            var _paq = window._paq = window._paq || [];
+            /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+            _paq.push(["disableCookies"]);
+            _paq.push(['trackPageView']);
+            _paq.push(['enableLinkTracking']);
+            (function() {
+              var u="https://analytics.apache.org/";
+              _paq.push(['setTrackerUrl', u+'matomo.php']);
+              _paq.push(['setSiteId', '40']);
+              var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+              g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+            })();
+        </script>
+        <!-- End Matomo Code -->
         
 
     </head>
@@ -34,7 +50,7 @@
         <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
         <nav class="navbar navbar-expand-lg navbar-dark p-0 px-4 fixed-top" style="background: #1d6890;" id="topbar">
             <div class="navbar-brand"><a href="../index.html">
-                <img src="https://spark.apache.org/images/spark-logo-rev.svg" width="141" height="72"/></a><span class="version">4.1.0</span>
+                <img src="https://spark.apache.org/images/spark-logo-rev.svg" width="141" height="72"/></a><span class="version">4.1.0-preview1</span>
             </div>
             <button class="navbar-toggler" type="button" data-toggle="collapse"
                     data-target="#navbarCollapse" aria-controls="navbarCollapse"
@@ -57,6 +73,7 @@
                             <a class="dropdown-item" href="../graphx-programming-guide.html">GraphX (Graph Processing)</a>
                             <a class="dropdown-item" href="../sparkr.html">SparkR (R on Spark)</a>
                             <a class="dropdown-item" href="../api/python/getting_started/index.html">PySpark (Python on Spark)</a>
+                            <a class="dropdown-item" href="../declarative-pipelines-programming-guide.html">Declarative Pipelines</a>
                         </div>
                     </li>
 
@@ -104,7 +121,7 @@
                         <input type="text" id="docsearch-input" placeholder="Search the docs…">
                     </li>
                 </ul>
-                <!--<span class="navbar-text navbar-right"><span class="version-text">v4.1.0</span></span>-->
+                <!--<span class="navbar-text navbar-right"><span class="version-text">v4.1.0-preview1</span></span>-->
             </div>
         </nav>
 
@@ -208,7 +225,7 @@ Users can leverage the functionality to cover two major use cases described belo
 <p>Note that there could be an exception, e.g. stream-stream join, which leverages multiple state store instances internally. The data source abstracts the internal representation away from users and
 provides a user-friendly approach to read the state. See the section for stream-stream join for more details.</p>
 
-<h3 id="creating-a-state-store-for-batch-queries-all-defaults">Creating a state store for batch queries (all defaults)</h3>
+<h3 id="reading-the-state-store-as-batch-queries-all-defaults">Reading the state store as batch queries (all defaults)</h3>
 
 <div class="codetabs">
 
@@ -334,6 +351,24 @@ Users are encouraged to query about the schema via df.schema() / df.printSchema(
   <td>latest commited batchId</td>
   <td>Represents the last batch to read in the read change feed mode. This option requires 'readChangeFeed' to be set to true.</td>
 </tr>
+<tr>
+  <td>stateVarName</td>
+  <td>string</td>
+  <td></td>
+  <td>The state variable name to read as part of this batch query. This is a required option if the transformWithState operator is used. Note that currently this option only applies to the transformWithState operator.</td>
+</tr>
+<tr>
+  <td>readRegisteredTimers</td>
+  <td>boolean</td>
+  <td>false</td>
+  <td>If true, the user can read registered timers used within the transformWithState operator. Note that currently this option only applies to the transformWithState operator. This option and the stateVarName option described above are mutually exclusive and only one of them can be used at a time.</td>
+</tr>
+<tr>
+  <td>flattenCollectionTypes</td>
+  <td>boolean</td>
+  <td>true</td>
+  <td>If true, the collection types for state variables such as list state, map state etc are flattened out. If false, the values are provided as Array or Map type in Spark SQL. Note that currently this option only applies to the transformWithState operator.</td>
+</tr>
 </table>
 
 <h3 id="reading-state-for-stream-stream-join">Reading state for stream-stream join</h3>
@@ -343,6 +378,22 @@ These instances logically compose buffers to store the input rows for left and r
 
 <p>Since it is more obvious to users to reason about, the data source provides the option &#8216;joinSide&#8217; to read the buffered input for specific side of the join.
 To enable the functionality to read the internal state store instance directly, we also allow specifying the option &#8216;storeName&#8217;, with restriction that &#8216;storeName&#8217; and &#8216;joinSide&#8217; cannot be specified together.</p>
+
+<h3 id="reading-state-for-transformwithstate">Reading state for transformWithState</h3>
+
+<p>TransformWithState is a stateful operator that allows users to maintain arbitrary state across batches. In order to read this state, the user needs to provide some additional options in the state data source reader query.
+This operator allows for multiple state variables to be used within the same query. However, because they could be of different composite types and encoding formats, they need to be read within a batch query one variable at a time.
+In order to allow this, the user needs to specify the <code class="language-plaintext highlighter-rouge">stateVarName</code> for the state variable they are interested in reading.</p>
+
+<p>Timers can be read by setting the option <code class="language-plaintext highlighter-rouge">readRegisteredTimers</code> to true. This will return all the registered timer across grouping keys.</p>
+
+<p>We also allow for composite type variables to be read in 2 formats:</p>
+<ul>
+  <li>Flattened: This is the default format where the composite types are flattened out into individual columns.</li>
+  <li>Non-flattened: This is where the composite types are returned as a single column of Array or Map type in Spark SQL.</li>
+</ul>
+
+<p>Depending on your memory requirements, you can choose the format that best suits your use case.</p>
 
 <h3 id="reading-state-changes-over-microbatches">Reading state changes over microbatches</h3>
 
@@ -539,15 +590,13 @@ The column &#8216;operatorName&#8217; helps users to identify the operatorId for
              <!-- /container -->
         </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
-        crossorigin="anonymous"></script>
-        <script src="https://code.jquery.com/jquery.js"></script>
+        <script src="../js/vendor/jquery-3.5.1.min.js"></script>
+        <script src="../js/vendor/bootstrap.bundle.min.js"></script>
 
         <script src="../js/vendor/anchor.min.js"></script>
         <script src="../js/main.js"></script>
 
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+        <script type="text/javascript" src="../js/vendor/docsearch.min.js"></script>
         <script type="text/javascript">
             // DocSearch is entirely free and automated. DocSearch is built in two parts:
             // 1. a crawler which we run on our own infrastructure every 24 hours. It follows every link
@@ -563,7 +612,7 @@ The column &#8216;operatorName&#8217; helps users to identify the operatorId for
     inputSelector: '#docsearch-input',
     enhancedSearchInput: true,
     algoliaOptions: {
-      'facetFilters': ["version:latest"]
+      'facetFilters': ["version:4.1.0-preview1"]
     },
     debug: false // Set debug to true if you want to inspect the dropdown
 });
