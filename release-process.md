@@ -37,7 +37,7 @@ The release manager role in Spark means you are responsible for a few different 
     - [Upload generated docs](#upload-generated-docs)
     - [Update the rest of the Spark website](#update-the-rest-of-the-spark-website)
   - [Create and upload Spark Docker Images](#create-and-upload-spark-docker-images)
-  - [Create an announcement](#create-an-announcement) 
+  - [Create an announcement](#create-an-announcement)
 
 <h2 id="preparing-your-setup">Preparing your setup</h2>
 
@@ -207,11 +207,11 @@ that looks something like `[VOTE][RESULT] ...`.
 <h2 id="finalize-the-release">Finalize the release</h2>
 
 Note that `dev/create-release/do-release-docker.sh` script (`finalize` step ) automates most of the following steps **except** for:
-- Update the configuration of Algolia Crawler
-- Remove old releases from Mirror Network
-- Update the rest of the Spark website
-- Create and upload Spark Docker Images
-- Create an announcement
+- [Update the configuration of Algolia Crawler](#update-the-configuration-of-algolia-crawler)
+- [Remove old releases from Mirror Network](#remove-old-releases-from-mirror-network)
+- [Update the rest of the Spark website](#update-the-rest-of-the-spark-website)
+- [Create and upload Spark Docker Images](#create-and-upload-spark-docker-images)
+- [Create an announcement](#create-an-announcement) 
 
 Please manually verify the result after each step.
 
@@ -442,3 +442,73 @@ and then send an e-mail to the mailing list with a subject that looks something 
 Enjoy an adult beverage of your choice, and congratulations on making a Spark release.
 
 <p align="right"><a href="#top">Return to top</a></p>
+
+
+<h1>Preparing Spark Releases with GitHub Actions</h1>
+
+Apache Spark provides a [GitHub Actions workflow](https://github.com/apache/spark/blob/master/.github/workflows/release.yml) for creating official Spark releases. Only Apache Spark PMC members can run this workflow in **their forked repositories**.
+
+- [Preparing Your GitHub Actions Setup](#preparing-your-github-actions-setup)
+  - [Creating release candidates](#preparing-gpg-key)
+  - [Publishing the release](#publishing-release)
+
+<h2 id="preparing-your-github-actions-setup">Preparing your GitHub Actions setup</h2>
+
+To create an official release, PMC members must configure GitHub Actions Secrets in their forked repository:
+
+- `ASF_USERNAME`: Your Apache Software Foundation (ASF) account ID.
+- `ASF_PASSWORD`: The password for your ASF account.
+- `GPG_PRIVATE_KEY`: Your GPG private key, exported with:
+  `gpg --armor --export-secret-keys ABCD1234 > private.key`.
+  Make sure this key is registered with a public key server. See also [Preparing your setup](#preparing-your-setup).
+- `GPG_PASSPHRASE`: The passphrase for your GPG private key.
+- `PYPI_API_TOKEN`: Required when finalizing the release. If you do not already have the permission, request it via private@spark.apache.org. Once granted, you can create a token at https://pypi.org/manage/account/ with access to the following projects:
+  - https://pypi.org/project/pyspark/
+  - https://pypi.org/project/pyspark-connect/
+  - https://pypi.org/project/pyspark-client/
+
+After setting up the secrets, make sure your release branch is up-to-date and synced with the corresponding branch in the Apache Spark repository.
+
+Finally, double-check the JIRA versions. See [Cutting a release candidate](#cutting-a-release-candidate).
+
+<h2 id="create-release-candidates">Creating release candidates</h2>
+
+- Go to the GitHub Actions page in your forked repository, e.g., `https://github.com/$USER/spark/actions/workflows/release.yml`.
+- Click `Run workflow` and provide the required inputs. Leave **Whether to convert RC to the official release (IRREVERSIBLE)** set to **`false`**.
+  - Once the workflow completes successfully, it will automatically create a release candidate (RC) and send an email to the dev mailing list to start the voting process.
+- After the vote is complete, you must also send a summary email with the results. Use a subject line similar to: `[VOTE][RESULT] ...`.
+
+<h3 id="if-workflow-fails">If the workflow fails ...</h3>
+
+If something goes wrong during the process and a release candidate (RC) needs to be
+cleaned up, follow these steps:
+
+- Revert the RC-related commits, such as:
+  - "Preparing development version 3.5.7-SNAPSHOT"
+  - "Preparing Spark release v3.5.6-rc1"
+- Delete the RC tag from the remote repository, for example:
+  - `git push --delete apache v3.5.6-rc1`
+- Remove the RC artifacts from SVN:
+  - `RC=v3.5.6-rc1 && svn rm https://dist.apache.org/repos/dist/dev/spark/"${RC}"-bin/ -m "Removing RC artifacts"`
+  - `RC=v3.5.6-rc1 && svn rm https://dist.apache.org/repos/dist/dev/spark/"${RC}"-docs/ -m "Removing RC artifacts"`
+- Drop the staging repository (if it exists) at:
+  https://repository.apache.org/#stagingRepositories
+
+<h2 id="publishing-release">Publishing the release</h2>
+
+**Be Careful!**
+
+**THIS STEP IS IRREVERSIBLE. Once the artifacts are moved into the release folder, they cannot be removed.**
+
+- Go to the GitHub Actions page in your forked repository, e.g., `https://github.com/$USER/spark/actions/workflows/release.yml`.
+- Click `Run workflow` and provide the required inputs. Set **Whether to convert RC to the official release (IRREVERSIBLE)** to **`true`**.
+  This includes [Finalizing the release](#finalize-the-release) with additional automation.
+- After it completes successfully, you should:
+  - [Update the configuration of the Algolia Crawler](#update-the-configuration-of-algolia-crawler)
+  - [Create and upload Spark Docker images](#create-and-upload-spark-docker-images)
+  - [Create an announcement](#create-an-announcement)
+
+
+<h3 id="if-workflow-fails">If the workflow fails ...</h3>
+
+If the workflow fails here, you will need to manually debug the release script, [`dev/create-release/release-build.sh`](https://github.com/apache/spark/blob/master/dev/create-release/release-build.sh) and then run the remaining commands yourself after the failure.
