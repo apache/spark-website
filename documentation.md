@@ -12,6 +12,7 @@ navigation:
 <p>Setup instructions, programming guides, and other documentation are available for each stable version of Spark below:</p>
 
 <ul>
+  <li><a href="{{site.baseurl}}/docs/4.0.1/">Spark 4.0.1</a></li>
   <li><a href="{{site.baseurl}}/docs/4.0.0/">Spark 4.0.0</a></li>
   <li><a href="{{site.baseurl}}/docs/3.5.6/">Spark 3.5.6</a></li>
   <li><a href="{{site.baseurl}}/docs/3.5.5/">Spark 3.5.5</a></li>

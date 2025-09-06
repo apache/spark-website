@@ -20,10 +20,10 @@ var hadoop34pSparkConnect = {pretty: "Pre-built for Apache Hadoop 3.4 and later 
 
 // 3.4.0+
 var packagesV14 = [hadoop3p, hadoop3pscala213, hadoopFree, sources];
-// 4.0.0+
+// 4.0.1+
 var packagesV15 = [hadoop34p, hadoop34pSparkConnect, hadoopFree, sources];
 
-addRelease("4.0.0", new Date("05/23/2025"), packagesV15, true);
+addRelease("4.0.1", new Date("09/06/2025"), packagesV15, true);
 addRelease("3.5.6", new Date("05/29/2025"), packagesV14, true);
 
 function append(el, contents) {
