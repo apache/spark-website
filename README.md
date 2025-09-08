@@ -2,7 +2,7 @@
 
 In this directory you will find text files formatted using Markdown, with an `.md` suffix.
 
-Building the site requires [Jekyll](http://jekyllrb.com/docs)
+Building the site requires [Ruby 3](https://www.ruby-lang.org), [Jekyll](http://jekyllrb.com/docs), and
 [Rouge](https://github.com/rouge-ruby/rouge).
 The easiest way to install the right version of these tools is using
 [Bundler](https://bundler.io/) and running `bundle install` in this directory.
