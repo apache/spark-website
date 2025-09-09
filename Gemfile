@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+ruby ">= 3.0.0"
 source "https://rubygems.org"
 
 gem "jekyll", "4.4.1"
