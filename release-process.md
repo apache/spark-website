@@ -54,40 +54,46 @@ You can skip this section if you have already uploaded your key.
 
 <h4 id="generate-key">Generate key</h4>
 
-Here's an example of gpg 2.0.12. If you use gpg version 1 series, please refer to <a href="https://www.apache.org/dev/openpgp.html#generate-key">generate-key</a> for details.
+Here's an example of gpg 2.4.8. If you use gpg version 1 series, please refer to <a href="https://www.apache.org/dev/openpgp.html#generate-key">generate-key</a> for details.
+Note that you need an `@apache.org` email address to prepare a Spark release with the `Release Apache Spark` GitHub action.
 
 ```
 $ gpg --full-gen-key
-gpg (GnuPG) 2.0.12; Copyright (C) 2009 Free Software Foundation, Inc.
+gpg (GnuPG) 2.4.8; Copyright (C) 2025 g10 Code GmbH
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
 
 Please select what kind of key you want:
-   (1) RSA and RSA (default)
+   (1) RSA and RSA
    (2) DSA and Elgamal
    (3) DSA (sign only)
    (4) RSA (sign only)
+   (9) ECC (sign and encrypt) *default*
+  (10) ECC (sign only)
+  (14) Existing key from card
+Your selection? 9
+Please select which elliptic curve you want:
+   (1) Curve 25519 *default*
+   (4) NIST P-384
+   (6) Brainpool P-256
 Your selection? 1
-RSA keys may be between 1024 and 4096 bits long.
-What keysize do you want? (2048) 4096
-Requested keysize is 4096 bits
 Please specify how long the key should be valid.
          0 = key does not expire
       <n>  = key expires in n days
       <n>w = key expires in n weeks
       <n>m = key expires in n months
       <n>y = key expires in n years
-Key is valid for? (0) 
+Key is valid for? (0) 0
 Key does not expire at all
 Is this correct? (y/N) y
 
 GnuPG needs to construct a user ID to identify your key.
 
-Real name: Robert Burrell Donkin
-Email address: rdonkin@apache.org
+Real name: Peter Test
+Email address: ptest@apache.org
 Comment: CODE SIGNING KEY
 You selected this USER-ID:
-    "Robert Burrell Donkin (CODE SIGNING KEY) <rdonkin@apache.org>"
+    "Peter Test (CODE SIGNING KEY) <ptest@apache.org>"
 
 Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? O
 We need to generate a lot of random bytes. It is a good idea to perform
@@ -98,24 +104,23 @@ We need to generate a lot of random bytes. It is a good idea to perform
 some other action (type on the keyboard, move the mouse, utilize the
 disks) during the prime generation; this gives the random number
 generator a better chance to gain enough entropy.
-gpg: key 04B3B5C426A27D33 marked as ultimately trusted
-gpg: revocation certificate stored as '/home/ubuntu/.gnupg/openpgp-revocs.d/08071B1E23C8A7E2CA1E891A04B3B5C426A27D33.rev'
+gpg: revocation certificate stored as '/Users/ptest/.gnupg/openpgp-revocs.d/69DD5A189B3C274353A677214926E0E83FF6D044.rev'
 public and secret key created and signed.
 
-pub   rsa4096 2021-08-19 [SC]
-      08071B1E23C8A7E2CA1E891A04B3B5C426A27D33
-uid                      Jack (test) <Jack@mail.com>
-sub   rsa4096 2021-08-19 [E]
+pub   ed25519 2025-09-18 [SC]
+      69DD5A189B3C274353A677214926E0E83FF6D044
+uid                      Peter Test (CODE SIGNING KEY) <ptest@apache.org>
+sub   cv25519 2025-09-18 [E]
 ```
 
-Note that the last 8 digits (26A27D33) of the public key is the <a href="https://infra.apache.org/release-signing.html#key-id">key ID</a>.
+Note that the last 8 digits (3FF6D044) of the public key is the <a href="https://infra.apache.org/release-signing.html#key-id">key ID</a>.
 
 <h4 id="upload-key">Upload key</h4>
 
 After generating the public key, we should upload it to <a href="https://infra.apache.org/release-signing.html#keyserver">public key server</a>:
 
 ```
-$ gpg --keyserver hkps://keys.openpgp.org --send-key 26A27D33
+$ gpg --keyserver hkps://keys.openpgp.org --send-key 3FF6D044
 ```
 
 Please refer to <a href="https://infra.apache.org/release-signing.html#keyserver-upload">keyserver-upload</a> for details.
@@ -125,7 +130,7 @@ Please refer to <a href="https://infra.apache.org/release-signing.html#keyserver
 To get the code signing key (a.k.a ASCII-armored public key), run the command:
 
 ```
-$ gpg --export --armor 26A27D33
+$ gpg --export --armor 3FF6D044
 ```
 
 And then append the generated key to the KEYS file by:
