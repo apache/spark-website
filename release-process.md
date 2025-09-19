@@ -54,7 +54,7 @@ You can skip this section if you have already uploaded your key.
 
 <h4 id="generate-key">Generate key</h4>
 
-Here's an example of gpg 2.0.12. If you use gpg version 1 series, please refer to <a href="https://www.apache.org/dev/openpgp.html#generate-key">generate-key</a> for details.
+Here's an example of gpg 2.4.8. If you use gpg version 1 series, please refer to <a href="https://www.apache.org/dev/openpgp.html#generate-key">generate-key</a> for details.
 Note that you need an `@apache.org` email address to prepare a Spark release with the `Release Apache Spark` GitHub action.
 
 ```
