@@ -63,6 +63,7 @@ navigation:
 |Xiangrui Meng|Databricks|
 |Xinrong Meng|Databricks|
 |Mridul Muralidharan|LinkedIn|
+|Anton Okolnychyi|Databricks|
 |Andrew Or|Facebook|
 |Kay Ousterhout|LightStep|
 |Sean Owen|Databricks|
@@ -107,7 +108,6 @@ navigation:
 |Matei Zaharia|Databricks, Stanford|
 |Ruifeng Zheng|Databricks|
 |Shixiong Zhu|Databricks|
-|Anton Okolnychyi|Databricks|
 
 <h3>Becoming a committer</h3>
 
