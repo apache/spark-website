@@ -31,13 +31,19 @@ The release manager role in Spark means you are responsible for a few different 
   - [Upload to PyPI](#upload-to-pypi)
   - [Remove RC artifacts from repositories](#remove-rc-artifacts-from-repositories)
   - [Remove old releases from Mirror Network](#remove-old-releases-from-mirror-network)
-  - [Update the Apache Spark<sup>TM</sup> repository](#update-the-apache-spark-repository)
+  - [Update the Apache Spark repository](#update-the-apache-spark-repository)
   - [Update the configuration of Algolia Crawler](#update-the-configuration-of-algolia-crawler)
   - [Update the Spark website](#update-the-spark-website)
     - [Upload generated docs](#upload-generated-docs)
     - [Update the rest of the Spark website](#update-the-rest-of-the-spark-website)
   - [Create and upload Spark Docker Images](#create-and-upload-spark-docker-images)
   - [Create an announcement](#create-an-announcement)
+- [Preparing Spark Releases with GitHub Actions](#preparing-spark-releases-with-github-actions)
+  - [Preparing your GitHub Actions setup](#preparing-your-github-actions-setup)
+  - [Creating release candidates](#create-release-candidates)
+    - [If the workflow fails ...](#if-workflow-fails)
+  - [Publishing the release](#publishing-release)
+    - [If the workflow fails ...](#if-publishing-workflow-fails)
 
 <h2 id="preparing-your-setup">Preparing your setup</h2>
 
@@ -449,7 +455,7 @@ Enjoy an adult beverage of your choice, and congratulations on making a Spark re
 <p align="right"><a href="#top">Return to top</a></p>
 
 
-<h1>Preparing Spark Releases with GitHub Actions</h1>
+<h1 id="preparing-spark-releases-with-github-actions">Preparing Spark Releases with GitHub Actions</h1>
 
 Apache Spark provides a [GitHub Actions workflow](https://github.com/apache/spark/blob/master/.github/workflows/release.yml) for creating official Spark releases. Only Apache Spark PMC members can run this workflow in **their forked repositories**.
 
@@ -514,6 +520,6 @@ cleaned up, follow these steps:
   - [Create an announcement](#create-an-announcement)
 
 
-<h3 id="if-workflow-fails">If the workflow fails ...</h3>
+<h3 id="if-publishing-workflow-fails">If the workflow fails ...</h3>
 
 If the workflow fails here, you will need to manually debug the release script, [`dev/create-release/release-build.sh`](https://github.com/apache/spark/blob/master/dev/create-release/release-build.sh) and then run the remaining commands yourself after the failure.
