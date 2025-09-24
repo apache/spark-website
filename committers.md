@@ -63,6 +63,7 @@ navigation:
 |Xiangrui Meng|Databricks|
 |Xinrong Meng|Databricks|
 |Mridul Muralidharan|LinkedIn|
+|Anton Okolnychyi|Databricks|
 |Andrew Or|Facebook|
 |Kay Ousterhout|LightStep|
 |Sean Owen|Databricks|
