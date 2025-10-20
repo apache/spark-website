@@ -105,7 +105,7 @@ Spark Meetups are grass-roots events organized and hosted by individuals in the 
   <li>
     <a href="https://www.meetup.com/spark-users/">Bay Area Spark Meetup.</a>
     This group has been running since January 2012 in the San Francisco area.
-    The meetup page also contains an <a href="https://www.meetup.com/spark-users/events/past/">archive of past meetups</a>, including videos and <a href="https://www.meetup.com/spark-users/files/">slides</a> for most of the recent talks.
+    The meetup page also contains an <a href="https://www.meetup.com/spark-users/events/past/">archive of past meetups</a>.
   </li>
   <li>
     <a href="https://www.meetup.com/Spark-Barcelona/">Barcelona Spark Meetup</a>
