@@ -94,7 +94,9 @@ Chat rooms are great for quick questions or discussions on specialized topics. T
 The Spark Summit website archives at spark-summit.org, from years 2013 to 2017, are no longer available, so the links to them have been removed. Instead, we have
 most of the video recordings. 
 <ul>
-  <li> <a href="https://www.youtube.com/@TheApacheSpark/playlists">Spark Summit (2013-2017) video playlist</a></li>
+  <li> 
+    <a href="https://www.youtube.com/@TheApacheSpark/playlists">Spark Summit (2013-2017) video playlist</a>
+  </li>
 </ul>
 
 <h4>Meetups</h4>
