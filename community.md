@@ -91,36 +91,11 @@ Chat rooms are great for quick questions or discussions on specialized topics. T
 <h3>Events and meetups</h3>
 
 <h4>Conferences</h4>
+The Spark Summit website archives at spark-summit.org, from years 2013 to 2017, are no longer available, so the links to them have been removed. Instead, we have
+most of the video recordings. 
 <ul>
-  <li>
-    <a href="https://spark-summit.org/eu-2017/">Spark Summit Europe 2017.</a> Oct 24 - 26 in Dublin.
-  </li>
-  <li>
-    <a href="https://spark-summit.org/2017/">Spark Summit 2017.</a> June 5 - 7 in San Francisco.
-  </li>
-  <li>
-    <a href="https://spark-summit.org/eu-2016/">Spark Summit Europe 2016.</a> Oct 25 - 27 in Brussels.
-  </li>
-  <li>
-    <a href="https://spark-summit.org/2016/">Spark Summit 2016.</a> June 6 - 8 in San Francisco.
-  </li>
-  <li>
-    <a href="https://spark-summit.org/east-2016/">Spark Summit East 2016.</a> Feb 16 - 18 in New York City.
-  </li>
-  <li>
-    <a href="https://spark-summit.org/eu-2015/">Spark Summit Europe 2015.</a> Oct 27 - 29 in Amsterdam.
-  </li>
-  <li>
-    <a href="https://spark-summit.org/2015">Spark Summit 2015.</a> June 15 - 17 in San Francisco.
-  </li>
-  <li>
-    <a href="https://spark-summit.org/east-2015/">Spark Summit East 2015.</a> March 18 - 19 in New York City.
-  </li>
-  <li>
-    <a href="https://spark-summit.org/2014">Spark Summit 2014.</a> June 30 - July 1 2014 in San Francisco.
-  </li>
-  <li>
-    <a href="https://spark-summit.org/2013">Spark Summit 2013.</a> December 2013 in San Francisco.
+  <li> 
+    <a href="https://www.youtube.com/@TheApacheSpark/playlists">Spark Summit (2013-2017) video playlist</a>
   </li>
 </ul>
 
@@ -130,13 +105,10 @@ Spark Meetups are grass-roots events organized and hosted by individuals in the 
   <li>
     <a href="https://www.meetup.com/spark-users/">Bay Area Spark Meetup.</a>
     This group has been running since January 2012 in the San Francisco area.
-    The meetup page also contains an <a href="https://www.meetup.com/spark-users/events/past/">archive of past meetups</a>, including videos and <a href="https://www.meetup.com/spark-users/files/">slides</a> for most of the recent talks.
+    The meetup page also contains an <a href="https://www.meetup.com/spark-users/events/past/">archive of past meetups</a>.
   </li>
   <li>
     <a href="https://www.meetup.com/Spark-Barcelona/">Barcelona Spark Meetup</a>
-  </li>
-  <li>
-    <a href="https://www.meetup.com/SanKir-Big-Data-Group/">Bangalore Spark Meetup</a>
   </li>
   <li>
     <a href="https://www.meetup.com/es/Apache-Spark-Bogota/">Bogotá Spark Meetup</a>
@@ -148,16 +120,10 @@ Spark Meetups are grass-roots events organized and hosted by individuals in the 
     <a href="https://www.meetup.com/Boulder-Denver-Spark-Meetup/">Boulder/Denver Spark Meetup</a>
   </li>
   <li>
-    <a href="https://www.meetup.com/Christchurch-Apache-Spark-Meetup/">Christchurch Apache Spark Meetup</a>
-  </li>
-  <li>
     <a href="https://www.meetup.com/Hangzhou-Apache-Spark-Meetup/">Hangzhou Spark Meetup</a>
   </li>
   <li>
     <a href="https://www.meetup.com/israel-spark-users/">Israel Spark Users</a>
-  </li>
-  <li>
-    <a href="https://www.meetup.com/Apache-Spark-Ljubljana-Meetup/">Ljubljana Spark Meetup</a>
   </li>
   <li>
     <a href="https://www.meetup.com/Spark-London/">London Spark Meetup</a>
@@ -167,12 +133,6 @@ Spark Meetups are grass-roots events organized and hosted by individuals in the 
   </li>
   <li>
     <a href="https://www.meetup.com/es/apache-spark-mexicocity/">México City Spark Meetup</a>
-  </li>
-  <li>
-    <a href="https://www.meetup.com/Apache-Spark-in-Moscow/">Moscow Spark Meetup</a>
-  </li>
-  <li>
-    <a href="https://www.meetup.com/Mumbai-Spark-Meetup/">Mumbai Spark Meetup</a>
   </li>
   <li>
     <a href="https://www.meetup.com/Spark-NYC/">NYC Spark Meetup</a>

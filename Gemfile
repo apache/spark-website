@@ -22,3 +22,4 @@ gem "jekyll", "4.4.1"
 gem "rouge", "3.26.0"
 
 gem "webrick", "~> 1.8.2"
+gem 'bigdecimal'
