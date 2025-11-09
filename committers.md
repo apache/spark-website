@@ -94,7 +94,7 @@ navigation:
 |Allison Wang|Databricks|
 |Gengliang Wang|Databricks|
 |Yuming Wang|eBay|
-|Zhenhua Wang|Huawei|
+|Zhenhua Wang|Alibaba|
 |Patrick Wendell|Databricks|
 |Yi Wu|Databricks|
 |Andrew Xia|Alibaba|
