@@ -494,6 +494,27 @@ in the Eclipse install directory. Increase the following setting as needed:
 256M
 ```
 
+<h4>IDE with sbt</h4>
+
+When you use IDEs like VSCode or Cursor, you need to build from terminal with `sbt`.
+A common issue you'll encounter is something like
+
+```
+java.lang.RuntimeException: Failed to find name hashes for
+```
+
+This is because multiple instances are trying to build the project simultaneously. Normally
+the culprit is your Java/Scala plugin in your IDEs.
+
+In order to fix this, first you need to disable auto-build of your plugins. Then you need to
+clear all the cache. Potential locations are
+
+```
+**/target/**
+~/.m2
+~/.ivy2/
+```
+
 <a name="nightly-builds"></a>
 <h3>Nightly builds</h3>
 
