@@ -496,8 +496,8 @@ in the Eclipse install directory. Increase the following setting as needed:
 
 <h4>IDE with sbt</h4>
 
-When you use IDEs like VSCode or Cursor, you need to build from terminal with `sbt`.
-A common issue you'll encounter is something like
+When you use IDEs like VSCode or Cursor and you build from terminal with `sbt`,
+a common issue you'll encounter is something like
 
 ```
 java.lang.RuntimeException: Failed to find name hashes for
