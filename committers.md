@@ -102,7 +102,7 @@ navigation:
 |Weichen Xu|Databricks|
 |Takeshi Yamamuro|NTT|
 |Jie Yang|Baidu|
-|Kent Yao|NetEase|
+|Kent Yao|Microsoft|
 |Burak Yavuz|Databricks|
 |Xiduo You|NetEase|
 |Matei Zaharia|Databricks, Stanford|
