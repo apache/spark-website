@@ -507,10 +507,9 @@ This is because multiple instances are trying to build the project simultaneousl
 the culprit is your Java/Scala plugin in your IDEs.
 
 In order to fix this, first you need to disable auto-build of your plugins. Then you need to
-clear all the cache. Potential locations are
+clear all the artifacts with `sbt clean`. You'll also need to clear cache in
 
 ```
-**/target/**
 ~/.m2
 ~/.ivy2/
 ```
