@@ -13,3 +13,4 @@ navigation:
 
 <ul>
   <li><a href="{{site.baseurl}}/docs//">Spark </a></li>
+  <li><a href="{{site.baseurl}}/docs/4.1.0/">Spark 4.1.0</a></li>
