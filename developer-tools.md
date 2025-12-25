@@ -376,7 +376,7 @@ To create a Spark project for IntelliJ:
 - Download IntelliJ and install the 
 <a href="https://confluence.jetbrains.com/display/SCA/Scala+Plugin+for+IntelliJ+IDEA">Scala plug-in for IntelliJ</a>.
 - Go to `File -> Import Project`, locate the spark source directory, and select "Maven Project". It's important to
-pick Maven instead if sbt here, as Spark has complicated building logic that is implemented for sbt using Scala code
+pick Maven instead of sbt here, as Spark has complicated building logic that is implemented for sbt using Scala code
 in `SparkBuilder.scala`, and IntelliJ IDEA cannot understant it well.
 - In the Import wizard, it's fine to leave settings at their default. However it is usually useful 
 to enable "Import Maven projects automatically", since changes to the project structure will 
