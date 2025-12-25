@@ -15,9 +15,8 @@ docker build \
   dev/spark-test-image-util/docs/
 ```
 
-Once the image is built, navigate to the spark-website root directory, run the script
-to process the Markdown files. Note: Replace `/path/to/spark-website`
-in the command below with the *absolute path* to your local website directory.
+Once the image is built, navigate to the `spark-website` root directory, run the script which processes
+the Markdown files in the Docker container.
 ```
 SPARK_WEBSITE_PATH="/path/to/spark-website" sh .dev/build-docs.sh
 ```

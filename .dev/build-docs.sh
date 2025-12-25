@@ -18,7 +18,7 @@
 docker run \
   -e HOST_UID=$(id -u) \
   -e HOST_GID=$(id -g) \
-  --mount type=bind,source="${SPARK_WEBSITE_PATH}",target="/spark-website" \
+  --mount type=bind,source="$PWD",target="/spark-website" \
   -w /spark-website \
   docs-builder:latest \
   /bin/bash -c "sh .dev/run-in-container.sh"
