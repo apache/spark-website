@@ -352,17 +352,32 @@ By default, this script will format files that differ from git master. For more 
 
 <h3>IDE setup</h3>
 
+Make sure you have a clean start before setting up the IDE: A clean git clone of the Spark repo, install the latest 
+version of the IDE. If something goes wrong, clear the build outputs by `./build/sbt clean` and `./build/mvn clean`, 
+clear the m2 cache by `rm -rf ~/.m2/repository/*`, remove the IDE folder such as `.idea`, re-import the project into 
+the IDE and try again.
+
 <h4>IntelliJ</h4>
 
 While many of the Spark developers use SBT or Maven on the command line, the most common IDE we 
 use is IntelliJ IDEA. You can get the community edition for free (Apache committers can get 
 free IntelliJ Ultimate Edition licenses) and install the JetBrains Scala plugin from `Preferences > Plugins`.
 
+Due to the complexity of Spark build, please modify the following global settings of IntelliJ IDEA:
+
+- Go to `Settings -> Build, Execution, Deployment -> Build Tools -> Maven -> Importing`, make sure you 
+choose "Detect automatically" for `Generated source folders`, and choose "generate sources" for 
+`Phase to be used for folders update`.
+- Go to `Settings -> Build, Execution, Deployment -> Compiler -> Scala Compiler -> Scala Compiler Server`, 
+pick a large enough number for `Maximum heap size, MB`, such as "16000".
+
 To create a Spark project for IntelliJ:
 
 - Download IntelliJ and install the 
 <a href="https://confluence.jetbrains.com/display/SCA/Scala+Plugin+for+IntelliJ+IDEA">Scala plug-in for IntelliJ</a>.
-- Go to `File -> Import Project`, locate the spark source directory, and select "Maven Project".
+- Go to `File -> Import Project`, locate the spark source directory, and select "Maven Project". It's important to
+pick Maven instead if sbt here, as Spark has complicated building logic that is implemented for sbt using Scala code
+in `SparkBuilder.scala`, and IntelliJ IDEA cannot understant it well.
 - In the Import wizard, it's fine to leave settings at their default. However it is usually useful 
 to enable "Import Maven projects automatically", since changes to the project structure will 
 automatically update the IntelliJ project.
