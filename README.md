@@ -24,7 +24,7 @@ docker run \
   --mount type=bind,source="/path/to/spark-website",target="/spark-website" \
   -w /spark-website \
   docs-builder:latest \
-  /bin/bash -c "sh .github/run-in-container.sh"
+  /bin/bash -c "sh .dev/run-in-container.sh"
 ```
 
 ## Docs sub-dir
