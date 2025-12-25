@@ -3,31 +3,29 @@
 In this directory you will find text files formatted using Markdown, with an `.md` suffix.
 
 Building the site requires [Ruby 3](https://www.ruby-lang.org), [Jekyll](http://jekyllrb.com/docs), and
-[Rouge](https://github.com/rouge-ruby/rouge).
-The easiest way to install the right version of these tools is using
-[Bundler](https://bundler.io/) and running `bundle install` in this directory.
+[Rouge](https://github.com/rouge-ruby/rouge). The most reliable way to ensure a compatible environment
+is to use the official Docker build image from the Apache Spark repository.
 
-See also [https://github.com/apache/spark/blob/master/docs/README.md](https://github.com/apache/spark/blob/master/docs/README.md)
+If you haven't already, clone the [Apache Spark](https://github.com/apache/spark) repository. Navigate to
+the Spark root directory and run the following command to create the builder image:
+```
+docker build \
+  --tag docs-builder:latest \
+  --file dev/spark-test-image/docs/Dockerfile \
+  dev/spark-test-image-util/docs/
+```
 
-A site build will update the directories and files in the `site` directory with the generated files.
-Using Jekyll via `bundle exec jekyll` locks it to the right version.
-So after this you can generate the html website by running `bundle exec jekyll build` in this
-directory. Use the `--watch` flag to have jekyll recompile your files as you save changes.
-
-In addition to generating the site as HTML from the Markdown files, jekyll can serve the site via
-a web server. To build the site and run a web server use the command `bundle exec jekyll serve` which runs
-the web server on port 4000, then visit the site at http://localhost:4000.
-
-Please make sure you always run `bundle exec jekyll build` after testing your changes with
-`bundle exec jekyll serve`, otherwise you end up with broken links in a few places.
-
-## Updating Jekyll version
-
-To update `Jekyll` or any other gem please follow these steps:
-
-1. Update the version in the `Gemfile`
-1. Run `bundle update` which updates the `Gemfile.lock`
-1. Commit both files
+Once the image is built, run the container to process the Markdown files. Note: Replace `/path/to/spark-website`
+in the command below with the *absolute path* to your local website directory.
+```
+docker run \
+  -e HOST_UID=$(id -u) \
+  -e HOST_GID=$(id -g) \
+  --mount type=bind,source="/path/to/spark-website",target="/spark-website" \
+  -w /spark-website \
+  docs-builder:latest \
+  /bin/bash -c "sh .github/run-in-container.sh"
+```
 
 ## Docs sub-dir
 
