@@ -353,15 +353,15 @@ By default, this script will format files that differ from git master. For more 
 <h3>IDE setup</h3>
 
 Make sure you have a clean start before setting up the IDE: A clean git clone of the Spark repo, install the latest 
-version of the IDE. If something goes wrong, clear the build outputs by `./build/sbt clean` and `./build/mvn clean`, 
-clear the m2 cache by `rm -rf ~/.m2/repository/*`, remove the IDE folder such as `.idea`, re-import the project into 
-the IDE and try again.
+version of the IDE.
+
+If something goes wrong, clear the build outputs by `./build/sbt clean` and `./build/mvn clean`, clear the m2 
+cache by `rm -rf ~/.m2/repository/*`, re-import the project into the IDE cleanly and try again.
 
 <h4>IntelliJ</h4>
 
 While many of the Spark developers use SBT or Maven on the command line, the most common IDE we 
-use is IntelliJ IDEA. You can get the community edition for free (Apache committers can get 
-free IntelliJ Ultimate Edition licenses) and install the JetBrains Scala plugin from `Preferences > Plugins`.
+use is IntelliJ IDEA. You need to install the JetBrains Scala plugin from `Preferences > Plugins`.
 
 Due to the complexity of Spark build, please modify the following global settings of IntelliJ IDEA:
 
@@ -369,7 +369,7 @@ Due to the complexity of Spark build, please modify the following global setting
 choose "Detect automatically" for `Generated source folders`, and choose "generate sources" for 
 `Phase to be used for folders update`.
 - Go to `Settings -> Build, Execution, Deployment -> Compiler -> Scala Compiler -> Scala Compiler Server`, 
-pick a large enough number for `Maximum heap size, MB`, such as "16000".
+pick a large enough number for `Maximum heap size, MB`, such as "4000".
 
 To create a Spark project for IntelliJ:
 
