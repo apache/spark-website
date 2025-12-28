@@ -479,7 +479,7 @@ Metals provides robust Scala support through the Build Server Protocol (BSP).
 Initial setup:
 - *Install Metals*: Search for and install the Scala (Metals) extension from the Marketplace.
 - *Open Project*: Open your Spark root directory.
-- *Select Build Tool*: When prompted by the popup in the bottom-left corner, select sbt as your build tool.
+- *Select Build Tool*: When prompted by the popup in the bottom-left corner, select sbt to read build definition.
 - *Confirm Build Server*: Metals defaults to using Bloop as the build server. Do not change this setting, as Bloop provides the fastest compilation and best integration for local development. Open the Command Palette (Cmd+Shift+P or Ctrl+Shift+P), run `Metals: Run doctor`, and verify the status dashboard. Ensure it shows: `Build definition is coming from sbt` and `Build server currently being used is Bloop`.
 
 If you encounter compilation errors or the IDE fails to recognize symbols, follow these steps to perform a clean import:
