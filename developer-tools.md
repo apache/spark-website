@@ -470,6 +470,26 @@ debug in IntelliJ as usual.
 To exit remote debug mode (so that you don't have to keep starting the remote debugger),
 type "session clear" in SBT console while you're in a project.
 
+
+<h4>Cursor/VS Code</h4>
+
+You can leverage the power of *Cursor* or *VS Code* for Spark development by using the Metals extension. 
+Metals provides robust Scala support through the Build Server Protocol (BSP).
+
+Initial setup:
+- *Install Metals*: Search for and install the Scala (Metals) extension from the Marketplace.
+- *Open Project*: Open your Spark root directory.
+- *Select Build Tool*: When prompted by the popup in the bottom-left corner, select sbt to read build definition.
+- *Confirm Build Server*: Metals defaults to using Bloop as the build server. Do not change this setting, as Bloop provides the fastest compilation and best integration for local development. Open the Command Palette (Cmd+Shift+P or Ctrl+Shift+P), run `Metals: Run doctor`, and verify the status dashboard. Ensure it shows: `Build definition is coming from sbt` and `Build server currently being used is Bloop`.
+
+If you encounter compilation errors or the IDE fails to recognize symbols, follow these steps to perform a clean import:
+1. *Stop Bloop Server*: Run the following command in your terminal to stop the bloop server: `pkill -f "bloop.BloopServer"`. If you have installed bloop CLI you can run `bloop exit` instead.
+2. *Clean Workspace*: Run the following command in your terminal to remove cached build metadata: `rm -rf .bloop/ .metals/ .bsp/`.
+3. *Reload Window*: Run `Developer: Reload Window` from the Command Palette, and select sbt when the prompt reappears.
+4. *Import Build*: Run `Metals: Import build` and wait for the process to complete.
+5. *Connect to Server*: Run `Metals: Connect to build server` and wait for the process to complete.
+6. *Confirm*: Run `Metals: Run doctor` and verify the status dashboard.
+
 <h4>Eclipse</h4>
 
 Eclipse can be used to develop and test Spark. The following configuration is known to work:
