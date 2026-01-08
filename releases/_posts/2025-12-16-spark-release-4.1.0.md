@@ -32,11 +32,11 @@ To download Apache Spark 4.1.0, please visit the [downloads](https://spark.apach
 
 
 ### Highlights
-- **[[SPARK-51727]](https://issues.apache.org/jira/browse/SPARK-51727)** A new component to define and run data pipelines: **Declarative Pipelines**
+- **[[SPARK-51727]](https://issues.apache.org/jira/browse/SPARK-51727)** SPIP: **Declarative Pipelines**, a new component to define and run data pipelines
 - **[[SPARK-54499]](https://issues.apache.org/jira/browse/SPARK-54499)** Enable SQL scripting by default (SQL scripting GA)
 - **[[SPARK-54454]](https://issues.apache.org/jira/browse/SPARK-54454)** Enable VARIANT type by default (VARIANT type GA)
-- **[[SPARK-53736]](https://issues.apache.org/jira/browse/SPARK-53736)** Real-time Mode in Structured Streaming (Scala stateless support)
-- **[[SPARK-53484]](https://issues.apache.org/jira/browse/SPARK-53484)** JDBC Driver for Spark Connect
+- **[[SPARK-53736]](https://issues.apache.org/jira/browse/SPARK-53736)** SPIP: Real-time Mode in Structured Streaming (Scala stateless support)
+- **[[SPARK-53484]](https://issues.apache.org/jira/browse/SPARK-53484)** SPIP: JDBC Driver for Spark Connect
 - **[[SPARK-52214]](https://issues.apache.org/jira/browse/SPARK-52214)** Python Arrow UDF
 - **[[SPARK-52979]](https://issues.apache.org/jira/browse/SPARK-52979)** Python Arrow UDTF
 - **[[SPARK-51756]](https://issues.apache.org/jira/browse/SPARK-51756)** Checksum-based shuffle stage full retry to avoid incorrect results
