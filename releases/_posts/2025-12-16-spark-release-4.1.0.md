@@ -33,7 +33,7 @@ To download Apache Spark 4.1.0, please visit the [downloads](https://spark.apach
 
 ### Highlights
 - **[[SPARK-51727]](https://issues.apache.org/jira/browse/SPARK-51727)** SPIP: **Declarative Pipelines**, a new component to define and run data pipelines
-- **[[SPARK-54499]](https://issues.apache.org/jira/browse/SPARK-54499)** Enable SQL scripting by default (SQL scripting GA)
+- **[[SPARK-54499]](https://issues.apache.org/jira/browse/SPARK-54499)** Enable SQL Scripting by default (SQL Scripting GA)
 - **[[SPARK-54454]](https://issues.apache.org/jira/browse/SPARK-54454)** Enable VARIANT type by default (VARIANT type GA)
 - **[[SPARK-53736]](https://issues.apache.org/jira/browse/SPARK-53736)** SPIP: Real-time Mode in Structured Streaming (Scala stateless support)
 - **[[SPARK-53484]](https://issues.apache.org/jira/browse/SPARK-53484)** SPIP: JDBC Driver for Spark Connect
