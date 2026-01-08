@@ -155,11 +155,1002 @@
       <h2>Spark Release 4.1.0</h2>
 
 
-<p>Apache Spark 4.1.0 is a new feature release. It introduces new functionality and improvements. We encourage users to try it and provide feedback.</p>
+<p>Apache Spark 4.1.0 is the second release in the 4.x series. With significant contributions from the open-source community, this release addressed over 1,800 Jira tickets with contributions from more than 230 individuals.</p>
 
-<p>You can find the list of resolved issues and detailed changes in the <a href="https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315420&amp;version=12355581">JIRA release notes</a>.</p>
+<p>This release continues the Spark 4.x momentum and focuses on higher-level data engineering, lower-latency streaming, faster and easier PySpark, and a more capable SQL surface.</p>
 
-<p>We would like to acknowledge all community members for contributing patches and features to this release.</p>
+<p>This release adds Spark Declarative Pipelines (SDP): A new declarative framework where you define datasets and queries, and Spark handles the execution graph, dependency ordering, parallelism, checkpoints, and retries.</p>
+
+<p>This release supports Structured Streaming Real-Time Mode (RTM): First official support for Structured Streaming queries running in real-time mode for continuous, sub-second latency processing. For stateless tasks, latency can even drop to single-digit milliseconds.</p>
+
+<p>PySpark UDFs and Data Sources have been improved: New Arrow-native UDF and UDTF decorators for efficient PyArrow execution without Pandas conversion overhead, plus Python Data Source filter pushdown to reduce data movement.</p>
+
+<p>Spark ML on Connect is GA for the Python client, with smarter model caching and memory management. Spark 4.1 also improves stability for large workloads with zstd-compressed protobuf plans, chunked Arrow result streaming, and enhanced support for large local relations.</p>
+
+<p>SQL Scripting is GA and enabled by default, with improved error handling and cleaner declarations. VARIANT is GA with shredding for faster reads on semi-structured data, plus recursive CTE support and new approximate data sketches (KLL and Theta).</p>
+
+<p>To download Apache Spark 4.1.0, please visit the <a href="https://spark.apache.org/downloads.html">downloads</a> page. For <a href="https://issues.apache.org/jira/projects/SPARK/versions/12355581">detailed changes</a>, you can consult JIRA. We have also curated a list of high-level changes here, grouped by major components.</p>
+
+<ul id="markdown-toc">
+  <li><a href="#highlights" id="markdown-toc-highlights">Highlights</a></li>
+  <li><a href="#sql-foundation" id="markdown-toc-sql-foundation">SQL Foundation</a>    <ul>
+      <li><a href="#built-in-functions-77-new-functions" id="markdown-toc-built-in-functions-77-new-functions">Built-in Functions (77 new functions)</a></li>
+    </ul>
+  </li>
+  <li><a href="#query-api" id="markdown-toc-query-api">Query API</a></li>
+  <li><a href="#connectors" id="markdown-toc-connectors">Connectors</a>    <ul>
+      <li><a href="#data-source-v2-framework" id="markdown-toc-data-source-v2-framework">Data Source V2 framework</a></li>
+      <li><a href="#file-sources" id="markdown-toc-file-sources">File Sources</a></li>
+      <li><a href="#jdbc-and-hive" id="markdown-toc-jdbc-and-hive">JDBC and Hive</a></li>
+      <li><a href="#python-data-source" id="markdown-toc-python-data-source">Python Data Source</a></li>
+    </ul>
+  </li>
+  <li><a href="#udf-user-defined-functions" id="markdown-toc-udf-user-defined-functions">UDF (User Defined Functions)</a></li>
+  <li><a href="#streaming" id="markdown-toc-streaming">Streaming</a>    <ul>
+      <li><a href="#state-store" id="markdown-toc-state-store">State Store</a></li>
+      <li><a href="#other-notable-changes" id="markdown-toc-other-notable-changes">Other notable changes</a></li>
+    </ul>
+  </li>
+  <li><a href="#spark-connect-framework" id="markdown-toc-spark-connect-framework">Spark Connect Framework</a>    <ul>
+      <li><a href="#api-coverage" id="markdown-toc-api-coverage">API coverage</a></li>
+      <li><a href="#other-notable-changes-1" id="markdown-toc-other-notable-changes-1">Other notable changes</a></li>
+    </ul>
+  </li>
+  <li><a href="#performance-and-stability" id="markdown-toc-performance-and-stability">Performance and stability</a>    <ul>
+      <li><a href="#query-optimizer-and-execution" id="markdown-toc-query-optimizer-and-execution">Query Optimizer and Execution</a></li>
+      <li><a href="#stability" id="markdown-toc-stability">Stability</a></li>
+      <li><a href="#python-performance" id="markdown-toc-python-performance">Python Performance</a></li>
+    </ul>
+  </li>
+  <li><a href="#infrastructure" id="markdown-toc-infrastructure">Infrastructure</a>    <ul>
+      <li><a href="#build-and-scalapython-upgrades" id="markdown-toc-build-and-scalapython-upgrades">Build and Scala/Python Upgrades</a></li>
+      <li><a href="#observability" id="markdown-toc-observability">Observability</a></li>
+      <li><a href="#debug-ability" id="markdown-toc-debug-ability">Debug-ability</a></li>
+    </ul>
+  </li>
+  <li><a href="#deployment" id="markdown-toc-deployment">Deployment</a></li>
+  <li><a href="#version-upgrade-of-java-and-scala-libraries" id="markdown-toc-version-upgrade-of-java-and-scala-libraries">Version upgrade of Java and Scala libraries</a></li>
+  <li><a href="#credits" id="markdown-toc-credits">Credits</a></li>
+</ul>
+
+<h3 id="highlights">Highlights</h3>
+<ul>
+  <li><strong><a href="https://issues.apache.org/jira/browse/SPARK-51727">[SPARK-51727]</a></strong> SPIP: <strong>Declarative Pipelines</strong>, a new component to define and run data pipelines</li>
+  <li><strong><a href="https://issues.apache.org/jira/browse/SPARK-54499">[SPARK-54499]</a></strong> Enable SQL Scripting by default (SQL Scripting GA)</li>
+  <li><strong><a href="https://issues.apache.org/jira/browse/SPARK-54454">[SPARK-54454]</a></strong> Enable VARIANT type by default (VARIANT type GA)</li>
+  <li><strong><a href="https://issues.apache.org/jira/browse/SPARK-53736">[SPARK-53736]</a></strong> SPIP: Real-time Mode in Structured Streaming (Scala stateless support)</li>
+  <li><strong><a href="https://issues.apache.org/jira/browse/SPARK-53484">[SPARK-53484]</a></strong> SPIP: JDBC Driver for Spark Connect</li>
+  <li><strong><a href="https://issues.apache.org/jira/browse/SPARK-52214">[SPARK-52214]</a></strong> Python Arrow UDF</li>
+  <li><strong><a href="https://issues.apache.org/jira/browse/SPARK-52979">[SPARK-52979]</a></strong> Python Arrow UDTF</li>
+  <li><strong><a href="https://issues.apache.org/jira/browse/SPARK-51756">[SPARK-51756]</a></strong> Checksum-based shuffle stage full retry to avoid incorrect results</li>
+  <li><strong><a href="https://issues.apache.org/jira/browse/SPARK-44167">[SPARK-44167]</a></strong> SPIP: Stored Procedures API for Catalogs</li>
+  <li><strong><a href="https://issues.apache.org/jira/browse/SPARK-51236">[SPARK-51236]</a></strong> ML Connect improvements</li>
+  <li><strong><a href="https://issues.apache.org/jira/browse/SPARK-54357">[SPARK-54357]</a></strong> Improve SparkConnect usability and performance</li>
+</ul>
+
+<hr />
+
+<h3 id="sql-foundation">SQL Foundation</h3>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54499">[SPARK-54499]</a> Enable SQL scripting by default (SQL scripting GA)
+    <ul>
+      <li><a href="https://issues.apache.org/jira/browse/SPARK-53621">[SPARK-53621]</a> Add support for CONTINUE HANDLER</li>
+      <li><a href="https://issues.apache.org/jira/browse/SPARK-52998">[SPARK-52998]</a> Multiple variables inside DECLARE</li>
+      <li><a href="https://issues.apache.org/jira/browse/SPARK-52345">[SPARK-52345]</a> Fix NULL behavior in scripting conditions</li>
+    </ul>
+  </li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54454">[SPARK-54454]</a> Enable VARIANT type by default (VARIANT type GA)
+    <ul>
+      <li><a href="https://issues.apache.org/jira/browse/SPARK-51298">[SPARK-51298]</a> Support variant in CSV scan</li>
+      <li><a href="https://issues.apache.org/jira/browse/SPARK-51503">[SPARK-51503]</a> Support variant in XML scan</li>
+      <li><a href="https://issues.apache.org/jira/browse/SPARK-53659">[SPARK-53659]</a> Infer Variant shredding schema in parquet writer</li>
+      <li><a href="https://issues.apache.org/jira/browse/SPARK-54306">[SPARK-54306]</a> Annotate Variant type on Parquet Write</li>
+      <li><a href="https://issues.apache.org/jira/browse/SPARK-54410">[SPARK-54410]</a> Add read support for Parquet Variant logical type</li>
+      <li><a href="https://issues.apache.org/jira/browse/SPARK-52494">[SPARK-52494]</a> Support colon-sign operator syntax to access Variant fields</li>
+    </ul>
+  </li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-44167">[SPARK-44167]</a> SPIP: Stored Procedures API for Catalogs</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53573">[SPARK-53573]</a> Allow query parameter markers everywhere via pre-parser</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-24497">[SPARK-24497]</a> Recursive CTE support</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52545">[SPARK-52545]</a> Standardize double-quote escaping to follow SQL specification</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52338">[SPARK-52338]</a> Support for inheriting default collation from schema to View</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52219">[SPARK-52219]</a> Schema level collation support for tables</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53444">[SPARK-53444]</a> Rework EXECUTE IMMEDIATE</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52782">[SPARK-52782]</a> Return NULL from +/- on datetime with NULL</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52828">[SPARK-52828]</a> Make hashing for collated strings collation agnostic</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53348">[SPARK-53348]</a> Always persist ANSI value when creating a view or assume it when querying</li>
+</ul>
+
+<h4 id="built-in-functions-77-new-functions">Built-in Functions (77 new functions)</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52588">[SPARK-52588]</a> Approx_top_k: accumulate and estimate</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52515">[SPARK-52515]</a> Add approx_top_k function</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54199">[SPARK-54199]</a><a href="https://issues.apache.org/jira/browse/SPARK-53991">[SPARK-53991]</a> new KLL quantiles sketch functions</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52407">[SPARK-52407]</a> Add support for Theta Sketch</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53877">[SPARK-53877]</a> Introduce BITMAP_AND_AGG function</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52798">[SPARK-52798]</a> Add function approx_top_k_combine</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53947">[SPARK-53947]</a> Count null in approx_top_k</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52233">[SPARK-52233]</a> Fix map_zip_with for Floating Point Types</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52866">[SPARK-52866]</a> Add support for try_to_date</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53654">[SPARK-53654]</a> Support seed in function uuid</li>
+</ul>
+
+<hr />
+
+<h3 id="query-api">Query API</h3>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53779">[SPARK-53779]</a> Implement transform in column API</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-50131">[SPARK-50131]</a> Add IN Subquery DataFrame API</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53402">[SPARK-53402]</a> Support Direct Passthrough Partitioning Dataset API</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51877">[SPARK-51877]</a> Add functions &#8216;chr&#8217;, &#8216;random&#8217; and &#8216;uuid&#8217;</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53544">[SPARK-53544]</a> Support complex types in PySpark observations</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53654">[SPARK-53654]</a> Support seed parameter in uuid function</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52433">[SPARK-52433]</a> Unify string coercion in createDataFrame</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52694">[SPARK-52694]</a> Add o.a.s.sql.Encoders#udtAPI</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52601">[SPARK-52601]</a> Support primitive types in TransformingEncoder</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52592">[SPARK-52592]</a> Support creating a ps.Series from another ps.Series</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53645">[SPARK-53645]</a> Add skipna parameter to ps.DataFrame.any()</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53295">[SPARK-53295]</a> Enable ANSI mode by default for Pandas API on Spark</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52570">[SPARK-52570]</a> Enable divide-by-zero for numeric rmod with ANSI enabled</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53696">[SPARK-53696]</a> Default to bytes for BinaryType in PySpark</li>
+</ul>
+
+<hr />
+
+<h3 id="connectors">Connectors</h3>
+
+<h4 id="data-source-v2-framework">Data Source V2 framework</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54309">[SPARK-54309]</a> Metrics for DML Operations</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54274">[SPARK-54274]</a> Support MERGE INTO Schema Evolution</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51207">[SPARK-51207]</a> Table Constraints</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52187">[SPARK-52187]</a> Introduce Join pushdown for DSv2</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52109">[SPARK-52109]</a> Add listTableSummaries API to Data Source V2 Table Catalog API</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52551">[SPARK-52551]</a> Add a new v2 Predicate BOOLEAN_EXPRESSION</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54022">[SPARK-54022]</a> Make DSv2 table resolution aware of cached tables</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53924">[SPARK-53924]</a> Reload DSv2 tables in views created using plans on each access</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53074">[SPARK-53074]</a> Avoid partial clustering in SPJ to meet a child&#8217;s required distribution</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54157">[SPARK-54157]</a> Fix refresh of DSv2 tables in Dataset</li>
+</ul>
+
+<h4 id="file-sources">File Sources</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52482">[SPARK-52482]</a> ZStandard support for file source reader</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52582">[SPARK-52582]</a> Improve the memory usage of XML parser</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54220">[SPARK-54220]</a> NullType/VOID/UNKNOWN Type Support in Parquet</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-47618">[SPARK-47618]</a> Use Magic Committer for all S3 buckets by default</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52917">[SPARK-52917]</a> Read support to enable round-trip for binary in xml format</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53633">[SPARK-53633]</a> Reuse InputStream in vectorized Parquet reader</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53535">[SPARK-53535]</a> Fix missing structs always being assumed as nulls</li>
+</ul>
+
+<h4 id="jdbc-and-hive">JDBC and Hive</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53095">[SPARK-53095]</a> Support of Hive Metastore 4.1</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53450">[SPARK-53450]</a> Fix unexpected null fill after converting hive table scan to logical relation</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52823">[SPARK-52823]</a> Support Join pushdown for Oracle connector</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52906">[SPARK-52906]</a> Support Join pushdown for Postgres connector</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52929">[SPARK-52929]</a> Support MySQL and SQLServer connector for DSv2 Join pushdown</li>
+</ul>
+
+<h4 id="python-data-source">Python Data Source</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51919">[SPARK-51919]</a> Allow overwriting statically registered Python Data Source</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51271">[SPARK-51271]</a> Add filter pushdown API to Python Data Sources</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53030">[SPARK-53030]</a> Support Arrow writer for streaming Python data sources</li>
+</ul>
+
+<hr />
+
+<h3 id="udf-user-defined-functions">UDF (User Defined Functions)</h3>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52214">[SPARK-52214]</a> Python Arrow UDF</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52979">[SPARK-52979]</a> Python Arrow UDTF</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53592">[SPARK-53592]</a> Make @udf support vectorized UDF</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-49547">[SPARK-49547]</a> Add iterator of RecordBatch API to applyInArrow</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51619">[SPARK-51619]</a> Support UDT input / output in Arrow-optimized Python UDF</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52959">[SPARK-52959]</a> Support UDT in Arrow-optimized Python UDTF</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52934">[SPARK-52934]</a> Allow yielding scalar values with Arrow-optimized Python UDTF</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52821">[SPARK-52821]</a> Add int→DecimalType pyspark udf return type coercion</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53614">[SPARK-53614]</a> Add Iterator[pandas.DataFrame] support to applyInPandas</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54226">[SPARK-54226]</a> Extend Arrow compression to Pandas UDF</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51814">[SPARK-51814]</a> Introduce new row based transformWithState Python API</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54153">[SPARK-54153]</a> Support python profiler for iterator based UDFs</li>
+</ul>
+
+<hr />
+
+<h3 id="streaming">Streaming</h3>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53736">[SPARK-53736]</a> Real-time Mode in Structured Streaming (Scala stateless support)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52171">[SPARK-52171]</a><a href="https://issues.apache.org/jira/browse/SPARK-51779">[SPARK-51779]</a> Stream-stream join support with virtual column families including support with state data source reader</li>
+</ul>
+
+<h4 id="state-store">State Store</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51745">[SPARK-51745]</a> Revamped lock management with RocksDB state store provider</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53001">[SPARK-53001]</a> Integrate RocksDB Memory Usage with the Unified Memory Manager</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51358">[SPARK-51358]</a> Snapshot lag detection with RocksDB state store provider</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51972">[SPARK-51972]</a> File level checksum verification with RocksDB state store provider</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53332">[SPARK-53332]</a><a href="https://issues.apache.org/jira/browse/SPARK-53333">[SPARK-53333]</a> State data source support with state checkpoint format v2</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54121">[SPARK-54121]</a> Automatic Snapshot Repair for State store</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51097">[SPARK-51097]</a> Re-introduce RocksDB state store&#8217;s last uploaded snapshot version instance metrics</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51940">[SPARK-51940]</a> Add interface for managing streaming checkpoint metadata</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54106">[SPARK-54106]</a> Recheckin State store row checksum implementation</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53794">[SPARK-53794]</a> Add option to limit deletions per maintenance operation associated with rocksdb state provider</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51823">[SPARK-51823]</a> Add config to not persist state store on executors</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52008">[SPARK-52008]</a> Throwing an error if State Stores do not commit at the end of a batch when ForeachBatch is used</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52968">[SPARK-52968]</a> Emit additional state store metrics</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52989">[SPARK-52989]</a> Add explicit close() API to State Store iterators</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54063">[SPARK-54063]</a> Trigger snapshot for next batch when upload lag</li>
+</ul>
+
+<h4 id="other-notable-changes">Other notable changes</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53942">[SPARK-53942]</a> Support changing shuffle partitions in stateless streaming workloads</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53941">[SPARK-53941]</a> Support AQE in stateless streaming workloads</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53103">[SPARK-53103]</a> Throw an error if state directory is not empty when query starts</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51981">[SPARK-51981]</a> Add JobTags to queryStartedEvent</li>
+</ul>
+
+<hr />
+
+<h3 id="spark-connect-framework">Spark Connect Framework</h3>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53484">[SPARK-53484]</a> JDBC Driver for Spark Connect</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51236">[SPARK-51236]</a> ML Connect improvements</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54357">[SPARK-54357]</a> Improve SparkConnect usability and performance</li>
+</ul>
+
+<h4 id="api-coverage">API coverage</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51827">[SPARK-51827]</a> transformWithState</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52448">[SPARK-52448]</a> Add simplified Struct Expression.Literal</li>
+</ul>
+
+<h4 id="other-notable-changes-1">Other notable changes</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53808">[SPARK-53808]</a> Allow to pass optional JVM args to spark-connect-scala-client</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52723">[SPARK-52723]</a> Server side column name validation</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52397">[SPARK-52397]</a> Idempotent ExecutePlan: the second ExecutePlan with same operationId and plan reattaches</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51774">[SPARK-51774]</a> Add GRPC Status code to Python Connect GRPC Exception</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53455">[SPARK-53455]</a> Add CloneSession RPC</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53507">[SPARK-53507]</a> Add breaking change info to errors</li>
+</ul>
+
+<hr />
+
+<h3 id="performance-and-stability">Performance and stability</h3>
+
+<h4 id="query-optimizer-and-execution">Query Optimizer and Execution</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52956">[SPARK-52956]</a> Preserve alias metadata when collapsing projects</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53155">[SPARK-53155]</a> Global lower aggregation should not be replaced with a project</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53124">[SPARK-53124]</a> Prune unnecessary fields from JsonTuple</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53399">[SPARK-53399]</a> Merge Python UDFs</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51831">[SPARK-51831]</a> Column pruning with existsJoin for Datasource V2</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53762">[SPARK-53762]</a> Add date and time conversions simplifier rule to optimizer</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51559">[SPARK-51559]</a> Make max broadcast table size configurable</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52777">[SPARK-52777]</a> Add shuffle cleanup mode configuration for Spark SQL</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52873">[SPARK-52873]</a> Further restrict when SHJ semi/anti join can ignore duplicate keys on the build side</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54354">[SPARK-54354]</a> Fix Spark hanging when there&#8217;s not enough JVM heap memory for broadcast hashed relation</li>
+</ul>
+
+<h4 id="stability">Stability</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51756">[SPARK-51756]</a> checksum-based shuffle stage full retry to avoid incorrect results</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52395">[SPARK-52395]</a> Fast fail when shuffle fetch failure happens</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52924">[SPARK-52924]</a> Support ZSTD_strategy for compression</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-49386">[SPARK-49386]</a> Add memory based thresholds for shuffle spill</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52174">[SPARK-52174]</a> Enable spark.checkpoint.compress by default</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-47547">[SPARK-47547]</a> Add BloomFilter V2 and use it as default</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53999">[SPARK-53999]</a> Native KQueue Transport support on BSD/MacOS</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54009">[SPARK-54009]</a> Support spark.io.mode.default</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54023">[SPARK-54023]</a> Support AUTO IO Mode</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54032">[SPARK-54032]</a> Prefer to use native Netty transports by default</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53562">[SPARK-53562]</a> Limit Arrow batch sizes in applyInArrow and applyInPandas</li>
+</ul>
+
+<h4 id="python-performance">Python Performance</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51127">[SPARK-51127]</a> Kill the Python worker on idle timeout</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54134">[SPARK-54134]</a> Optimize Arrow memory usage</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51688">[SPARK-51688]</a> Use Unix Domain Socket between Python and JVM communication</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52971">[SPARK-52971]</a> Limit idle Python worker queue size</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54344">[SPARK-54344]</a> Kill the worker if flush fails in daemon.py</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52877">[SPARK-52877]</a> Improve Python UDF Arrow Serializer Performance</li>
+</ul>
+
+<hr />
+
+<h3 id="infrastructure">Infrastructure</h3>
+
+<h4 id="build-and-scalapython-upgrades">Build and Scala/Python Upgrades</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53585">[SPARK-53585]</a> Upgrade Scala to 2.13.17</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52561">[SPARK-52561]</a> Upgrade minimum Python version to 3.10</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51169">[SPARK-51169]</a> Add Python 3.14 support in Spark Classic</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52703">[SPARK-52703]</a> Upgrade minimum Python version for Pandas API to 3.10</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52928">[SPARK-52928]</a> Upgrade minimum PyArrow version to 15.0.0</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52844">[SPARK-52844]</a> Update numpy to 1.22</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54269">[SPARK-54269]</a> Upgrade cloudpickle to 3.1.2 for Python 3.14</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54287">[SPARK-54287]</a> Add Python 3.14 support in pyspark-client and pyspark-connect</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52904">[SPARK-52904]</a> Enable convertToArrowArraySafely by default</li>
+</ul>
+
+<h4 id="observability">Observability</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52502">[SPARK-52502]</a> Thread count overview</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52487">[SPARK-52487]</a> Add Stage Submitted Time and Duration to StagePage Detail</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51651">[SPARK-51651]</a> Link the root execution id for current execution if any</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51686">[SPARK-51686]</a> Link the execution IDs of sub-executions for current execution if any</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51629">[SPARK-51629]</a> Add a download link on the ExecutionPage for svg/dot/txt format plans</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51452">[SPARK-51452]</a> Improve Thread dump table search</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51467">[SPARK-51467]</a> Make tables of the environment page filterable</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-51509">[SPARK-51509]</a> Make Spark Master Environment page support filters</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52458">[SPARK-52458]</a> Support spark.eventLog.excludedPatterns</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52456">[SPARK-52456]</a> Lower the minimum limit of spark.eventLog.rolling.maxFileSize</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52914">[SPARK-52914]</a> Support On-Demand Log Loading for rolling logs in History Server</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53631">[SPARK-53631]</a> Optimize memory and perf on SHS bootstrap</li>
+</ul>
+
+<h4 id="debug-ability">Debug-ability</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53975">[SPARK-53975]</a> Add Python worker logging support</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54340">[SPARK-54340]</a> Add a script to enable viztracer on daemon/workers for python udf</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52579">[SPARK-52579]</a> Add periodic traceback dump for Python workers</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53976">[SPARK-53976]</a> Support logging in Pandas/Arrow UDFs</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53977">[SPARK-53977]</a> Support logging in UDTFs</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53978">[SPARK-53978]</a> Support logging in driver-side workers</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53857">[SPARK-53857]</a> Enable messageTemplate propagation to SparkThrowable</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52426">[SPARK-52426]</a> Support redirecting stdout/stderr to logging system</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53157">[SPARK-53157]</a> Decouple driver and executor heartbeat intervals</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-47404">[SPARK-47404]</a> Add configurable size limits for ANTLR DFA cache</li>
+</ul>
+
+<hr />
+
+<h3 id="deployment">Deployment</h3>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53944">[SPARK-53944]</a> Support spark.kubernetes.executor.useDriverPodIP</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53335">[SPARK-53335]</a> Support spark.kubernetes.driver.annotateExitException</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54312">[SPARK-54312]</a> Avoid repeatedly scheduling tasks for SendHeartbeat/WorkDirClean in standalone worker</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-48547">[SPARK-48547]</a> Add opt-in flag to have SparkSubmit automatically call System.exit after user code main method exits</li>
+</ul>
+
+<hr />
+
+<h3 id="version-upgrade-of-java-and-scala-libraries">Version upgrade of Java and Scala libraries</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Library Name</th>
+      <th style="text-align: left">Version Change</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">analyticsaccelerator-s3</td>
+      <td style="text-align: left">-&gt; 1.3.0 (NEW)</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">annotations</td>
+      <td style="text-align: left">17.0.0 -&gt; REMOVED</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">arpack</td>
+      <td style="text-align: left">3.0.3 -&gt; 3.0.4</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">arrow-compression</td>
+      <td style="text-align: left">-&gt; 18.3.0 (NEW)</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">arrow-format</td>
+      <td style="text-align: left">18.1.0 -&gt; 18.3.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">arrow-memory-core</td>
+      <td style="text-align: left">18.1.0 -&gt; 18.3.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">arrow-memory-netty</td>
+      <td style="text-align: left">18.1.0 -&gt; 18.3.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">arrow-memory-netty-buffer-patch</td>
+      <td style="text-align: left">18.1.0 -&gt; 18.3.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">arrow-vector</td>
+      <td style="text-align: left">18.1.0 -&gt; 18.3.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">avro</td>
+      <td style="text-align: left">1.12.0 -&gt; 1.12.1</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">avro-ipc</td>
+      <td style="text-align: left">1.12.0 -&gt; 1.12.1</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">avro-mapred</td>
+      <td style="text-align: left">1.12.0 -&gt; 1.12.1</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">bcprov-jdk18on</td>
+      <td style="text-align: left">1.80 -&gt; REMOVED</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">blas</td>
+      <td style="text-align: left">3.0.3 -&gt; 3.0.4</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">bundle</td>
+      <td style="text-align: left">2.25.53 -&gt; 2.29.52</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">checker-qual</td>
+      <td style="text-align: left">3.43.0 -&gt; REMOVED</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">commons-cli</td>
+      <td style="text-align: left">1.9.0 -&gt; 1.10.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">commons-codec</td>
+      <td style="text-align: left">1.17.2 -&gt; 1.19.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">commons-collections</td>
+      <td style="text-align: left">3.2.2 -&gt; REMOVED</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">commons-collections4</td>
+      <td style="text-align: left">4.4 -&gt; 4.5.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">commons-compress</td>
+      <td style="text-align: left">1.27.1 -&gt; 1.28.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">commons-io</td>
+      <td style="text-align: left">2.18.0 -&gt; 2.21.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">commons-lang3</td>
+      <td style="text-align: left">3.17.0 -&gt; 3.19.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">commons-text</td>
+      <td style="text-align: left">1.13.0 -&gt; 1.14.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">curator-client</td>
+      <td style="text-align: left">5.7.1 -&gt; 5.9.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">curator-framework</td>
+      <td style="text-align: left">5.7.1 -&gt; 5.9.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">curator-recipes</td>
+      <td style="text-align: left">5.7.1 -&gt; 5.9.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">datasketches-java</td>
+      <td style="text-align: left">6.1.1 -&gt; 6.2.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">error_prone_annotations</td>
+      <td style="text-align: left">2.36.0 -&gt; REMOVED</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">failureaccess</td>
+      <td style="text-align: left">1.0.2 -&gt; 1.0.3</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">flatbuffers-java</td>
+      <td style="text-align: left">24.3.25 -&gt; 25.2.10</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">gcs-connector</td>
+      <td style="text-align: left">hadoop3-2.2.26 -&gt; hadoop3-2.2.28</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">guava</td>
+      <td style="text-align: left">33.4.0-jre -&gt; 33.4.8-jre</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">hadoop-aliyun</td>
+      <td style="text-align: left">3.4.1 -&gt; 3.4.2</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">hadoop-annotations</td>
+      <td style="text-align: left">3.4.1 -&gt; 3.4.2</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">hadoop-aws</td>
+      <td style="text-align: left">3.4.1 -&gt; 3.4.2</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">hadoop-azure</td>
+      <td style="text-align: left">3.4.1 -&gt; 3.4.2</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">hadoop-azure-datalake</td>
+      <td style="text-align: left">3.4.1 -&gt; 3.4.2</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">hadoop-client-api</td>
+      <td style="text-align: left">3.4.1 -&gt; 3.4.2</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">hadoop-client-runtime</td>
+      <td style="text-align: left">3.4.1 -&gt; 3.4.2</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">hadoop-cloud-storage</td>
+      <td style="text-align: left">3.4.1 -&gt; 3.4.2</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">hadoop-huaweicloud</td>
+      <td style="text-align: left">3.4.1 -&gt; 3.4.2</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">hadoop-shaded-guava</td>
+      <td style="text-align: left">1.3.0 -&gt; 1.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">icu4j</td>
+      <td style="text-align: left">76.1 -&gt; 77.1</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">j2objc-annotations</td>
+      <td style="text-align: left">3.0.0 -&gt; REMOVED</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">jackson-annotations</td>
+      <td style="text-align: left">2.18.2 -&gt; 2.20</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">jackson-core</td>
+      <td style="text-align: left">2.18.2 -&gt; 2.20.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">jackson-core-asl</td>
+      <td style="text-align: left">1.9.13 -&gt; REMOVED</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">jackson-databind</td>
+      <td style="text-align: left">2.18.2 -&gt; 2.20.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">jackson-dataformat-cbor</td>
+      <td style="text-align: left">2.18.2 -&gt; 2.20.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">jackson-dataformat-yaml</td>
+      <td style="text-align: left">2.18.2 -&gt; 2.20.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">jackson-datatype-jsr310</td>
+      <td style="text-align: left">2.18.2 -&gt; 2.20.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">jackson-mapper-asl</td>
+      <td style="text-align: left">1.9.13 -&gt; REMOVED</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">jackson-module-scala</td>
+      <td style="text-align: left">2.18.2 -&gt; 2.20.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">java-diff-utils</td>
+      <td style="text-align: left">4.15 -&gt; 4.16</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">jcl-over-slf4j</td>
+      <td style="text-align: left">2.0.16 -&gt; 2.0.17</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">jetty-util</td>
+      <td style="text-align: left">11.0.24 -&gt; 11.0.26</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">jetty-util-ajax</td>
+      <td style="text-align: left">11.0.24 -&gt; 11.0.26</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">jline</td>
+      <td style="text-align: left">3.27.1 -&gt; 3.29.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">joda-time</td>
+      <td style="text-align: left">2.13.0 -&gt; 2.14.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">jodd-core</td>
+      <td style="text-align: left">3.5.2 -&gt; REMOVED</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">jts-core</td>
+      <td style="text-align: left">-&gt; 1.20.0 (NEW)</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">jul-to-slf4j</td>
+      <td style="text-align: left">2.0.16 -&gt; 2.0.17</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-client</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-client-api</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-httpclient-vertx</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-model-admissionregistration</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-model-apiextensions</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-model-apps</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-model-autoscaling</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-model-batch</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-model-certificates</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-model-common</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-model-coordination</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-model-core</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-model-discovery</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-model-events</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-model-extensions</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-model-flowcontrol</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-model-gatewayapi</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-model-metrics</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-model-networking</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-model-node</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-model-policy</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-model-rbac</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-model-resource</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-model-scheduling</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">kubernetes-model-storageclass</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">lapack</td>
+      <td style="text-align: left">3.0.3 -&gt; 3.0.4</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">listenablefuture</td>
+      <td style="text-align: left">9999.0-empty-to-avoid-conflict-with-guava -&gt; REMOVED</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">metrics-core</td>
+      <td style="text-align: left">4.2.30 -&gt; 4.2.37</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">metrics-graphite</td>
+      <td style="text-align: left">4.2.30 -&gt; 4.2.37</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">metrics-jmx</td>
+      <td style="text-align: left">4.2.30 -&gt; 4.2.37</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">metrics-json</td>
+      <td style="text-align: left">4.2.30 -&gt; 4.2.37</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">metrics-jvm</td>
+      <td style="text-align: left">4.2.30 -&gt; 4.2.37</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-all</td>
+      <td style="text-align: left">4.1.118.Final -&gt; 4.2.7.Final</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-buffer</td>
+      <td style="text-align: left">4.1.118.Final -&gt; 4.2.7.Final</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-codec</td>
+      <td style="text-align: left">4.1.118.Final -&gt; 4.2.7.Final</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-codec-base</td>
+      <td style="text-align: left">-&gt; 4.2.7.Final (NEW)</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-codec-classes-quic</td>
+      <td style="text-align: left">-&gt; 4.2.7.Final (NEW)</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-codec-compression</td>
+      <td style="text-align: left">-&gt; 4.2.7.Final (NEW)</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-codec-dns</td>
+      <td style="text-align: left">4.1.118.Final -&gt; 4.2.7.Final</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-codec-http</td>
+      <td style="text-align: left">4.1.118.Final -&gt; 4.2.7.Final</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-codec-http2</td>
+      <td style="text-align: left">4.1.118.Final -&gt; 4.2.7.Final</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-codec-http3</td>
+      <td style="text-align: left">-&gt; 4.2.7.Final (NEW)</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-codec-marshalling</td>
+      <td style="text-align: left">-&gt; 4.2.7.Final (NEW)</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-codec-native-quic</td>
+      <td style="text-align: left">-&gt; 4.2.7.Final (NEW)</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-codec-protobuf</td>
+      <td style="text-align: left">-&gt; 4.2.7.Final (NEW)</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-codec-socks</td>
+      <td style="text-align: left">4.1.118.Final -&gt; 4.2.7.Final</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-common</td>
+      <td style="text-align: left">4.1.118.Final -&gt; 4.2.7.Final</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-handler</td>
+      <td style="text-align: left">4.1.118.Final -&gt; 4.2.7.Final</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-handler-proxy</td>
+      <td style="text-align: left">4.1.118.Final -&gt; 4.2.7.Final</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-resolver</td>
+      <td style="text-align: left">4.1.118.Final -&gt; 4.2.7.Final</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-resolver-dns</td>
+      <td style="text-align: left">4.1.118.Final -&gt; 4.2.7.Final</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-tcnative-boringssl-static</td>
+      <td style="text-align: left">2.0.70.Final -&gt; 2.0.74.Final</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-tcnative-classes</td>
+      <td style="text-align: left">2.0.70.Final -&gt; 2.0.74.Final</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-transport</td>
+      <td style="text-align: left">4.1.118.Final -&gt; 4.2.7.Final</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-transport-classes-epoll</td>
+      <td style="text-align: left">4.1.118.Final -&gt; 4.2.7.Final</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-transport-classes-io_uring</td>
+      <td style="text-align: left">-&gt; 4.2.7.Final (NEW)</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-transport-classes-kqueue</td>
+      <td style="text-align: left">4.1.118.Final -&gt; 4.2.7.Final</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-transport-native-epoll</td>
+      <td style="text-align: left">4.1.118.Final -&gt; 4.2.7.Final</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-transport-native-io_uring</td>
+      <td style="text-align: left">-&gt; 4.2.7.Final (NEW)</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-transport-native-kqueue</td>
+      <td style="text-align: left">4.1.118.Final -&gt; 4.2.7.Final</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">netty-transport-native-unix-common</td>
+      <td style="text-align: left">4.1.118.Final -&gt; 4.2.7.Final</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">objenesis</td>
+      <td style="text-align: left">3.3 -&gt; 3.4</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">orc-core</td>
+      <td style="text-align: left">2.1.3 -&gt; 2.2.1</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">orc-mapreduce</td>
+      <td style="text-align: left">2.1.3 -&gt; 2.2.1</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">orc-shims</td>
+      <td style="text-align: left">2.1.3 -&gt; 2.2.1</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">paranamer</td>
+      <td style="text-align: left">2.8 -&gt; 2.8.3</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">parquet-column</td>
+      <td style="text-align: left">1.15.2 -&gt; 1.16.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">parquet-common</td>
+      <td style="text-align: left">1.15.2 -&gt; 1.16.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">parquet-encoding</td>
+      <td style="text-align: left">1.15.2 -&gt; 1.16.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">parquet-format-structures</td>
+      <td style="text-align: left">1.15.2 -&gt; 1.16.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">parquet-hadoop</td>
+      <td style="text-align: left">1.15.2 -&gt; 1.16.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">parquet-jackson</td>
+      <td style="text-align: left">1.15.2 -&gt; 1.16.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">scala-collection-compat</td>
+      <td style="text-align: left">2.7.0 -&gt; REMOVED</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">scala-compiler</td>
+      <td style="text-align: left">2.13.16 -&gt; 2.13.17</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">scala-library</td>
+      <td style="text-align: left">2.13.16 -&gt; 2.13.17</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">scala-reflect</td>
+      <td style="text-align: left">2.13.16 -&gt; 2.13.17</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">scala-xml</td>
+      <td style="text-align: left">2.3.0 -&gt; 2.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">slf4j-api</td>
+      <td style="text-align: left">2.0.16 -&gt; 2.0.17</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">snakeyaml</td>
+      <td style="text-align: left">2.3 -&gt; 2.4</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">snakeyaml-engine</td>
+      <td style="text-align: left">2.9 -&gt; 2.10</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">snappy-java</td>
+      <td style="text-align: left">1.1.10.7 -&gt; 1.1.10.8</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">vertx-auth-common</td>
+      <td style="text-align: left">4.5.12 -&gt; 4.5.14</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">vertx-core</td>
+      <td style="text-align: left">4.5.12 -&gt; 4.5.14</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">vertx-web-client</td>
+      <td style="text-align: left">4.5.12 -&gt; 4.5.14</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">vertx-web-common</td>
+      <td style="text-align: left">4.5.12 -&gt; 4.5.14</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">xbean-asm9-shaded</td>
+      <td style="text-align: left">4.26 -&gt; 4.28</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">zjsonpatch</td>
+      <td style="text-align: left">7.1.0 -&gt; 7.4.0</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">zookeeper</td>
+      <td style="text-align: left">3.9.3 -&gt; 3.9.4</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">zookeeper-jute</td>
+      <td style="text-align: left">3.9.3 -&gt; 3.9.4</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">zstd-jni</td>
+      <td style="text-align: left">1.5.6-9 -&gt; 1.5.7-6</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<h3 id="credits">Credits</h3>
+
+<p>Last but not least, this release would not have been possible without the following contributors:
+aakash-db (Aakash Japi), AbinayaJayaprakasam, ala (Ala Luszczak), aldenlau-db (Alden Lau), alekjarmov (Alek Jarmov), allisonwang-db (Allison Wang), amoghantarkar (Amogh Antarkar), andyl-db, AngersZhuuuu (Angerszhuuuu), AnishMahto, anishshri-db (Anish), anoopj (Anoop Johnson), antban (DS), anton5798 (Anton Lykov), aokolnychyi (Anton Okolnychyi), ashrithb (Ashrith Bandla), asl3 (Amanda Liu), atongpu, attilapiros (Attila Zsolt Piros), austinrwarner (Austin Warner), AveryQi115 (Avery), beliefer (Jiaan Geng), benrobby, bersprockets (Bruce Robbins), bjornjorgensen (Bjørn Jørgensen), bogao007 (Bo Gao), brkyvz (Burak Yavuz), calilisantos (Calili Santos), carlotran4 (Carlo Tran), cashmand (David Cashman), cboumalh (Chris Boumalhab), changgyoopark-db, chenhao-db, Chhida, chirag-s-db (Chirag Singh), cloud-fan (Wenchen Fan), cnauroth (Chris Nauroth), cookiedough77, craiuconstantintiberiu (Constantin-Tiberiu Craiu), cravani (Chiran Ravani), cty123 (cty), cxzl25, cyb70289 (Yibo Cai), davidm-db (David Milicevic), dengziming (dengziming), DenineLu (Deninelu), dillitz (Robert Dillitz), djspiewak (Daniel Spiewak), dongjoon-hyun (Dongjoon Hyun), drexler-sky, dtenedor (Daniel Tenedorio), dusantism-db (Dušan Tišma), dylanwong250, eason-yuchen-liu (Yuchen Liu), eejbyfeldt (Emil Ejbyfeldt), efaracci018, Emma-82, EnricoMi (Enrico Minack), EricGao888 (Eric Gao), ericm-db (Eric Marnadi), eschcam (Cameron), EugeneYushin (Eugen), fanyue-xia (Chloe Xia), fartzy (Mike Artz), fe2s (Oleksii Diagiliev), ForVic (Victor Sunderland), francesco-camaione (Francesco Camaione), fusheng9399 (fusheng), ganeshashree (Ganesha Shreedhara), gaogaotiantian (Tian Gao), gemelen (Denis Pyshev), gene-db (Gene Pang), gengliangwang (Gengliang Wang), gerashegalov (Gera Shegalov), gjxdxh (Lingkai Kong), grundprinzip (Martin Grund), haoyangeng-db, harshmotw-db (Harsh Motwani), HeartSaVioR (Jungtaek Lim), HendrikHuebner (Hendrik Hübner), heyihong (Yihong He), huangxiaopingRD (huangxiaoping), huanliwang-db (Huanli Wang), huaxingao (Huaxin Gao), hvanhovell (Herman van Hovell), HyukjinKwon (Hyukjin Kwon), ignitz (Yuri Niitsuma), ilicmarkodb (Marko Ilić), imarkowitz (Ian Markowitz), ishnagy (Ish Nagy), itholic (Haejoon Lee), ivoson (Tengfei Huang), jaceklaskowski (Jacek Laskowski), jackierwzhang, jackylee-ch (jackylee), james-willis (James Willis), jayantdb (Jayant Sharma), jerrypeng (Boyang Jerry Peng), JiaqiWang18 (Jacky Wang), jiateoh (Jason Teoh), JiexingLi, Jimvin (Jim Halfpenny), jingz-db (Jing Zhan), jinkachy (chenhongyu), jiwen624 (Eric Yang), jonathan-albrecht-ibm (Jonathan Albrecht), jonmio (Jon Mio), jonnycomes (Jonny Comes), jorenham (Joren Hammudoglu), JoshRosen (Josh Rosen), juliuszsompolski (Juliusz Sompolski), karuppayya (Karuppayya), kelvinjian-db (Kelvin Jiang), kepler62f, khakhlyuk (Alex Khakhlyuk), Kimahriman (Adam Binford), kirisakow (Kiril Isakov), ksbeyer, Last-remote11 (Sung Dong Kim), liuzqt (Ziqi Liu), liviazhu (Livia Zhu), liviazhu-db, longvu-db (Thang Long Vu), LucaCanali (Luca Canali), LuciferYang (YangJie), ManosGEM (Manolis Gemeliaris), manuzhang (Manu Zhang), max2718281 (Maxime Xu), MaxGekk (Maxim Gekk), mbrukman (Misha Brukman), micheal-o (Babatunde Micheal Okutubo), mihailoale-db (Mihailo Aleksic), mihailom-db, mihailotim-db (Mihailo Timotic), mikhailnik-db (Mikhail NIkoliukin), miland-db (Milan Dankovic), milastdbx (Milan Stefanovic), milosstojanovic (Milos Stojanovic), morvenhuang, mzhang (Matt Zhang), nagaarjun-p (Nagaarjun P), Ngone51 (wuyi), nija-at (Niranjan), niklasmohrin (Niklas Mohrin), nikola-jovicevic-db, Nishanth28, Pajaraja (Pavle Martinovic), pan3793 (Cheng Pan), panbingkun (panbingkun), pasar6987, PetarVasiljevic-DB, peter-toth (Peter Toth), petern48 (Peter Nguyen), peterpashkin, PHILO-HE, pjfanning (PJ Fanning), pranavdev022 (Pranav Dev), prathit06 (Prathit malik), qiyuandong-db (Qiyuan Dong), richardc-db, robreeves (Rob Reeves), RocMarshal (Yuepeng Pan), Rolfdv (Rolf de Vries), sandip-db (Sandip Agarwala), sarutak (Kousuke Saruta), SCHJonathan (Jonathan Chang), senthh, shardulm94 (Shardul Mahadik), shujingyang-db (Shujing Yang), sigmod (Yingyi Bu), siying (Siying Dong), srielau (Serge Rielau), sririshindra (Rishi), sryza (Sandy Ryza), stefankandic (Stefan Kandic), steveloughran (Steve Loughran), steven-aerts (Steven Aerts), stevomitric (Stevo Mitric), summaryzb (summaryzb), sunchao (Chao Sun), Surbhi-Vijay, szehon-ho (Szehon Ho), TeodorDjelic (Teodor Djelic), the-sakthi (Sakthi), thejdeep (Thejdeep Gudivada), timarmstrong (Tim Armstrong), tomscut (litao), TongWei1105 (TongWei), trsigg (Tynan Sigg), ueshin (Takuya UESHIN), uros-db (Uros Bojanic), uros7251brick, urosstan-db (Uros Stankovic), vanja-vujovic-db, vicennial (Venkata Sai Akhil Gudesa), viirya (Liang-Chi Hsieh), viktorluc-db (Viktor Lučić), VindhyaG, vinodkc (Vinod KC), vladimirg-db (Vladimir Golubev), vrmorusu (Vamshidhar Morusu), vrozov (Vlad Rozov), WangGuangxin, wangyum (Yuming Wang), wankunde (wankun), wayneguow (Wei Guo), wecharyu (Wechar Yu), WeichenXu123 (WeichenXu), wengh (Haoyu Weng), wForget (Zhen Wang), williamhyun (William Hyun), WweiL (Wei Liu), xi-db (Xi Lyu), xianzhe-databricks (Xianzhe Ma), xiaonanyang-db (Xiaonan Yang), xinrong-meng (Xinrong Meng), xu20160924 (John Xu), xupefei (Paddy Xu), xuyu-co, yaooqinn (Kent Yao), yeshengm (Yesheng Ma), yhuang-db (Yuchuan Huang), Yicong-Huang (Yicong Huang), yuexing (Yue), yumingxuanguo-db (Yumingxuan Guo), zecookiez (Zeyu Chen), zeruibao (Zerui Bao), zhengruifeng (Ruifeng Zheng), zhipengmao-db (Zhipeng Mao), zhixingheyi-tian, zhztheplayer (Hongze Zhang), zifeif2 (Zifei Feng), ZiyaZa (Ziya Mukhtarov), zml1206 (Mingliang Zhu)</p>
 
 
 <p>
