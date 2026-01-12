@@ -471,7 +471,7 @@ To create an official release, PMC members must configure GitHub Actions Secrets
 - `ASF_PASSWORD`: The password for your ASF account.
 - `ASF_NEXUS_TOKEN`: ASF Nexus API token associated with your ASF account.
   Can be found in https://repository.apache.org/#profile;User%20Token
-  It is written in `<password>...</password>`.
+  It is written in `<password>...</password>` and ignore `User Code`.
 - `GPG_PRIVATE_KEY`: Your GPG private key, exported with:
   `gpg --armor --export-secret-keys ABCD1234 > private.key`.
   Make sure this key is registered with a public key server. See also [Preparing your setup](#preparing-your-setup).
