@@ -100,13 +100,14 @@ The branch is cut every January and July, so feature ("minor") releases occur ab
 Hence, Spark 2.3.0 would generally be released about 6 months after 2.2.0. Maintenance releases happen as needed
 in between feature releases. Major releases do not happen according to a fixed schedule.
 
-<h3>Spark 4.1 release window</h3>
+<h3>Spark 4.2 release window</h3>
 
 | Date  | Event |
 | ----- | ----- |
-| November 1st 2025 | Code freeze. Release branch cut.|
-| November 15th 2025 | QA period. Focus on bug fixes, tests, stability and docs. Generally, no new features merged.|
-| November 23th 2025 | Release candidates (RC), voting, etc. until final release passes|
+| July 15th 2026 | Code freeze. Release branch cut.|
+| Late July 2026 | QA period. Focus on bug fixes, tests, stability and docs. Generally, no new features merged.|
+| August 2026 | Release candidates (RC), voting, etc. until final release passes|
+
 
 <h2>Maintenance releases and EOL</h2>
 
