@@ -108,7 +108,6 @@ in between feature releases. Major releases do not happen according to a fixed s
 | Late July 2026 | QA period. Focus on bug fixes, tests, stability and docs. Generally, no new features merged.|
 | August 2026 | Release candidates (RC), voting, etc. until final release passes|
 
-
 <h2>Maintenance releases and EOL</h2>
 
 Feature release branches will, generally, be maintained with bug fix releases for a period of 18 months. 
