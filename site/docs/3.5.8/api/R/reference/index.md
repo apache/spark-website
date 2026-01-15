@@ -1,0 +1,547 @@
+# Package index
+
+## Distributed Data Frame
+
+<!-- end list -->
+
+  - `SparkDataFrame-class` : S4 class that represents a SparkDataFrame
+  - `groupedData()` : S4 class that represents a GroupedData
+  - `agg()` `summarize()` : summarize
+  - `arrange()` `orderBy(<SparkDataFrame>,<characterOrColumn>)` :
+    Arrange Rows by Variables
+  - `approxQuantile(<SparkDataFrame>,<character>,<numeric>,<numeric>)` :
+    Calculates the approximate quantiles of numerical columns of a
+    SparkDataFrame
+  - `as.data.frame()` : Download data from a SparkDataFrame into a R
+    data.frame
+  - `attach(<SparkDataFrame>)` : Attach SparkDataFrame to R search path
+  - `broadcast()` : broadcast
+  - `cache()` : Cache
+  - `cacheTable()` : Cache Table
+  - `checkpoint()` : checkpoint
+  - `collect()` : Collects all the elements of a SparkDataFrame and
+    coerces them into an R data.frame.
+  - `coltypes()` `` `coltypes<-`() `` : coltypes
+  - `colnames()` `` `colnames<-`() `` `columns()`
+    `names(<SparkDataFrame>)` `` `names<-`(<SparkDataFrame>) `` : Column
+    Names of SparkDataFrame
+  - `count()` `n()` : Count
+  - `createDataFrame()` `as.DataFrame()` : Create a SparkDataFrame
+  - `createExternalTable()` : (Deprecated) Create an external table
+  - `createOrReplaceTempView()` : Creates a temporary view using the
+    given name.
+  - `createTable()` : Creates a table based on the dataset in a data
+    source
+  - `crossJoin(<SparkDataFrame>,<SparkDataFrame>)` : CrossJoin
+  - `crosstab(<SparkDataFrame>,<character>,<character>)` : Computes a
+    pair-wise frequency table of the given columns
+  - `cube()` : cube
+  - `describe()` : describe
+  - `distinct()` `unique(<SparkDataFrame>)` : Distinct
+  - `dim(<SparkDataFrame>)` : Returns the dimensions of SparkDataFrame
+  - `drop()` : drop
+  - `dropDuplicates()` : dropDuplicates
+  - `dropna()` `na.omit()` `fillna()` : A set of SparkDataFrame
+    functions working with NA values
+  - `dtypes()` : DataTypes
+  - `except()` : except
+  - `exceptAll()` : exceptAll
+  - `explain()` : Explain
+  - `filter()` `where()` : Filter
+  - `getNumPartitions(<SparkDataFrame>)` : getNumPartitions
+  - `group_by()` `groupBy()` : GroupBy
+  - `head(<SparkDataFrame>)` : Head
+  - `hint()` : hint
+  - `histogram(<SparkDataFrame>,<characterOrColumn>)` : Compute
+    histogram statistics for given column
+  - `insertInto()` : insertInto
+  - `intersect()` : Intersect
+  - `intersectAll()` : intersectAll
+  - `isLocal()` : isLocal
+  - `isStreaming()` : isStreaming
+  - `join(<SparkDataFrame>,<SparkDataFrame>)` : Join
+  - `limit()` : Limit
+  - `localCheckpoint()` : localCheckpoint
+  - `merge()` : Merges two data frames
+  - `mutate()` `transform()` : Mutate
+  - `ncol(<SparkDataFrame>)` : Returns the number of columns in a
+    SparkDataFrame
+  - `count(<SparkDataFrame>)` `nrow(<SparkDataFrame>)` : Returns the
+    number of rows in a SparkDataFrame
+  - `orderBy()` : Ordering Columns in a WindowSpec
+  - `persist()` : Persist
+  - `pivot(<GroupedData>,<character>)` : Pivot a column of the
+    GroupedData and perform the specified aggregation.
+  - `printSchema()` : Print Schema of a SparkDataFrame
+  - `randomSplit()` : randomSplit
+  - `rbind()` : Union two or more SparkDataFrames
+  - `rename()` `withColumnRenamed()` : rename
+  - `registerTempTable()` : (Deprecated) Register Temporary Table
+  - `repartition()` : Repartition
+  - `repartitionByRange()` : Repartition by range
+  - `rollup()` : rollup
+  - `sample()` `sample_frac()` : Sample
+  - `sampleBy()` : Returns a stratified sample without replacement
+  - `saveAsTable()` : Save the contents of the SparkDataFrame to a data
+    source as a table
+  - `schema()` : Get schema object
+  - `select()` `` `$`(<SparkDataFrame>) `` `` `$<-`(<SparkDataFrame>) ``
+    : Select
+  - `selectExpr()` : SelectExpr
+  - `show(<Column>)` `show(<GroupedData>)` `show(<SparkDataFrame>)`
+    `show(<WindowSpec>)` `show(<StreamingQuery>)` : show
+  - `showDF()` : showDF
+  - `str(<SparkDataFrame>)` : Compactly display the structure of a
+    dataset
+  - `storageLevel(<SparkDataFrame>)` : StorageLevel
+  - `subset()` `` `[[`(<SparkDataFrame>,<numericOrcharacter>) ``
+    `` `[[<-`(<SparkDataFrame>,<numericOrcharacter>) ``
+    `` `[`(<SparkDataFrame>) `` : Subset
+  - `summary()` : summary
+  - `take()` : Take the first NUM rows of a SparkDataFrame and return
+    the results as a R data.frame
+  - `tableToDF()` : Create a SparkDataFrame from a SparkSQL table or
+    view
+  - `toJSON(<SparkDataFrame>)` : toJSON
+  - `union()` : Return a new SparkDataFrame containing the union of rows
+  - `unionAll()` : Return a new SparkDataFrame containing the union of
+    rows.
+  - `unionByName()` : Return a new SparkDataFrame containing the union
+    of rows, matched by column names
+  - `unpersist()` : Unpersist
+  - `unpivot()`
+    `melt(<SparkDataFrame>,<ANY>,<ANY>,<character>,<character>)` :
+    Unpivot a DataFrame from wide format to long format.
+  - `with()` : Evaluate a R expression in an environment constructed
+    from a SparkDataFrame
+  - `withColumn()` : WithColumn
+
+## Data import and export
+
+<!-- end list -->
+
+  - `read.df()` `loadDF()` : Load a SparkDataFrame
+  - `read.jdbc()` : Create a SparkDataFrame representing the database
+    table accessible via JDBC URL
+  - `read.json()` : Create a SparkDataFrame from a JSON file.
+  - `read.orc()` : Create a SparkDataFrame from an ORC file.
+  - `read.parquet()` : Create a SparkDataFrame from a Parquet file.
+  - `read.text()` : Create a SparkDataFrame from a text file.
+  - `write.df()` `saveDF()` : Save the contents of SparkDataFrame to a
+    data source.
+  - `write.jdbc()` : Save the content of SparkDataFrame to an external
+    database table via JDBC.
+  - `write.json()` : Save the contents of SparkDataFrame as a JSON file
+  - `write.orc()` : Save the contents of SparkDataFrame as an ORC file,
+    preserving the schema.
+  - `write.parquet()` : Save the contents of SparkDataFrame as a Parquet
+    file, preserving the schema.
+  - `write.text()` : Save the content of SparkDataFrame in a text file
+    at the specified path.
+
+## Column functions
+
+<!-- end list -->
+
+  - `approx_count_distinct()` `approxCountDistinct()` `collect_list()`
+    `collect_set()` `count_distinct()` `countDistinct()`
+    `grouping_bit()` `grouping_id()` `kurtosis()` `max_by()` `min_by()`
+    `n_distinct()` `percentile_approx()` `product()` `sd()` `skewness()`
+    `stddev()` `std()` `stddev_pop()` `stddev_samp()` `sum_distinct()`
+    `sumDistinct()` `var()` `variance()` `var_pop()` `var_samp()`
+    `max(<Column>)` `mean(<Column>)` `min(<Column>)` `sum(<Column>)` :
+    Aggregate functions for Column operations
+  - `from_avro()` `to_avro()` : Avro processing functions for Column
+    operations
+  - `array_aggregate()` `array_contains()` `array_distinct()`
+    `array_except()` `array_exists()` `array_forall()` `array_filter()`
+    `array_intersect()` `array_join()` `array_max()` `array_min()`
+    `array_position()` `array_remove()` `array_repeat()` `array_sort()`
+    `array_transform()` `arrays_overlap()` `array_union()`
+    `arrays_zip()` `arrays_zip_with()` `concat()` `element_at()`
+    `explode()` `explode_outer()` `flatten()` `from_json()` `from_csv()`
+    `map_concat()` `map_entries()` `map_filter()` `map_from_arrays()`
+    `map_from_entries()` `map_keys()` `map_values()` `map_zip_with()`
+    `posexplode()` `posexplode_outer()` `reverse()` `schema_of_csv()`
+    `schema_of_json()` `shuffle()` `size()` `slice()` `sort_array()`
+    `transform_keys()` `transform_values()` `to_json()` `to_csv()` :
+    Collection functions for Column operations
+  - `add_months()` `datediff()` `date_add()` `date_format()`
+    `date_sub()` `from_utc_timestamp()` `months_between()` `next_day()`
+    `to_utc_timestamp()` : Date time arithmetic functions for Column
+    operations
+  - `bin()` `bround()` `cbrt()` `ceil()` `conv()` `cot()` `csc()`
+    `hex()` `hypot()` `ln()` `pmod()` `rint()` `sec()` `shiftLeft()`
+    `shiftleft()` `shiftRight()` `shiftright()` `shiftRightUnsigned()`
+    `shiftrightunsigned()` `signum()` `degrees()` `toDegrees()`
+    `radians()` `toRadians()` `unhex()` `width_bucket()` `abs(<Column>)`
+    `acos(<Column>)` `acosh(<Column>)` `asin(<Column>)`
+    `asinh(<Column>)` `atan(<Column>)` `atanh(<Column>)`
+    `ceiling(<Column>)` `cos(<Column>)` `cosh(<Column>)` `exp(<Column>)`
+    `expm1(<Column>)` `factorial(<Column>)` `floor(<Column>)`
+    `log(<Column>)` `log10(<Column>)` `log1p(<Column>)` `log2(<Column>)`
+    `round(<Column>)` `sign(<Column>)` `sin(<Column>)` `sinh(<Column>)`
+    `sqrt(<Column>)` `tan(<Column>)` `tanh(<Column>)` `atan2(<Column>)`
+    : Math functions for Column operations
+  - `assert_true()` `crc32()` `hash()` `md5()` `raise_error()` `sha1()`
+    `sha2()` `xxhash64()` : Miscellaneous functions for Column
+    operations
+  - `array_to_vector()` `vector_to_array()` : ML functions for Column
+    operations
+  - `when()` `bitwise_not()` `bitwiseNOT()` `create_array()`
+    `create_map()` `expr()` `greatest()` `input_file_name()` `isnan()`
+    `least()` `lit()` `monotonically_increasing_id()` `nanvl()`
+    `negate()` `negative()` `positive()` `rand()` `randn()`
+    `spark_partition_id()` `struct()` `coalesce(<Column>)`
+    `is.nan(<Column>)` `ifelse(<Column>)` : Non-aggregate functions for
+    Column operations
+  - `ascii()` `base64()` `bit_length()` `concat_ws()` `decode()`
+    `encode()` `format_number()` `format_string()` `initcap()` `instr()`
+    `levenshtein()` `locate()` `lower()` `lpad()` `ltrim()`
+    `octet_length()` `overlay()` `regexp_extract()` `regexp_replace()`
+    `repeat_string()` `rpad()` `rtrim()` `split_string()` `soundex()`
+    `substring_index()` `translate()` `trim()` `unbase64()` `upper()`
+    `length(<Column>)` : String functions for Column operations
+  - `cume_dist()` `dense_rank()` `lag()` `lead()` `nth_value()`
+    `ntile()` `percent_rank()` `rank()` `row_number()` : Window
+    functions for Column operations
+  - `alias(<Column>)` `alias(<SparkDataFrame>)` : alias
+  - `asc()` `asc_nulls_first()` `asc_nulls_last()` `contains()` `desc()`
+    `desc_nulls_first()` `desc_nulls_last()` `getField()` `getItem()`
+    `isNaN()` `isNull()` `isNotNull()` `like()` `rlike()` `ilike()` : A
+    set of operations working with SparkDataFrame columns
+  - `avg()` : avg
+  - `between()` : between
+  - `cast()` : Casts the column to a different data type.
+  - `column()` : S4 class that represents a SparkDataFrame column
+  - `coalesce()` : Coalesce
+  - `corr()` : corr
+  - `cov()` `covar_samp()` `covar_pop()` : cov
+  - `dropFields()` : dropFields
+  - `endsWith()` : endsWith
+  - `first()` : Return the first row of a SparkDataFrame
+  - `last()` : last
+  - `not()` `` `!`(<Column>) `` : \!
+  - `otherwise()` : otherwise
+  - `startsWith()` : startsWith
+  - `substr(<Column>)` : substr
+  - `current_date()` `current_timestamp()` `date_trunc()` `dayofmonth()`
+    `dayofweek()` `dayofyear()` `from_unixtime()` `hour()` `last_day()`
+    `make_date()` `minute()` `month()` `quarter()` `second()`
+    `timestamp_seconds()` `to_date()` `to_timestamp()`
+    `unix_timestamp()` `weekofyear()` `window()` `year()`
+    `trunc(<Column>)` : Date time functions for Column operations
+  - `withField()` : withField
+  - `over()` : over
+  - `predict()` : Makes predictions from a MLlib model
+  - `partitionBy()` : partitionBy
+  - `rangeBetween()` : rangeBetween
+  - `rowsBetween()` : rowsBetween
+  - `windowOrderBy()` : windowOrderBy
+  - `windowPartitionBy()` : windowPartitionBy
+  - `WindowSpec-class` : S4 class that represents a WindowSpec
+  - `` `%in%`(<Column>) `` : Match a column with given values.
+  - `` `%<=>%` `` : %\<=\>%
+
+## Schema Definitions
+
+<!-- end list -->
+
+  - `structField()` : structField
+  - `structType()` : structType
+
+## Structured Streaming
+
+<!-- end list -->
+
+  - `StreamingQuery-class` : S4 class that represents a StreamingQuery
+  - `awaitTermination()` : awaitTermination
+  - `isActive()` : isActive
+  - `queryName()` : queryName
+  - `lastProgress()` : lastProgress
+  - `read.stream()` : Load a streaming SparkDataFrame
+  - `status()` : status
+  - `stopQuery()` : stopQuery
+  - `withWatermark()` : withWatermark
+  - `write.stream()` : Write the streaming SparkDataFrame to a data
+    source.
+
+## Spark MLlib
+
+MLlib is Spark’s machine learning (ML) library
+
+<!-- end list -->
+
+  - `AFTSurvivalRegressionModel-class` : S4 class that represents a
+    AFTSurvivalRegressionModel
+  - `ALSModel-class` : S4 class that represents an ALSModel
+  - `BisectingKMeansModel-class` : S4 class that represents a
+    BisectingKMeansModel
+  - `DecisionTreeClassificationModel-class` : S4 class that represents a
+    DecisionTreeClassificationModel
+  - `DecisionTreeRegressionModel-class` : S4 class that represents a
+    DecisionTreeRegressionModel
+  - `FMClassificationModel-class` : S4 class that represents a
+    FMClassificationModel
+  - `FMRegressionModel-class` : S4 class that represents a
+    FMRegressionModel
+  - `FPGrowthModel-class` : S4 class that represents a FPGrowthModel
+  - `GBTClassificationModel-class` : S4 class that represents a
+    GBTClassificationModel
+  - `GBTRegressionModel-class` : S4 class that represents a
+    GBTRegressionModel
+  - `GaussianMixtureModel-class` : S4 class that represents a
+    GaussianMixtureModel
+  - `GeneralizedLinearRegressionModel-class` : S4 class that represents
+    a generalized linear model
+  - `glm(<formula>,<ANY>,<SparkDataFrame>)` : Generalized Linear Models
+    (R-compliant)
+  - `IsotonicRegressionModel-class` : S4 class that represents an
+    IsotonicRegressionModel
+  - `KMeansModel-class` : S4 class that represents a KMeansModel
+  - `KSTest-class` : S4 class that represents an KSTest
+  - `LDAModel-class` : S4 class that represents an LDAModel
+  - `LinearRegressionModel-class` : S4 class that represents a
+    LinearRegressionModel
+  - `LinearSVCModel-class` : S4 class that represents an LinearSVCModel
+  - `LogisticRegressionModel-class` : S4 class that represents an
+    LogisticRegressionModel
+  - `MultilayerPerceptronClassificationModel-class` : S4 class that
+    represents a MultilayerPerceptronClassificationModel
+  - `NaiveBayesModel-class` : S4 class that represents a NaiveBayesModel
+  - `PowerIterationClustering-class` : S4 class that represents a
+    PowerIterationClustering
+  - `PrefixSpan-class` : S4 class that represents a PrefixSpan
+  - `RandomForestClassificationModel-class` : S4 class that represents a
+    RandomForestClassificationModel
+  - `RandomForestRegressionModel-class` : S4 class that represents a
+    RandomForestRegressionModel
+  - `fitted()` : Get fitted result from a k-means model
+  - `freqItems(<SparkDataFrame>,<character>)` : Finding frequent items
+    for columns, possibly with false positives
+  - `spark.als()` `summary(<ALSModel>)` `predict(<ALSModel>)`
+    `write.ml(<ALSModel>,<character>)` : Alternating Least Squares (ALS)
+    for Collaborative Filtering
+  - `spark.bisectingKmeans()` `summary(<BisectingKMeansModel>)`
+    `predict(<BisectingKMeansModel>)` `fitted(<BisectingKMeansModel>)`
+    `write.ml(<BisectingKMeansModel>,<character>)` : Bisecting K-Means
+    Clustering Model
+  - `spark.decisionTree()` `summary(<DecisionTreeRegressionModel>)`
+    `print(<summary.DecisionTreeRegressionModel>)`
+    `summary(<DecisionTreeClassificationModel>)`
+    `print(<summary.DecisionTreeClassificationModel>)`
+    `predict(<DecisionTreeRegressionModel>)`
+    `predict(<DecisionTreeClassificationModel>)`
+    `write.ml(<DecisionTreeRegressionModel>,<character>)`
+    `write.ml(<DecisionTreeClassificationModel>,<character>)` : Decision
+    Tree Model for Regression and Classification
+  - `spark.fmClassifier()` `summary(<FMClassificationModel>)`
+    `predict(<FMClassificationModel>)`
+    `write.ml(<FMClassificationModel>,<character>)` : Factorization
+    Machines Classification Model
+  - `spark.fmRegressor()` `summary(<FMRegressionModel>)`
+    `predict(<FMRegressionModel>)`
+    `write.ml(<FMRegressionModel>,<character>)` : Factorization Machines
+    Regression Model
+  - `spark.fpGrowth()` `spark.freqItemsets()` `spark.associationRules()`
+    `predict(<FPGrowthModel>)` `write.ml(<FPGrowthModel>,<character>)` :
+    FP-growth
+  - `spark.gaussianMixture()` `summary(<GaussianMixtureModel>)`
+    `predict(<GaussianMixtureModel>)`
+    `write.ml(<GaussianMixtureModel>,<character>)` : Multivariate
+    Gaussian Mixture Model (GMM)
+  - `spark.gbt()` `summary(<GBTRegressionModel>)`
+    `print(<summary.GBTRegressionModel>)`
+    `summary(<GBTClassificationModel>)`
+    `print(<summary.GBTClassificationModel>)`
+    `predict(<GBTRegressionModel>)` `predict(<GBTClassificationModel>)`
+    `write.ml(<GBTRegressionModel>,<character>)`
+    `write.ml(<GBTClassificationModel>,<character>)` : Gradient Boosted
+    Tree Model for Regression and Classification
+  - `spark.glm()` `summary(<GeneralizedLinearRegressionModel>)`
+    `print(<summary.GeneralizedLinearRegressionModel>)`
+    `predict(<GeneralizedLinearRegressionModel>)`
+    `write.ml(<GeneralizedLinearRegressionModel>,<character>)` :
+    Generalized Linear Models
+  - `spark.isoreg()` `summary(<IsotonicRegressionModel>)`
+    `predict(<IsotonicRegressionModel>)`
+    `write.ml(<IsotonicRegressionModel>,<character>)` : Isotonic
+    Regression Model
+  - `spark.kmeans()` `summary(<KMeansModel>)` `predict(<KMeansModel>)`
+    `write.ml(<KMeansModel>,<character>)` : K-Means Clustering Model
+  - `spark.kstest()` `summary(<KSTest>)` `print(<summary.KSTest>)` :
+    (One-Sample) Kolmogorov-Smirnov Test
+  - `spark.lda()` `spark.posterior()` `spark.perplexity()`
+    `summary(<LDAModel>)` `write.ml(<LDAModel>,<character>)` : Latent
+    Dirichlet Allocation
+  - `spark.lm()` `summary(<LinearRegressionModel>)`
+    `predict(<LinearRegressionModel>)`
+    `write.ml(<LinearRegressionModel>,<character>)` : Linear Regression
+    Model
+  - `spark.logit()` `summary(<LogisticRegressionModel>)`
+    `predict(<LogisticRegressionModel>)`
+    `write.ml(<LogisticRegressionModel>,<character>)` : Logistic
+    Regression Model
+  - `spark.mlp()` `summary(<MultilayerPerceptronClassificationModel>)`
+    `predict(<MultilayerPerceptronClassificationModel>)`
+    `write.ml(<MultilayerPerceptronClassificationModel>,<character>)` :
+    Multilayer Perceptron Classification Model
+  - `spark.naiveBayes()` `summary(<NaiveBayesModel>)`
+    `predict(<NaiveBayesModel>)`
+    `write.ml(<NaiveBayesModel>,<character>)` : Naive Bayes Models
+  - `spark.assignClusters()` : PowerIterationClustering
+  - `spark.findFrequentSequentialPatterns()` : PrefixSpan
+  - `spark.randomForest()` `summary(<RandomForestRegressionModel>)`
+    `print(<summary.RandomForestRegressionModel>)`
+    `summary(<RandomForestClassificationModel>)`
+    `print(<summary.RandomForestClassificationModel>)`
+    `predict(<RandomForestRegressionModel>)`
+    `predict(<RandomForestClassificationModel>)`
+    `write.ml(<RandomForestRegressionModel>,<character>)`
+    `write.ml(<RandomForestClassificationModel>,<character>)` : Random
+    Forest Model for Regression and Classification
+  - `spark.survreg()` `summary(<AFTSurvivalRegressionModel>)`
+    `predict(<AFTSurvivalRegressionModel>)`
+    `write.ml(<AFTSurvivalRegressionModel>,<character>)` : Accelerated
+    Failure Time (AFT) Survival Regression Model
+  - `spark.svmLinear()` `predict(<LinearSVCModel>)`
+    `summary(<LinearSVCModel>)` `write.ml(<LinearSVCModel>,<character>)`
+    : Linear SVM Model
+  - `read.ml()` : Load a fitted MLlib model from the input path.
+  - `write.ml()` : Saves the MLlib model to the input path
+
+## Distributed R
+
+<!-- end list -->
+
+  - `dapply()` : dapply
+  - `dapplyCollect()` : dapplyCollect
+  - `gapply()` : gapply
+  - `gapplyCollect()` : gapplyCollect
+  - `spark.lapply()` : Run a function over a list of elements,
+    distributing the computations with Spark
+
+## SQL Catalog
+
+<!-- end list -->
+
+  - `currentCatalog()` : Returns the current default catalog
+  - `currentDatabase()` : Returns the current default database
+  - `databaseExists()` : Checks if the database with the specified name
+    exists.
+  - `dropTempTable()` : (Deprecated) Drop Temporary Table
+  - `dropTempView()` : Drops the temporary view with the given view name
+    in the catalog.
+  - `functionExists()` : Checks if the function with the specified name
+    exists.
+  - `getDatabase()` : Get the database with the specified name
+  - `getFunc()` : Get the function with the specified name
+  - `getTable()` : Get the table with the specified name
+  - `listCatalogs()` : Returns a list of catalog available
+  - `listColumns()` : Returns a list of columns for the given table/view
+    in the specified database
+  - `listDatabases()` : Returns a list of databases available
+  - `listFunctions()` : Returns a list of functions registered in the
+    specified database
+  - `listTables()` : Returns a list of tables or views in the specified
+    database
+  - `refreshByPath()` : Invalidates and refreshes all the cached data
+    and metadata for SparkDataFrame containing path
+  - `refreshTable()` : Invalidates and refreshes all the cached data and
+    metadata of the given table
+  - `recoverPartitions()` : Recovers all the partitions in the directory
+    of a table and update the catalog
+  - `setCurrentCatalog()` : Sets the current default catalog
+  - `setCurrentDatabase()` : Sets the current default database
+  - `tableExists()` : Checks if the table with the specified name
+    exists.
+  - `tableNames()` : Table Names
+  - `tables()` : Tables
+  - `uncacheTable()` : Uncache Table
+
+## Spark Session and Context
+
+<!-- end list -->
+
+  - `cancelJobGroup()` : Cancel active jobs for the specified group
+
+  - `cancelJobsWithTag()` : Cancel active jobs that have the specified
+    tag.
+
+  - `clearCache()` : Clear Cache
+
+  - `clearJobGroup()` : Clear current job group ID and its description
+
+  - `getLocalProperty()` :
+    
+    Get a local property set in this thread, or `NULL` if it is missing.
+    See `setLocalProperty`.
+
+  - `install.spark()` : Download and Install Apache Spark to a Local
+    Directory
+
+  - `setCheckpointDir()` : Set checkpoint directory
+
+  - `setJobDescription()` : Set a human readable description of the
+    current job.
+
+  - `setInterruptOnCancel()` : Set the behavior of job cancellation from
+    jobs started in this thread.
+
+  - `setJobGroup()` : Assigns a group ID to all the jobs started by this
+    thread until the group ID is set to a different value or cleared.
+
+  - `addJobTag()` : Add a tag to be assigned to all the jobs started by
+    this thread.
+
+  - `removeJobTag()` : Remove a tag previously added to be assigned to
+    all the jobs started by this thread. Noop if such a tag was not
+    added earlier.
+
+  - `getJobTags()` : Get the tags that are currently set to be assigned
+    to all the jobs started by this thread.
+
+  - `clearJobTags()` : Clear the current thread's job tags.
+
+  - `setLocalProperty()` : Set a local property that affects jobs
+    submitted from this thread, such as the Spark fair scheduler pool.
+
+  - `setLogLevel()` : Set new log level
+
+  - `spark.addFile()` : Add a file or directory to be downloaded with
+    this Spark job on every node.
+
+  - `spark.getSparkFiles()` : Get the absolute path of a file added
+    through spark.addFile.
+
+  - `spark.getSparkFilesRootDirectory()` : Get the root directory that
+    contains files added through spark.addFile.
+
+  - `sparkR.conf()` : Get Runtime Config from the current active
+    SparkSession
+
+  - `sparkR.callJMethod()` : Call Java Methods
+
+  - `sparkR.callJStatic()` : Call Static Java Methods
+
+  - `sparkR.init()` : (Deprecated) Initialize a new Spark Context
+
+  - `sparkR.newJObject()` : Create Java Objects
+
+  - `sparkR.session()` : Get the existing SparkSession or initialize a
+    new SparkSession.
+
+  - `sparkR.session.stop()` `sparkR.stop()` : Stop the Spark Session and
+    Spark Context
+
+  - `sparkR.uiWebUrl()` : Get the URL of the SparkUI instance for the
+    current active SparkSession
+
+  - `sparkR.version()` : Get version of Spark on which this application
+    is running
+
+  - `sparkRHive.init()` : (Deprecated) Initialize a new HiveContext
+
+  - `sparkRSQL.init()` : (Deprecated) Initialize a new SQLContext
+
+  - `sql()` : SQL Query
