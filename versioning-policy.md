@@ -104,9 +104,9 @@ in between feature releases. Major releases do not happen according to a fixed s
 
 | Date  | Event |
 | ----- | ----- |
-| July 15th 2026 | Code freeze. Release branch cut.|
-| Late July 2026 | QA period. Focus on bug fixes, tests, stability and docs. Generally, no new features merged.|
-| August 2026 | Release candidates (RC), voting, etc. until final release passes|
+| May 1st 2026 | Code freeze. Release branch cut.|
+| Mid May 2026 | QA period. Focus on bug fixes, tests, stability and docs. Generally, no new features merged.|
+| Late May 2026 | Release candidates (RC), voting, etc. until final release passes|
 
 <h2>Maintenance releases and EOL</h2>
 
