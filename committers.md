@@ -68,6 +68,7 @@ navigation:
 |Kay Ousterhout|LightStep|
 |Sean Owen|Databricks|
 |Bingkun Pan|Baidu|
+|Cheng Pan|NetEase|
 |Tejas Patil|Meta|
 |Nick Pentreath|Automattic|
 |Attila Zsolt Piros|Cloudera|
