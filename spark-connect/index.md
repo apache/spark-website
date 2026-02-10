@@ -96,8 +96,8 @@ Spark Connect decouples the client and the Spark Driver so that you can write a 
 
 * [Spark Connect Python](https://github.com/apache/spark/tree/master/python/pyspark/sql/connect)
 * [Spark Connect Go](https://github.com/apache/spark-connect-go)
-* [Spark Connect Swift](https://github.com/apache/spark-connect-swift)
 * [Spark Connect Rust](https://github.com/apache/spark-connect-rust)
+* [Spark Connect Swift](https://github.com/apache/spark-connect-swift)
 * [Spark Connect .NET](https://github.com/GoEddie/spark-connect-dotnet) (third-party project)
 
 For example, the Apache Spark Connect Client for Golang, [spark-connect-go](https://github.com/apache/spark-connect-go), implements the Spark Connect protocol and does not rely on Java.  You can use this Spark Connect Client to develop Spark applications with Go without installing Java or Spark.
