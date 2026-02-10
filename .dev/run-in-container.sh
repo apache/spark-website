@@ -16,20 +16,21 @@
 #
 
 # 1.Set env variable.
-export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
-export PATH=$JAVA_HOME/bin:$PATH
+export JAVA_HOME="/usr/lib/jvm/$(ls /usr/lib/jvm/ | grep java-17-openjdk | awk '{print $NF}')"
+export PATH="$JAVA_HOME/bin:$PATH"
 
 # 2.Install bundler.
 gem install bundler -v 2.4.22
 bundle install
 
-# 3. Create a user matching the host UID/GID
-groupadd -g $HOST_GID docuser
-useradd -u $HOST_UID -g $HOST_GID -m docuser
+# 3. Create a user matching the host UID/GID, if it doesn't exist
+groupadd -g $HOST_GID docuser || true
+useradd -u $HOST_UID -g $HOST_GID -m docuser || true
+DOC_USER=$(getent passwd "$HOST_UID" | cut -d: -f1)
 
 # We need this link to make sure `python3` points to `python3.11` which contains the prerequisite packages.
 ln -s "$(which python3.11)" "/usr/local/bin/python3"
 
 # Build docs
 rm -rf .jekyll-cache
-su docuser -c "bundle exec jekyll build"
+su "$DOC_USER" -c "bundle exec jekyll build"
