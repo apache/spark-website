@@ -47,9 +47,14 @@ authorization, and network controls.
 
 Loading an Apache Spark ML model is equivalent to loading and executing code within the Spark runtime.
 
-Spark ML models may contain serialized objects, custom transformers, user-defined expressions, and execution graphs. During model loading, Spark deserializes these components, reconstructs the pipeline, and instantiates runtime objects. This process can invoke executable logic on the Spark driver and executors. As a result, a malicious or tampered model may execute arbitrary code, access sensitive data, or compromise cluster nodes.
+Spark ML models may contain serialized objects, custom transformers, user-defined expressions, and execution graphs. 
+During model loading, Spark deserializes these components, reconstructs the pipeline, and instantiates runtime objects. 
+This process can invoke executable logic on the Spark driver and executors. As a result, a malicious or tampered model 
+may execute arbitrary code, access sensitive data, or compromise cluster nodes.
 
-End users must treat Spark ML models with the same level of caution and security scrutiny as any third-party software. This includes verifying the source, validating integrity, and applying appropriate isolation and security controls before loading or deploying a model.
+End users must treat Spark ML models with the same level of caution and security scrutiny as any third-party software. 
+This includes verifying the source, validating integrity, and applying appropriate isolation and security controls 
+before loading or deploying a model.
 
 <h2>Known security issues</h2>
 
