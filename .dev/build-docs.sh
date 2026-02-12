@@ -21,4 +21,4 @@ docker run \
   --mount type=bind,source="$PWD",target="/spark-website" \
   -w /spark-website \
   docs-builder:latest \
-  /bin/bash -c "sh .dev/run-in-container.sh"
+  /bin/bash -c ".dev/run-in-container.sh"
