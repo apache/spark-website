@@ -125,7 +125,7 @@ When resolving JIRAs, observe a few useful conventions:
   - In case several people contributed, prefer to assign to the more 'junior', non-committer contributor
 - For issues that can't be reproduced against master as reported, resolve as **Cannot Reproduce**
   - Fixed is reasonable too, if it's clear what other previous pull request resolved it. Link to it.
-- If the issue is the same as or a subset of another issue, resolved as **Duplicate**
+- If the issue is the same as or a subset of another issue, resolve as **Duplicate**
   - Make sure to link to the JIRA it duplicates
   - Prefer to resolve the issue that has less activity or discussion as the duplicate
 - If the issue seems clearly obsolete and applies to issues or components that have changed 
@@ -479,7 +479,7 @@ lines can be up to 100 characters in length, not 79.
 - For R code, Apache Spark follows
 <a href="https://google.github.io/styleguide/Rguide.xml">Google's R Style Guide</a> with three exceptions:
 lines can be up to 100 characters in length, not 80, there is no limit on function name but it has a initial
-lower case latter and S4 objects/methods are allowed.
+lower case letter and S4 objects/methods are allowed.
 - For Java code, Apache Spark follows
 <a href="http://www.oracle.com/technetwork/java/codeconvtoc-136057.html">Oracle's Java code conventions</a> and
 Scala guidelines below. The latter is preferred.
