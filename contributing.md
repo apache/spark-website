@@ -411,8 +411,7 @@ will trigger workflows "On pull request*" (on Spark repo) that will look/watch f
      but needs to be pushed to GitHub to facilitate review, then add `[WIP]` after the component.
      1. Consider identifying committers or other contributors who have worked on the code being 
      changed. Find the file(s) in GitHub and click "Blame" to see a line-by-line annotation of 
-     who changed the code last. You can add `@username` in the PR description to ping them 
-     immediately.
+     who changed the code last. You can add `@username` in a comment on the PR to ping them.
      1. Please state that the contribution is your original work and that you license the work 
      to the project under the project's open source license.
 1. The related JIRA, if any, will be marked as "In Progress" and your pull request will 
