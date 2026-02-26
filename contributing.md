@@ -125,7 +125,7 @@ When resolving JIRAs, observe a few useful conventions:
   - In case several people contributed, prefer to assign to the more 'junior', non-committer contributor
 - For issues that can't be reproduced against master as reported, resolve as **Cannot Reproduce**
   - Fixed is reasonable too, if it's clear what other previous pull request resolved it. Link to it.
-- If the issue is the same as or a subset of another issue, resolved as **Duplicate**
+- If the issue is the same as or a subset of another issue, resolve as **Duplicate**
   - Make sure to link to the JIRA it duplicates
   - Prefer to resolve the issue that has less activity or discussion as the duplicate
 - If the issue seems clearly obsolete and applies to issues or components that have changed 
@@ -411,8 +411,7 @@ will trigger workflows "On pull request*" (on Spark repo) that will look/watch f
      but needs to be pushed to GitHub to facilitate review, then add `[WIP]` after the component.
      1. Consider identifying committers or other contributors who have worked on the code being 
      changed. Find the file(s) in GitHub and click "Blame" to see a line-by-line annotation of 
-     who changed the code last. You can add `@username` in the PR description to ping them 
-     immediately.
+     who changed the code last. You can add `@username` in a comment on the PR to ping them.
      1. Please state that the contribution is your original work and that you license the work 
      to the project under the project's open source license.
 1. The related JIRA, if any, will be marked as "In Progress" and your pull request will 
@@ -479,7 +478,7 @@ lines can be up to 100 characters in length, not 79.
 - For R code, Apache Spark follows
 <a href="https://google.github.io/styleguide/Rguide.xml">Google's R Style Guide</a> with three exceptions:
 lines can be up to 100 characters in length, not 80, there is no limit on function name but it has a initial
-lower case latter and S4 objects/methods are allowed.
+lower case letter and S4 objects/methods are allowed.
 - For Java code, Apache Spark follows
 <a href="http://www.oracle.com/technetwork/java/codeconvtoc-136057.html">Oracle's Java code conventions</a> and
 Scala guidelines below. The latter is preferred.
