@@ -115,4 +115,7 @@ For example, branch 2.3.x is no longer considered maintained as of September 201
 of 2.3.0 in February 2018. No more 2.3.x releases should be expected after that point, even for bug fixes.
 
 The last minor release within a major release will typically be maintained for longer as an "LTS" release.
-For example, 3.5.0 was released on September 13th 2023 and will be maintained for 31 months until April 12th 2026.
+For example, 3.5.0 was released on September 13th 2023 and would normally be maintained for 31 months until April 12th 2026.
+
+
+As an exception from the normal versioning policy, version 3.5.X has an "extended" LTS period to allow for migrations to be completed, as 4.0 was released relatively late into the 3.5 cycle. This extended LTS period will end *November 2027*. 3.5.X extended LTS period will include only security fixes. Additionally, as Java 8 support is being removed from other projects (including Hadoop), should a dependency have a security fix that is not backported to a Java 8 compatible version we will drop Java 8 from the remainder of the extended LTS period.
