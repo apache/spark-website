@@ -58,6 +58,30 @@ This includes verifying the source, validating integrity, and applying appropria
 before loading or deploying a model.
 
 <h2>Known security issues</h2>
+<h3 id="CVE-2025-55039">CVE-2025-55039: Apache Spark: RPC encryption defaults to unauthenticated AES-CTR mode, enabling man-in-the-middle ciphertext modification attacks</h3>
+
+Severity: Moderate
+
+Vendor: The Apache Software Foundation
+
+Versions Affected:
+
+- Versions prior to 3.4.4, 3.5.2 and 4.0.0
+
+Description:
+
+Apache Spark versions before 4.0.0, 3.5.2 and 3.4.4 use an insecure default network encryption cipher for RPC communication between nodes.
+When spark.network.crypto.enabled is set to true (it is set to false by default), but spark.network.crypto.cipher is not explicitly configured, Spark defaults to AES in CTR mode (AES/CTR/NoPadding), which provides encryption without authentication.
+This vulnerability allows a man-in-the-middle attacker to modify encrypted RPC traffic undetected by flipping bits in ciphertext, potentially compromising heartbeat messages or application data and affecting the integrity of Spark workflows.
+
+Mitigation:
+
+- Either configure `spark.network.crypto.cipher` to "AES/GCM/NoPadding" to enable authenticated encryption or enable SSL encryption by setting both `spark.ssl.enabled` and `spark.ssl.rpc.enabled` to "true", which provides stronger transport security.
+
+Credit:
+
+- Holden Karau
+
 
 <h3 id="CVE-2023-32007">CVE-2023-32007: Apache Spark shell command injection vulnerability via Spark UI</h3>
 
