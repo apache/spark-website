@@ -58,6 +58,7 @@ This includes verifying the source, validating integrity, and applying appropria
 before loading or deploying a model.
 
 <h2>Known security issues</h2>
+
 <h3 id="CVE-2025-55039">CVE-2025-55039: Apache Spark: RPC encryption defaults to unauthenticated AES-CTR mode, enabling man-in-the-middle ciphertext modification attacks</h3>
 
 Severity: Moderate
