@@ -89,7 +89,7 @@ navigation:
 |Jose Torres|Databricks|
 |Peter Toth|Apple|
 |DB Tsai|Databricks|
-|Takuya Ueshin|Databricks|
+|Takuya Ueshin||
 |Marcelo Vanzin|Cloudera|
 |Shivaram Venkataraman|University of Wisconsin, Madison|
 |Allison Wang|Databricks|
