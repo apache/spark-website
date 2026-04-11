@@ -222,9 +222,10 @@ Slides, videos and EC2-based exercises from each of these are available online:
 
 <h3>Books</h3>
 <ul>
-  <li><a href="http://shop.oreilly.com/product/0636920028512.do">Learning Spark</a>, by Holden Karau, Andy Konwinski, Patrick Wendell and Matei Zaharia (O'Reilly Media)</li>
-  <li><a href="http://www.manning.com/bonaci/">Spark in Action</a>, by Marko Bonaci and Petar Zecevic (Manning)</li>
-  <li><a href="http://shop.oreilly.com/product/0636920035091.do">Advanced Analytics with Spark</a>, by Juliet Hougland, Uri Laserson, Sean Owen, Sandy Ryza and Josh Wills (O'Reilly Media)</li>
+  <li><a href="https://www.oreilly.com/library/view/learning-spark-2nd/9781492050032/">Learning Spark, 2nd Edition</a>, by Jules S. Damji, Brooke Wenig, Tathagata Das and Denny Lee (O'Reilly Media)</li>
+  <li><a href="https://www.oreilly.com/library/view/spark-the-definitive/9781491912201/">Spark: The Definitive Guide</a>, by Bill Chambers and Matei Zaharia (O'Reilly Media)</li>
+  <li><a href="https://www.manning.com/books/spark-in-action-second-edition">Spark in Action, 2nd Edition</a>, by Jean-Georges Perrin (Manning)</li>
+  <li><a href="https://www.oreilly.com/library/view/advanced-analytics-with/9781491972946/">Advanced Analytics with Spark, 2nd Edition</a>, by Josh Wills, Sean Owen, Sandy Ryza and Uri Laserson (O'Reilly Media)</li>
   <li><a href="https://www.manning.com/books/spark-graphx-in-action">Spark GraphX in Action</a>, by Michael Malak (Manning)</li>
   <li><a href="https://www.packtpub.com/big-data-and-business-intelligence/fast-data-processing-spark-second-edition">Fast Data Processing with Spark</a>, by Krishna Sankar and Holden Karau (Packt Publishing)</li>
   <li><a href="https://www.packtpub.com/big-data-and-business-intelligence/machine-learning-spark">Machine Learning with Spark</a>, by Nick Pentreath (Packt Publishing)</li>
