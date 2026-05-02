@@ -1,0 +1,1561 @@
+
+
+<!DOCTYPE html>
+
+
+<html >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Chapter 4: Bug Busting - Debugging PySpark &#8212; PySpark 4.2.0-preview5 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/pyspark.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/bugbusting';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://spark.apache.org/static/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '4.2.0-preview5';
+        </script>
+    <link rel="canonical" href="https://spark.apache.org/docs/latest/api/python/user_guide/bugbusting.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Chapter 5: Unleashing UDFs &amp; UDTFs" href="udfandudtf.html" />
+    <link rel="prev" title="Chapter 3: Function Junction - Data manipulation with PySpark" href="dataprep.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Matomo -->
+    <script type="text/javascript">
+        var _paq = window._paq = window._paq || [];
+        /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+        _paq.push(["disableCookies"]);
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+        (function() {
+            var u="https://analytics.apache.org/";
+            _paq.push(['setTrackerUrl', u+'matomo.php']);
+            _paq.push(['setSiteId', '40']);
+            var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+            g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+        })();
+    </script>
+    <!-- End Matomo Code -->
+
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://spark.apache.org/images/spark-logo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="https://spark.apache.org/images/spark-logo-rev.svg" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../index.html">
+                        Overview
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started/index.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../tutorial/index.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../reference/index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../development/index.html">
+                        Development
+                      </a>
+                    </li>
+                
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../migration_guide/index.html">
+                        Migration Guides
+                      </a>
+                    </li>
+                
+                </div>
+            </div>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      4.2.0-preview5  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/apache/spark" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/pyspark" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-solid fa-box"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../index.html">
+                        Overview
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started/index.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../tutorial/index.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../reference/index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../development/index.html">
+                        Development
+                      </a>
+                    </li>
+                
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../migration_guide/index.html">
+                        Migration Guides
+                      </a>
+                    </li>
+                
+                </div>
+            </div>
+            
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      4.2.0-preview5  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/apache/spark" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/pyspark" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-solid fa-box"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="dataframes.html">Chapter 1: DataFrames - A view into your structured data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="touroftypes.html">Chapter 2: A Tour of PySpark Data Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataprep.html">Chapter 3: Function Junction - Data manipulation with PySpark</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Chapter 4: Bug Busting - Debugging PySpark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="udfandudtf.html">Chapter 5: Unleashing UDFs &amp; UDTFs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sql.html">Chapter 6: Old SQL, New Tricks - Running SQL on PySpark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="loadandbehold.html">Chapter 7: Load and Behold - Data loading, storage, file formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ansi_migration_guide.html">ANSI Migration Guide - Pandas API on Spark</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User Guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Chapter 4: Bug Busting - Debugging PySpark</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="Chapter-4:-Bug-Busting---Debugging-PySpark">
+<h1>Chapter 4: Bug Busting - Debugging PySpark<a class="headerlink" href="#Chapter-4:-Bug-Busting---Debugging-PySpark" title="Permalink to this headline">#</a></h1>
+<p>PySpark executes applications in a distributed environment, making it challenging to monitor and debug these applications. It can be difficult to track which nodes are executing specific code. However, there are multiple methods available within PySpark to help with debugging. This section will outline how to effectively debug PySpark applications.</p>
+<p>PySpark operates using Spark as its underlying engine, utilizing Spark Connect server or Py4J (Spark Classic) to submit and compute jobs in Spark.</p>
+<p>On the driver side, PySpark interacts with the Spark Driver on JVM through Spark Connect server or Py4J (Spark Classic). When <code class="docutils literal notranslate"><span class="pre">pyspark.sql.SparkSession</span></code> is created and initialized, PySpark starts to communicate with the Spark Driver.</p>
+<p>On the executor side, Python workers are responsible for executing and managing Python native functions or data. These workers are only launched if the PySpark application requires interaction between Python and JVMs such as Python UDF execution. They are initiated on-demand, for instance, when running pandas UDFs or PySpark RDD APIs.</p>
+<section id="Spark-UI">
+<h2>Spark UI<a class="headerlink" href="#Spark-UI" title="Permalink to this headline">#</a></h2>
+<section id="Python-UDF-Execution">
+<h3>Python UDF Execution<a class="headerlink" href="#Python-UDF-Execution" title="Permalink to this headline">#</a></h3>
+<p>Debugging a Python UDF in PySpark can be done by simply adding print statements, though the output won’t be visible in the client/driver side since the functions are executed on the executors - they can be seen in Spark UI. For example, if you have a working Python UDF:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">udf</span>
+
+<span class="nd">@udf</span><span class="p">(</span><span class="s2">&quot;integer&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_udf</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="c1"># Do something with x</span>
+    <span class="k">return</span> <span class="n">x</span>
+</pre></div>
+</div>
+</div>
+<p>You can add print statements for debugging as shown below:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nd">@udf</span><span class="p">(</span><span class="s2">&quot;integer&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_udf</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="c1"># Do something with x</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;What&#39;s going on?&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">my_udf</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[Row(my_udf(id)=0)]
+</pre></div></div>
+</div>
+<p>The output can be viewed in the Spark UI under <code class="docutils literal notranslate"><span class="pre">stdout</span></code>/<code class="docutils literal notranslate"><span class="pre">stderr</span></code> at <code class="docutils literal notranslate"><span class="pre">Executors</span></code> tab.</p>
+<p><img alt="Spark UI print" src="../_images/pyspark-ui-print.png" /></p>
+</section>
+<section id="Non-Python-UDF">
+<h3>Non-Python UDF<a class="headerlink" href="#Non-Python-UDF" title="Permalink to this headline">#</a></h3>
+<p>When running non-Python UDF code, debugging is typically done via the Spark UI or by using <code class="docutils literal notranslate"><span class="pre">DataFrame.explain(True)</span></code>.</p>
+<p>For instance, the code below performs a join between a large DataFrame (<code class="docutils literal notranslate"><span class="pre">df1</span></code>) and a smaller one (<code class="docutils literal notranslate"><span class="pre">df2</span></code>):</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df1</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">([(</span><span class="n">x</span><span class="p">,)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">)])</span>
+<span class="n">df2</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">([(</span><span class="n">x</span><span class="p">,)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)])</span>
+<span class="n">df1</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df2</span><span class="p">,</span> <span class="s2">&quot;_1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">explain</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+== Physical Plan ==
+AdaptiveSparkPlan isFinalPlan=false
++- Project [_1#6L]
+   +- SortMergeJoin [_1#6L], [_1#8L], Inner
+      :- Sort [_1#6L ASC NULLS FIRST], false, 0
+      :  +- Exchange hashpartitioning(_1#6L, 200), ENSURE_REQUIREMENTS, [plan_id=41]
+      :     +- Filter isnotnull(_1#6L)
+      :        +- Scan ExistingRDD[_1#6L]
+      +- Sort [_1#8L ASC NULLS FIRST], false, 0
+         +- Exchange hashpartitioning(_1#8L, 200), ENSURE_REQUIREMENTS, [plan_id=42]
+            +- Filter isnotnull(_1#8L)
+               +- Scan ExistingRDD[_1#8L]
+
+
+</pre></div></div>
+</div>
+<p>Using <code class="docutils literal notranslate"><span class="pre">DataFrame.explain</span></code> displays the physical plans, showing how the join will be executed. Those physical plans represent individual steps for the whole execution. Here, it exchanges, a.k.a. shuffles, the data and performs a sort-merge-join.</p>
+<p>After checking how the plans are generated via this method, users can optimize their queries. For example, because <code class="docutils literal notranslate"><span class="pre">df2</span></code> is very small, it can be broadcasted to executors and remove the shuffle</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">broadcast</span>
+
+<span class="n">df1</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">broadcast</span><span class="p">(</span><span class="n">df2</span><span class="p">),</span> <span class="s2">&quot;_1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">explain</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+== Physical Plan ==
+AdaptiveSparkPlan isFinalPlan=false
++- Project [_1#6L]
+   +- BroadcastHashJoin [_1#6L], [_1#8L], Inner, BuildRight, false
+      :- Filter isnotnull(_1#6L)
+      :  +- Scan ExistingRDD[_1#6L]
+      +- BroadcastExchange HashedRelationBroadcastMode(List(input[0, bigint, false]),false), [plan_id=71]
+         +- Filter isnotnull(_1#8L)
+            +- Scan ExistingRDD[_1#8L]
+
+
+</pre></div></div>
+</div>
+<p>As can be seen the shuffle is removed, and it performs broadcast-hash-join:</p>
+<p>These optimizations can also be visualized in the Spark UI under the SQL / DataFrame tab after execution.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df1</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df2</span><span class="p">,</span> <span class="s2">&quot;_1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[Row(_1=0), Row(_1=1)]
+</pre></div></div>
+</div>
+<p><img alt="PySpark UI SQL" src="../_images/pyspark-ui-sql.png" /></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df1</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">broadcast</span><span class="p">(</span><span class="n">df2</span><span class="p">),</span> <span class="s2">&quot;_1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[Row(_1=0), Row(_1=1)]
+</pre></div></div>
+</div>
+<p><img alt="PySpark UI SQL broadcast" src="../_images/pyspark-ui-sql-broadcast.png" /></p>
+</section>
+</section>
+<section id="Monitor-with-top-and-ps">
+<h2>Monitor with <code class="docutils literal notranslate"><span class="pre">top</span></code> and <code class="docutils literal notranslate"><span class="pre">ps</span></code><a class="headerlink" href="#Monitor-with-top-and-ps" title="Permalink to this headline">#</a></h2>
+<p>On the driver side, you can obtain the process ID from your PySpark shell to monitor resources:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span><span class="p">;</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+23976
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-bash notranslate"><div class="highlight"><pre><span></span>%%bash
+ps<span class="w"> </span>-fe<span class="w"> </span><span class="m">23976</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+  UID   PID  PPID   C STIME   TTY           TIME CMD
+  502 23976 21512   0 12:06PM ??         0:02.30 /opt/miniconda3/envs/python3.11/bin/python -m ipykernel_launcher -f /Users/hyukjin.kwon/Library/Jupyter/runtime/kernel-c8eb73ef-2b21-418e-b770-92b946454606.json
+</pre></div></div>
+</div>
+<p>On the executor side, you can use <code class="docutils literal notranslate"><span class="pre">grep</span></code> to find the process IDs and resources for Python workers, as these are forked from <code class="docutils literal notranslate"><span class="pre">pyspark.daemon</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-bash notranslate"><div class="highlight"><pre><span></span>%%bash
+ps<span class="w"> </span>-fe<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>pyspark.daemon<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-n<span class="w"> </span><span class="m">5</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+  502 23989 23981   0 12:06PM ??         0:00.59 python3 -m pyspark.daemon pyspark.worker
+  502 23990 23989   0 12:06PM ??         0:00.19 python3 -m pyspark.daemon pyspark.worker
+  502 23991 23989   0 12:06PM ??         0:00.19 python3 -m pyspark.daemon pyspark.worker
+  502 23992 23989   0 12:06PM ??         0:00.19 python3 -m pyspark.daemon pyspark.worker
+  502 23993 23989   0 12:06PM ??         0:00.19 python3 -m pyspark.daemon pyspark.worker
+</pre></div></div>
+</div>
+<p>Typically, users leverage top and the identified PIDs to monitor the memory usage of Python processes in PySpark.</p>
+</section>
+<section id="Use-PySpark-Profilers">
+<h2>Use PySpark Profilers<a class="headerlink" href="#Use-PySpark-Profilers" title="Permalink to this headline">#</a></h2>
+<section id="Memory-Profiler">
+<h3>Memory Profiler<a class="headerlink" href="#Memory-Profiler" title="Permalink to this headline">#</a></h3>
+<p>In order to debug the driver side, users typically can use most of the existing Python tools such as <a class="reference external" href="https://github.com/pythonprofilers/memory_profiler">memory_profiler</a> that allow you to check the memory usage line by line. If your driver program is not running on another machine (e.g., YARN cluster mode), you can use a memory profiler to debug memory usage on the driver side. For example:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-bash notranslate"><div class="highlight"><pre><span></span>%%bash
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;from pyspark.sql import SparkSession</span>
+<span class="s2">#===Your function should be decorated with @profile===</span>
+<span class="s2">from memory_profiler import profile</span>
+<span class="s2">@profile</span>
+<span class="s2">#=====================================================</span>
+<span class="s2">def my_func():</span>
+<span class="s2">    session = SparkSession.builder.getOrCreate()</span>
+<span class="s2">    df = session.range(10000)</span>
+<span class="s2">    return df.collect()</span>
+<span class="s2">if __name__ == &#39;__main__&#39;:</span>
+<span class="s2">    my_func()&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>profile_memory.py
+
+python<span class="w"> </span>-m<span class="w"> </span>memory_profiler<span class="w"> </span>profile_memory.py<span class="w"> </span><span class="m">2</span>&gt;<span class="w"> </span>/dev/null
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Filename: profile_memory.py
+
+Line #    Mem usage    Increment  Occurrences   Line Contents
+=============================================================
+     4     80.6 MiB     80.6 MiB           1   @profile
+     5                                         #=====================================================
+     6                                         def my_func():
+     7     79.0 MiB     -1.7 MiB           1       session = SparkSession.builder.getOrCreate()
+     8     80.1 MiB      1.1 MiB           1       df = session.range(10000)
+     9     84.1 MiB      4.0 MiB           1       return df.collect()
+
+
+</pre></div></div>
+</div>
+<p>It shows which line consumes how much memory properly.</p>
+<section id="Python/Pandas-UDF">
+<h4>Python/Pandas UDF<a class="headerlink" href="#Python/Pandas-UDF" title="Permalink to this headline">#</a></h4>
+<div class="alert alert-block alert-info"><p>Note: This section applies to Spark 4.0</p>
+</div><p>PySpark provides remote <a class="reference external" href="https://github.com/pythonprofilers/memory_profiler">memory_profiler</a> for Python/Pandas UDFs. That can be used on editors with line numbers such as Jupyter notebooks. SparkSession-based memory profiler can be enabled by setting the runtime SQL configuration <code class="docutils literal notranslate"><span class="pre">spark.sql.pyspark.udf.profiler</span></code> to <code class="docutils literal notranslate"><span class="pre">memory</span></code>:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">pandas_udf</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="nd">@pandas_udf</span><span class="p">(</span><span class="s2">&quot;long&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add1</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;spark.sql.pyspark.udf.profiler&quot;</span><span class="p">,</span> <span class="s2">&quot;memory&quot;</span><span class="p">)</span>
+
+<span class="n">added</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">add1</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">))</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+<span class="n">added</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;memory&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+============================================================
+Profile of UDF&lt;id=16&gt;
+============================================================
+Filename: /var/folders/qm/mlwmy16n5xx66ldgzmptzlc40000gp/T/ipykernel_23976/885006762.py
+
+Line #    Mem usage    Increment  Occurrences   Line Contents
+=============================================================
+     5   1472.6 MiB   1472.6 MiB          10   @pandas_udf(&#34;long&#34;)
+     6                                         def add1(x):
+     7   1473.9 MiB      1.3 MiB          10     return x + 1
+
+
+</pre></div></div>
+</div>
+<p>The UDF IDs (e.g., 16) can be seen in the query plan, for example, <code class="docutils literal notranslate"><span class="pre">add1(...)#16L</span></code> in <code class="docutils literal notranslate"><span class="pre">ArrowEvalPython</span></code> as shown below.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">added</span><span class="o">.</span><span class="n">explain</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+== Physical Plan ==
+*(2) Project [pythonUDF0#19L AS add1(id)#17L]
++- ArrowEvalPython [add1(id#14L)#16L], [pythonUDF0#19L], 200
+   +- *(1) Range (0, 10, step=1, splits=16)
+
+
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Performance-Profiler">
+<h3>Performance Profiler<a class="headerlink" href="#Performance-Profiler" title="Permalink to this headline">#</a></h3>
+<div class="alert alert-block alert-info"><p>Note: This section applies to Spark 4.0</p>
+</div><p><a class="reference external" href="https://docs.python.org/3/library/profile.html">Python Profilers</a> are useful built-in features in Python itself for profiling performance. To use this on driver side, you can use it as you would do for regular Python programs because PySpark on driver side is a regular Python process unless you are running your driver program in another machine (e.g., YARN cluster mode).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-bash notranslate"><div class="highlight"><pre><span></span>%%bash
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;from pyspark.sql import SparkSession</span>
+<span class="s2">spark = SparkSession.builder.getOrCreate()</span>
+<span class="s2">spark.range(10).collect()&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>app.py
+
+python<span class="w"> </span>-m<span class="w"> </span>cProfile<span class="w"> </span>-s<span class="w"> </span>cumulative<span class="w"> </span>app.py<span class="w">  </span><span class="m">2</span>&gt;<span class="w"> </span>/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-n<span class="w"> </span><span class="m">20</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+         549275 function calls (536745 primitive calls) in 3.447 seconds
+
+   Ordered by: cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        2    0.000    0.000    3.448    1.724 app.py:1(&lt;module&gt;)
+    792/1    0.005    0.000    3.447    3.447 {built-in method builtins.exec}
+      128    0.000    0.000    2.104    0.016 socket.py:692(readinto)
+      128    2.104    0.016    2.104    0.016 {method &#39;recv_into&#39; of &#39;_socket.socket&#39; objects}
+      124    0.000    0.000    2.100    0.017 java_gateway.py:1015(send_command)
+      125    0.001    0.000    2.099    0.017 clientserver.py:499(send_command)
+      138    0.000    0.000    2.097    0.015 {method &#39;readline&#39; of &#39;_io.BufferedReader&#39; objects}
+       55    0.000    0.000    1.622    0.029 java_gateway.py:1313(__call__)
+       95    0.001    0.000    1.360    0.014 __init__.py:1(&lt;module&gt;)
+        1    0.000    0.000    1.359    1.359 session.py:438(getOrCreate)
+        1    0.000    0.000    1.311    1.311 context.py:491(getOrCreate)
+        1    0.000    0.000    1.311    1.311 context.py:169(__init__)
+        1    0.000    0.000    0.861    0.861 context.py:424(_ensure_initialized)
+        1    0.001    0.001    0.861    0.861 java_gateway.py:39(launch_gateway)
+        8    0.840    0.105    0.840    0.105 {built-in method time.sleep}
+</pre></div></div>
+</div>
+<section id="id1">
+<h4>Python/Pandas UDF<a class="headerlink" href="#id1" title="Permalink to this headline">#</a></h4>
+<div class="alert alert-block alert-info"><p>Note: This section applies to Spark 4.0</p>
+</div><p>PySpark provides remote Python Profilers for Python/Pandas UDFs. UDFs with iterators as inputs/outputs are not supported. SparkSession-based performance profiler can be enabled by setting the runtime SQL configuration <code class="docutils literal notranslate"><span class="pre">spark.sql.pyspark.udf.profiler</span></code> to <code class="docutils literal notranslate"><span class="pre">perf</span></code>. An example is as shown below.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">redirect_stdout</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">pandas_udf</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="nd">@pandas_udf</span><span class="p">(</span><span class="s2">&quot;long&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add1</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+
+<span class="n">added</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">add1</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">))</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;spark.sql.pyspark.udf.profiler&quot;</span><span class="p">,</span> <span class="s2">&quot;perf&quot;</span><span class="p">)</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+<span class="n">added</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+
+<span class="c1"># Only show top 10 lines</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">StringIO</span><span class="p">()</span>
+<span class="k">with</span> <span class="n">redirect_stdout</span><span class="p">(</span><span class="n">output</span><span class="p">):</span>
+    <span class="n">spark</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">&quot;perf&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="mi">20</span><span class="p">]))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+============================================================
+Profile of UDF&lt;id=22&gt;
+============================================================
+         2130 function calls (2080 primitive calls) in 0.003 seconds
+
+   Ordered by: internal time, cumulative time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       10    0.001    0.000    0.003    0.000 common.py:62(new_method)
+       10    0.000    0.000    0.000    0.000 {built-in method _operator.add}
+       10    0.000    0.000    0.002    0.000 base.py:1371(_arith_method)
+       10    0.000    0.000    0.001    0.000 series.py:389(__init__)
+       20    0.000    0.000    0.000    0.000 _ufunc_config.py:33(seterr)
+       10    0.000    0.000    0.001    0.000 series.py:6201(_construct_result)
+       10    0.000    0.000    0.000    0.000 cast.py:1605(maybe_cast_to_integer_array)
+       10    0.000    0.000    0.000    0.000 construction.py:517(sanitize_array)
+       10    0.000    0.000    0.002    0.000 series.py:6133(_arith_method)
+       10    0.000    0.000    0.000    0.000 managers.py:1863(from_array)
+       10    0.000    0.000    0.000    0.000 array_ops.py:240(arithmetic_op)
+      510    0.000    0.000    0.000    0.000 {built-in method builtins.isinstance}
+</pre></div></div>
+</div>
+<p>The UDF IDs (e.g., 22) can be seen in the query plan, for example, <code class="docutils literal notranslate"><span class="pre">add1(...)#22L</span></code> in <code class="docutils literal notranslate"><span class="pre">ArrowEvalPython</span></code> below.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">added</span><span class="o">.</span><span class="n">explain</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+== Physical Plan ==
+*(2) Project [pythonUDF0#25L AS add1(id)#23L]
++- ArrowEvalPython [add1(id#20L)#22L], [pythonUDF0#25L], 200
+   +- *(1) Range (0, 10, step=1, splits=16)
+
+
+</pre></div></div>
+</div>
+<p>We can render the result with a preregistered renderer as shown below.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spark</span><span class="o">.</span><span class="n">profile</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;perf&quot;</span><span class="p">)</span>  <span class="c1"># renderer=&quot;flameprof&quot; by default</span>
+</pre></div>
+</div>
+</div>
+<p><img alt="PySpark UDF profiling" src="../_images/pyspark-udf-profile1.png" /></p>
+</section>
+</section>
+</section>
+<section id="Display-Stacktraces">
+<h2>Display Stacktraces<a class="headerlink" href="#Display-Stacktraces" title="Permalink to this headline">#</a></h2>
+<div class="alert alert-block alert-info"><p>Note: This section applies to Spark 4.0</p>
+</div><p>By default, JVM stacktraces and Python internal tracebacks are hidden especially in Python UDF executions. For example,</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">udf</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">udf</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">/</span> <span class="mi">0</span><span class="p">)(</span><span class="s2">&quot;id&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-red-fg">PythonException</span>:
+  An exception was thrown from the Python worker. Please see the stack trace below.
+Traceback (most recent call last):
+  File &#34;/var/folders/qm/mlwmy16n5xx66ldgzmptzlc40000gp/T/ipykernel_23976/3806637820.py&#34;, line 3, in &lt;lambda&gt;
+ZeroDivisionError: division by zero
+
+</pre></div></div>
+</div>
+<p>To show the whole internal stacktraces, users can enable <code class="docutils literal notranslate"><span class="pre">spark.sql.execution.pyspark.udf.simplifiedTraceback.enabled</span></code> and <code class="docutils literal notranslate"><span class="pre">spark.sql.pyspark.jvmStacktrace.enabled</span></code> respectively.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spark</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;spark.sql.execution.pyspark.udf.simplifiedTraceback.enabled&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;spark.sql.pyspark.jvmStacktrace.enabled&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">udf</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">/</span> <span class="mi">0</span><span class="p">)(</span><span class="s2">&quot;id&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-red-fg">PythonException</span>:
+  An exception was thrown from the Python worker. Please see the stack trace below.
+Traceback (most recent call last):
+  File &#34;/.../python/lib/pyspark.zip/pyspark/worker.py&#34;, line 1898, in main
+    process()
+  File &#34;/.../python/lib/pyspark.zip/pyspark/worker.py&#34;, line 1890, in process
+    serializer.dump_stream(out_iter, outfile)
+  File &#34;/.../python/lib/pyspark.zip/pyspark/serializers.py&#34;, line 224, in dump_stream
+    self.serializer.dump_stream(self._batched(iterator), stream)
+  File &#34;/.../python/lib/pyspark.zip/pyspark/serializers.py&#34;, line 145, in dump_stream
+    for obj in iterator:
+  File &#34;/.../python/lib/pyspark.zip/pyspark/serializers.py&#34;, line 213, in _batched
+    for item in iterator:
+  File &#34;/.../python/lib/pyspark.zip/pyspark/worker.py&#34;, line 1798, in mapper
+    result = tuple(f(*[a[o] for o in arg_offsets]) for arg_offsets, f in udfs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File &#34;/.../python/lib/pyspark.zip/pyspark/worker.py&#34;, line 1798, in &lt;genexpr&gt;
+    result = tuple(f(*[a[o] for o in arg_offsets]) for arg_offsets, f in udfs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File &#34;/.../python/lib/pyspark.zip/pyspark/worker.py&#34;, line 114, in &lt;lambda&gt;
+    return args_kwargs_offsets, lambda *a: func(*a)
+                                           ^^^^^^^^
+  File &#34;/.../python/lib/pyspark.zip/pyspark/util.py&#34;, line 145, in wrapper
+    return f(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^
+  File &#34;/.../python/lib/pyspark.zip/pyspark/worker.py&#34;, line 739, in profiling_func
+    ret = f(*args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^
+  File &#34;/var/folders/qm/mlwmy16n5xx66ldgzmptzlc40000gp/T/ipykernel_23976/3570641234.py&#34;, line 3, in &lt;lambda&gt;
+ZeroDivisionError: division by zero
+
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spark</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;spark.sql.execution.pyspark.udf.simplifiedTraceback.enabled&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;spark.sql.pyspark.jvmStacktrace.enabled&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">udf</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">/</span> <span class="mi">0</span><span class="p">)(</span><span class="s2">&quot;id&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-red-fg">PythonException</span>:
+  An exception was thrown from the Python worker. Please see the stack trace below.
+Traceback (most recent call last):
+  File &#34;/var/folders/qm/mlwmy16n5xx66ldgzmptzlc40000gp/T/ipykernel_23976/3514597595.py&#34;, line 3, in &lt;lambda&gt;
+ZeroDivisionError: division by zero
+
+
+JVM stacktrace:
+org.apache.spark.SparkException: Job aborted due to stage failure: Task 15 in stage 13.0 failed 1 times, most recent failure: Lost task 15.0 in stage 13.0 (TID 161) (ip-192-168-45-94.ap-northeast-2.compute.internal executor driver): org.apache.spark.api.python.PythonException: Traceback (most recent call last):
+  File &#34;/var/folders/qm/mlwmy16n5xx66ldgzmptzlc40000gp/T/ipykernel_23976/3514597595.py&#34;, line 3, in &lt;lambda&gt;
+ZeroDivisionError: division by zero
+
+        at org.apache.spark.api.python.BasePythonRunner$ReaderIterator.handlePythonException(PythonRunner.scala:531)
+        at org.apache.spark.sql.execution.python.BasePythonUDFRunner$$anon$2.read(PythonUDFRunner.scala:103)
+        at org.apache.spark.sql.execution.python.BasePythonUDFRunner$$anon$2.read(PythonUDFRunner.scala:86)
+        at org.apache.spark.api.python.BasePythonRunner$ReaderIterator.hasNext(PythonRunner.scala:485)
+        ...
+
+</pre></div></div>
+</div>
+<p>See also <a class="reference external" href="https://spark.apache.org/docs/latest/api/python/development/debugging.html#stack-traces">Stack Traces</a> for more details.</p>
+</section>
+<section id="Python-Worker-Logging">
+<h2>Python Worker Logging<a class="headerlink" href="#Python-Worker-Logging" title="Permalink to this headline">#</a></h2>
+<div class="alert alert-block alert-info"><p>Note: This section applies to Spark 4.1</p>
+</div><p>PySpark provides a logging mechanism for Python workers that execute UDFs, UDTFs, Pandas UDFs, and Python data sources. When enabled, all logging output (including <code class="docutils literal notranslate"><span class="pre">print</span></code> statements, standard logging, and exceptions) is captured and made available for querying and analysis.</p>
+<section id="Enabling-Worker-Logging">
+<h3>Enabling Worker Logging<a class="headerlink" href="#Enabling-Worker-Logging" title="Permalink to this headline">#</a></h3>
+<p>Worker logging is <strong>disabled by default</strong>. Enable it by setting the Spark SQL configuration:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spark</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;spark.sql.pyspark.worker.logging.enabled&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Accessing-Logs">
+<h3>Accessing Logs<a class="headerlink" href="#Accessing-Logs" title="Permalink to this headline">#</a></h3>
+<p>All captured logs can be queried as a DataFrame:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">logs</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">tvf</span><span class="o">.</span><span class="n">python_worker_logs</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>The logs DataFrame contains the following columns:</p>
+<ul class="simple">
+<li><p><strong>ts</strong>: Timestamp of the log entry</p></li>
+<li><p><strong>level</strong>: Log level (e.g., <code class="docutils literal notranslate"><span class="pre">&quot;INFO&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;WARNING&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;ERROR&quot;</span></code>)</p></li>
+<li><p><strong>logger</strong>: Logger name (e.g., custom logger name, <code class="docutils literal notranslate"><span class="pre">&quot;stdout&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;stderr&quot;</span></code>)</p></li>
+<li><p><strong>msg</strong>: The log message</p></li>
+<li><p><strong>context</strong>: A map containing contextual information (e.g., <code class="docutils literal notranslate"><span class="pre">func_name</span></code>, <code class="docutils literal notranslate"><span class="pre">class_name</span></code>, custom fields)</p></li>
+<li><p><strong>exception</strong>: Exception details (if an exception was logged)</p></li>
+</ul>
+</section>
+<section id="Examples">
+<h3>Examples<a class="headerlink" href="#Examples" title="Permalink to this headline">#</a></h3>
+<section id="Basic-UDF-Logging">
+<h4>Basic UDF Logging<a class="headerlink" href="#Basic-UDF-Logging" title="Permalink to this headline">#</a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">udf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="nd">@udf</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">my_udf</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;my_custom_logger&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>  <span class="c1"># Set level to INFO to capture info messages</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing value: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;This is a warning&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This is a stdout message&quot;</span><span class="p">)</span>  <span class="c1"># INFO level, logger=stdout</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This is a stderr message&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>  <span class="c1"># ERROR level, logger=stderr</span>
+    <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+<span class="c1"># Enable logging and execute</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;spark.sql.pyspark.worker.logging.enabled&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">([(</span><span class="s2">&quot;hello&quot;</span><span class="p">,),</span> <span class="p">(</span><span class="s2">&quot;world&quot;</span><span class="p">,)],</span> <span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">])</span>
+<span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">my_udf</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Query the logs</span>
+<span class="n">logs</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">tvf</span><span class="o">.</span><span class="n">python_worker_logs</span><span class="p">()</span>
+<span class="n">logs</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;level&quot;</span><span class="p">,</span> <span class="s2">&quot;msg&quot;</span><span class="p">,</span> <span class="s2">&quot;logger&quot;</span><span class="p">,</span> <span class="s2">&quot;context&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">truncate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++------------+
+|my_udf(text)|
++------------+
+|       HELLO|
+|       WORLD|
++------------+
+
++-------+------------------------+----------------+---------------------+
+|level  |msg                     |logger          |context              |
++-------+------------------------+----------------+---------------------+
+|INFO   |Processing value: hello |my_custom_logger|{func_name -&gt; my_udf}|
+|WARNING|This is a warning       |my_custom_logger|{func_name -&gt; my_udf}|
+|INFO   |This is a stdout message|stdout          |{func_name -&gt; my_udf}|
+|ERROR  |This is a stderr message|stderr          |{func_name -&gt; my_udf}|
+|INFO   |Processing value: world |my_custom_logger|{func_name -&gt; my_udf}|
+|WARNING|This is a warning       |my_custom_logger|{func_name -&gt; my_udf}|
+|INFO   |This is a stdout message|stdout          |{func_name -&gt; my_udf}|
+|ERROR  |This is a stderr message|stderr          |{func_name -&gt; my_udf}|
++-------+------------------------+----------------+---------------------+
+
+</pre></div></div>
+</div>
+</section>
+<section id="Logging-with-Custom-Context">
+<h4>Logging with Custom Context<a class="headerlink" href="#Logging-with-Custom-Context" title="Permalink to this headline">#</a></h4>
+<p>You can add custom context information to your logs:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">lit</span><span class="p">,</span> <span class="n">udf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="nd">@udf</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">contextual_udf</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;contextual&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+        <span class="s2">&quot;Processing with extra context&quot;</span><span class="p">,</span>
+        <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;context&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;user_id&quot;</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span> <span class="s2">&quot;operation&quot;</span><span class="p">:</span> <span class="s2">&quot;transform&quot;</span><span class="p">}}</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">value</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;spark.sql.pyspark.worker.logging.enabled&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">)</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">contextual_udf</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">logs</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">tvf</span><span class="o">.</span><span class="n">python_worker_logs</span><span class="p">()</span>
+<span class="n">logs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s2">&quot;logger = &#39;contextual&#39;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;msg&quot;</span><span class="p">,</span> <span class="s2">&quot;context&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">truncate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++--------------------+
+|contextual_udf(test)|
++--------------------+
+|                test|
++--------------------+
+
++-----------------------------+---------------------------------------------------------------------+
+|msg                          |context                                                              |
++-----------------------------+---------------------------------------------------------------------+
+|Processing with extra context|{func_name -&gt; contextual_udf, user_id -&gt; 123, operation -&gt; transform}|
++-----------------------------+---------------------------------------------------------------------+
+
+</pre></div></div>
+</div>
+<p>The context includes both automatic fields (like <code class="docutils literal notranslate"><span class="pre">func_name</span></code>) and custom fields (like <code class="docutils literal notranslate"><span class="pre">user_id</span></code>, <code class="docutils literal notranslate"><span class="pre">operation</span></code>).</p>
+</section>
+<section id="Exception-Logging">
+<h4>Exception Logging<a class="headerlink" href="#Exception-Logging" title="Permalink to this headline">#</a></h4>
+<p>Exceptions are automatically captured with full stack traces:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">udf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="nd">@udf</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">failing_udf</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;error_handler&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">/</span> <span class="n">x</span>
+    <span class="k">except</span> <span class="ne">ZeroDivisionError</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Division by zero occurred&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;spark.sql.pyspark.worker.logging.enabled&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">)</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">([(</span><span class="mi">0</span><span class="p">,),</span> <span class="p">(</span><span class="mi">5</span><span class="p">,)],</span> <span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">failing_udf</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">logs</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">tvf</span><span class="o">.</span><span class="n">python_worker_logs</span><span class="p">()</span>
+<span class="n">logs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s2">&quot;logger = &#39;error_handler&#39;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;msg&quot;</span><span class="p">,</span> <span class="s2">&quot;exception&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">truncate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++------------------+
+|failing_udf(value)|
++------------------+
+|                -1|
+|                20|
++------------------+
+
++-------------------------+----------------------------------------------------------------------------------------------------------------------------------------------+
+|msg                      |exception                                                                                                                                     |
++-------------------------+----------------------------------------------------------------------------------------------------------------------------------------------+
+|Division by zero occurred|{ZeroDivisionError, division by zero, [{NULL, failing_udf, /var/folders/r8/0v7zwfbd59q4ym2gn6kxjq8h0000gp/T/ipykernel_79089/916837455.py, 8}]}|
++-------------------------+----------------------------------------------------------------------------------------------------------------------------------------------+
+
+</pre></div></div>
+</div>
+</section>
+<section id="UDTF-and-Python-Data-Source-Logging">
+<h4>UDTF and Python Data Source Logging<a class="headerlink" href="#UDTF-and-Python-Data-Source-Logging" title="Permalink to this headline">#</a></h4>
+<p>Worker logging also works with UDTFs and Python Data Sources, capturing both the class and function names:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">col</span><span class="p">,</span> <span class="n">udtf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="nd">@udtf</span><span class="p">(</span><span class="n">returnType</span><span class="o">=</span><span class="s2">&quot;word: string, length: int&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WordSplitter</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;udtf_logger&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>  <span class="c1"># Set level to INFO to capture info messages</span>
+        <span class="n">words</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">)</span><span class="si">}</span><span class="s2"> words&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">word</span><span class="p">))</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;spark.sql.pyspark.worker.logging.enabled&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">([(</span><span class="s2">&quot;hello world&quot;</span><span class="p">,)],</span> <span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">])</span>
+<span class="n">df</span><span class="o">.</span><span class="n">lateralJoin</span><span class="p">(</span><span class="n">WordSplitter</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">outer</span><span class="p">()))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">logs</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">tvf</span><span class="o">.</span><span class="n">python_worker_logs</span><span class="p">()</span>
+<span class="n">logs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s2">&quot;logger = &#39;udtf_logger&#39;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;msg&quot;</span><span class="p">,</span> <span class="s2">&quot;context&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">truncate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++-----------+-----+------+
+|       text| word|length|
++-----------+-----+------+
+|hello world|hello|     5|
+|hello world|world|     5|
++-----------+-----+------+
+
++-----------------------------+---------------------------------------------------------------------+
+|msg                          |context                                                              |
++-----------------------------+---------------------------------------------------------------------+
+|Processing 2 words           |{func_name -&gt; eval, class_name -&gt; WordSplitter}                      |
++-----------------------------+---------------------------------------------------------------------+
+
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Querying-and-Analyzing-Logs">
+<h3>Querying and Analyzing Logs<a class="headerlink" href="#Querying-and-Analyzing-Logs" title="Permalink to this headline">#</a></h3>
+<p>You can use standard DataFrame operations to analyze logs:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">logs</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">tvf</span><span class="o">.</span><span class="n">python_worker_logs</span><span class="p">()</span>
+
+<span class="c1"># Count logs by level</span>
+<span class="n">logs</span><span class="o">.</span><span class="n">groupBy</span><span class="p">(</span><span class="s2">&quot;level&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Find all errors</span>
+<span class="n">logs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s2">&quot;level = &#39;ERROR&#39;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Logs from a specific function</span>
+<span class="n">logs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s2">&quot;context.func_name = &#39;my_udf&#39;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Logs with exceptions</span>
+<span class="n">logs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="s2">&quot;exception is not null&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Time-based analysis</span>
+<span class="n">logs</span><span class="o">.</span><span class="n">orderBy</span><span class="p">(</span><span class="s2">&quot;ts&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++-------+-----+
+|  level|count|
++-------+-----+
+|   INFO|    5|
+|WARNING|    3|
+|  ERROR|    3|
++-------+-----+
+
+...
+
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="IDE-Debugging">
+<h2>IDE Debugging<a class="headerlink" href="#IDE-Debugging" title="Permalink to this headline">#</a></h2>
+<p>On the driver side, no additional steps are needed to use IDE for debugging your PySpark application. Refer to the guide below:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://spark.apache.org/docs/latest/api/python/development/setting_ide.html">Setting up IDEs</a></p></li>
+</ul>
+<p>On the executor side, it requires several steps to set up the remote debugger. Refer to the guide below:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://spark.apache.org/docs/latest/api/python/development/debugging.html#remote-debugging-pycharm-professional">Remote Debugging (PyCharm Professional)</a>.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="dataprep.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Chapter 3: Function Junction - Data manipulation with PySpark</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="udfandudtf.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Chapter 5: Unleashing UDFs &amp; UDTFs</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Spark-UI">Spark UI</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Python-UDF-Execution">Python UDF Execution</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Non-Python-UDF">Non-Python UDF</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Monitor-with-top-and-ps">Monitor with <code class="docutils literal notranslate"><span class="pre">top</span></code> and <code class="docutils literal notranslate"><span class="pre">ps</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Use-PySpark-Profilers">Use PySpark Profilers</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Memory-Profiler">Memory Profiler</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Python/Pandas-UDF">Python/Pandas UDF</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Performance-Profiler">Performance Profiler</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Python/Pandas UDF</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Display-Stacktraces">Display Stacktraces</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Python-Worker-Logging">Python Worker Logging</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Enabling-Worker-Logging">Enabling Worker Logging</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Accessing-Logs">Accessing Logs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Examples">Examples</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Basic-UDF-Logging">Basic UDF Logging</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Logging-with-Custom-Context">Logging with Custom Context</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Exception-Logging">Exception Logging</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#UDTF-and-Python-Data-Source-Logging">UDTF and Python Data Source Logging</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Querying-and-Analyzing-Logs">Querying and Analyzing Logs</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#IDE-Debugging">IDE Debugging</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="../_sources/user_guide/bugbusting.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><p class="copyright">
+    Copyright @ 2026 The Apache Software Foundation, Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a>.
+</p></div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
