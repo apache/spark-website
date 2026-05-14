@@ -17,19 +17,26 @@ These small differences account for Spark's nature as a multi-module project.
 
 Each Spark release will be versioned: `[MAJOR].[FEATURE].[MAINTENANCE]`
 
-- **MAJOR**: All releases with the same major version number will have API compatibility.
-Major version numbers will remain stable over long periods of time. For instance, 1.X.Y may last 
-1 year or more.
-- **FEATURE**: Feature releases will typically contain new features, improvements, and bug fixes. 
+- **MAJOR**: Major releases occur annually, third-party dependency 
+upgrades, and major code refactoring. All releases with the same major version number will have 
+API compatibility.
+- **FEATURE**: Feature releases occur quarterly (every 3 months) and contain new features, performance 
+improvements, API additions, and bug fixes. To ensure safe and predictable upgrades for downstream 
+projects, feature releases have the following compatibility:
+  - No third-party dependency upgrades (e.g. Parquet, Arrow, ORC, Hadoop, Netty).
+  - No behavior or semantic changes (e.g. SQL semantics, execution behavior, optimizer behavior, 
+  configuration defaults). Exceptions might occur case by case (e.g., security issues).
+  - Public APIs may be added but not changed or removed.
+
 Each feature release will have a merge window where new patches can be merged, a QA window when 
 only fixes can be merged, then a final period where voting occurs on release candidates. These 
 windows will be announced immediately after the previous feature release to give people plenty 
-of time, and over time, we might make the whole release process more regular (similar to Ubuntu).
-- **MAINTENANCE**: Maintenance releases will occur more frequently and depend on specific patches 
-introduced (e.g. bug fixes) and their urgency. In general these releases are designed to patch bugs. 
-However, higher level libraries may introduce small features, such as a new algorithm, provided 
-they are entirely additive and isolated from existing code paths. Spark core may not introduce 
-any features.
+of time.
+- **MAINTENANCE**: Maintenance releases will occur on an ad hoc basis depending on specific patches 
+introduced (e.g. critical bug fixes and security patches) and their urgency. In general these releases 
+are designed to patch bugs. However, higher level libraries may introduce small features, such as a 
+new algorithm, provided they are entirely additive and isolated from existing code paths. Spark core 
+may not introduce any features.
 
 <h3>Alpha components</h3>
 
@@ -96,9 +103,10 @@ In cases where there is a "Bad API", but where the cost of removal is also high,
 
 <h2>Release cadence</h2>
 
-The branch is cut every January and July, so feature ("minor") releases occur about every 6 months in general.
-Hence, Spark 2.3.0 would generally be released about 6 months after 2.2.0. Maintenance releases happen as needed
-in between feature releases. Major releases do not happen according to a fixed schedule.
+Starting with Spark 4.3, feature releases occur quarterly (every 3 months), containing new features, 
+improvements, and bug fixes. Major releases occur annually (every 12 months), allowing breaking 
+changes and dependency upgrades. Maintenance releases happen as needed in between for critical 
+bug fixes and security patches.
 
 <h3>Spark 4.2 release window</h3>
 
@@ -110,11 +118,24 @@ in between feature releases. Major releases do not happen according to a fixed s
 
 <h2>Maintenance releases and EOL</h2>
 
-Feature release branches will, generally, be maintained with bug fix releases for a period of 18 months. 
-For example, branch 2.3.x is no longer considered maintained as of September 2019, 18 months after the release
-of 2.3.0 in February 2018. No more 2.3.x releases should be expected after that point, even for bug fixes.
+The following table summarizes the maintenance window for each release type:
 
-The last minor release within a major release will typically be maintained for longer as an "LTS" release.
-For example, 3.5.0 was released on September 13th 2023 and would normally be maintained for 31 months until April 12th 2026.
+| Release Type | Cadence | Maintenance Window |
+| ----- | ----- | ----- |
+| Feature (x.y) | Every 3 months | 6 months |
+| LTS (final feature of a major) | Every 12 months | 18 months |
+| Maintenance (x.y.z) | Ad hoc | N/A (patches only) |
 
-As an exception from the normal versioning policy, version 3.5.x has an "extended" LTS period to allow for migrations to be completed. This extended LTS period will end *November 2027*. During the 3.5.x extended LTS period, we will only include security fixes. This extend LTS only applies to the primary Apache Spark project/repo and does not apply to sub projects with separate repos/releases (namely: Spark Connect for Swift/Rust/Go and Spark Kubernetes operator). Additionally, as Java 8 support may be removed from other projects (including Hadoop), should a dependency have a security fix that is not backported to a Java 8 compatible version we may decide to mark that vulnerability as a won't fix or release the new version without Java 8 support.
+Non-LTS feature release branches will, generally, be maintained with bug fix releases for a period of 
+6 months.
+
+The final feature release within a major release will be designated as the "LTS" (Long-Term Support) release
+and will be maintained for 18 months. For example, Spark 4.5 (the final 4.x feature release) would be 
+maintained for 18 months from its release date. LTS releases provide a stable target for ecosystem 
+projects and downstream vendors to standardize around.
+
+Critical security patches will be backported to all actively maintained branches. Critical bug fixes 
+(e.g., correctness issues) that may introduce behavior changes will be evaluated by the community 
+on a case-by-case basis.
+
+As an exception from the normal versioning policy, version 3.5.x has an "extended" LTS period to allow for migrations to be completed. This extended LTS period will end *November 2027*. During the 3.5.x extended LTS period, we will only include security fixes. This extended LTS only applies to the primary Apache Spark project/repo and does not apply to sub projects with separate repos/releases (namely: Spark Connect for Swift/Rust/Go and Spark Kubernetes operator). Additionally, as Java 8 support may be removed from other projects (including Hadoop), should a dependency have a security fix that is not backported to a Java 8 compatible version we may decide to mark that vulnerability as a won't fix or release the new version without Java 8 support.
