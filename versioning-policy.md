@@ -17,26 +17,28 @@ These small differences account for Spark's nature as a multi-module project.
 
 Each Spark release will be versioned: `[MAJOR].[FEATURE].[MAINTENANCE]`
 
-- **MAJOR**: Major releases occur annually, third-party dependency 
-upgrades, and major code refactoring. All releases with the same major version number will have 
-API compatibility.
-- **FEATURE**: Feature releases occur quarterly (every 3 months) and contain new features, performance 
+- **MAJOR**: Major releases occur annually (every 12 months) as **x.0.0** releases. These releases may
+include **breaking changes**, third-party dependency upgrades, API removals and deprecations, and other changes that are not
+compatible with the previous major line. Within a major line, all **x.y.z** releases share API compatibility
+as described in the **FEATURE** and **MAINTENANCE** bullets below.
+- **FEATURE**: Feature releases (**x.y.0** with **y &ge; 1**) occur quarterly (every 3 months) and contain new features, performance 
 improvements, API additions, and bug fixes. To ensure safe and predictable upgrades for downstream 
 projects, feature releases have the following compatibility:
-  - No third-party dependency upgrades (e.g. Parquet, Arrow, ORC, Hadoop, Netty).
-  - No behavior or semantic changes (e.g. SQL semantics, execution behavior, optimizer behavior, 
-  configuration defaults). Exceptions might occur case by case (e.g., security issues).
+  - No third-party dependency upgrades (e.g. Parquet, Arrow, ORC, Hadoop, Netty) by default. Upgrades
+  required to address **security** issues may be allowed; any other exception is decided case by case by
+  the release managers and the community.
+  - No behavior or semantic changes (e.g. SQL semantics, execution behavior, configuration defaults).
+  Optimizer changes that only improve performance while preserving query results are allowed; optimizer
+  changes that alter results are not. Exceptions might occur case by case (e.g., security issues).
   - Public APIs may be added but not changed or removed.
 
 Each feature release will have a merge window where new patches can be merged, a QA window when 
 only fixes can be merged, then a final period where voting occurs on release candidates. These 
 windows will be announced immediately after the previous feature release to give people plenty 
 of time.
-- **MAINTENANCE**: Maintenance releases will occur on an ad hoc basis depending on specific patches 
-introduced (e.g. critical bug fixes and security patches) and their urgency. In general these releases 
-are designed to patch bugs. However, higher level libraries may introduce small features, such as a 
-new algorithm, provided they are entirely additive and isolated from existing code paths. Spark core 
-may not introduce any features.
+- **MAINTENANCE**: Maintenance releases (**x.y.z** with **z &ge; 1**) will occur on an ad hoc basis depending on specific patches
+introduced (e.g. critical bug fixes and security patches) and their urgency. They contain bug fixes and
+security patches only; they do not introduce new features.
 
 <h3>Alpha components</h3>
 
@@ -103,8 +105,8 @@ In cases where there is a "Bad API", but where the cost of removal is also high,
 
 <h2>Release cadence</h2>
 
-Starting with Spark 4.3, feature releases occur quarterly (every 3 months), containing new features, 
-improvements, and bug fixes. Major releases occur annually (every 12 months), allowing breaking 
+Starting with Apache Spark 4.3.0 (the first quarterly feature release after 4.2.0), feature releases occur quarterly (every 3 months), containing new features, 
+improvements, and bug fixes. Major releases occur annually (every 12 months), typically in a stable window once per year (subject to release discussion on the dev list), allowing breaking 
 changes and dependency upgrades. Maintenance releases happen as needed in between for critical 
 bug fixes and security patches.
 
@@ -116,23 +118,46 @@ bug fixes and security patches.
 | Mid May 2026 | QA period. Focus on bug fixes, tests, stability and docs. Generally, no new features merged.|
 | Late May 2026 | Release candidates (RC), voting, etc. until final release passes|
 
+<h3>Illustrative transition: 2026 and 2027</h3>
+
+The calendar below is an **example** to show how the community expects to bootstrap the faster cadence;
+exact dates stay subject to the usual release-discussion and voting process.
+
+- **2026**: Ship **Apache Spark 4.2.0** on the timeline above (the last *large* feature drop before the
+  transition). **4.2.x** is not affected by this policy (development began before the SPIP); existing
+  commitments, including the **18**-month maintenance window for **4.2.x**, are unchanged. After **4.2.0**
+  is generally available, plan **Apache Spark 4.3.0** as the first quarterly feature release on the new
+  train (for example, roughly **three months** after the **4.2.0** GA date for the start of the **4.3** merge/RC
+  cycle&mdash;this is not a fixed rule, only an illustration of quarterly feature releases).
+- **2027**: Ship **Apache Spark 5.0.0** as the next **annual** major. Follow with quarterly **5.1.0**,
+  **5.2.0**, and **5.3.0** feature releases; **5.3.0** is the **5.x** LTS as the last **5.x** feature release
+  (for example targeting calendar quarters **2027 Q1** through **Q4** if the **5.0.0** major lands early
+  in the year).
+
 <h2>Maintenance releases and EOL</h2>
 
 The following table summarizes the maintenance window for each release type:
 
 | Release Type | Cadence | Maintenance Window |
 | ----- | ----- | ----- |
-| Feature (x.y) | Every 3 months | 6 months |
-| LTS (final feature of a major) | Every 12 months | 18 months |
-| Maintenance (x.y.z) | Ad hoc | N/A (patches only) |
+| Major (x.0.0) | Annually | 6 months |
+| Feature (x.[1&ndash;2].0) | Every 3 months | 6 months |
+| LTS (last x.y.0 in the major line) | Every 3 months | 18 months |
+| Maintenance (x.y.z, z &ge; 1) | Ad hoc | N/A (patches only) |
 
-Non-LTS feature release branches will, generally, be maintained with bug fix releases for a period of 
-6 months.
+Release branches **other than LTS** will, generally, be maintained with bug fix releases for a period of
+6 months (see the **Major** and **Feature** rows in the table above).
 
-The final feature release within a major release will be designated as the "LTS" (Long-Term Support) release
-and will be maintained for 18 months. For example, Spark 4.5 (the final 4.x feature release) would be 
-maintained for 18 months from its release date. LTS releases provide a stable target for ecosystem 
-projects and downstream vendors to standardize around.
+Under the quarterly cadence, the **last** feature release within each major line is designated
+as the LTS (Long-Term Support) release for that major line and is maintained for **18 months** (for example
+Apache Spark 5.3.0 and 6.3.0). The **x.0.0**, **x.1.0**, and **x.2.0** trains are maintained for **6 months**
+each as usual. LTS releases provide a stable target for ecosystem projects and downstream vendors to
+standardize around.
+
+As an exception while the project transitions into this cadence, **Spark 4.x** still ships **4.3.0** as the
+first quarterly release on the new train, but the **4.x** LTS will be **Apache Spark 4.5.0** (the last
+planned **4.x** feature release) rather than **4.3.0**. **4.5.x** therefore receives the **18**-month LTS
+window in the same role as the last feature release on newer major lines.
 
 Critical security patches will be backported to all actively maintained branches. Critical bug fixes 
 (e.g., correctness issues) that may introduce behavior changes will be evaluated by the community 
