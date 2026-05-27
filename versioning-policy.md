@@ -136,28 +136,32 @@ exact dates stay subject to the usual release-discussion and voting process.
 
 <h2>Maintenance releases and EOL</h2>
 
+We plan to ship a release every 3 months. Every fourth release bumps the major version (**x.0.0**).
+Within each major line, the first release is the major release, the releases in between are feature
+releases, and the last release in the line is the LTS release.
+
 The following table summarizes the maintenance window for each release type:
 
-| Release Type | Cadence | Maintenance Window |
-| ----- | ----- | ----- |
-| Major (x.0.0) | Annually | 6 months |
-| Feature (x.[1&ndash;2].0) | Every 3 months | 6 months |
-| LTS (last x.y.0 in the major line) | Every 3 months | 18 months |
-| Maintenance (x.y.z, z &ge; 1) | Ad hoc | N/A (patches only) |
+| Release Type | Maintenance Window |
+| ----- | ----- |
+| Major (x.0.0) | 6 months |
+| Feature (x.[1&ndash;2].0) | 6 months |
+| LTS (last x.y.0 in the major line) | 18 months |
+| Maintenance (x.y.z, z &ge; 1) | N/A (patches only) |
 
 Release branches **other than LTS** will, generally, be maintained with bug fix releases for a period of
 6 months (see the **Major** and **Feature** rows in the table above).
 
-Under the quarterly cadence, the **last** feature release within each major line is designated
-as the LTS (Long-Term Support) release for that major line and is maintained for **18 months** (for example
-Apache Spark 5.3.0 and 6.3.0). The **x.0.0**, **x.1.0**, and **x.2.0** trains are maintained for **6 months**
+Under this cadence, the **last** release in each major line is designated as the LTS (Long-Term
+Support) release for that major line and is maintained for **18 months** (for example Apache Spark
+5.3.0 and 6.3.0). The **x.0.0**, **x.1.0**, and **x.2.0** trains are maintained for **6 months**
 each as usual. LTS releases provide a stable target for ecosystem projects and downstream vendors to
 standardize around.
 
 As an exception while the project transitions into this cadence, **Spark 4.x** still ships **4.3.0** as the
 first quarterly release on the new train, but the **4.x** LTS will be **Apache Spark 4.5.0** (the last
-planned **4.x** feature release) rather than **4.3.0**. **4.5.x** therefore receives the **18**-month LTS
-window in the same role as the last feature release on newer major lines.
+planned **4.x** release) rather than **4.3.0**. **4.5.x** therefore receives the **18**-month LTS
+window in the same role as the last release on newer major lines.
 
 Critical security patches will be backported to all actively maintained branches. Critical bug fixes 
 (e.g., correctness issues) that may introduce behavior changes will be evaluated by the community 
