@@ -28,6 +28,7 @@ navigation:
 |Robert Evans|NVIDIA|
 |Wenchen Fan|Databricks|
 |Huaxin Gao|Apple|
+|Tian Gao|Databricks|
 |Max Gekk|Databricks|
 |Jiaan Geng|NetEase|
 |Joseph Gonzalez|UC Berkeley|
