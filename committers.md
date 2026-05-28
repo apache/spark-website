@@ -40,6 +40,7 @@ navigation:
 |Liang-Chi Hsieh|Databricks|
 |Yin Huai|Databricks|
 |Shane Huang|Intel|
+|Yicong Huang|Databricks, UMass Amherst|
 |Dongjoon Hyun|Apple|
 |Kazuaki Ishizaki|IBM|
 |Xingbo Jiang|Databricks|
