@@ -36,6 +36,7 @@ navigation:
 |Stephen Haberman|LinkedIn|
 |Mark Hamstra|ClearStory Data|
 |Seth Hendrickson|Stripe|
+|Szehon Ho|Databricks|
 |Herman van Hovell|Databricks|
 |Liang-Chi Hsieh|Databricks|
 |Yin Huai|Databricks|
