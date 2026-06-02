@@ -14,6 +14,7 @@ navigation:
 |Michael Armbrust|Databricks|
 |Dilip Biswal|Adobe|
 |Ryan Blue|Databricks|
+|Uros Bojanic|Databricks|
 |Joseph Bradley|Databricks|
 |Matthew Cheah|Palantir|
 |Felix Cheung|NVIDIA|
