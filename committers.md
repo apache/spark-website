@@ -244,6 +244,32 @@ can do this automatically in most cases.
 
 Once a PR is merged please leave a comment on the PR stating which branch(es) it has been merged with.
 
+<h4>Merging website pull requests</h4>
+
+Pull requests to the Spark website (the
+<a href="https://github.com/apache/spark-website">apache/spark-website</a> repository) are merged
+separately from the main Spark repo. Unlike `apache/spark`, this repository uses `asf-site` as its
+default branch, and there is no `master` branch.
+
+Website PRs are merged using the
+<a href="https://github.com/apache/spark-website/blob/asf-site/merge_pr.py">merge_pr.py</a> script
+in the root of the `spark-website` repository, which squashes the pull request's changes into one
+commit, just like `merge_spark_pr.py` does for the main repo.
+
+To use it, set up remotes in your local clone of `spark-website` the same way as for the main repo:
+an `apache` remote (the default `PUSH_REMOTE_NAME`, used for pushing the squashed commit) and an
+`apache-github` remote (the default `PR_REMOTE_NAME`, used for pulling the change), both pointing at
+`git@github.com:apache/spark-website.git`. Then run the script from the repository root:
+
+```
+./merge_pr.py
+```
+
+The script is interactive and walks you through selecting the PR and pushing the merge to the
+`asf-site` branch. Before merging, make sure the pull request includes the regenerated HTML under
+`site/` in addition to the Markdown/HTML source changes; see the repository's `README.md` for how
+the site is built.
+
 <h3>Policy on backporting bug fixes</h3>
 
 From <a href="https://www.mail-archive.com/dev@spark.apache.org/msg10284.html">`pwendell`</a>:
