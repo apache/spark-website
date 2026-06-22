@@ -1,7 +1,7 @@
 ---
 layout: global
 title: Third-Party Projects
-type: "page singular"
+type: "page"
 navigation:
   weight: 5
   show: true

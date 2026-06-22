@@ -1,13 +1,11 @@
 ---
 layout: global
 title: Documentation
-type: "page singular"
+type: "page"
 navigation:
   weight: 3
   show: true
 ---
-
-<h2><span class="text-capitalize">Apache Spark<span class="tm">&trade;</span></span> Documentation</h2>
 
 <p>Setup instructions, programming guides, and other documentation are available for each stable version of Spark below:</p>
 
@@ -251,4 +249,3 @@ Slides, videos and EC2-based exercises from each of these are available online:
 Spark was initially developed as a UC Berkeley research project, and much of the design is documented in papers.
 The <a href="{{site.baseurl}}/research.html">research page</a> lists some of the original motivation and direction.
 </p>
-

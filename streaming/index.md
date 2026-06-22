@@ -1,6 +1,6 @@
 ---
 layout: global
-type: "page singular"
+type: "page"
 title: Spark Structured Streaming
 description: Spark Structured Streaming makes it easy to build streaming applications and pipelines with the same and familiar Spark APIs.
 subproject: Streaming

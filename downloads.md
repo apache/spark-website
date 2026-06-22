@@ -1,7 +1,6 @@
 ---
 layout: global
 title: Downloads
-type: singular
 navigation:
   weight: 3
   show: true
@@ -15,8 +14,6 @@ window.onload = function () {
   });
 }
 </script>
-
-## Download Apache Spark&trade;
 
 1. Choose a Spark release:
   <select id="sparkVersionSelect" onChange="javascript:onVersionSelect();"></select><br>

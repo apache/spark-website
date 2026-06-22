@@ -1,7 +1,7 @@
 ---
 layout: global
 title: Release Process
-type: "page singular"
+type: "page"
 navigation:
   weight: 5
   show: true

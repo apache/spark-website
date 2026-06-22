@@ -1,13 +1,11 @@
 ---
 layout: global
 title: Spark Project Improvement Proposals (SPIP)
-type: "page singular"
+type: "page"
 navigation:
   weight: 5
   show: true
 ---
-
-<h2>Spark project improvement proposals (SPIP)</h2>
 
 The purpose of an SPIP is to inform and involve the user community in major improvements to the Spark codebase throughout the development process, to increase the likelihood that user needs are met.
 
