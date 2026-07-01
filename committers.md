@@ -1,12 +1,11 @@
 ---
 layout: global
 title: Committers
-type: "page singular"
+type: "page"
 navigation:
   weight: 5
   show: true
 ---
-<h2>Current committers</h2>
 
 |Name|Organization|
 |----|------------|

@@ -1,13 +1,11 @@
 ---
 layout: global
 title: Versioning Policy
-type: "page singular"
+type: "page"
 navigation:
   weight: 5
   show: true
 ---
-
-<h2>Versioning policy</h2>
 
 Starting with Spark 1.0.0, the Spark project will follow the 
 <a href="http://semver.org/">semantic versioning guidelines</a> with a few deviations. 

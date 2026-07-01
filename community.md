@@ -1,13 +1,11 @@
 ---
 layout: global
 title: Community
-type: "page singular"
+type: "page"
 navigation:
   weight: 5
   show: true
 ---
-
-<h2>Apache Spark<span class="tm">&trade;</span> community</h2>
 
 <a name="have-questions"></a>
 <h3>Have questions?</h3>
