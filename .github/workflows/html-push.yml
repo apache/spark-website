@@ -12,7 +12,11 @@ jobs:
     name: Build and commit HTML to `asf-site`
     # This condition is important. We don't want to trigger this job if the last
     # commit was created _by_ this job!
-    if: "!contains(github.event.head_commit.message, '[html]')"
+    if: >-
+      !(
+        contains(github.event.head_commit.message, '[html]') &&
+        github.event.head_commit.author.name == 'github-actions[bot]'
+      )
     # Not technically necessary, but helps avoid spurious failures if multiple
     # commits are pushed in rapid succession.
     concurrency:
@@ -24,13 +28,8 @@ jobs:
     steps:
     - name: Checkout Spark Website repository
       uses: actions/checkout@v7
-    - name: Set up Ruby and Bundler
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '3.4'
-        bundler-cache: true
-    - name: Run documentation build
-      run: bundle exec jekyll build
+    - name: Build HTML
+      uses: ./.github/actions/build-html
     - name: Commit and push generated HTML
       run: |
         git config user.name "github-actions[bot]"
