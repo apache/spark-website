@@ -1,12 +1,4 @@
-# Apache Spark Main Website
-
-This repository captures the main Apache Spark website located at https://spark.apache.org. The programming docs are [in the main Spark repo][1], not here.
-
-[1]: https://github.com/apache/spark/tree/master/docs
-
-To contribute changes, see [CONTRIBUTING](.github/CONTRIBUTING.md).
-
-## Generating the website HTML locally
+## Generating the website HTML
 
 In this directory you will find text files formatted using Markdown, with an `.md` suffix.
 
@@ -36,6 +28,22 @@ of Spark from the Spark source repository and then copied to the website under t
 directory. See the instructions for building those in the readme in the Spark 
 project's `/docs` directory.
 
+## Rouge and Pygments
+
+We also use [Rouge](https://github.com/rouge-ruby/rouge) for syntax highlighting in documentation Markdown pages.
+Its HTML output is compatible with CSS files designed for [Pygments](https://pygments.org/).
+
+To mark a block of code in your Markdown to be syntax highlighted by `jekyll` during the 
+compile phase, use the following syntax:
+
+    {% highlight scala %}
+    // Your Scala code goes here, you can replace Scala with many other
+    // supported languages too.
+    {% endhighlight %}
+
+You probably don't need to install that unless you want to regenerate the Pygments CSS file.
+It requires Python, and can be installed by running `sudo easy_install Pygments`.
+
 ## Merge PR
 
-To merge a pull request, use the `merge_pr.py` script. This script also squashes the commits.
+To merge pull request, use the `merge_pr.py` script which also squashes the commits.
