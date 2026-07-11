@@ -1,0 +1,43 @@
+name: Build and Push HTML
+
+on:
+  push:
+    branches:
+    - asf-site
+
+jobs:
+  commit:
+    name: Build and commit HTML to `asf-site`
+    # This condition is important. We don't want to trigger this job if the last
+    # commit was created _by_ this job!
+    if: >-
+      !(
+        contains(github.event.head_commit.message, '[html]') &&
+        github.event.head_commit.author.name == 'github-actions[bot]'
+      )
+    # Not technically necessary, but helps avoid spurious failures if multiple
+    # commits are pushed in rapid succession.
+    concurrency:
+      group: html-push-${{ github.ref }}
+      cancel-in-progress: true
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+    - name: Checkout Spark Website repository
+      uses: actions/checkout@v7
+    - name: Build HTML
+      uses: ./.github/actions/build-html
+    - name: Commit and push generated HTML
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        # `-f` because we told git to otherwise ignore `site/`
+        git add -f site/
+        if git diff --cached --quiet; then
+          echo "No changes to commit."
+        else
+          COMMIT_TITLE=$(git log -1 --pretty=%s)
+          git commit -m "[html] $COMMIT_TITLE"
+          git push
+        fi
