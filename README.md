@@ -11,7 +11,7 @@ To contribute changes, submit a pull request with your Markdown source changes. 
 The `site/` directory is tracked in git as a deployment artifact. To hide local changes to it from `git status` and `git diff`, run:
 
 ```sh
-git ls-files site/ | xargs git update-index --skip-worktree
+git ls-files -z site/ | xargs -0 git update-index --skip-worktree
 ```
 
 To undo this, run the same command with `--no-skip-worktree` instead.
