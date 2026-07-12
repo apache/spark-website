@@ -1,12 +1,22 @@
 # Apache Spark Main Website
 
-This repository captures the main Apache Spark website located at https://spark.apache.org. The programming docs are [in the main Spark repo][1], not here.
+This repository captures the main Apache Spark website located at https://spark.apache.org. The programming docs under https://spark.apache.org/docs/ are [in the main Spark repo][main], not here. They are built separately for each release of Spark and then copied to the website under the `docs/` directory.
 
-[1]: https://github.com/apache/spark/tree/master/docs
+[main]: https://github.com/apache/spark/tree/master/docs#readme
 
-To contribute changes, see [CONTRIBUTING](.github/CONTRIBUTING.md).
+## Contributing
 
-## Generating the website HTML locally
+To contribute changes, submit a pull request with your Markdown source changes. You only need to commit changes to the Markdown source. A [GitHub Actions workflow](.github/workflows/html-push.yml) will generate the corresponding HTML under `site/` and push it for you.
+
+The `site/` directory is tracked in git as a deployment artifact. To hide local changes to it from `git status` and `git diff`, run:
+
+```sh
+git ls-files site/ | xargs git update-index --skip-worktree
+```
+
+To undo this, run the same command with `--no-skip-worktree` instead.
+
+## Building the site locally
 
 In this directory you will find text files formatted using Markdown, with an `.md` suffix.
 
@@ -41,18 +51,11 @@ the Markdown files in the Docker container.
 
 The website is deployed automatically by [ASF Infra][infra]. The deployment configuration is tracked by [.asf.yaml](./.asf.yaml) and is [documented here][asf-docs].
 
-One deployment detail that appears to be critical is the presence of the [`content`](./content/) symlink to `site/`. Even though ASF Infra is [aware of Jekyll][jek], we perhaps do not have the exact setup required for them to automatically use our [Jekyll config](./_config.yml) to understand where the site content lives. With the `content` symlink, the website will just show a plain directory listing of the files in this repo.
+One deployment detail that appears to be critical is the presence of the [`content`](./content/) symlink to `site/`. Even though ASF Infra is [aware of Jekyll][jek], we perhaps do not have the exact setup required for them to automatically use our [Jekyll config](./_config.yml) to understand where the site content lives. Without the `content` symlink, the website will just show a plain directory listing of the files in this repo.
 
 [infra]: https://infra.apache.org
 [asf-docs]: https://github.com/apache/infrastructure-asfyaml/tree/main?tab=readme-ov-file
 [jek]: https://github.com/apache/infrastructure-asfyaml/tree/76d241ccef02e5397e10c173ebf04c07525311ea#jekyll_cms
-
-## Docs sub-dir
-
-The docs are not generated as part of the website. They are built separately for each release 
-of Spark from the Spark source repository and then copied to the website under the docs 
-directory. See the instructions for building those in the readme in the Spark 
-project's `/docs` directory.
 
 ## Merge PR
 
