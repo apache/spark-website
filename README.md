@@ -54,7 +54,7 @@ The website is deployed automatically by [ASF Infra][infra]. The deployment conf
 One deployment detail that appears to be critical is the presence of the [`content`](./content/) symlink to `site/`. Even though ASF Infra is [aware of Jekyll][jek], we perhaps do not have the exact setup required for them to automatically use our [Jekyll config](./_config.yml) to understand where the site content lives. Without the `content` symlink, the website will just show a plain directory listing of the files in this repo.
 
 [infra]: https://infra.apache.org
-[asf-docs]: https://github.com/apache/infrastructure-asfyaml/tree/main?tab=readme-ov-file
+[asf-docs]: https://github.com/apache/infrastructure-asfyaml/tree/main#readme
 [jek]: https://github.com/apache/infrastructure-asfyaml/tree/76d241ccef02e5397e10c173ebf04c07525311ea#jekyll_cms
 
 ## Merge PR

@@ -265,7 +265,7 @@ an `apache` remote (the default `PUSH_REMOTE_NAME`, used for pushing the squashe
 ```
 
 The script is interactive and walks you through selecting the PR and pushing the merge to the
-`asf-site` branch. See the repository's [README](https://github.com/apache/spark-website?tab=readme-ov-file)
+`asf-site` branch. See the repository's [README](https://github.com/apache/spark-website#readme)
 for more details on how the site is built.
 
 <h3>Policy on backporting bug fixes</h3>
