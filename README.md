@@ -6,7 +6,7 @@ This repository captures the main Apache Spark website located at https://spark.
 
 ## Contributing
 
-To contribute changes, submit a pull request with your Markdown source changes. You only need to commit changes to the Markdown source. A [GitHub Actions workflow](.github/workflows/html-push.yml) will generate the corresponding HTML under `site/` and push it for you.
+To contribute changes, build and test the site locally, then submit a pull request with your changes. You only need to commit changes to the Markdown source. A [GitHub Actions workflow](.github/workflows/html-push.yml) will generate the corresponding HTML under `site/` and push it for you.
 
 The `site/` directory is tracked in git as a deployment artifact. To hide local changes to it from `git status` and `git diff`, run:
 
@@ -17,8 +17,6 @@ git ls-files -z site/ | xargs -0 git update-index --skip-worktree
 To undo this, run the same command with `--no-skip-worktree` instead.
 
 ## Building the site locally
-
-In this directory you will find text files formatted using Markdown, with an `.md` suffix.
 
 Building the site requires [Ruby 3](https://www.ruby-lang.org), [Jekyll](http://jekyllrb.com/docs), and [Rouge](https://github.com/rouge-ruby/rouge).
 
