@@ -25,7 +25,7 @@ var packagesV15 = [hadoop34p, hadoop34pSparkConnect, hadoopFree, sources];
 
 addRelease("4.2.0", new Date("07/14/2026"), packagesV15, true);
 addRelease("4.1.3", new Date("07/15/2026"), packagesV15, true);
-addRelease("4.0.3", new Date("06/11/2026"), packagesV15, true);
+addRelease("4.0.4", new Date("07/15/2026"), packagesV15, true);
 addRelease("3.5.8", new Date("01/15/2026"), packagesV14, true);
 
 function append(el, contents) {
