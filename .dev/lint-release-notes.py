@@ -64,7 +64,7 @@ def check_version_format(version_str: str) -> Version:
 def check_highlights(path: Path, version: Version) -> None:
     if version.maintenance == 0:
         content = path.read_text(encoding="utf-8")
-        if not re.search(r"## .*Highlights\b", content, re.MULTILINE):
+        if not re.search(r"^#?## .*Highlights\b", content, re.MULTILINE):
             raise ValueError(
                 "major/minor release is missing a highlights heading. Add: ## Highlights"
             )
