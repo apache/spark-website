@@ -1,13 +1,11 @@
 ---
 layout: global
 title: Security
-type: "page singular"
+type: "page"
 navigation:
   weight: 5
   show: true
 ---
-
-<h2>Security Model</h2>
 
 For information on what security properties to expect from Apache Spark
 and how to configure the various security features, see the

@@ -2,7 +2,7 @@
 layout: global
 title: Mailing Lists
 redirect: community.html
-type: "page singular"
+type: "page"
 navigation:
   weight: 5
   show: true

@@ -1,7 +1,7 @@
 ---
 layout: global
 title: Contributing to Spark
-type: "page singular"
+type: "page"
 navigation:
   weight: 5
   show: true

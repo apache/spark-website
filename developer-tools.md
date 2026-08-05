@@ -1,7 +1,7 @@
 ---
 layout: global
 title: Useful Developer Tools
-type: "page singular"
+type: "page"
 navigation:
   weight: 5
   show: true

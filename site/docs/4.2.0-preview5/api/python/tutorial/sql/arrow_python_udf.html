@@ -1,0 +1,1104 @@
+
+
+<!DOCTYPE html>
+
+
+<html >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Arrow Python UDFs &#8212; PySpark 4.2.0-preview5 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/pyspark.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorial/sql/arrow_python_udf';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://spark.apache.org/static/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '4.2.0-preview5';
+        </script>
+    <link rel="canonical" href="https://spark.apache.org/docs/latest/api/python/tutorial/sql/arrow_python_udf.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Vectorized Python User-defined Table Functions (UDTFs)" href="arrow_python_udtf.html" />
+    <link rel="prev" title="Apache Arrow in PySpark" href="arrow_pandas.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Matomo -->
+    <script type="text/javascript">
+        var _paq = window._paq = window._paq || [];
+        /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+        _paq.push(["disableCookies"]);
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+        (function() {
+            var u="https://analytics.apache.org/";
+            _paq.push(['setTrackerUrl', u+'matomo.php']);
+            _paq.push(['setSiteId', '40']);
+            var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+            g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+        })();
+    </script>
+    <!-- End Matomo Code -->
+
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://spark.apache.org/images/spark-logo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="https://spark.apache.org/images/spark-logo-rev.svg" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../index.html">
+                        Overview
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../getting_started/index.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../index.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../user_guide/index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../reference/index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../development/index.html">
+                        Development
+                      </a>
+                    </li>
+                
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../migration_guide/index.html">
+                        Migration Guides
+                      </a>
+                    </li>
+                
+                </div>
+            </div>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      4.2.0-preview5  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/apache/spark" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/pyspark" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-solid fa-box"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../index.html">
+                        Overview
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../getting_started/index.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../index.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../user_guide/index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../reference/index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../development/index.html">
+                        Development
+                      </a>
+                    </li>
+                
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../migration_guide/index.html">
+                        Migration Guides
+                      </a>
+                    </li>
+                
+                </div>
+            </div>
+            
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      4.2.0-preview5  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/apache/spark" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/pyspark" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-solid fa-box"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../python_packaging.html">Python Package Management</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Spark SQL</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="arrow_pandas.html">Apache Arrow in PySpark</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Arrow Python UDFs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="arrow_python_udtf.html">Vectorized Python User-defined Table Functions (UDTFs)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="python_udtf.html">Python User-defined Table Functions (UDTFs)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="python_data_source.html">Python Data Source API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="type_conversions.html">Python to Spark Type Conversions</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../pandas_on_spark/index.html">Pandas API on Spark</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../pandas_on_spark/options.html">Options and settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pandas_on_spark/pandas_pyspark.html">From/to pandas and PySpark DataFrames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pandas_on_spark/transform_apply.html">Transform and apply a function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pandas_on_spark/types.html">Type Support in Pandas API on Spark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pandas_on_spark/typehints.html">Type Hints in Pandas API on Spark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pandas_on_spark/from_to_dbms.html">From/to other DBMSes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pandas_on_spark/best_practices.html">Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pandas_on_spark/supported_pandas_api.html">Supported pandas API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pandas_on_spark/faq.html">FAQ</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Tutorials</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Spark SQL</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Arrow Python UDFs</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="arrow-python-udfs">
+<h1>Arrow Python UDFs<a class="headerlink" href="#arrow-python-udfs" title="Permalink to this headline">#</a></h1>
+<p>Native Arrow UDFs operate directly on <code class="docutils literal notranslate"><span class="pre">pyarrow.Array</span></code> objects without converting to Pandas or
+row-by-row Python objects. This preserves the columnar layout end-to-end, avoids unnecessary data
+copies, and enables vectorized processing using Arrow’s native compute functions.</p>
+<p>A Native Arrow UDF is defined using <a class="reference internal" href="../../reference/pyspark.sql/api/pyspark.sql.functions.arrow_udf.html#pyspark.sql.functions.arrow_udf" title="pyspark.sql.functions.arrow_udf"><code class="xref py py-func docutils literal notranslate"><span class="pre">arrow_udf()</span></code></a> as a decorator or wrapper, and no additional
+configuration is required.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Native Arrow UDFs can also be defined via <a class="reference internal" href="../../reference/pyspark.sql/api/pyspark.sql.functions.udf.html#pyspark.sql.functions.udf" title="pyspark.sql.functions.udf"><code class="xref py py-func docutils literal notranslate"><span class="pre">udf()</span></code></a> with <code class="docutils literal notranslate"><span class="pre">pyarrow.Array</span></code> type hints.
+The type hints in the function signature determine which kind of Arrow UDF is created
+(e.g., returning <code class="docutils literal notranslate"><span class="pre">pa.Array</span></code> creates an array-to-array UDF, while returning <code class="docutils literal notranslate"><span class="pre">float</span></code>
+creates an aggregate UDF).</p>
+</div>
+<section id="native-arrow-udf-types">
+<h2>Native Arrow UDF Types<a class="headerlink" href="#native-arrow-udf-types" title="Permalink to this headline">#</a></h2>
+<section id="arrays-to-array">
+<h3>Arrays to Array<a class="headerlink" href="#arrays-to-array" title="Permalink to this headline">#</a></h3>
+<p>The type hint can be expressed as <code class="docutils literal notranslate"><span class="pre">pyarrow.Array</span></code>, … -&gt; <code class="docutils literal notranslate"><span class="pre">pyarrow.Array</span></code>.</p>
+<p>The function takes one or more <code class="docutils literal notranslate"><span class="pre">pyarrow.Array</span></code> and outputs one <code class="docutils literal notranslate"><span class="pre">pyarrow.Array</span></code>.
+The output should always be of the same length as the input.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pa</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">arrow_udf</span>
+
+<span class="nd">@arrow_udf</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_upper</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">Array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pa</span><span class="o">.</span><span class="n">Array</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">pa</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">ascii_upper</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">([(</span><span class="s2">&quot;John Doe&quot;</span><span class="p">,)],</span> <span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,))</span>
+<span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">to_upper</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +--------------+</span>
+<span class="c1"># |to_upper(name)|</span>
+<span class="c1"># +--------------+</span>
+<span class="c1"># |      JOHN DOE|</span>
+<span class="c1"># +--------------+</span>
+</pre></div>
+</div>
+<p>When the <code class="docutils literal notranslate"><span class="pre">returnType</span></code> is a struct type, the function returns a <code class="docutils literal notranslate"><span class="pre">pa.StructArray</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pa</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">arrow_udf</span>
+
+<span class="nd">@arrow_udf</span><span class="p">(</span><span class="s2">&quot;first string, last string&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">split_expand</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">Array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pa</span><span class="o">.</span><span class="n">Array</span><span class="p">:</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">ascii_split_whitespace</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+    <span class="n">s0</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">b</span><span class="p">])</span>
+    <span class="n">s1</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">b</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">pa</span><span class="o">.</span><span class="n">StructArray</span><span class="o">.</span><span class="n">from_arrays</span><span class="p">([</span><span class="n">s0</span><span class="p">,</span> <span class="n">s1</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;first&quot;</span><span class="p">,</span> <span class="s2">&quot;last&quot;</span><span class="p">])</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">([(</span><span class="s2">&quot;John Doe&quot;</span><span class="p">,)],</span> <span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,))</span>
+<span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">split_expand</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +------------------+</span>
+<span class="c1"># |split_expand(name)|</span>
+<span class="c1"># +------------------+</span>
+<span class="c1"># |       {John, Doe}|</span>
+<span class="c1"># +------------------+</span>
+</pre></div>
+</div>
+<p>Arrow UDFs support keyword arguments:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pa</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql</span><span class="w"> </span><span class="kn">import</span> <span class="n">functions</span> <span class="k">as</span> <span class="n">sf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">arrow_udf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">IntegerType</span>
+
+<span class="nd">@arrow_udf</span><span class="p">(</span><span class="n">returnType</span><span class="o">=</span><span class="n">IntegerType</span><span class="p">())</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calc</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">Array</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">Array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pa</span><span class="o">.</span><span class="n">Array</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">pa</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">pa</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">calc</span><span class="p">(</span><span class="n">b</span><span class="o">=</span><span class="n">sf</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="mi">10</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">sf</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +-----------------------------+</span>
+<span class="c1"># |calc(b =&gt; (id * 10), a =&gt; id)|</span>
+<span class="c1"># +-----------------------------+</span>
+<span class="c1"># |                            0|</span>
+<span class="c1"># |                          101|</span>
+<span class="c1"># +-----------------------------+</span>
+</pre></div>
+</div>
+</section>
+<section id="iterator-of-arrays-to-iterator-of-arrays">
+<h3>Iterator of Arrays to Iterator of Arrays<a class="headerlink" href="#iterator-of-arrays-to-iterator-of-arrays" title="Permalink to this headline">#</a></h3>
+<p>The type hint can be expressed as <code class="docutils literal notranslate"><span class="pre">Iterator[pyarrow.Array]</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">Iterator[pyarrow.Array]</span></code>.</p>
+<p>The function takes an iterator of <code class="docutils literal notranslate"><span class="pre">pyarrow.Array</span></code> and outputs an iterator of <code class="docutils literal notranslate"><span class="pre">pyarrow.Array</span></code>.
+The length of the entire output should be the same as the entire input.
+This is useful when the UDF execution requires expensive initialization.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pa</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">arrow_udf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span>
+
+<span class="nd">@arrow_udf</span><span class="p">(</span><span class="s2">&quot;long&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plus_one</span><span class="p">(</span><span class="n">iterator</span><span class="p">:</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">pa</span><span class="o">.</span><span class="n">Array</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">pa</span><span class="o">.</span><span class="n">Array</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">iterator</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">pa</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">([(</span><span class="mi">1</span><span class="p">,),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,)],</span> <span class="p">[</span><span class="s2">&quot;v&quot;</span><span class="p">])</span>
+<span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">plus_one</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">v</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +-----------+</span>
+<span class="c1"># |plus_one(v)|</span>
+<span class="c1"># +-----------+</span>
+<span class="c1"># |          2|</span>
+<span class="c1"># |          3|</span>
+<span class="c1"># |          4|</span>
+<span class="c1"># +-----------+</span>
+</pre></div>
+</div>
+</section>
+<section id="iterator-of-multiple-arrays-to-iterator-of-arrays">
+<h3>Iterator of Multiple Arrays to Iterator of Arrays<a class="headerlink" href="#iterator-of-multiple-arrays-to-iterator-of-arrays" title="Permalink to this headline">#</a></h3>
+<p>The type hint can be expressed as <code class="docutils literal notranslate"><span class="pre">Iterator[Tuple[pyarrow.Array,</span> <span class="pre">...]]</span></code> -&gt; <code class="docutils literal notranslate"><span class="pre">Iterator[pyarrow.Array]</span></code>.</p>
+<p>The function takes an iterator of a tuple of multiple <code class="docutils literal notranslate"><span class="pre">pyarrow.Array</span></code> and outputs an
+iterator of <code class="docutils literal notranslate"><span class="pre">pyarrow.Array</span></code>. Use this when the UDF requires multiple input columns.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pa</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql</span><span class="w"> </span><span class="kn">import</span> <span class="n">functions</span> <span class="k">as</span> <span class="n">sf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">arrow_udf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="nd">@arrow_udf</span><span class="p">(</span><span class="s2">&quot;long&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">multiply</span><span class="p">(</span>
+    <span class="n">iterator</span><span class="p">:</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">pa</span><span class="o">.</span><span class="n">Array</span><span class="p">,</span> <span class="n">pa</span><span class="o">.</span><span class="n">Array</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">pa</span><span class="o">.</span><span class="n">Array</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span> <span class="ow">in</span> <span class="n">iterator</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">pa</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">))</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">([(</span><span class="mi">1</span><span class="p">,),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,)],</span> <span class="p">[</span><span class="s2">&quot;v&quot;</span><span class="p">])</span>
+<span class="n">df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span>
+    <span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="n">multiply</span><span class="p">(</span><span class="n">sf</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">),</span> <span class="n">sf</span><span class="o">.</span><span class="n">struct</span><span class="p">(</span><span class="n">sf</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)))</span>
+<span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +---+------+</span>
+<span class="c1"># |  v|output|</span>
+<span class="c1"># +---+------+</span>
+<span class="c1"># |  1|     1|</span>
+<span class="c1"># |  2|     4|</span>
+<span class="c1"># |  3|     9|</span>
+<span class="c1"># +---+------+</span>
+</pre></div>
+</div>
+</section>
+<section id="arrays-to-scalar">
+<h3>Arrays to Scalar<a class="headerlink" href="#arrays-to-scalar" title="Permalink to this headline">#</a></h3>
+<p>The type hint can be expressed as <code class="docutils literal notranslate"><span class="pre">pyarrow.Array</span></code>, … -&gt; <code class="docutils literal notranslate"><span class="pre">Any</span></code>.</p>
+<p>The function takes one or more <code class="docutils literal notranslate"><span class="pre">pyarrow.Array</span></code> and returns a scalar value. The return type
+annotation can be any type other than <code class="docutils literal notranslate"><span class="pre">pa.Array</span></code>, <code class="docutils literal notranslate"><span class="pre">Iterator</span></code>, or <code class="docutils literal notranslate"><span class="pre">Tuple</span></code>, which match the
+array-to-array or iterator patterns above. The returned scalar can be
+a Python primitive type (e.g., <code class="docutils literal notranslate"><span class="pre">int</span></code> or <code class="docutils literal notranslate"><span class="pre">float</span></code>), a NumPy data type, or a <code class="docutils literal notranslate"><span class="pre">pyarrow.Scalar</span></code>
+instance which supports complex return types.</p>
+<p>This type of UDF can be used with <a class="reference internal" href="../../reference/pyspark.sql/api/pyspark.sql.GroupedData.agg.html#pyspark.sql.GroupedData.agg" title="pyspark.sql.GroupedData.agg"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GroupedData.agg</span></code></a> and
+<code class="docutils literal notranslate"><span class="pre">Window</span></code> operations.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pa</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">arrow_udf</span>
+
+<span class="nd">@arrow_udf</span><span class="p">(</span><span class="s2">&quot;double&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">mean_udf</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">Array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">pa</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">as_py</span><span class="p">()</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span>
+    <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)],</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">))</span>
+<span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">mean_udf</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">]))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +---+-----------+</span>
+<span class="c1"># | id|mean_udf(v)|</span>
+<span class="c1"># +---+-----------+</span>
+<span class="c1"># |  1|        1.5|</span>
+<span class="c1"># |  2|        6.0|</span>
+<span class="c1"># +---+-----------+</span>
+</pre></div>
+</div>
+<p>The return type can also be a complex type such as struct:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pa</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">arrow_udf</span>
+
+<span class="nd">@arrow_udf</span><span class="p">(</span><span class="s2">&quot;struct&lt;m1: double, m2: double&gt;&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">min_max_udf</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">Array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pa</span><span class="o">.</span><span class="n">Scalar</span><span class="p">:</span>
+    <span class="n">m1</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+    <span class="n">m2</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">struct</span><span class="p">([</span><span class="n">pa</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;m1&quot;</span><span class="p">,</span> <span class="n">pa</span><span class="o">.</span><span class="n">float64</span><span class="p">()),</span> <span class="n">pa</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;m2&quot;</span><span class="p">,</span> <span class="n">pa</span><span class="o">.</span><span class="n">float64</span><span class="p">())])</span>
+    <span class="k">return</span> <span class="n">pa</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;m1&quot;</span><span class="p">:</span> <span class="n">m1</span><span class="o">.</span><span class="n">as_py</span><span class="p">(),</span> <span class="s2">&quot;m2&quot;</span><span class="p">:</span> <span class="n">m2</span><span class="o">.</span><span class="n">as_py</span><span class="p">()},</span> <span class="nb">type</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span>
+    <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)],</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">))</span>
+<span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">min_max_udf</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">]))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +---+--------------+</span>
+<span class="c1"># | id|min_max_udf(v)|</span>
+<span class="c1"># +---+--------------+</span>
+<span class="c1"># |  1|    {1.0, 2.0}|</span>
+<span class="c1"># |  2|   {3.0, 10.0}|</span>
+<span class="c1"># +---+--------------+</span>
+</pre></div>
+</div>
+<p>This UDF can also be used as window functions:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pa</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql</span><span class="w"> </span><span class="kn">import</span> <span class="n">Window</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">arrow_udf</span>
+
+<span class="nd">@arrow_udf</span><span class="p">(</span><span class="s2">&quot;double&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">mean_udf</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">Array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">pa</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">as_py</span><span class="p">()</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span>
+    <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)],</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">))</span>
+<span class="n">w</span> <span class="o">=</span> <span class="n">Window</span><span class="o">.</span><span class="n">partitionBy</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">orderBy</span><span class="p">(</span><span class="s1">&#39;v&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">rowsBetween</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="s1">&#39;mean_v&#39;</span><span class="p">,</span> <span class="n">mean_udf</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">over</span><span class="p">(</span><span class="n">w</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +---+----+------+</span>
+<span class="c1"># | id|   v|mean_v|</span>
+<span class="c1"># +---+----+------+</span>
+<span class="c1"># |  1| 1.0|   1.0|</span>
+<span class="c1"># |  1| 2.0|   1.5|</span>
+<span class="c1"># |  2| 3.0|   3.0|</span>
+<span class="c1"># |  2| 5.0|   4.0|</span>
+<span class="c1"># |  2|10.0|   7.5|</span>
+<span class="c1"># +---+----+------+</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For performance reasons, the input arrays to window functions are not copied.
+Mutating the input arrays is not allowed and will cause incorrect results.</p>
+</div>
+</section>
+<section id="iterator-of-arrays-to-scalar">
+<h3>Iterator of Arrays to Scalar<a class="headerlink" href="#iterator-of-arrays-to-scalar" title="Permalink to this headline">#</a></h3>
+<p>The type hint can be expressed as <code class="docutils literal notranslate"><span class="pre">Iterator[pyarrow.Array]</span></code> -&gt; a scalar type.</p>
+<p>The function takes an iterator of <code class="docutils literal notranslate"><span class="pre">pyarrow.Array</span></code> and returns a scalar value. This is useful for
+grouped aggregations where the UDF can process all batches iteratively, which is more
+memory-efficient than loading all data at once.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Only a single UDF is supported per aggregation.</p>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pa</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">arrow_udf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span>
+
+<span class="nd">@arrow_udf</span><span class="p">(</span><span class="s2">&quot;double&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">arrow_mean</span><span class="p">(</span><span class="n">it</span><span class="p">:</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">pa</span><span class="o">.</span><span class="n">Array</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="n">sum_val</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
+        <span class="n">sum_val</span> <span class="o">+=</span> <span class="n">pa</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="o">.</span><span class="n">as_py</span><span class="p">()</span>
+        <span class="n">cnt</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sum_val</span> <span class="o">/</span> <span class="n">cnt</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span>
+    <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)],</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">))</span>
+<span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">arrow_mean</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;v&#39;</span><span class="p">]))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +---+-------------+</span>
+<span class="c1"># | id|arrow_mean(v)|</span>
+<span class="c1"># +---+-------------+</span>
+<span class="c1"># |  1|          1.5|</span>
+<span class="c1"># |  2|          6.0|</span>
+<span class="c1"># +---+-------------+</span>
+</pre></div>
+</div>
+</section>
+<section id="iterator-of-multiple-arrays-to-scalar">
+<h3>Iterator of Multiple Arrays to Scalar<a class="headerlink" href="#iterator-of-multiple-arrays-to-scalar" title="Permalink to this headline">#</a></h3>
+<p>The type hint can be expressed as <code class="docutils literal notranslate"><span class="pre">Iterator[Tuple[pyarrow.Array,</span> <span class="pre">...]]</span></code> -&gt; a scalar type.</p>
+<p>The function takes an iterator of a tuple of multiple <code class="docutils literal notranslate"><span class="pre">pyarrow.Array</span></code> and returns a scalar value.
+This is useful for grouped aggregations with multiple input columns.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Only a single UDF is supported per aggregation.</p>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pa</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">arrow_udf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="nd">@arrow_udf</span><span class="p">(</span><span class="s2">&quot;double&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">arrow_weighted_mean</span><span class="p">(</span>
+    <span class="n">it</span><span class="p">:</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="n">pa</span><span class="o">.</span><span class="n">Array</span><span class="p">,</span> <span class="n">pa</span><span class="o">.</span><span class="n">Array</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="n">weighted_sum</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">weight</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">it</span><span class="p">:</span>
+        <span class="n">weighted_sum</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+        <span class="n">weight</span> <span class="o">+=</span> <span class="n">pa</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">w</span><span class="p">)</span><span class="o">.</span><span class="n">as_py</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">weighted_sum</span> <span class="o">/</span> <span class="n">weight</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span>
+    <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">)],</span>
+    <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">))</span>
+<span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">arrow_weighted_mean</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;v&quot;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;w&quot;</span><span class="p">]))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +---+-------------------------+</span>
+<span class="c1"># | id|arrow_weighted_mean(v, w)|</span>
+<span class="c1"># +---+-------------------------+</span>
+<span class="c1"># |  1|       1.6666666666666...|</span>
+<span class="c1"># |  2|        7.166666666666...|</span>
+<span class="c1"># +---+-------------------------+</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="arrow-function-apis">
+<h2>Arrow Function APIs<a class="headerlink" href="#arrow-function-apis" title="Permalink to this headline">#</a></h2>
+<p>Arrow Function APIs apply Python native functions directly on Arrow data at the DataFrame level.
+They work similarly to Pandas Function APIs but use <code class="docutils literal notranslate"><span class="pre">pyarrow.RecordBatch</span></code> and <code class="docutils literal notranslate"><span class="pre">pyarrow.Table</span></code>
+instead of Pandas DataFrames.</p>
+<section id="map">
+<h3>Map<a class="headerlink" href="#map" title="Permalink to this headline">#</a></h3>
+<p><a class="reference internal" href="../../reference/pyspark.sql/api/pyspark.sql.DataFrame.mapInArrow.html#pyspark.sql.DataFrame.mapInArrow" title="pyspark.sql.DataFrame.mapInArrow"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DataFrame.mapInArrow()</span></code></a> maps an iterator of <code class="docutils literal notranslate"><span class="pre">pyarrow.RecordBatch</span></code> to another iterator of
+<code class="docutils literal notranslate"><span class="pre">pyarrow.RecordBatch</span></code>. The input and output can have different lengths.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pa</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">21</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">30</span><span class="p">)],</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">))</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_func</span><span class="p">(</span><span class="n">iterator</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">batch</span> <span class="ow">in</span> <span class="n">iterator</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">batch</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pa</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">df</span><span class="o">.</span><span class="n">mapInArrow</span><span class="p">(</span><span class="n">filter_func</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">schema</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +---+---+</span>
+<span class="c1"># | id|age|</span>
+<span class="c1"># +---+---+</span>
+<span class="c1"># |  1| 21|</span>
+<span class="c1"># +---+---+</span>
+</pre></div>
+</div>
+<p>For detailed usage, please see <a class="reference internal" href="../../reference/pyspark.sql/api/pyspark.sql.DataFrame.mapInArrow.html#pyspark.sql.DataFrame.mapInArrow" title="pyspark.sql.DataFrame.mapInArrow"><code class="xref py py-meth docutils literal notranslate"><span class="pre">DataFrame.mapInArrow()</span></code></a>.</p>
+</section>
+<section id="grouped-map">
+<h3>Grouped Map<a class="headerlink" href="#grouped-map" title="Permalink to this headline">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">DataFrame.groupBy().applyInArrow()</span></code> maps each group using a function that takes a
+<code class="docutils literal notranslate"><span class="pre">pyarrow.Table</span></code> and returns a <code class="docutils literal notranslate"><span class="pre">pyarrow.Table</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pa</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow.compute</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pc</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span>
+    <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)],</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">))</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">normalize</span><span class="p">(</span><span class="n">table</span><span class="p">):</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">pc</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">pc</span><span class="o">.</span><span class="n">subtract</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">pc</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">v</span><span class="p">)),</span> <span class="n">pc</span><span class="o">.</span><span class="n">stddev</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">table</span><span class="o">.</span><span class="n">set_column</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">,</span> <span class="n">norm</span><span class="p">)</span>
+
+<span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">applyInArrow</span><span class="p">(</span>
+    <span class="n">normalize</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="s2">&quot;id long, v double&quot;</span>
+<span class="p">)</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +---+-------------------+</span>
+<span class="c1"># | id|                  v|</span>
+<span class="c1"># +---+-------------------+</span>
+<span class="c1"># |  1|-0.7071067811865...|</span>
+<span class="c1"># |  1| 0.7071067811865...|</span>
+<span class="c1"># |  2|-0.8320502943378...|</span>
+<span class="c1"># |  2|-0.2773500981126...|</span>
+<span class="c1"># |  2| 1.1094003924504...|</span>
+<span class="c1"># +---+-------------------+</span>
+</pre></div>
+</div>
+<p>The function can also accept grouping keys as the first argument:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">mean_func</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">table</span><span class="p">):</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">pc</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">column</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">pa</span><span class="o">.</span><span class="n">Table</span><span class="o">.</span><span class="n">from_pydict</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">as_py</span><span class="p">()],</span> <span class="s2">&quot;v&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">mean</span><span class="o">.</span><span class="n">as_py</span><span class="p">()]})</span>
+
+<span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">applyInArrow</span><span class="p">(</span>
+    <span class="n">mean_func</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="s2">&quot;id long, v double&quot;</span>
+<span class="p">)</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +---+---+</span>
+<span class="c1"># | id|  v|</span>
+<span class="c1"># +---+---+</span>
+<span class="c1"># |  1|1.5|</span>
+<span class="c1"># |  2|6.0|</span>
+<span class="c1"># +---+---+</span>
+</pre></div>
+</div>
+<p>For detailed usage, please see <a class="reference internal" href="../../reference/pyspark.sql/api/pyspark.sql.GroupedData.applyInArrow.html#pyspark.sql.GroupedData.applyInArrow" title="pyspark.sql.GroupedData.applyInArrow"><code class="xref py py-meth docutils literal notranslate"><span class="pre">GroupedData.applyInArrow()</span></code></a>.</p>
+</section>
+<section id="co-grouped-map">
+<h3>Co-grouped Map<a class="headerlink" href="#co-grouped-map" title="Permalink to this headline">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">DataFrame.groupBy().cogroup().applyInArrow()</span></code> allows two DataFrames to be cogrouped by a
+common key and then a Python function applied to each cogroup. The function takes two
+<code class="docutils literal notranslate"><span class="pre">pyarrow.Table</span></code> and returns a <code class="docutils literal notranslate"><span class="pre">pyarrow.Table</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pa</span>
+
+<span class="n">df1</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span>
+    <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">)],</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;v1&quot;</span><span class="p">))</span>
+<span class="n">df2</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">([(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">)],</span> <span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;v2&quot;</span><span class="p">))</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">summarize</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">pa</span><span class="o">.</span><span class="n">Table</span><span class="o">.</span><span class="n">from_pydict</span><span class="p">({</span>
+        <span class="s2">&quot;left&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">l</span><span class="o">.</span><span class="n">num_rows</span><span class="p">],</span>
+        <span class="s2">&quot;right&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">num_rows</span><span class="p">]</span>
+    <span class="p">})</span>
+
+<span class="n">df1</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">cogroup</span><span class="p">(</span><span class="n">df2</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">applyInArrow</span><span class="p">(</span>
+    <span class="n">summarize</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="s2">&quot;left long, right long&quot;</span>
+<span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +----+-----+</span>
+<span class="c1"># |left|right|</span>
+<span class="c1"># +----+-----+</span>
+<span class="c1"># |   2|    1|</span>
+<span class="c1"># |   2|    1|</span>
+<span class="c1"># +----+-----+</span>
+</pre></div>
+</div>
+<p>The function can also accept grouping keys as the first argument:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">summarize</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">l</span><span class="p">,</span> <span class="n">r</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">pa</span><span class="o">.</span><span class="n">Table</span><span class="o">.</span><span class="n">from_pydict</span><span class="p">({</span>
+        <span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">as_py</span><span class="p">()],</span>
+        <span class="s2">&quot;left&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">l</span><span class="o">.</span><span class="n">num_rows</span><span class="p">],</span>
+        <span class="s2">&quot;right&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">num_rows</span><span class="p">]</span>
+    <span class="p">})</span>
+
+<span class="n">df1</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">cogroup</span><span class="p">(</span><span class="n">df2</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">applyInArrow</span><span class="p">(</span>
+    <span class="n">summarize</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="s2">&quot;key long, left long, right long&quot;</span>
+<span class="p">)</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="s2">&quot;key&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +---+----+-----+</span>
+<span class="c1"># |key|left|right|</span>
+<span class="c1"># +---+----+-----+</span>
+<span class="c1"># |  1|   2|    1|</span>
+<span class="c1"># |  2|   2|    1|</span>
+<span class="c1"># +---+----+-----+</span>
+</pre></div>
+</div>
+<p>For detailed usage, please see <a class="reference internal" href="../../reference/pyspark.sql/api/pyspark.sql.PandasCogroupedOps.applyInArrow.html#pyspark.sql.PandasCogroupedOps.applyInArrow" title="pyspark.sql.PandasCogroupedOps.applyInArrow"><code class="xref py py-meth docutils literal notranslate"><span class="pre">PandasCogroupedOps.applyInArrow()</span></code></a>.</p>
+</section>
+</section>
+<section id="notes">
+<h2>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">#</a></h2>
+<p>SQL boolean expressions do not short-circuit: in <code class="docutils literal notranslate"><span class="pre">WHERE</span> <span class="pre">cond</span> <span class="pre">AND</span> <span class="pre">udf(x)</span></code>, the UDF may be
+called on all rows regardless of <code class="docutils literal notranslate"><span class="pre">cond</span></code>. If the function can fail on certain input values
+(e.g., division by zero), handle those cases inside the function itself.</p>
+<p>The Arrow data type of the returned <code class="docutils literal notranslate"><span class="pre">pyarrow.Array</span></code> should match the declared <code class="docutils literal notranslate"><span class="pre">returnType</span></code>.
+When there is a mismatch, Spark will attempt to convert the returned data to the expected type
+using Arrow’s safe casting, which raises an error on overflow or precision loss.</p>
+<p>Supported SQL types are the same as for Arrow-based conversion. See
+<a class="reference internal" href="arrow_pandas.html#supported-sql-types"><span class="std std-ref">Supported SQL Types</span></a> for details.</p>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="../../reference/pyspark.sql/api/pyspark.sql.functions.udf.html#pyspark.sql.functions.udf" title="pyspark.sql.functions.udf"><code class="xref py py-func docutils literal notranslate"><span class="pre">udf()</span></code></a> – Create a Python UDF (with optional Arrow optimization)</p></li>
+<li><p><a class="reference internal" href="../../reference/pyspark.sql/api/pyspark.sql.functions.arrow_udtf.html#pyspark.sql.functions.arrow_udtf" title="pyspark.sql.functions.arrow_udtf"><code class="xref py py-func docutils literal notranslate"><span class="pre">arrow_udtf()</span></code></a> – Create a vectorized Arrow UDTF (see <a class="reference internal" href="arrow_python_udtf.html"><span class="doc">Arrow Python UDTFs</span></a>)</p></li>
+<li><p><a class="reference internal" href="../../reference/pyspark.sql/api/pyspark.sql.functions.pandas_udf.html#pyspark.sql.functions.pandas_udf" title="pyspark.sql.functions.pandas_udf"><code class="xref py py-func docutils literal notranslate"><span class="pre">pandas_udf()</span></code></a> – Create a Pandas UDF</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="arrow_pandas.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Apache Arrow in PySpark</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="arrow_python_udtf.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Vectorized Python User-defined Table Functions (UDTFs)</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#native-arrow-udf-types">Native Arrow UDF Types</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#arrays-to-array">Arrays to Array</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#iterator-of-arrays-to-iterator-of-arrays">Iterator of Arrays to Iterator of Arrays</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#iterator-of-multiple-arrays-to-iterator-of-arrays">Iterator of Multiple Arrays to Iterator of Arrays</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#arrays-to-scalar">Arrays to Scalar</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#iterator-of-arrays-to-scalar">Iterator of Arrays to Scalar</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#iterator-of-multiple-arrays-to-scalar">Iterator of Multiple Arrays to Scalar</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#arrow-function-apis">Arrow Function APIs</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#map">Map</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grouped-map">Grouped Map</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#co-grouped-map">Co-grouped Map</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#notes">Notes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#see-also">See Also</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="../../_sources/tutorial/sql/arrow_python_udf.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><p class="copyright">
+    Copyright @ 2026 The Apache Software Foundation, Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a>.
+</p></div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

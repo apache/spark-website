@@ -1,6 +1,6 @@
 ---
 layout: global
-type: "page singular"
+type: "page"
 title: Spark Connect
 description: Spark Connect makes remote Spark development easier.
 subproject: Spark Connect

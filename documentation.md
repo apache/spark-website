@@ -1,23 +1,27 @@
 ---
 layout: global
 title: Documentation
-type: "page singular"
+type: "page"
 navigation:
   weight: 3
   show: true
 ---
 
-<h2><span class="text-capitalize">Apache Spark<span class="tm">&trade;</span></span> Documentation</h2>
-
 <p>Setup instructions, programming guides, and other documentation are available for each stable version of Spark below:</p>
 
 <ul>
   <li><a href="{{site.baseurl}}/docs/">Spark </a></li>
+  <li><a href="{{site.baseurl}}/docs/4.2.0/">Spark 4.2.0</a></li>
+  <li><a href="{{site.baseurl}}/docs/4.1.3/">Spark 4.1.3</a></li>
+  <li><a href="{{site.baseurl}}/docs/4.1.2/">Spark 4.1.2</a></li>
   <li><a href="{{site.baseurl}}/docs/4.1.1/">Spark 4.1.1</a></li>
   <li><a href="{{site.baseurl}}/docs/4.1.0/">Spark 4.1.0</a></li>
+  <li><a href="{{site.baseurl}}/docs/4.0.4/">Spark 4.0.4</a></li>
+  <li><a href="{{site.baseurl}}/docs/4.0.3/">Spark 4.0.3</a></li>
   <li><a href="{{site.baseurl}}/docs/4.0.2/">Spark 4.0.2</a></li>
   <li><a href="{{site.baseurl}}/docs/4.0.1/">Spark 4.0.1</a></li>
   <li><a href="{{site.baseurl}}/docs/4.0.0/">Spark 4.0.0</a></li>
+  <li><a href="{{site.baseurl}}/docs/3.5.9/">Spark 3.5.9</a></li>
   <li><a href="{{site.baseurl}}/docs/3.5.8/">Spark 3.5.8</a></li>
   <li><a href="{{site.baseurl}}/docs/3.5.7/">Spark 3.5.7</a></li>
   <li><a href="{{site.baseurl}}/docs/3.5.6/">Spark 3.5.6</a></li>
@@ -97,6 +101,8 @@ navigation:
 <p>Documentation for preview releases:</p>
 
 <ul>
+  <li><a href="{{site.baseurl}}/docs/4.2.0-preview5/">Spark 4.2.0-preview5</a></li>
+  <li><a href="{{site.baseurl}}/docs/4.2.0-preview4/">Spark 4.2.0-preview4</a></li>
   <li><a href="{{site.baseurl}}/docs/4.2.0-preview3/">Spark 4.2.0-preview3</a></li>
   <li><a href="{{site.baseurl}}/docs/4.2.0-preview2/">Spark 4.2.0-preview2</a></li>
   <li><a href="{{site.baseurl}}/docs/4.2.0-preview1/">Spark 4.2.0-preview1</a></li>
@@ -247,4 +253,3 @@ Slides, videos and EC2-based exercises from each of these are available online:
 Spark was initially developed as a UC Berkeley research project, and much of the design is documented in papers.
 The <a href="{{site.baseurl}}/research.html">research page</a> lists some of the original motivation and direction.
 </p>
-

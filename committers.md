@@ -1,12 +1,11 @@
 ---
 layout: global
 title: Committers
-type: "page singular"
+type: "page"
 navigation:
   weight: 5
   show: true
 ---
-<h2>Current committers</h2>
 
 |Name|Organization|
 |----|------------|
@@ -14,6 +13,7 @@ navigation:
 |Michael Armbrust|Databricks|
 |Dilip Biswal|Adobe|
 |Ryan Blue|Databricks|
+|Uros Bojanic|Databricks|
 |Joseph Bradley|Databricks|
 |Matthew Cheah|Palantir|
 |Felix Cheung|NVIDIA|
@@ -28,6 +28,7 @@ navigation:
 |Robert Evans|NVIDIA|
 |Wenchen Fan|Databricks|
 |Huaxin Gao|Apple|
+|Tian Gao|Databricks|
 |Max Gekk|Databricks|
 |Jiaan Geng|NetEase|
 |Joseph Gonzalez|UC Berkeley|
@@ -36,10 +37,12 @@ navigation:
 |Stephen Haberman|LinkedIn|
 |Mark Hamstra|ClearStory Data|
 |Seth Hendrickson|Stripe|
+|Szehon Ho|Databricks|
 |Herman van Hovell|Databricks|
 |Liang-Chi Hsieh|Databricks|
 |Yin Huai|Databricks|
 |Shane Huang|Intel|
+|Yicong Huang|Databricks, UMass Amherst|
 |Dongjoon Hyun|Apple|
 |Kazuaki Ishizaki|IBM|
 |Xingbo Jiang|Databricks|
@@ -89,7 +92,7 @@ navigation:
 |Jose Torres|Databricks|
 |Peter Toth|Apple|
 |DB Tsai|Databricks|
-|Takuya Ueshin|Databricks|
+|Takuya Ueshin||
 |Marcelo Vanzin|Cloudera|
 |Shivaram Venkataraman|University of Wisconsin, Madison|
 |Allison Wang|Databricks|
@@ -239,6 +242,32 @@ Also, please remember to set Assignee on JIRAs where applicable when they are re
 can do this automatically in most cases.
 
 Once a PR is merged please leave a comment on the PR stating which branch(es) it has been merged with.
+
+<h4>Merging website pull requests</h4>
+
+Pull requests to the Spark website (the
+<a href="https://github.com/apache/spark-website">apache/spark-website</a> repository) are merged
+separately from the main Spark repo. Unlike `apache/spark`, this repository uses `asf-site` as its
+default branch, and there is no `master` branch.
+
+Website PRs are merged using the
+<a href="https://github.com/apache/spark-website/blob/asf-site/merge_pr.py">merge_pr.py</a> script
+in the root of the `spark-website` repository, which squashes the pull request's changes into one
+commit, just like `merge_spark_pr.py` does for the main repo.
+
+To use it, set up remotes in your local clone of `spark-website` the same way as for the main repo:
+an `apache` remote (the default `PUSH_REMOTE_NAME`, used for pushing the squashed commit) and an
+`apache-github` remote (the default `PR_REMOTE_NAME`, used for pulling the change), both pointing at
+`git@github.com:apache/spark-website.git`. Then run the script from the repository root:
+
+```
+./merge_pr.py
+```
+
+The script is interactive and walks you through selecting the PR and pushing the merge to the
+`asf-site` branch. Before merging, make sure the pull request includes the regenerated HTML under
+`site/` in addition to the Markdown/HTML source changes; see the repository's `README.md` for how
+the site is built.
 
 <h3>Policy on backporting bug fixes</h3>
 
