@@ -18,10 +18,23 @@ Apache Spark uses the standard process outlined by the [Apache Security Team](ht
 for reporting vulnerabilities. Note that vulnerabilities should not be publicly disclosed until the project has
 responded.
 
-To report a possible security vulnerability, please email `security@spark.apache.org`. This is a
-non-public list that will reach the Apache Security team, as well as the Spark PMC.
+Before submitting a report,
+confirm that the deployment under test is configured according to the [Spark Security](https://spark.apache.org/docs/latest/security.html) documentation:
+Spark's security features are opt-in,
+no deployment mode is secure by default,
+and reports against deployments that do not follow that guidance are out of scope.
+Review also the [Frequently Asked Questions](#faq) below,
+which document behavior that is by design
+and has been reported and rejected repeatedly.
 
-<h2>Frequently Asked Questions</h2>
+To report a possible security vulnerability,
+please email [`security@apache.org`](mailto:security@apache.org?subject=%5BSECURITY%5D%20Spark).
+This is the non-public list of the ASF Security Team, which will involve the Spark PMC.
+
+Please send one plain-text, unencrypted email per vulnerability,
+and describe the issue in the message body rather than as an image, HTML, or PDF attachment.
+
+<h2 id="faq">Frequently Asked Questions</h2>
 
 <h3>During a security analysis of Apache Spark, I noticed that Spark allows for remote code execution, is this an issue?</h3> 
 
