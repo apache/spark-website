@@ -245,9 +245,9 @@ Once a PR is merged please leave a comment on the PR stating which branch(es) it
 
 <h4>Merging website pull requests</h4>
 
-Pull requests to the [Spark website repo](https://github.com/apache/spark-website) are merged separately from the main Spark repo. Unlike `apache/spark`, this repository uses `asf-site` as its default branch; there is no `master` branch.
+Pull requests to the [Spark website repo](https://github.com/apache/spark-website) are merged separately from the [main Spark repo](https://github.com/apache/spark). Unlike the main repo, the website uses `asf-site` as its default branch; there is no `master` branch.
 
-There is no merge script for the website. Use GitHub's "Squash and merge" button to merge PRs.
+The website repo does not use a merge script. Instead, use GitHub's "Squash and merge" button to merge PRs.
 
 ## Policy on backporting bug fixes
 
