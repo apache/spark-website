@@ -249,7 +249,7 @@ Pull requests to the [Spark website repo](https://github.com/apache/spark-websit
 
 The website repo does not use a merge script. Instead, use GitHub's "Squash and merge" button to merge PRs.
 
-## Policy on backporting bug fixes
+<h3>Policy on backporting bug fixes</h3>
 
 From <a href="https://www.mail-archive.com/dev@spark.apache.org/msg10284.html">`pwendell`</a>:
 
