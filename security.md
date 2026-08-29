@@ -68,6 +68,10 @@ End users must treat Spark ML models with the same level of caution and security
 This includes verifying the source, validating integrity, and applying appropriate isolation and security controls 
 before loading or deploying a model.
 
+<h3>I noticed the Spark server can cause the client to execute, is that a problem?</h3>
+
+No, this is intentional. The Spark client _must_ trust the server since the results that come back can be of complex types which trigger code evaluation. Sometimes final, smaller, parts of computation will occure on the client or driver (depending on the deployment model).
+
 <h2>Known security issues</h2>
 
 <h3 id="CVE-2025-55039">CVE-2025-55039: Apache Spark: RPC encryption defaults to unauthenticated AES-CTR mode, enabling man-in-the-middle ciphertext modification attacks</h3>
