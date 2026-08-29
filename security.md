@@ -54,6 +54,14 @@ internet or untrusted networks. We recommend access within trusted networks (com
 private cloud environments), using restrict access to the Spark cluster with robust authentication, 
 authorization, and network controls.
 
+<h3>I found an exploit, but it requires authentication to be disabled. Is that a vulnerability?</h3>
+
+No. Without authentication, anyone who can reach a Spark cluster can already submit and execute arbitrary
+code on it by design (see above), so an exploit that only works with authentication disabled demonstrates
+no additional risk. Such a deployment is inherently insecure, and reports of this kind will be rejected.
+If you believe you have found an issue that works against a cluster with authentication enabled, please
+report it.
+
 <h3>Is loading a machine learning model secure? Who is responsible for model security?</h3> 
 
 Loading an Apache Spark ML model is equivalent to loading and executing code within the Spark runtime.
