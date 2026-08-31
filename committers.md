@@ -245,28 +245,9 @@ Once a PR is merged please leave a comment on the PR stating which branch(es) it
 
 <h4>Merging website pull requests</h4>
 
-Pull requests to the Spark website (the
-<a href="https://github.com/apache/spark-website">apache/spark-website</a> repository) are merged
-separately from the main Spark repo. Unlike `apache/spark`, this repository uses `asf-site` as its
-default branch, and there is no `master` branch.
+Pull requests to the [Spark website repo](https://github.com/apache/spark-website) are merged separately from the [main Spark repo](https://github.com/apache/spark). Unlike the main repo, the website uses `asf-site` as its default branch; there is no `master` branch.
 
-Website PRs are merged using the
-<a href="https://github.com/apache/spark-website/blob/asf-site/merge_pr.py">merge_pr.py</a> script
-in the root of the `spark-website` repository, which squashes the pull request's changes into one
-commit, just like `merge_spark_pr.py` does for the main repo.
-
-To use it, set up remotes in your local clone of `spark-website` the same way as for the main repo:
-an `apache` remote (the default `PUSH_REMOTE_NAME`, used for pushing the squashed commit) and an
-`apache-github` remote (the default `PR_REMOTE_NAME`, used for pulling the change), both pointing at
-`git@github.com:apache/spark-website.git`. Then run the script from the repository root:
-
-```
-./merge_pr.py
-```
-
-The script is interactive and walks you through selecting the PR and pushing the merge to the
-`asf-site` branch. See the repository's [README](https://github.com/apache/spark-website#readme)
-for more details on how the site is built.
+The website repo does not use a merge script. Instead, use GitHub's "Squash and merge" button to merge PRs.
 
 <h3>Policy on backporting bug fixes</h3>
 

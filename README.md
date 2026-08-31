@@ -54,7 +54,3 @@ One deployment detail that appears to be critical is the presence of the [`conte
 [infra]: https://infra.apache.org
 [asf-docs]: https://github.com/apache/infrastructure-asfyaml/tree/main#readme
 [jek]: https://github.com/apache/infrastructure-asfyaml/tree/76d241ccef02e5397e10c173ebf04c07525311ea#jekyll_cms
-
-## Merge PR
-
-To merge a pull request, use the `merge_pr.py` script. This script also squashes the commits.
