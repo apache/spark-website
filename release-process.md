@@ -365,8 +365,9 @@ Next, update the rest of the Spark website. See how the previous releases are do
 * add the new release to `site/static/versions.json` (attention to the order of releases) [for `spark version drop down` of the `PySpark` docs]
 * check `security.md` for anything to update
 
-```
-$ git add 1.1.1
+```sh
+# The `-f` is because we normally ignore changes under `site/`.
+$ git add -f 1.1.1
 $ git commit -m "Add docs for Spark 1.1.1"
 ```
 
@@ -377,9 +378,7 @@ pick the release version from the list, then click on "Release Notes". Copy this
 `spark-2.1.2`. Create a new release post under `releases/_posts` to include this short URL. The date of the post should
 be the date you create it.
 
-Then run `bundle exec jekyll build` to update the `site` directory.
-
-Considering the Pull Request will be large, please separate the commits of code changes and generated `site` directory for an easier review.
+You only need to commit and push changes to the website source. A GitHub Actions workflow will [automatically generate and push the site HTML for you](https://github.com/apache/spark-website#readme).
 
 After merging the change into the `asf-site` branch, you may need to create a follow-up empty
 commit to force synchronization between ASF's git and the web site, and also the GitHub mirror.
