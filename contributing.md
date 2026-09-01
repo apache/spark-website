@@ -359,7 +359,7 @@ and every run burdens the limited resources of GitHub Actions in Apache Spark re
 Below steps will take your through the process.
 
 
-1. <a href="https://help.github.com/articles/fork-a-repo/">Fork</a> the GitHub repository at 
+1. <a href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo">Fork</a> the GitHub repository at 
 <a href="https://github.com/apache/spark">https://github.com/apache/spark</a> if you haven't already
 1. Go to "Actions" tab on your forked repository and enable "Build and test" and "Report test results" workflows  
 1. Clone your fork and create a new branch
@@ -400,7 +400,7 @@ passes style checks.
 If style checks fail, review the Code Style Guide below.
 1. Push commits to your branch. This will trigger "Build and test" and "Report test results" workflows 
 on your forked repository and start testing and validating your changes.
-1. <a href="https://help.github.com/articles/using-pull-requests/">Open a pull request</a> against 
+1. <a href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests">Open a pull request</a> against 
 the `master` branch of `apache/spark`. (Only in special cases would the PR be opened against other branches). This 
 will trigger workflows "On pull request*" (on Spark repo) that will look/watch for successful workflow runs on "your" forked repository (it will wait if one is running). 
      1. The PR title should be of the form `[SPARK-xxxx][COMPONENT] Title`, where `SPARK-xxxx` is 
@@ -473,17 +473,17 @@ resolve the JIRA.
 Please follow the style of the existing codebase.
 
 - For Python code, Apache Spark follows 
-<a href="http://legacy.python.org/dev/peps/pep-0008/">PEP 8</a> with one exception: 
+<a href="https://peps.python.org/pep-0008/">PEP 8</a> with one exception: 
 lines can be up to 100 characters in length, not 79.
 - For R code, Apache Spark follows
 <a href="https://google.github.io/styleguide/Rguide.xml">Google's R Style Guide</a> with three exceptions:
 lines can be up to 100 characters in length, not 80, there is no limit on function name but it has a initial
 lower case letter and S4 objects/methods are allowed.
 - For Java code, Apache Spark follows
-<a href="http://www.oracle.com/technetwork/java/codeconvtoc-136057.html">Oracle's Java code conventions</a> and
+<a href="https://www.oracle.com/java/technologies/javase/codeconventions-contents.html">Oracle's Java code conventions</a> and
 Scala guidelines below. The latter is preferred.
 - For Scala code, Apache Spark follows the official 
-<a href="http://docs.scala-lang.org/style/">Scala style guide</a> and
+<a href="https://docs.scala-lang.org/style/">Scala style guide</a> and
 <a href="https://github.com/databricks/scala-style-guide">Databricks Scala guide</a>. The latter is preferred. To format Scala code, run ./dev/scalafmt prior to submitting a PR.
 
 <h3>If in doubt</h3>
