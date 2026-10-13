@@ -30,7 +30,7 @@ projects, feature releases have the following compatibility:
   changes that alter results are not. Exceptions might occur case by case (e.g., security issues).
   - Public APIs may be added but not changed or removed.
 
-Each feature release will have a merge window where new patches can be merged, a QA window when 
+  Each feature release will have a merge window where new patches can be merged, a QA window when 
 only fixes can be merged, then a final period where voting occurs on release candidates. These 
 windows will be announced immediately after the previous feature release to give people plenty 
 of time.
