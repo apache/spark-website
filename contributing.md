@@ -359,7 +359,7 @@ and every run burdens the limited resources of GitHub Actions in Apache Spark re
 Below steps will take your through the process.
 
 
-1. <a href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo">Fork</a> the GitHub repository at 
+1. <a href="https://docs.github.com/en/pull-requests/how-tos/work-with-forks/fork-a-repo">Fork</a> the GitHub repository at 
 <a href="https://github.com/apache/spark">https://github.com/apache/spark</a> if you haven't already
 1. Go to "Actions" tab on your forked repository and enable "Build and test" and "Report test results" workflows  
 1. Clone your fork and create a new branch
@@ -400,7 +400,7 @@ passes style checks.
 If style checks fail, review the Code Style Guide below.
 1. Push commits to your branch. This will trigger "Build and test" and "Report test results" workflows 
 on your forked repository and start testing and validating your changes.
-1. <a href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests">Open a pull request</a> against 
+1. <a href="https://docs.github.com/en/pull-requests/reference/pull-requests">Open a pull request</a> against 
 the `master` branch of `apache/spark`. (Only in special cases would the PR be opened against other branches). This 
 will trigger workflows "On pull request*" (on Spark repo) that will look/watch for successful workflow runs on "your" forked repository (it will wait if one is running). 
      1. The PR title should be of the form `[SPARK-xxxx][COMPONENT] Title`, where `SPARK-xxxx` is 
