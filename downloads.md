@@ -32,7 +32,7 @@ Spark artifacts are [hosted in Maven Central](https://search.maven.org/search?q=
 
     groupId: org.apache.spark
     artifactId: spark-core_2.13
-    version: 4.1.0
+    version: 4.2.0
 
 ### Installing with PyPi
 <a href="https://pypi.org/project/pyspark/">PySpark</a> is now available in pypi. To install just run `pip install pyspark`.

@@ -108,13 +108,13 @@ improvements, and bug fixes. Major releases occur annually (every 12 months), ty
 changes and dependency upgrades. Maintenance releases happen as needed in between for critical 
 bug fixes and security patches.
 
-<h3>Spark 4.2 release window</h3>
+<h3>Spark 4.3 release window</h3>
 
 | Date  | Event |
 | ----- | ----- |
-| May 1st 2026 | Code freeze. Release branch cut.|
-| Mid May 2026 | QA period. Focus on bug fixes, tests, stability and docs. Generally, no new features merged.|
-| Late May 2026 | Release candidates (RC), voting, etc. until final release passes|
+| Aug 1st 2026 | Code freeze. Release branch cut.|
+| Mid Aug 2026 | QA period. Focus on bug fixes, tests, stability and docs. Generally, no new features merged.|
+| Late Aug 2026 | Release candidates (RC), voting, etc. until final release passes|
 
 <h3>Illustrative transition: 2026 and 2027</h3>
 

@@ -1,0 +1,1418 @@
+
+
+<!DOCTYPE html>
+
+
+<html >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Chapter 2: A Tour of PySpark Data Types &#8212; PySpark 4.0.4 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/pyspark.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/touroftypes';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://spark.apache.org/static/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '4.0.4';
+        </script>
+    <link rel="canonical" href="https://spark.apache.org/docs/latest/api/python/user_guide/touroftypes.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Chapter 3: Function Junction - Data manipulation with PySpark" href="dataprep.html" />
+    <link rel="prev" title="Chapter 1: DataFrames - A view into your structured data" href="dataframes.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Matomo -->
+    <script type="text/javascript">
+        var _paq = window._paq = window._paq || [];
+        /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+        _paq.push(["disableCookies"]);
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+        (function() {
+            var u="https://analytics.apache.org/";
+            _paq.push(['setTrackerUrl', u+'matomo.php']);
+            _paq.push(['setSiteId', '40']);
+            var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+            g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+        })();
+    </script>
+    <!-- End Matomo Code -->
+
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://spark.apache.org/images/spark-logo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="https://spark.apache.org/images/spark-logo-rev.svg" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../index.html">
+                        Overview
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started/index.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../tutorial/index.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../reference/index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../development/index.html">
+                        Development
+                      </a>
+                    </li>
+                
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../migration_guide/index.html">
+                        Migration Guides
+                      </a>
+                    </li>
+                
+                </div>
+            </div>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      4.0.4  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/apache/spark" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/pyspark" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-solid fa-box"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../index.html">
+                        Overview
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started/index.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../tutorial/index.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../reference/index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../development/index.html">
+                        Development
+                      </a>
+                    </li>
+                
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../migration_guide/index.html">
+                        Migration Guides
+                      </a>
+                    </li>
+                
+                </div>
+            </div>
+            
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      4.0.4  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/apache/spark" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/pyspark" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-solid fa-box"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="dataframes.html">Chapter 1: DataFrames - A view into your structured data</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Chapter 2: A Tour of PySpark Data Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataprep.html">Chapter 3: Function Junction - Data manipulation with PySpark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bugbusting.html">Chapter 4: Bug Busting - Debugging PySpark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="udfandudtf.html">Chapter 5: Unleashing UDFs &amp; UDTFs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sql.html">Chapter 6: Old SQL, New Tricks - Running SQL on PySpark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="loadandbehold.html">Chapter 7: Load and Behold - Data loading, storage, file formats</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User Guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Chapter 2: A Tour of PySpark Data Types</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="Chapter-2:-A-Tour-of-PySpark-Data-Types">
+<h1>Chapter 2: A Tour of PySpark Data Types<a class="headerlink" href="#Chapter-2:-A-Tour-of-PySpark-Data-Types" title="Permalink to this headline">#</a></h1>
+<section id="Basic-Data-Types-in-PySpark">
+<h2>Basic Data Types in PySpark<a class="headerlink" href="#Basic-Data-Types-in-PySpark" title="Permalink to this headline">#</a></h2>
+<p>Understanding the basic data types in PySpark is crucial for defining DataFrame schemas and performing efficient data processing. Below is a detailed overview of each type, with descriptions, Python equivalents, and examples:</p>
+<section id="Numerical-Types">
+<h3>Numerical Types<a class="headerlink" href="#Numerical-Types" title="Permalink to this headline">#</a></h3>
+<p>ByteType Used to store byte-length integers ranging from <code class="docutils literal notranslate"><span class="pre">-128</span></code> to <code class="docutils literal notranslate"><span class="pre">127</span></code>. Ideal for storing small data efficiently. - Python Equivalent: <code class="docutils literal notranslate"><span class="pre">int</span></code> (<code class="docutils literal notranslate"><span class="pre">-128</span></code> to <code class="docutils literal notranslate"><span class="pre">127</span></code>) Python Example</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">byte_example</span> <span class="o">=</span> <span class="mi">127</span>  <span class="c1"># Maximum value for a signed byte</span>
+</pre></div>
+</div>
+</div>
+<p>ShortType Represents a short integer, storing values between <code class="docutils literal notranslate"><span class="pre">-32768</span></code> and <code class="docutils literal notranslate"><span class="pre">32767</span></code>. More efficient than using IntegerType for data with smaller numerical ranges. - Python Equivalent: <code class="docutils literal notranslate"><span class="pre">int</span></code> (<code class="docutils literal notranslate"><span class="pre">-32768</span></code> to <code class="docutils literal notranslate"><span class="pre">32767</span></code>) Python Example</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">short_example</span> <span class="o">=</span> <span class="mi">32767</span>  <span class="c1"># Maximum value for a signed short</span>
+</pre></div>
+</div>
+</div>
+<p>IntegerType Used to store integer values. Ideal for counts, indices, and any discrete quantity. - Python Equivalent: <code class="docutils literal notranslate"><span class="pre">int</span></code> (<code class="docutils literal notranslate"><span class="pre">-2147483648</span></code> to <code class="docutils literal notranslate"><span class="pre">2147483647</span></code>) Python Example</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">integer_example</span> <span class="o">=</span> <span class="mi">123</span>
+</pre></div>
+</div>
+</div>
+<p>LongType Suitable for storing large integer values, often used for identifiers or large counts. - Python Equivalent: <code class="docutils literal notranslate"><span class="pre">int</span></code> (<code class="docutils literal notranslate"><span class="pre">-9223372036854775808</span></code> to <code class="docutils literal notranslate"><span class="pre">9223372036854775807</span></code>) Python Example</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">long_integer_example</span> <span class="o">=</span> <span class="mi">1234567890123456789</span>
+</pre></div>
+</div>
+</div>
+<p>DoubleType Provides double precision floating-point numbers for accurate and precise calculations. - Python Equivalent: <code class="docutils literal notranslate"><span class="pre">float</span></code> (double precision) Python Example</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">double_example</span> <span class="o">=</span> <span class="mf">12345.6789</span>
+</pre></div>
+</div>
+</div>
+<p>FloatType Used for floating-point numbers where less precision is acceptable in exchange for performance. - Python Equivalent: <code class="docutils literal notranslate"><span class="pre">float</span></code> (single precision) Python Example</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">float_example</span> <span class="o">=</span> <span class="mf">123.456</span>
+</pre></div>
+</div>
+</div>
+<p>DecimalType Allows fixed precision and scale, used in scenarios requiring exact decimal representation, such as financial computations. - Python Equivalent: <code class="docutils literal notranslate"><span class="pre">decimal.Decimal</span></code> Python Example</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">decimal</span><span class="w"> </span><span class="kn">import</span> <span class="n">Decimal</span>
+<span class="n">decimal_example</span> <span class="o">=</span> <span class="n">Decimal</span><span class="p">(</span><span class="s1">&#39;12345.6789&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="StringType">
+<h3>StringType<a class="headerlink" href="#StringType" title="Permalink to this headline">#</a></h3>
+<p>Used for text data; supports Unicode and is capable of storing any string data. - Python Equivalent: <code class="docutils literal notranslate"><span class="pre">str</span></code> Python Example</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">string_example</span> <span class="o">=</span> <span class="s2">&quot;Hello, World!&quot;</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="BinaryType">
+<h3>BinaryType<a class="headerlink" href="#BinaryType" title="Permalink to this headline">#</a></h3>
+<p>Used for raw byte data, such as file contents or images, stored as binary streams. - Python Equivalent: <code class="docutils literal notranslate"><span class="pre">bytes</span></code> Python Example</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">binary_example</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;Hello, binary world!&#39;</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="BooleanType">
+<h3>BooleanType<a class="headerlink" href="#BooleanType" title="Permalink to this headline">#</a></h3>
+<p>Represents Boolean values, used extensively in conditional operations and filters. - Python Equivalent: <code class="docutils literal notranslate"><span class="pre">bool</span></code> Python Example</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">boolean_example</span> <span class="o">=</span> <span class="kc">True</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Datetime-Types">
+<h3>Datetime Types<a class="headerlink" href="#Datetime-Types" title="Permalink to this headline">#</a></h3>
+<p>DateType Used for dates without time, suitable for storing calendar dates like birthdays or specific days. - Python Equivalent: <code class="docutils literal notranslate"><span class="pre">datetime.date</span></code> Python Example</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
+<span class="n">date_example</span> <span class="o">=</span> <span class="n">date</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>TimestampType Stores both date and time, essential for recording precise moments in time, such as log timestamps. - Python Equivalent: <code class="docutils literal notranslate"><span class="pre">datetime.datetime</span></code> Python Example</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="n">timestamp_example</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Creating-a-DataFrame-from-Python-Objects-in-PySpark">
+<h3>Creating a DataFrame from Python Objects in PySpark<a class="headerlink" href="#Creating-a-DataFrame-from-Python-Objects-in-PySpark" title="Permalink to this headline">#</a></h3>
+<p>Here’s how to define a schema and create a DataFrame in PySpark using the Python objects corresponding to each basic data type:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql</span><span class="w"> </span><span class="kn">import</span> <span class="n">SparkSession</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">StructType</span><span class="p">,</span> <span class="n">StructField</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">,</span> <span class="n">LongType</span><span class="p">,</span> <span class="n">DoubleType</span><span class="p">,</span> <span class="n">FloatType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecimalType</span><span class="p">,</span> <span class="n">StringType</span><span class="p">,</span> <span class="n">BinaryType</span><span class="p">,</span> <span class="n">BooleanType</span><span class="p">,</span> <span class="n">DateType</span><span class="p">,</span> <span class="n">TimestampType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">decimal</span><span class="w"> </span><span class="kn">import</span> <span class="n">Decimal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">datetime</span>
+
+<span class="c1"># Define the schema of the DataFrame</span>
+<span class="n">schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">([</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;integer_field&quot;</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;long_field&quot;</span><span class="p">,</span> <span class="n">LongType</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;double_field&quot;</span><span class="p">,</span> <span class="n">DoubleType</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;float_field&quot;</span><span class="p">,</span> <span class="n">FloatType</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;decimal_field&quot;</span><span class="p">,</span> <span class="n">DecimalType</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;string_field&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;binary_field&quot;</span><span class="p">,</span> <span class="n">BinaryType</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;boolean_field&quot;</span><span class="p">,</span> <span class="n">BooleanType</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;date_field&quot;</span><span class="p">,</span> <span class="n">DateType</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;timestamp_field&quot;</span><span class="p">,</span> <span class="n">TimestampType</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="p">])</span>
+
+<span class="c1"># Sample data using the Python objects corresponding to each PySpark type</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="mi">123</span><span class="p">,</span> <span class="mi">1234567890123456789</span><span class="p">,</span> <span class="mf">12345.6789</span><span class="p">,</span> <span class="mf">123.456</span><span class="p">,</span> <span class="n">Decimal</span><span class="p">(</span><span class="s1">&#39;12345.67&#39;</span><span class="p">),</span> <span class="s2">&quot;Hello, World!&quot;</span><span class="p">,</span>
+     <span class="sa">b</span><span class="s1">&#39;Hello, binary world!&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">date</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2020</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+    <span class="p">(</span><span class="mi">456</span><span class="p">,</span> <span class="mi">9223372036854775807</span><span class="p">,</span> <span class="mf">98765.4321</span><span class="p">,</span> <span class="mf">987.654</span><span class="p">,</span> <span class="n">Decimal</span><span class="p">(</span><span class="s1">&#39;98765.43&#39;</span><span class="p">),</span> <span class="s2">&quot;Goodbye, World!&quot;</span><span class="p">,</span>
+     <span class="sa">b</span><span class="s1">&#39;Goodbye, binary world!&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">date</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">),</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">59</span><span class="p">)),</span>
+    <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1234567890123456789</span><span class="p">,</span> <span class="o">-</span><span class="mf">12345.6789</span><span class="p">,</span> <span class="o">-</span><span class="mf">123.456</span><span class="p">,</span> <span class="n">Decimal</span><span class="p">(</span><span class="s1">&#39;-12345.67&#39;</span><span class="p">),</span> <span class="s2">&quot;Negative Values&quot;</span><span class="p">,</span>
+     <span class="sa">b</span><span class="s1">&#39;Negative binary!&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">date</span><span class="p">(</span><span class="mi">1990</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1990</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+    <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">Decimal</span><span class="p">(</span><span class="s1">&#39;0.00&#39;</span><span class="p">),</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">date</span><span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="p">]</span>
+
+<span class="c1"># Create DataFrame</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+
+<span class="c1"># Show the DataFrame</span>
+<span class="n">df</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++-------------+--------------------+------------+-----------+-------------+---------------+--------------------+-------------+----------+-------------------+
+|integer_field|          long_field|double_field|float_field|decimal_field|   string_field|        binary_field|boolean_field|date_field|    timestamp_field|
++-------------+--------------------+------------+-----------+-------------+---------------+--------------------+-------------+----------+-------------------+
+|          123| 1234567890123456789|  12345.6789|    123.456|     12345.67|  Hello, World!|[48 65 6C 6C 6F 2...|         true|2020-01-01|2020-01-01 12:00:00|
+|          456| 9223372036854775807|  98765.4321|    987.654|     98765.43|Goodbye, World!|[47 6F 6F 64 62 7...|        false|2025-12-31|2025-12-31 23:59:00|
+|           -1|-1234567890123456789| -12345.6789|   -123.456|    -12345.67|Negative Values|[4E 65 67 61 74 6...|        false|1990-01-01|1990-01-01 00:00:00|
+|            0|                   0|         0.0|        0.0|         0.00|               |                  []|         true|2000-01-01|2000-01-01 00:00:00|
++-------------+--------------------+------------+-----------+-------------+---------------+--------------------+-------------+----------+-------------------+
+
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Precision-for-Doubles,-Floats,-and-Decimals">
+<h2>Precision for Doubles, Floats, and Decimals<a class="headerlink" href="#Precision-for-Doubles,-Floats,-and-Decimals" title="Permalink to this headline">#</a></h2>
+<p>Understanding precision in numerical data types is critical for data integrity, especially in fields requiring high accuracy such as financial analysis, scientific computation, and engineering. PySpark offers different data types to cater to these needs.</p>
+<p>FloatType <code class="docutils literal notranslate"><span class="pre">FloatType</span></code> in PySpark represents a single precision 32-bit IEEE 754 floating-point number. It’s less precise but requires less storage and can be processed faster than DoubleType. This makes it suitable for applications where a large volume of numerical data needs to be processed quickly and extreme precision is not critical. Usage Scenario Useful in machine learning algorithms for faster computation when processing large datasets.</p>
+<p>DoubleType <code class="docutils literal notranslate"><span class="pre">DoubleType</span></code> corresponds to a double precision 64-bit IEEE 754 floating-point number. It provides a good balance between precision and performance and is suitable for most numerical calculations where precision is important. Usage Scenario Ideal for financial calculations where precision is more crucial than computational speed.</p>
+<p>DecimalType <code class="docutils literal notranslate"><span class="pre">DecimalType</span></code> is used when dealing with high-precision fixed-scale decimal numbers. The precision and scale can be defined by the user, which makes it invaluable for applications such as financial reporting, where precise decimal representation helps avoid rounding errors. Usage Scenario Critical in accounting applications where calculations need to be accurate to the cent.</p>
+<section id="Example:-Calculating-Financial-Statistics">
+<h3>Example: Calculating Financial Statistics<a class="headerlink" href="#Example:-Calculating-Financial-Statistics" title="Permalink to this headline">#</a></h3>
+<p>This example demonstrates how to use different numerical data types in PySpark for financial calculations, such as aggregating revenues and calculating averages with appropriate precision.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">decimal</span><span class="w"> </span><span class="kn">import</span> <span class="n">Decimal</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">StructType</span><span class="p">,</span> <span class="n">StructField</span><span class="p">,</span> <span class="n">FloatType</span><span class="p">,</span> <span class="n">DoubleType</span><span class="p">,</span> <span class="n">DecimalType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="nb">sum</span><span class="p">,</span> <span class="n">avg</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">format_number</span>
+
+<span class="c1"># Define the schema of the DataFrame</span>
+<span class="n">schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">([</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;revenue_float&quot;</span><span class="p">,</span> <span class="n">FloatType</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;revenue_double&quot;</span><span class="p">,</span> <span class="n">DoubleType</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;revenue_decimal&quot;</span><span class="p">,</span> <span class="n">DecimalType</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="p">])</span>
+
+<span class="c1"># Sample data</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="mf">12345.67</span><span class="p">,</span> <span class="mf">12345.6789</span><span class="p">,</span> <span class="n">Decimal</span><span class="p">(</span><span class="s1">&#39;12345.68&#39;</span><span class="p">)),</span>
+    <span class="p">(</span><span class="mf">98765.43</span><span class="p">,</span> <span class="mf">98765.4321</span><span class="p">,</span> <span class="n">Decimal</span><span class="p">(</span><span class="s1">&#39;98765.43&#39;</span><span class="p">)),</span>
+    <span class="p">(</span><span class="mf">54321.10</span><span class="p">,</span> <span class="mf">54321.0987</span><span class="p">,</span> <span class="n">Decimal</span><span class="p">(</span><span class="s1">&#39;54321.10&#39;</span><span class="p">))</span>
+<span class="p">]</span>
+
+<span class="c1"># Create DataFrame</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+
+<span class="c1"># Calculations</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+    <span class="n">format_number</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;revenue_float&quot;</span><span class="p">)),</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;Total_Revenue_Float&quot;</span><span class="p">),</span>
+    <span class="n">format_number</span><span class="p">(</span><span class="n">avg</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;revenue_float&quot;</span><span class="p">)),</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;Average_Revenue_Float&quot;</span><span class="p">),</span>
+    <span class="n">format_number</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;revenue_double&quot;</span><span class="p">)),</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;Total_Revenue_Double&quot;</span><span class="p">),</span>
+    <span class="n">format_number</span><span class="p">(</span><span class="n">avg</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;revenue_double&quot;</span><span class="p">)),</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;Average_Revenue_Double&quot;</span><span class="p">),</span>
+    <span class="n">format_number</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;revenue_decimal&quot;</span><span class="p">)),</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;Total_Revenue_Decimal&quot;</span><span class="p">),</span>
+    <span class="n">format_number</span><span class="p">(</span><span class="n">avg</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;revenue_decimal&quot;</span><span class="p">)),</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;Average_Revenue_Decimal&quot;</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">result</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++-------------------+---------------------+--------------------+----------------------+---------------------+-----------------------+
+|Total_Revenue_Float|Average_Revenue_Float|Total_Revenue_Double|Average_Revenue_Double|Total_Revenue_Decimal|Average_Revenue_Decimal|
++-------------------+---------------------+--------------------+----------------------+---------------------+-----------------------+
+|         165,432.20|            55,144.07|          165,432.21|             55,144.07|           165,432.21|              55,144.07|
++-------------------+---------------------+--------------------+----------------------+---------------------+-----------------------+
+
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Complex-Data-Types-in-PySpark">
+<h2>Complex Data Types in PySpark<a class="headerlink" href="#Complex-Data-Types-in-PySpark" title="Permalink to this headline">#</a></h2>
+<p>Complex data types in PySpark facilitate the handling of nested and structured data, which is essential for working with modern data formats like JSON, XML, and others commonly found in big data ecosystems. This section explores the primary complex data types available in PySpark: <code class="docutils literal notranslate"><span class="pre">ArrayType</span></code>, <code class="docutils literal notranslate"><span class="pre">StructType</span></code>, <code class="docutils literal notranslate"><span class="pre">MapType</span></code>, and their use cases.</p>
+<p>ArrayType Allows storage of multiple values of the same type in a single column. Ideal for data that naturally forms a list, such as tags, categories, or historical data points. - Python Equivalent: <code class="docutils literal notranslate"><span class="pre">list</span></code> Python Example</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">array_example</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;apple&#39;</span><span class="p">,</span> <span class="s1">&#39;banana&#39;</span><span class="p">,</span> <span class="s1">&#39;cherry&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>Usage Scenario Managing lists of items associated with each record, such as multiple phone numbers or email addresses for a single contact.</p>
+<p>StructType Enables nesting of DataFrame columns, allowing complex and hierarchical data structures within a single DataFrame cell. Each field in a <code class="docutils literal notranslate"><span class="pre">StructType</span></code> can itself be a complex type. It’s similar to a row in a DataFrame, typically used to encapsulate records with a structured schema. - Python Equivalent: <code class="docutils literal notranslate"><span class="pre">pyspark.sql.Row</span></code> Python Example</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql</span><span class="w"> </span><span class="kn">import</span> <span class="n">Row</span>
+<span class="n">struct_example</span> <span class="o">=</span> <span class="n">Row</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;John Doe&quot;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="n">Row</span><span class="p">(</span><span class="n">street</span><span class="o">=</span><span class="s2">&quot;123 Elm St&quot;</span><span class="p">,</span> <span class="n">city</span><span class="o">=</span><span class="s2">&quot;Somewhere&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>Usage Scenario Often used to represent a JSON object, enabling the manipulation of each JSON field as if it were a column in the DataFrame.</p>
+<p>MapType Represents a key-value pair in a DataFrame column, where each key and value can be of any data type. Useful for dynamically structured data. - Python Equivalent: <code class="docutils literal notranslate"><span class="pre">dict</span></code> Python Example</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">map_example</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;food&#39;</span><span class="p">:</span> <span class="s1">&#39;pizza&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="s1">&#39;car&#39;</span><span class="p">:</span> <span class="s1">&#39;Tesla&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Usage Scenario Storing and processing collections of key-value pairs within a single DataFrame column, like attributes of a product where keys are attribute names and values are attribute values.</p>
+<section id="Example:-Handling-Complex-Nested-Data">
+<h3>Example: Handling Complex Nested Data<a class="headerlink" href="#Example:-Handling-Complex-Nested-Data" title="Permalink to this headline">#</a></h3>
+<p>To illustrate the use of these complex data types, let’s consider a practical example involving nested data structures such as a customer record that includes multiple addresses and preferences in various categories.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">StructType</span><span class="p">,</span> <span class="n">StructField</span><span class="p">,</span> <span class="n">StringType</span><span class="p">,</span> <span class="n">ArrayType</span><span class="p">,</span> <span class="n">MapType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql</span><span class="w"> </span><span class="kn">import</span> <span class="n">Row</span>
+
+<span class="c1"># Define the schema of the DataFrame</span>
+<span class="n">schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">([</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;addresses&quot;</span><span class="p">,</span> <span class="n">ArrayType</span><span class="p">(</span>
+        <span class="n">StructType</span><span class="p">([</span>
+            <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;street&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;city&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+            <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;zip&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">])</span>
+    <span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;preferences&quot;</span><span class="p">,</span> <span class="n">MapType</span><span class="p">(</span><span class="n">StringType</span><span class="p">(),</span> <span class="n">StringType</span><span class="p">()),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="p">])</span>
+
+<span class="c1"># Sample data using Row objects for StructType</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;John Doe&quot;</span><span class="p">,</span>
+        <span class="n">addresses</span><span class="o">=</span><span class="p">[</span><span class="n">Row</span><span class="p">(</span><span class="n">street</span><span class="o">=</span><span class="s2">&quot;123 Elm St&quot;</span><span class="p">,</span> <span class="n">city</span><span class="o">=</span><span class="s2">&quot;Somewhere&quot;</span><span class="p">,</span> <span class="nb">zip</span><span class="o">=</span><span class="s2">&quot;12345&quot;</span><span class="p">),</span>
+                   <span class="n">Row</span><span class="p">(</span><span class="n">street</span><span class="o">=</span><span class="s2">&quot;456 Oak St&quot;</span><span class="p">,</span> <span class="n">city</span><span class="o">=</span><span class="s2">&quot;Anywhere&quot;</span><span class="p">,</span> <span class="nb">zip</span><span class="o">=</span><span class="s2">&quot;67890&quot;</span><span class="p">)],</span>
+        <span class="n">preferences</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;food&quot;</span><span class="p">:</span> <span class="s2">&quot;pizza&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="s2">&quot;car&quot;</span><span class="p">:</span> <span class="s2">&quot;Tesla&quot;</span><span class="p">}),</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Jane Smith&quot;</span><span class="p">,</span>
+        <span class="n">addresses</span><span class="o">=</span><span class="p">[</span><span class="n">Row</span><span class="p">(</span><span class="n">street</span><span class="o">=</span><span class="s2">&quot;789 Pine St&quot;</span><span class="p">,</span> <span class="n">city</span><span class="o">=</span><span class="s2">&quot;Everywhere&quot;</span><span class="p">,</span> <span class="nb">zip</span><span class="o">=</span><span class="s2">&quot;10112&quot;</span><span class="p">)],</span>
+        <span class="n">preferences</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;food&quot;</span><span class="p">:</span> <span class="s2">&quot;sushi&quot;</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="s2">&quot;car&quot;</span><span class="p">:</span> <span class="s2">&quot;Honda&quot;</span><span class="p">})</span>
+<span class="p">]</span>
+
+<span class="c1"># Create DataFrame</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+
+<span class="c1"># Show the DataFrame</span>
+<span class="n">df</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">truncate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++----------+---------------------------------------------------------------+---------------------------------------------+
+|name      |addresses                                                      |preferences                                  |
++----------+---------------------------------------------------------------+---------------------------------------------+
+|John Doe  |[{123 Elm St, Somewhere, 12345}, {456 Oak St, Anywhere, 67890}]|{color -&gt; blue, car -&gt; Tesla, food -&gt; pizza} |
+|Jane Smith|[{789 Pine St, Everywhere, 10112}]                             |{color -&gt; green, car -&gt; Honda, food -&gt; sushi}|
++----------+---------------------------------------------------------------+---------------------------------------------+
+
+</pre></div></div>
+</div>
+<p>In this example: - <code class="docutils literal notranslate"><span class="pre">ArrayType</span></code> is used to store multiple addresses for each customer. - <code class="docutils literal notranslate"><span class="pre">StructType</span></code> is nested within <code class="docutils literal notranslate"><span class="pre">ArrayType</span></code> to represent each address as a structured record. - <code class="docutils literal notranslate"><span class="pre">MapType</span></code> stores preferences as key-value pairs, allowing for dynamic data storage.</p>
+</section>
+</section>
+<section id="Casting-Columns-in-PySpark">
+<h2>Casting Columns in PySpark<a class="headerlink" href="#Casting-Columns-in-PySpark" title="Permalink to this headline">#</a></h2>
+<p>Casting columns is a fundamental operation in data processing where the data type of a column in a DataFrame is converted from one type to another. PySpark provides straightforward methods that enable you to align input data types with the requirements of data processing operations or applications.</p>
+<section id="How-to-Cast-Columns">
+<h3>How to Cast Columns<a class="headerlink" href="#How-to-Cast-Columns" title="Permalink to this headline">#</a></h3>
+<p>To cast columns in PySpark, the <code class="docutils literal notranslate"><span class="pre">cast()</span></code> or <code class="docutils literal notranslate"><span class="pre">astype()</span></code> method can be used on a column. Here’s a complete example demonstrating how to perform basic casting operations:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">col</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">StructType</span><span class="p">,</span> <span class="n">StructField</span><span class="p">,</span> <span class="n">StringType</span><span class="p">,</span> <span class="n">FloatType</span>
+
+<span class="c1"># Define the schema of the DataFrame</span>
+<span class="n">schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">([</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;float_column&quot;</span><span class="p">,</span> <span class="n">FloatType</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;string_column&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="p">])</span>
+
+<span class="c1"># Sample data</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="mf">123.456</span><span class="p">,</span> <span class="s2">&quot;123&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="mf">789.012</span><span class="p">,</span> <span class="s2">&quot;456&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;789&quot;</span><span class="p">)</span>
+<span class="p">]</span>
+
+<span class="c1"># Create DataFrame</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+
+<span class="c1"># Display original DataFrame</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Original DataFrame:&quot;</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Example of casting a float column to string</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="s1">&#39;string_from_float&#39;</span><span class="p">,</span> <span class="n">col</span><span class="p">(</span><span class="s1">&#39;float_column&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s1">&#39;string&#39;</span><span class="p">))</span>
+
+<span class="c1"># Example of casting a string column to integer</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="s1">&#39;integer_from_string&#39;</span><span class="p">,</span> <span class="n">col</span><span class="p">(</span><span class="s1">&#39;string_column&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">))</span>
+
+<span class="c1"># Display DataFrame after casting</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DataFrame after Casting:&quot;</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Original DataFrame:
++------------+-------------+
+|float_column|string_column|
++------------+-------------+
+|     123.456|          123|
+|     789.012|          456|
+|        NULL|          789|
++------------+-------------+
+
+DataFrame after Casting:
++------------+-------------+-----------------+-------------------+
+|float_column|string_column|string_from_float|integer_from_string|
++------------+-------------+-----------------+-------------------+
+|     123.456|          123|          123.456|                123|
+|     789.012|          456|          789.012|                456|
+|        NULL|          789|             NULL|                789|
++------------+-------------+-----------------+-------------------+
+
+</pre></div></div>
+</div>
+</section>
+<section id="Cast-with-Caution:-Potential-Data-Loss">
+<h3>Cast with Caution: Potential Data Loss<a class="headerlink" href="#Cast-with-Caution:-Potential-Data-Loss" title="Permalink to this headline">#</a></h3>
+<p>When casting columns, it’s important to be aware of how PySpark handles incompatible or invalid casting operations:</p>
+<p>Silent Conversion to Null - If ANSI mode is disabled, PySpark does not throw an error if a value cannot be converted to the desired type during casting. Instead, it overflows or converts the value to <code class="docutils literal notranslate"><span class="pre">null</span></code>. This behavior can lead to data loss in your dataset, which might not be immediately obvious. - If ANSI mode is enabled, PySpark throws an error in that case. If it is acceptable, use <code class="docutils literal notranslate"><span class="pre">try_cast</span></code> instead.</p>
+<p>Example: Checking for Data Loss - It’s a good practice to check for unexpected nulls that result from casting operations, especially when converting from string to numeric types where formatting issues may cause failures.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">col</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">StructType</span><span class="p">,</span> <span class="n">StructField</span><span class="p">,</span> <span class="n">StringType</span>
+
+<span class="c1"># Disable ANSI mode</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;spark.sql.ansi.enabled&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+<span class="c1"># Define the schema of the DataFrame</span>
+<span class="n">schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">([</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;original_column&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="p">])</span>
+
+<span class="c1"># Sample data</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s2">&quot;123&quot;</span><span class="p">,),</span>  <span class="c1"># Valid integer in string form</span>
+    <span class="p">(</span><span class="s2">&quot;abc&quot;</span><span class="p">,),</span>  <span class="c1"># Invalid, will result in null when cast to integer</span>
+    <span class="p">(</span><span class="kc">None</span><span class="p">,)</span>    <span class="c1"># Original null, remains null</span>
+<span class="p">]</span>
+
+<span class="c1"># Create DataFrame</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+
+<span class="c1"># Display original DataFrame</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Original DataFrame:&quot;</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Add a new column with casted values</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="s1">&#39;casted_column&#39;</span><span class="p">,</span> <span class="n">col</span><span class="p">(</span><span class="s1">&#39;original_column&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">))</span>
+
+<span class="c1"># Show rows where casting resulted in nulls but the original column had data</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DataFrame Showing Potential Data Loss:&quot;</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s1">&#39;original_column&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">isNotNull</span><span class="p">()</span> <span class="o">&amp;</span> <span class="n">col</span><span class="p">(</span><span class="s1">&#39;casted_column&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">isNull</span><span class="p">())</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">unset</span><span class="p">(</span><span class="s2">&quot;spark.sql.ansi.enabled&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Original DataFrame:
++---------------+
+|original_column|
++---------------+
+|            123|
+|            abc|
+|           NULL|
++---------------+
+
+DataFrame Showing Potential Data Loss:
++---------------+-------------+
+|original_column|casted_column|
++---------------+-------------+
+|            abc|         NULL|
++---------------+-------------+
+
+</pre></div></div>
+</div>
+</section>
+<section id="Best-Practices-for-Casting">
+<h3>Best Practices for Casting<a class="headerlink" href="#Best-Practices-for-Casting" title="Permalink to this headline">#</a></h3>
+<p>Validate Data First - Before casting columns, especially when converting strings to numerical types, validate and clean your data to ensure it conforms to expected formats.</p>
+<p>Example: Checking if numeric strings are properly formatted before casting to integers</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">col</span><span class="p">,</span> <span class="n">regexp_extract</span>
+
+<span class="c1"># Sample DataFrame with a string column</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">([(</span><span class="s2">&quot;100&quot;</span><span class="p">,),</span> <span class="p">(</span><span class="s2">&quot;20x&quot;</span><span class="p">,),</span> <span class="p">(</span><span class="s2">&quot;300&quot;</span><span class="p">,)],</span> <span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">])</span>
+
+<span class="c1"># Checking and filtering rows where data can be safely cast to an integer</span>
+<span class="n">valid_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">regexp_extract</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">),</span> <span class="s1">&#39;^[0-9]+$&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="n">valid_df</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++----+
+|data|
++----+
+| 100|
+| 300|
++----+
+
+</pre></div></div>
+</div>
+<p>Use Explicit Schemas - When reading data, use explicit schemas to avoid incorrect data type inference, which can minimize the need for casting.</p>
+<p>Example: Specifying a schema when reading data to ensure correct data types are applied from the start</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">StructType</span><span class="p">,</span> <span class="n">StructField</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">,</span> <span class="n">StringType</span>
+
+<span class="c1"># Define a schema</span>
+<span class="n">schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">([</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;Employee ID&quot;</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">(),</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;Role&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;Location&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
+<span class="p">])</span>
+
+<span class="c1"># Read data with an explicit schema</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">csv</span><span class="p">(</span><span class="s2">&quot;../data/employees.csv&quot;</span><span class="p">,</span> <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+root
+ |-- Employee ID: integer (nullable = true)
+ |-- Role: string (nullable = true)
+ |-- Location: string (nullable = true)
+
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Semi-Structured-Data-Processing-in-PySpark">
+<h2>Semi-Structured Data Processing in PySpark<a class="headerlink" href="#Semi-Structured-Data-Processing-in-PySpark" title="Permalink to this headline">#</a></h2>
+<p>This section explores PySpark’s capabilities for handling semi-structured data formats, particularly focusing on JSON and XML, and addresses approaches for managing VARIANT-like data, which is commonly used in some SQL databases.</p>
+<section id="JSON-Processing">
+<h3>JSON Processing<a class="headerlink" href="#JSON-Processing" title="Permalink to this headline">#</a></h3>
+<p>JSON is a widely used format in web services and data interchange. PySpark simplifies parsing JSON data into structured DataFrames, making it easy to manipulate and analyze.</p>
+<p>Key Functions - <code class="docutils literal notranslate"><span class="pre">from_json()</span></code>: Converts JSON strings into a DataFrame column with a structured data type. - <code class="docutils literal notranslate"><span class="pre">to_json()</span></code>: Converts columns of a DataFrame into JSON strings.</p>
+<p>Example: Parsing JSON Strings</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">from_json</span><span class="p">,</span> <span class="n">col</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">StructType</span><span class="p">,</span> <span class="n">StructField</span><span class="p">,</span> <span class="n">StringType</span><span class="p">,</span> <span class="n">IntegerType</span>
+
+<span class="n">json_schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">([</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">StringType</span><span class="p">()),</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;age&quot;</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">())</span>
+<span class="p">])</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">([(</span><span class="s2">&quot;{</span><span class="se">\&quot;</span><span class="s2">name</span><span class="se">\&quot;</span><span class="s2">:</span><span class="se">\&quot;</span><span class="s2">John</span><span class="se">\&quot;</span><span class="s2">, </span><span class="se">\&quot;</span><span class="s2">age</span><span class="se">\&quot;</span><span class="s2">:30}&quot;</span><span class="p">,),</span> <span class="p">(</span><span class="s2">&quot;{</span><span class="se">\&quot;</span><span class="s2">name</span><span class="se">\&quot;</span><span class="s2">:</span><span class="se">\&quot;</span><span class="s2">Jane</span><span class="se">\&quot;</span><span class="s2">, </span><span class="se">\&quot;</span><span class="s2">age</span><span class="se">\&quot;</span><span class="s2">:25}&quot;</span><span class="p">,)],</span> <span class="p">[</span><span class="s2">&quot;json_str&quot;</span><span class="p">])</span>
+<span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">from_json</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;json_str&quot;</span><span class="p">),</span> <span class="n">json_schema</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;parsed_json&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++-----------+
+|parsed_json|
++-----------+
+| {John, 30}|
+| {Jane, 25}|
++-----------+
+
+</pre></div></div>
+</div>
+<p>Example: Reading and Processing JSON Data</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="s1">&#39;../data/books.json&#39;</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;author&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;genre&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++-------------+--------------------+---------+
+|       author|               title|    genre|
++-------------+--------------------+---------+
+|George Orwell|                1984|Dystopian|
+|  Jane Austen| Pride and Prejudice|  Romance|
+|   Mark Twain|Adventures of Huc...|  Fiction|
++-------------+--------------------+---------+
+
+</pre></div></div>
+</div>
+</section>
+<section id="XML-Processing">
+<h3>XML Processing<a class="headerlink" href="#XML-Processing" title="Permalink to this headline">#</a></h3>
+<div class="alert alert-block alert-info"><p>Note: This section applies to Spark 4.0</p>
+</div><p>XML is another common format for semi-structured data, used extensively in various enterprise applications. Example: Reading and Processing XML Data</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">read</span> \
+    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;xml&#39;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s1">&#39;rowTag&#39;</span><span class="p">,</span> <span class="s1">&#39;book&#39;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;../data/books.xml&#39;</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;author&quot;</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;genre&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++-------------+--------------------+---------+
+|       author|               title|    genre|
++-------------+--------------------+---------+
+|George Orwell|                1984|Dystopian|
+|  Jane Austen| Pride and Prejudice|  Romance|
+|   Mark Twain|Adventures of Huc...|  Fiction|
++-------------+--------------------+---------+
+
+</pre></div></div>
+</div>
+</section>
+<section id="Handling-VARIANT-Data-Types-in-PySpark">
+<h3>Handling VARIANT Data Types in PySpark<a class="headerlink" href="#Handling-VARIANT-Data-Types-in-PySpark" title="Permalink to this headline">#</a></h3>
+<div class="alert alert-block alert-info"><p>Note: This section applies to Spark 4.0</p>
+</div><p>With the introduction of the VARIANT data type, handling semi-structured data has become more streamlined. VARIANT types are designed to store data that doesn’t conform to a fixed schema, such as JSON or XML, directly within a DataFrame column.</p>
+<p>Features of VARIANT in PySpark - <strong>Flexibility</strong>: VARIANT types can store data structures like JSON or XML without predefined schema constraints, offering high flexibility for data ingestion and manipulation. - <strong>Integration</strong>: Provides better integration with systems that use semi-structured data, allowing for more direct data exchanges and queries.</p>
+<p>Considerations When Using VARIANT - <strong>Performance</strong>: While VARIANT provides flexibility, it might impact performance due to its dynamic nature. It’s important to test and optimize data operations involving VARIANT types. - <strong>Compatibility</strong>: Ensure that all parts of your data pipeline support VARIANT if you’re leveraging this data type, especially when exporting data to external systems.</p>
+<p>Practical Example: Handling JSON Data with VARIANT This example demonstrates how VARIANT can be used to handle JSON data effectively in PySpark:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">decimal</span><span class="w"> </span><span class="kn">import</span> <span class="n">Decimal</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">try_parse_json</span><span class="p">,</span> <span class="n">try_variant_get</span><span class="p">,</span> <span class="n">col</span>
+
+<span class="c1"># Sample JSON data</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;1234567890123456789&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;12345.6789&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;&quot;Hello, World!&quot;&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;true&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;{&quot;id&quot;: 1, &quot;attributes&quot;: {&quot;key1&quot;: &quot;value1&quot;, &quot;key2&quot;: &quot;value2&quot;}}&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;{&quot;id&quot;: 2, &quot;attributes&quot;: {&quot;key1&quot;: &quot;value3&quot;, &quot;key2&quot;: &quot;value4&quot;}}&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># Load data into DataFrame with VARIANT</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">StringType</span><span class="p">())</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">try_parse_json</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;variant_data&quot;</span><span class="p">))</span>
+<span class="n">df</span><span class="o">.</span><span class="n">printSchema</span><span class="p">()</span>
+<span class="n">df</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">truncate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="c1"># Accessing elements inside the VARIANT</span>
+<span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span>
+    <span class="n">try_variant_get</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;variant_data&quot;</span><span class="p">),</span> <span class="s2">&quot;$&quot;</span><span class="p">,</span> <span class="s2">&quot;long&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;long_value&quot;</span><span class="p">),</span>
+    <span class="n">try_variant_get</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;variant_data&quot;</span><span class="p">),</span> <span class="s2">&quot;$.id&quot;</span><span class="p">,</span> <span class="s2">&quot;int&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">),</span>
+    <span class="n">try_variant_get</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;variant_data&quot;</span><span class="p">),</span> <span class="s2">&quot;$.attributes.key1&quot;</span><span class="p">,</span> <span class="s2">&quot;string&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;key1&quot;</span><span class="p">),</span>
+    <span class="n">try_variant_get</span><span class="p">(</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;variant_data&quot;</span><span class="p">),</span> <span class="s2">&quot;$.attributes.key2&quot;</span><span class="p">,</span> <span class="s2">&quot;string&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;key2&quot;</span><span class="p">),</span>
+<span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Collect data and convert to Python objects</span>
+<span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;variant_data&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">toPython</span><span class="p">()</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">collect</span><span class="p">()]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+root
+ |-- variant_data: variant (nullable = true)
+
++-------------------------------------------------------+
+|variant_data                                           |
++-------------------------------------------------------+
+|1234567890123456789                                    |
+|12345.6789                                             |
+|&#34;Hello, World!&#34;                                        |
+|true                                                   |
+|{&#34;attributes&#34;:{&#34;key1&#34;:&#34;value1&#34;,&#34;key2&#34;:&#34;value2&#34;},&#34;id&#34;:1}|
+|{&#34;attributes&#34;:{&#34;key1&#34;:&#34;value3&#34;,&#34;key2&#34;:&#34;value4&#34;},&#34;id&#34;:2}|
++-------------------------------------------------------+
+
++-------------------+----+------+------+
+|         long_value|  id|  key1|  key2|
++-------------------+----+------+------+
+|1234567890123456789|NULL|  NULL|  NULL|
+|              12345|NULL|  NULL|  NULL|
+|               NULL|NULL|  NULL|  NULL|
+|                  1|NULL|  NULL|  NULL|
+|               NULL|   1|value1|value2|
+|               NULL|   2|value3|value4|
++-------------------+----+------+------+
+
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[1234567890123456789,
+ Decimal(&#39;12345.6789&#39;),
+ &#39;Hello, World!&#39;,
+ True,
+ {&#39;attributes&#39;: {&#39;key1&#39;: &#39;value1&#39;, &#39;key2&#39;: &#39;value2&#39;}, &#39;id&#39;: 1},
+ {&#39;attributes&#39;: {&#39;key1&#39;: &#39;value3&#39;, &#39;key2&#39;: &#39;value4&#39;}, &#39;id&#39;: 2}]
+</pre></div></div>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="dataframes.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Chapter 1: DataFrames - A view into your structured data</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="dataprep.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Chapter 3: Function Junction - Data manipulation with PySpark</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Basic-Data-Types-in-PySpark">Basic Data Types in PySpark</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Numerical-Types">Numerical Types</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#StringType">StringType</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#BinaryType">BinaryType</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#BooleanType">BooleanType</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Datetime-Types">Datetime Types</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Creating-a-DataFrame-from-Python-Objects-in-PySpark">Creating a DataFrame from Python Objects in PySpark</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Precision-for-Doubles,-Floats,-and-Decimals">Precision for Doubles, Floats, and Decimals</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Example:-Calculating-Financial-Statistics">Example: Calculating Financial Statistics</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Complex-Data-Types-in-PySpark">Complex Data Types in PySpark</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Example:-Handling-Complex-Nested-Data">Example: Handling Complex Nested Data</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Casting-Columns-in-PySpark">Casting Columns in PySpark</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#How-to-Cast-Columns">How to Cast Columns</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Cast-with-Caution:-Potential-Data-Loss">Cast with Caution: Potential Data Loss</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Best-Practices-for-Casting">Best Practices for Casting</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Semi-Structured-Data-Processing-in-PySpark">Semi-Structured Data Processing in PySpark</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#JSON-Processing">JSON Processing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#XML-Processing">XML Processing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Handling-VARIANT-Data-Types-in-PySpark">Handling VARIANT Data Types in PySpark</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="../_sources/user_guide/touroftypes.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><p class="copyright">
+    Copyright @ 2026 The Apache Software Foundation, Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a>.
+</p></div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

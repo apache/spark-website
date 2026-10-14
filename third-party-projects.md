@@ -100,6 +100,6 @@ transforming, and analyzing genomic data using Apache Spark
 
 ## Adding new projects
 
-To add a project, open a pull request against the [spark-website](https://github.com/apache/spark-website)  repository. Add an entry to  [this markdown file](https://github.com/apache/spark-website/blob/asf-site/third-party-projects.md),  then run `jekyll build` to generate the HTML too. Include both in your pull request. See the README in this repo for more information.
+To add a project, open a pull request against the [spark-website](https://github.com/apache/spark-website)  repository. Add an entry to [this markdown file](https://github.com/apache/spark-website/blob/asf-site/third-party-projects.md) and follow the [README instructions](https://github.com/apache/spark-website#readme) to submit a pull request with your changes.
 
 Note that all project and product names should follow [trademark guidelines](/trademarks.html).

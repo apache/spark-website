@@ -158,94 +158,87 @@
       
       <h1>Spark Structured Streaming</h1>
       
-      <div class="jumbotron">
-  <a href="/docs/latest/structured-streaming-programming-guide.html">Spark Structured Streaming</a> makes it easy to build streaming applications and pipelines with the same and familiar Spark APIs.
-</div>
+      <p><a href="/docs/latest/structured-streaming-programming-guide.html">Spark Structured Streaming</a> makes it easy to build streaming applications and pipelines with the same and familiar Spark APIs.</p>
 
-<div class="row row-padded">
-  <div class="col-md-7 col-sm-7">
-    <h2>Easy to use</h2>
-    <p>
-      Spark Structured Streaming abstracts away complex streaming concepts such as incremental processing, checkpointing, and watermarks 
-      so that you can build streaming applications and pipelines without learning any new concepts or tools.
-    </p>
-  </div>
-  <div class="col-md-5 col-sm-5 col-padded-top col-center">
+<p>Spark Structured Streaming has two different modes:</p>
 
-    <div style="margin-top: 15px; text-align: left; display: inline-block;">
-      <div class="code">
-        spark<br />
-        &nbsp;&nbsp;.<span class="sparkop">readStream</span><br />
-        &nbsp;&nbsp;.<span class="sparkop">select</span>(<span class="closure">$"value"</span>.cast(<span class="closure">"string"</span>).alias(<span class="closure">"jsonData"</span>))<br />
-        &nbsp;&nbsp;.<span class="sparkop">select</span>(from_json(<span class="closure">$"jsonData"</span>,jsonSchema).alias(<span class="closure">"payload"</span>))<br />
-        &nbsp;&nbsp;.<span class="sparkop">writeStream</span><br />
-        &nbsp;&nbsp;.<span class="sparkop">trigger</span>(<span class="closure">"1 seconds"</span>)<br />
-        &nbsp;&nbsp;.<span class="sparkop">start</span>()
-      </div>
-    </div>
-  </div>
-</div>
+<ul>
+  <li><strong>Spark Real-time Mode (RTM):</strong> Designed for sub-second, operational workloads. RTM provides continuous processing that can bring latency for stateless tasks down to single-digit milliseconds, eliminating the need to maintain a separate real-time engine.</li>
+  <li><strong>Spark Micro-batch Mode:</strong> Designed for analytical pipelines and ETL. Micro-batch mode processes data streams as a series of small batch jobs, a highly cost-effective option for second- or minute-level latencies.</li>
+</ul>
 
-<div class="row row-padded">
-  <div class="col-md-7 col-sm-7">
-    <h2>Unified batch and streaming APIs</h2>
-    <p>
-      Spark Structured Streaming provides the same structured APIs (DataFrames and Datasets) as Spark so that you don’t need to develop on or maintain two different technology stacks for batch and streaming.
-      In addition, unified APIs make it easy to migrate your existing batch Spark jobs to streaming jobs.
-    </p>
-  </div>
-  <div class="col-md-5 col-sm-5 col-padded-top col-center">
-    <div style="width: 100%; max-width: 300px; display: inline-block;">
-      <img src="/images/spark-unified-batch-and-streaming.png" style="width: 100%; max-width: 300px;" />
-    </div>
+<p>Both modes share the exact same codebase, so you can move between cost-effective ETL and sub-second operational streaming with only small changes to your query.</p>
+
+<h2 id="easy-to-use">Easy to use</h2>
+
+<p>Spark Structured Streaming abstracts away complex streaming concepts such as incremental processing, checkpointing, and watermarks so you can build streaming applications without learning new tools. Shifting from minute-level ETL to millisecond-scale operational streaming is mostly a trigger change. Real-time Mode also requires the Update output mode and supports a defined subset of sources, operators, and sinks.</p>
+
+<p><strong>Micro-batch mode</strong> &#8212; second- or minute-level latency for analytical ETL:</p>
+
+<div style="margin-top: 15px; text-align: left; display: inline-block;">
+  <div class="code">
+    spark<br />
+    &nbsp;&nbsp;.<span class="sparkop">readStream</span><br />
+    &nbsp;&nbsp;.<span class="sparkop">select</span>(<span class="closure">$"value"</span>.cast(<span class="closure">"string"</span>).alias(<span class="closure">"jsonData"</span>))<br />
+    &nbsp;&nbsp;.<span class="sparkop">select</span>(from_json(<span class="closure">$"jsonData"</span>, jsonSchema).alias(<span class="closure">"payload"</span>))<br />
+    &nbsp;&nbsp;.<span class="sparkop">writeStream</span><br />
+    &nbsp;&nbsp;.<span class="sparkop">trigger</span>(Trigger.<span class="sparkop">ProcessingTime</span>(<span class="closure">"1 minute"</span>))<br />
+    &nbsp;&nbsp;.<span class="sparkop">start</span>()
   </div>
 </div>
 
-<div class="row row-padded">
-  <div class="col-md-7 col-sm-7">
-    <h2>Low latency and cost effective</h2>
-    <p>
-      Spark Structured Streaming uses the same underlying architecture as Spark so that you can take advantage of all the performance and cost optimizations built into the Spark engine.
-      With Spark Structured Streaming, you can build low latency streaming applications and pipelines cost effectively.
-    </p>
-  </div>
-  <div class="col-md-5 col-sm-5 col-padded-top col-center">
-    <div style="width: 100%; max-width: 300px; display: inline-block;">
-      <img src="/images/spark-structured-streaming-incremental-execution.png" style="width: 100%; max-width: 300px;" />
-    </div>
+<p><strong>Real-time Mode</strong> &#8212; millisecond-scale latency for operational workloads. Switch the trigger and set the output mode to <code class="language-plaintext highlighter-rouge">update</code>. Real-time Mode supports a defined subset of sources, operators, and sinks, so queries that stay within it need no other changes:</p>
+
+<div style="margin-top: 15px; text-align: left; display: inline-block;">
+  <div class="code">
+    spark<br />
+    &nbsp;&nbsp;.<span class="sparkop">readStream</span><br />
+    &nbsp;&nbsp;.<span class="sparkop">select</span>(<span class="closure">$"value"</span>.cast(<span class="closure">"string"</span>).alias(<span class="closure">"jsonData"</span>))<br />
+    &nbsp;&nbsp;.<span class="sparkop">select</span>(from_json(<span class="closure">$"jsonData"</span>, jsonSchema).alias(<span class="closure">"payload"</span>))<br />
+    &nbsp;&nbsp;.<span class="sparkop">writeStream</span><br />
+    &nbsp;&nbsp;.<span class="sparkop">outputMode</span>(<span class="closure">"update"</span>)<br />
+    &nbsp;&nbsp;.<span class="sparkop">trigger</span>(Trigger.<span class="sparkop">RealTime</span>(<span class="closure">"5 minutes"</span>))<br />
+    &nbsp;&nbsp;.<span class="sparkop">start</span>()
   </div>
 </div>
 
-<div class="row">
+<h2 id="unified-batch-and-streaming-apis">Unified batch and streaming APIs</h2>
 
-  <div class="col-md-4 col-padded">
-    <h3>Getting started</h3>
-    <p>
-      To get started with Spark Structured Streaming:
-    </p>
-    <ul class="list-narrow">
-      <li><a href="/downloads.html">Download Spark</a>. It includes Structured Streaming as a module.</li>
-      <li>Read the <a href="/docs/latest/structured-streaming-programming-guide.html">Spark Structured Streaming programming guide</a>, which includes programming models, tutorials, configurations, etc.</li>
-    </ul>
-  </div>
+<p>Spark Structured Streaming provides the same structured APIs (DataFrames and Datasets) as Spark, so you don&#8217;t need to develop on or maintain two different technology stacks for batch and streaming. The same codebase scales from historical batch processing to real-time inference, and unified APIs make it easy to migrate existing batch Spark jobs to streaming.</p>
 
-  <div class="col-md-4 col-padded">
-    <h3>Community</h3>
-    <p>
-      Spark Structured Streaming is developed as part of Apache Spark. It thus gets tested and updated with each Spark release.
-    </p>
-    <p>
-      If you have questions about the system, ask on the
-      <a href="/community.html#mailing-lists">Spark mailing lists</a>.
-    </p>
-    <p>
-      The Spark Structured Streaming developers welcome contributions. If you'd like to help out,
-      read <a href="/contributing.html">how to
-      contribute to Spark</a>, and send us a patch!
-    </p>
-  </div>
+<p><img src="/images/spark-unified-batch-and-streaming.png" style="max-width: 100%; height: auto;" alt="Unified batch and streaming APIs in Spark Structured Streaming" /></p>
 
-</div>
+<h2 id="built-for-both-analytical-and-operational-workloads">Built for both analytical and operational workloads</h2>
+
+<p>Run cost-effective ETL and sub-second operational applications on the same engine. Spark Structured Streaming supports both micro-batch and Real-time execution, so you can change latency targets largely through the trigger, within Real-time Mode&#8217;s supported set of sources, operators, and sinks.</p>
+
+<ul>
+  <li><strong>Operational streaming (Spark Real-time Mode):</strong> A continuous processing architecture that executes events as they arrive, dropping end-to-end latency for stateless tasks to the single-digit millisecond range, enabling inline fraud detection, live personalization, and real-time alerting without a separate streaming engine.</li>
+  <li><strong>Analytical streaming (Spark Micro-batch Mode):</strong> This model balances high throughput with cost-efficiency. Use it for traditional ETL, Medallion architectures, and ingestion pipelines where latency is measured in seconds or minutes.</li>
+</ul>
+
+<h2 id="low-latency-and-cost-effective">Low latency and cost-effective</h2>
+
+<p>Spark Structured Streaming uses the same underlying architecture as Spark, so you can take advantage of all the performance and cost optimizations built into the Spark engine. While micro-batch execution provides highly cost-effective processing for analytical ETL, Real-time Mode uses continuous processing with pipelined and streaming shuffles to reach single-digit millisecond latencies for stateless workloads. Run mission-critical operational workloads with ultra-low latency.</p>
+
+<p><img src="/images/spark-structured-streaming-incremental-execution.png" style="max-width: 100%; height: auto;" alt="Structured Streaming incremental execution model" /></p>
+
+<h3 id="getting-started">Getting started</h3>
+
+<p>To get started with Spark Structured Streaming:</p>
+
+<ul>
+  <li><a href="/downloads.html">Download Spark</a>. It includes Structured Streaming as a module.</li>
+  <li>Read the <a href="/docs/latest/structured-streaming-programming-guide.html">Spark Structured Streaming programming guide</a>, which includes programming models, tutorials, configurations, etc.</li>
+</ul>
+
+<h3 id="community">Community</h3>
+
+<p>Spark Structured Streaming is developed as part of Apache Spark. It thus gets tested and updated with each Spark release.</p>
+
+<p>If you have questions about the system, ask on the <a href="/community.html#mailing-lists">Spark mailing lists</a>.</p>
+
+<p>The Spark Structured Streaming developers welcome contributions. If you&#8217;d like to help out, read <a href="/contributing.html">how to contribute to Spark</a>, and send us a patch!</p>
 
 <div class="row">
   <div class="col-sm-12 col-center">
@@ -261,17 +254,17 @@
         <h5>Latest News</h5>
         <ul class="list-unstyled">
           
-          <li><a href="/news/spark-4-0-3-released.html">Spark 4.0.3 released</a>
-            <span class="small">(Jun 11, 2026)</span></li>
+          <li><a href="/news/spark-3-5-9-released.html">Spark 3.5.9 released</a>
+            <span class="small">(Jul 16, 2026)</span></li>
           
-          <li><a href="/news/spark-4-1-2-released.html">Spark 4.1.2 released</a>
-            <span class="small">(May 21, 2026)</span></li>
+          <li><a href="/news/spark-4-1-3-released.html">Spark 4.1.3 released</a>
+            <span class="small">(Jul 15, 2026)</span></li>
           
-          <li><a href="/news/spark-4-2-0-preview5-released.html">Preview release of Spark 4.2.0</a>
-            <span class="small">(May 01, 2026)</span></li>
+          <li><a href="/news/spark-4-0-4-released.html">Spark 4.0.4 released</a>
+            <span class="small">(Jul 15, 2026)</span></li>
           
-          <li><a href="/news/spark-4-2-0-preview4-released.html">Preview release of Spark 4.2.0</a>
-            <span class="small">(Apr 09, 2026)</span></li>
+          <li><a href="/news/spark-4-2-0-released.html">Spark 4.2.0 released</a>
+            <span class="small">(Jul 14, 2026)</span></li>
           
         </ul>
         <p class="small" style="text-align: right;"><a href="/news/index.html">Archive</a></p>

@@ -1,0 +1,990 @@
+
+
+<!DOCTYPE html>
+
+
+<html >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Best Practices &#8212; PySpark 4.2.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/pyspark.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/clipboard.min.js"></script>
+    <script src="../../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorial/pandas_on_spark/best_practices';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://spark.apache.org/static/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '4.2.0';
+        </script>
+    <link rel="canonical" href="https://spark.apache.org/docs/latest/api/python/tutorial/pandas_on_spark/best_practices.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Supported pandas API" href="supported_pandas_api.html" />
+    <link rel="prev" title="From/to other DBMSes" href="from_to_dbms.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Matomo -->
+    <script type="text/javascript">
+        var _paq = window._paq = window._paq || [];
+        /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+        _paq.push(["disableCookies"]);
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+        (function() {
+            var u="https://analytics.apache.org/";
+            _paq.push(['setTrackerUrl', u+'matomo.php']);
+            _paq.push(['setSiteId', '40']);
+            var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+            g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+        })();
+    </script>
+    <!-- End Matomo Code -->
+
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://spark.apache.org/images/spark-logo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="https://spark.apache.org/images/spark-logo-rev.svg" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../index.html">
+                        Overview
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../getting_started/index.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../index.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../user_guide/index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../reference/index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../development/index.html">
+                        Development
+                      </a>
+                    </li>
+                
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../migration_guide/index.html">
+                        Migration Guides
+                      </a>
+                    </li>
+                
+                </div>
+            </div>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      4.2.0  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/apache/spark" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/pyspark" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-solid fa-box"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../index.html">
+                        Overview
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../getting_started/index.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../index.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../user_guide/index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../reference/index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../development/index.html">
+                        Development
+                      </a>
+                    </li>
+                
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../migration_guide/index.html">
+                        Migration Guides
+                      </a>
+                    </li>
+                
+                </div>
+            </div>
+            
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      4.2.0  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/apache/spark" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/pyspark" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-solid fa-box"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../python_packaging.html">Python Package Management</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../sql/index.html">Spark SQL</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../sql/arrow_pandas.html">Apache Arrow in PySpark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sql/arrow_python_udf.html">Arrow Python UDFs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sql/arrow_python_udtf.html">Vectorized Python User-defined Table Functions (UDTFs)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sql/python_udtf.html">Python User-defined Table Functions (UDTFs)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sql/python_data_source.html">Python Data Source API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../sql/type_conversions.html">Python to Spark Type Conversions</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Pandas API on Spark</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="options.html">Options and settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pandas_pyspark.html">From/to pandas and PySpark DataFrames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transform_apply.html">Transform and apply a function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="types.html">Type Support in Pandas API on Spark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="typehints.html">Type Hints in Pandas API on Spark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="from_to_dbms.html">From/to other DBMSes</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="supported_pandas_api.html">Supported pandas API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="faq.html">FAQ</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Tutorials</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Pandas API on Spark</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Best Practices</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="best-practices">
+<h1>Best Practices<a class="headerlink" href="#best-practices" title="Permalink to this headline">#</a></h1>
+<section id="leverage-pyspark-apis">
+<h2>Leverage PySpark APIs<a class="headerlink" href="#leverage-pyspark-apis" title="Permalink to this headline">#</a></h2>
+<p>Pandas API on Spark uses Spark under the hood; therefore, many features and performance optimizations are available
+in pandas API on Spark as well. Leverage and combine those cutting-edge features with pandas API on Spark.</p>
+<p>Existing Spark context and Spark sessions are used out of the box in pandas API on Spark. If you already have your own
+configured Spark context or sessions running, pandas API on Spark uses them.</p>
+<p>If there is no Spark context or session running in your environment (e.g., ordinary Python interpreter),
+such configurations can be set to <code class="docutils literal notranslate"><span class="pre">SparkContext</span></code> and/or <code class="docutils literal notranslate"><span class="pre">SparkSession</span></code>.
+Once a Spark context and/or session is created, pandas API on Spark can use this context and/or session automatically.
+For example, if you want to configure the executor memory in Spark, you can do as below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark</span><span class="w"> </span><span class="kn">import</span> <span class="n">SparkConf</span><span class="p">,</span> <span class="n">SparkContext</span>
+<span class="n">conf</span> <span class="o">=</span> <span class="n">SparkConf</span><span class="p">()</span>
+<span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;spark.executor.memory&#39;</span><span class="p">,</span> <span class="s1">&#39;2g&#39;</span><span class="p">)</span>
+<span class="c1"># Pandas API on Spark automatically uses this Spark context with the configurations set.</span>
+<span class="n">SparkContext</span><span class="p">(</span><span class="n">conf</span><span class="o">=</span><span class="n">conf</span><span class="p">)</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyspark.pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ps</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>Another common configuration might be Arrow optimization in PySpark. In case of SQL configuration,
+it can be set into Spark session as below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql</span><span class="w"> </span><span class="kn">import</span> <span class="n">SparkSession</span>
+<span class="n">builder</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;pandas-on-spark&quot;</span><span class="p">)</span>
+<span class="n">builder</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s2">&quot;spark.sql.execution.arrow.pyspark.enabled&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">)</span>
+<span class="c1"># Pandas API on Spark automatically uses this Spark session with the configurations set.</span>
+<span class="n">builder</span><span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pyspark.pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ps</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>All Spark features such as history server, web UI and deployment modes can be used as are with pandas API on Spark.
+If you are interested in performance tuning, please see also <a class="reference external" href="https://spark.apache.org/docs/latest/tuning.html">Tuning Spark</a>.</p>
+</section>
+<section id="check-execution-plans">
+<h2>Check execution plans<a class="headerlink" href="#check-execution-plans" title="Permalink to this headline">#</a></h2>
+<p>Expensive operations can be predicted by leveraging PySpark API <cite>DataFrame.spark.explain()</cite>
+before the actual computation since pandas API on Spark is based on lazy execution. For example, see below.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pyspark.pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psdf</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psdf</span> <span class="o">=</span> <span class="n">psdf</span><span class="p">[</span><span class="n">psdf</span><span class="o">.</span><span class="n">id</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psdf</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">explain</span><span class="p">()</span>
+<span class="go">== Physical Plan ==</span>
+<span class="go">*(1) Filter (id#1L &gt; 5)</span>
+<span class="go">+- *(1) Scan ExistingRDD[__index_level_0__#0L,id#1L]</span>
+</pre></div>
+</div>
+<p>Whenever you are not sure about such cases, you can check the actual execution plans and
+foresee the expensive cases.</p>
+<p>Even though pandas API on Spark tries its best to optimize and reduce such shuffle operations by leveraging Spark
+optimizers, it is best to avoid shuffling in the application side whenever possible.</p>
+</section>
+<section id="use-checkpoint">
+<h2>Use checkpoint<a class="headerlink" href="#use-checkpoint" title="Permalink to this headline">#</a></h2>
+<p>After a bunch of operations on pandas API on Spark objects, the underlying Spark planner can slow down due to the huge and complex plan.
+If the Spark plan becomes huge or it takes the planning long time, <code class="docutils literal notranslate"><span class="pre">DataFrame.spark.checkpoint()</span></code>
+or <code class="docutils literal notranslate"><span class="pre">DataFrame.spark.local_checkpoint()</span></code> would be helpful.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pyspark.pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psdf</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psdf</span> <span class="o">=</span> <span class="n">psdf</span><span class="p">[</span><span class="n">psdf</span><span class="o">.</span><span class="n">id</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psdf</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">psdf</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">psdf</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">psdf</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psdf</span> <span class="o">=</span> <span class="n">psdf</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psdf</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">explain</span><span class="p">()</span>
+<span class="go">== Physical Plan ==</span>
+<span class="go">*(3) Project [__index_level_0__#0L, id#31L]</span>
+<span class="go">+- *(3) Filter (isnotnull(__row_number__#44) AND (__row_number__#44 &lt;= 2))</span>
+<span class="go">   +- Window [row_number() windowspecdefinition(__groupkey_0__#36L, __natural_order__#16L ASC NULLS FIRST, specifiedwindowframe(RowFrame, unboundedpreceding$(), currentrow$())) AS __row_number__#44], [__groupkey_0__#36L], [__natural_order__#16L ASC NULLS FIRST]</span>
+<span class="go">      +- *(2) Sort [__groupkey_0__#36L ASC NULLS FIRST, __natural_order__#16L ASC NULLS FIRST], false, 0</span>
+<span class="go">         +- Exchange hashpartitioning(__groupkey_0__#36L, 200), true, [id=#33]</span>
+<span class="go">            +- *(1) Project [__index_level_0__#0L, (id#1L + ((id#1L * 10) + id#1L)) AS __groupkey_0__#36L, (id#1L + ((id#1L * 10) + id#1L)) AS id#31L, __natural_order__#16L]</span>
+<span class="go">               +- *(1) Project [__index_level_0__#0L, id#1L, monotonically_increasing_id() AS __natural_order__#16L]</span>
+<span class="go">                  +- *(1) Filter (id#1L &gt; 5)</span>
+<span class="go">                     +- *(1) Scan ExistingRDD[__index_level_0__#0L,id#1L]</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psdf</span> <span class="o">=</span> <span class="n">psdf</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">local_checkpoint</span><span class="p">()</span>  <span class="c1"># or psdf.spark.checkpoint()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psdf</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">explain</span><span class="p">()</span>
+<span class="go">== Physical Plan ==</span>
+<span class="go">*(1) Project [__index_level_0__#0L, id#31L]</span>
+<span class="go">+- *(1) Scan ExistingRDD[__index_level_0__#0L,id#31L,__natural_order__#59L]</span>
+</pre></div>
+</div>
+<p>As you can see, the previous Spark plan is dropped and starts with a simple plan.
+The result of the previous DataFrame is stored in the configured file system when calling <code class="docutils literal notranslate"><span class="pre">DataFrame.spark.checkpoint()</span></code>,
+or in the executor when calling <code class="docutils literal notranslate"><span class="pre">DataFrame.spark.local_checkpoint()</span></code>.</p>
+</section>
+<section id="avoid-shuffling">
+<h2>Avoid shuffling<a class="headerlink" href="#avoid-shuffling" title="Permalink to this headline">#</a></h2>
+<p>Some operations such as <code class="docutils literal notranslate"><span class="pre">sort_values</span></code> are more difficult to do in a parallel or distributed
+environment than in in-memory on a single machine because it needs to send data to other nodes,
+and exchange the data across multiple nodes via networks. See the example below.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pyspark.pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psdf</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)})</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;id&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psdf</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">explain</span><span class="p">()</span>
+<span class="go">== Physical Plan ==</span>
+<span class="go">*(2) Sort [id#9L ASC NULLS LAST], true, 0</span>
+<span class="go">+- Exchange rangepartitioning(id#9L ASC NULLS LAST, 200), true, [id=#18]</span>
+<span class="go">   +- *(1) Scan ExistingRDD[__index_level_0__#8L,id#9L]</span>
+</pre></div>
+</div>
+<p>As you can see, it requires <code class="docutils literal notranslate"><span class="pre">Exchange</span></code> which requires a shuffle and it is likely expensive.</p>
+</section>
+<section id="avoid-computation-on-single-partition">
+<h2>Avoid computation on single partition<a class="headerlink" href="#avoid-computation-on-single-partition" title="Permalink to this headline">#</a></h2>
+<p>Another common case is the computation on a single partition. Currently, some APIs such as
+<a class="reference external" href="https://spark.apache.org/docs/latest/api/python/reference/pyspark.pandas/api/pyspark.pandas.DataFrame.rank.html">DataFrame.rank</a>
+use PySpark’s Window without specifying partition specification. This moves all data into a single
+partition in a single machine and could cause serious performance degradation.
+Such APIs should be avoided for very large datasets.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pyspark.pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psdf</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;id&#39;</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psdf</span><span class="o">.</span><span class="n">rank</span><span class="p">()</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">explain</span><span class="p">()</span>
+<span class="go">== Physical Plan ==</span>
+<span class="go">*(4) Project [__index_level_0__#16L, id#24]</span>
+<span class="go">+- Window [avg(cast(_w0#26 as bigint)) windowspecdefinition(id#17L, specifiedwindowframe(RowFrame, unboundedpreceding$(), unboundedfollowing$())) AS id#24], [id#17L]</span>
+<span class="go">   +- *(3) Project [__index_level_0__#16L, _w0#26, id#17L]</span>
+<span class="go">      +- Window [row_number() windowspecdefinition(id#17L ASC NULLS FIRST, specifiedwindowframe(RowFrame, unboundedpreceding$(), currentrow$())) AS _w0#26], [id#17L ASC NULLS FIRST]</span>
+<span class="go">         +- *(2) Sort [id#17L ASC NULLS FIRST], false, 0</span>
+<span class="go">            +- Exchange SinglePartition, true, [id=#48]</span>
+<span class="go">               +- *(1) Scan ExistingRDD[__index_level_0__#16L,id#17L]</span>
+</pre></div>
+</div>
+<p>Instead, use
+<a class="reference external" href="https://spark.apache.org/docs/latest/api/python/reference/pyspark.pandas/api/pyspark.pandas.groupby.GroupBy.rank.html">GroupBy.rank</a>
+as it is less expensive because data can be distributed and computed for each group.</p>
+</section>
+<section id="avoid-reserved-column-names">
+<h2>Avoid reserved column names<a class="headerlink" href="#avoid-reserved-column-names" title="Permalink to this headline">#</a></h2>
+<p>Columns with leading <code class="docutils literal notranslate"><span class="pre">__</span></code> and trailing <code class="docutils literal notranslate"><span class="pre">__</span></code> are reserved in pandas API on Spark. To handle internal behaviors for, such as, index,
+pandas API on Spark uses some internal columns. Therefore, it is discouraged to use such column names and they are not guaranteed to work.</p>
+</section>
+<section id="do-not-use-duplicated-column-names">
+<h2>Do not use duplicated column names<a class="headerlink" href="#do-not-use-duplicated-column-names" title="Permalink to this headline">#</a></h2>
+<p>It is disallowed to use duplicated column names because Spark SQL does not allow this in general. Pandas API on Spark inherits
+this behavior. For instance, see below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pyspark.pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psdf</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s1">&#39;b&#39;</span><span class="p">:[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psdf</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">]</span>
+<span class="gp">...</span>
+<span class="go">Reference &#39;a&#39; is ambiguous, could be: a, a.;</span>
+</pre></div>
+</div>
+<p>Additionally, it is strongly discouraged to use case sensitive column names. Pandas API on Spark disallows it by default.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pyspark.pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psdf</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s1">&#39;A&#39;</span><span class="p">:[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]})</span>
+<span class="gp">...</span>
+<span class="go">Reference &#39;a&#39; is ambiguous, could be: a, a.;</span>
+</pre></div>
+</div>
+<p>However, you can turn on <code class="docutils literal notranslate"><span class="pre">spark.sql.caseSensitive</span></code> in Spark configuration to enable it for use at your own risk.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql</span><span class="w"> </span><span class="kn">import</span> <span class="n">SparkSession</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">builder</span> <span class="o">=</span> <span class="n">SparkSession</span><span class="o">.</span><span class="n">builder</span><span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;pandas-on-spark&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">builder</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">config</span><span class="p">(</span><span class="s2">&quot;spark.sql.caseSensitive&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">builder</span><span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pyspark.pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psdf</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s1">&#39;A&#39;</span><span class="p">:[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psdf</span>
+<span class="go">   a  A</span>
+<span class="go">0  1  3</span>
+<span class="go">1  2  4</span>
+</pre></div>
+</div>
+</section>
+<section id="specify-the-index-column-in-conversion-from-spark-dataframe-to-pandas-on-spark-dataframe">
+<h2>Specify the index column in conversion from Spark DataFrame to pandas-on-Spark DataFrame<a class="headerlink" href="#specify-the-index-column-in-conversion-from-spark-dataframe-to-pandas-on-spark-dataframe" title="Permalink to this headline">#</a></h2>
+<p>When pandas-on-Spark Dataframe is converted from Spark DataFrame, it loses the index information, which results in using
+the default index in pandas API on Spark DataFrame. The default index is inefficient in general comparing to explicitly specifying
+the index column. Specify the index column whenever possible.</p>
+<p>See  <a class="reference internal" href="pandas_pyspark.html#pyspark"><span class="std std-ref">working with PySpark</span></a></p>
+</section>
+<section id="use-distributed-or-distributed-sequence-default-index">
+<h2>Use <code class="docutils literal notranslate"><span class="pre">distributed</span></code> or <code class="docutils literal notranslate"><span class="pre">distributed-sequence</span></code> default index<a class="headerlink" href="#use-distributed-or-distributed-sequence-default-index" title="Permalink to this headline">#</a></h2>
+<p>One common issue that pandas-on-Spark users face is the slow performance due to the default index. Pandas API on Spark attaches
+a default index when the index is unknown, for example, Spark DataFrame is directly converted to pandas-on-Spark DataFrame.</p>
+<p>Note that <code class="docutils literal notranslate"><span class="pre">sequence</span></code> requires the computation on a single partition which is discouraged. If you plan
+to handle large data in production, make it distributed by configuring the default index to <code class="docutils literal notranslate"><span class="pre">distributed</span></code> or
+<code class="docutils literal notranslate"><span class="pre">distributed-sequence</span></code> .</p>
+<p>See <a class="reference internal" href="options.html#default-index-type"><span class="std std-ref">Default Index Type</span></a> for more details about configuring default index.</p>
+</section>
+<section id="handling-index-misalignment-with-distributed-sequence">
+<h2>Handling index misalignment with <code class="docutils literal notranslate"><span class="pre">distributed-sequence</span></code><a class="headerlink" href="#handling-index-misalignment-with-distributed-sequence" title="Permalink to this headline">#</a></h2>
+<p>While <code class="docutils literal notranslate"><span class="pre">distributed-sequence</span></code> ensures a globally sequential index, it does <strong>not</strong> guarantee that the same row-to-index mapping is maintained across different operations.
+Operations such as <code class="docutils literal notranslate"><span class="pre">apply()</span></code>, <code class="docutils literal notranslate"><span class="pre">groupby()</span></code>, or <code class="docutils literal notranslate"><span class="pre">transform()</span></code> may cause the index to be regenerated, leading to misalignment between rows and computed values.</p>
+<section id="issue-example-with-apply">
+<h3>Issue example with <code class="docutils literal notranslate"><span class="pre">apply()</span></code><a class="headerlink" href="#issue-example-with-apply" title="Permalink to this headline">#</a></h3>
+<p>In the following example, we load a dataset where <code class="docutils literal notranslate"><span class="pre">record_id</span></code> acts as a unique identifier, and we compute the duration (number of business days) using an <code class="docutils literal notranslate"><span class="pre">apply()</span></code> function.
+However, due to <code class="docutils literal notranslate"><span class="pre">distributed-sequence</span></code> index regeneration during <code class="docutils literal notranslate"><span class="pre">apply()</span></code>, the results may be assigned to incorrect rows.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyspark.pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ps</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="n">ps</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">&#39;compute.default_index_type&#39;</span><span class="p">,</span> <span class="s1">&#39;distributed-sequence&#39;</span><span class="p">)</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;record_id&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;RECORD_1001&quot;</span><span class="p">,</span> <span class="s2">&quot;RECORD_1002&quot;</span><span class="p">],</span>
+    <span class="s1">&#39;start_date&#39;</span><span class="p">:</span> <span class="n">ps</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">([</span><span class="s2">&quot;2024-01-01&quot;</span><span class="p">,</span> <span class="s2">&quot;2024-01-02&quot;</span><span class="p">]),</span>
+    <span class="s1">&#39;end_date&#39;</span><span class="p">:</span> <span class="n">ps</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">([</span><span class="s2">&quot;2024-01-01&quot;</span><span class="p">,</span> <span class="s2">&quot;2024-01-03&quot;</span><span class="p">])</span>
+<span class="p">})</span>
+
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;duration&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">busday_count</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;start_date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">date</span><span class="p">(),</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;end_date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">date</span><span class="p">()),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Expected output:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">record_id</span>    <span class="n">start_date</span>    <span class="n">end_date</span>     <span class="n">duration</span>
+<span class="n">RECORD_1001</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">01</span>    <span class="mi">2024</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">01</span>   <span class="mi">0</span>
+<span class="n">RECORD_1002</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">02</span>    <span class="mi">2024</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">03</span>   <span class="mi">1</span>
+</pre></div>
+</div>
+<p>However, due to the <code class="docutils literal notranslate"><span class="pre">distributed-sequence</span></code> index being re-generated during <code class="docutils literal notranslate"><span class="pre">apply()</span></code>, the resulting DataFrame might look like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">record_id</span>    <span class="n">start_date</span>    <span class="n">end_date</span>     <span class="n">duration</span>
+<span class="n">RECORD_1002</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">02</span>    <span class="mi">2024</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">03</span>   <span class="mi">0</span>   <span class="c1"># Wrong mapping!</span>
+<span class="n">RECORD_1001</span>  <span class="mi">2024</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">01</span>    <span class="mi">2024</span><span class="o">-</span><span class="mi">01</span><span class="o">-</span><span class="mi">01</span>   <span class="mi">1</span>   <span class="c1"># Wrong mapping!</span>
+</pre></div>
+</div>
+</section>
+<section id="best-practices-to-prevent-index-misalignment">
+<h3>Best practices to prevent index misalignment<a class="headerlink" href="#best-practices-to-prevent-index-misalignment" title="Permalink to this headline">#</a></h3>
+<p>To ensure the row-to-index mapping remains consistent, consider the following approaches:</p>
+<ol class="arabic">
+<li><p><strong>Explicitly set an index column before applying functions:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;record_id&quot;</span><span class="p">)</span>  <span class="c1"># Ensure the index is explicitly set</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;duration&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">busday_count</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;start_date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">date</span><span class="p">(),</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;end_date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">date</span><span class="p">()),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Persist the DataFrame before applying functions to maintain row ordering:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">spark</span><span class="o">.</span><span class="n">persist</span><span class="p">()</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;duration&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">busday_count</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;start_date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">date</span><span class="p">(),</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;end_date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">date</span><span class="p">()),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Use the sequence index type instead (be aware of potential performance trade-offs):</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ps</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">&#39;compute.default_index_type&#39;</span><span class="p">,</span> <span class="s1">&#39;sequence&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p>If your application requires strict row-to-index mapping, consider using one of the above approaches rather than relying on the default <code class="docutils literal notranslate"><span class="pre">distributed-sequence</span></code> index.</p>
+<p>For more information, refer to <a class="reference internal" href="options.html#default-index-type"><span class="std std-ref">Default Index Type</span></a></p>
+</section>
+</section>
+<section id="reduce-the-operations-on-different-dataframe-series">
+<h2>Reduce the operations on different DataFrame/Series<a class="headerlink" href="#reduce-the-operations-on-different-dataframe-series" title="Permalink to this headline">#</a></h2>
+<p>Pandas API on Spark disallows the operations on different DataFrames (or Series) by default to prevent expensive operations.
+It internally performs a join operation which can be expensive in general, which is discouraged. Whenever possible,
+this operation should be avoided.</p>
+<p>See <a class="reference internal" href="options.html#operations-on-different-dataframes"><span class="std std-ref">Operations on different DataFrames</span></a> for more details.</p>
+</section>
+<section id="use-pandas-api-on-spark-directly-whenever-possible">
+<h2>Use pandas API on Spark directly whenever possible<a class="headerlink" href="#use-pandas-api-on-spark-directly-whenever-possible" title="Permalink to this headline">#</a></h2>
+<p>Although pandas API on Spark has most of the pandas-equivalent APIs, there are several APIs not implemented yet or explicitly unsupported.</p>
+<p>As an example, pandas API on Spark does not implement <code class="docutils literal notranslate"><span class="pre">__iter__()</span></code> to prevent users from collecting all data into the client (driver) side from the whole cluster.
+Unfortunately, many external APIs such as Python built-in functions such as min, max, sum, etc. require the given argument to be iterable.
+In case of pandas, it works properly out of the box as below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">max</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]))</span>
+<span class="go">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">min</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]))</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">sum</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]))</span>
+<span class="go">6</span>
+</pre></div>
+</div>
+<p>pandas dataset lives in the single machine, and is naturally iterable locally within the same machine.
+However, pandas-on-Spark dataset lives across multiple machines, and they are computed in a distributed manner.
+It is difficult to be locally iterable and it is very likely users collect the entire data into the client side without knowing it.
+Therefore, it is best to stick to using pandas-on-Spark APIs.
+The examples above can be converted as below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pyspark.pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ps</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+<span class="go">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ps</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ps</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="go">6</span>
+</pre></div>
+</div>
+<p>Another common pattern from pandas users might be to rely on list comprehension or generator expression.
+However, it also assumes the dataset is locally iterable under the hood.
+Therefore, it works seamlessly in pandas as below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">countries</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;London&#39;</span><span class="p">,</span> <span class="s1">&#39;New York&#39;</span><span class="p">,</span> <span class="s1">&#39;Helsinki&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pser</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mf">20.</span><span class="p">,</span> <span class="mf">21.</span><span class="p">,</span> <span class="mf">12.</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="n">countries</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">temperature</span> <span class="ow">in</span> <span class="n">pser</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">assert</span> <span class="n">temperature</span> <span class="o">&gt;</span> <span class="mi">0</span>
+<span class="gp">... </span>    <span class="k">if</span> <span class="n">temperature</span> <span class="o">&gt;</span> <span class="mi">1000</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="n">temperature</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="gp">... </span>    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temperature</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">countries</span><span class="p">)</span>
+<span class="go">London      400.0</span>
+<span class="go">New York    441.0</span>
+<span class="go">Helsinki    144.0</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+<p>However, for pandas API on Spark it does not work for the same reason above.
+The example above can be also changed to directly using pandas-on-Spark APIs as below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">pyspark.pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ps</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">countries</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;London&#39;</span><span class="p">,</span> <span class="s1">&#39;New York&#39;</span><span class="p">,</span> <span class="s1">&#39;Helsinki&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psser</span> <span class="o">=</span> <span class="n">ps</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="mf">20.</span><span class="p">,</span> <span class="mf">21.</span><span class="p">,</span> <span class="mf">12.</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="n">countries</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">square</span><span class="p">(</span><span class="n">temperature</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">assert</span> <span class="n">temperature</span> <span class="o">&gt;</span> <span class="mi">0</span>
+<span class="gp">... </span>    <span class="k">if</span> <span class="n">temperature</span> <span class="o">&gt;</span> <span class="mi">1000</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="n">temperature</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="n">temperature</span> <span class="o">**</span> <span class="mi">2</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">psser</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">square</span><span class="p">)</span>
+<span class="go">London      400.0</span>
+<span class="go">New York    441.0</span>
+<span class="go">Helsinki    144.0</span>
+<span class="go">dtype: float64</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="from_to_dbms.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">From/to other DBMSes</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="supported_pandas_api.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Supported pandas API</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#leverage-pyspark-apis">Leverage PySpark APIs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#check-execution-plans">Check execution plans</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#use-checkpoint">Use checkpoint</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#avoid-shuffling">Avoid shuffling</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#avoid-computation-on-single-partition">Avoid computation on single partition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#avoid-reserved-column-names">Avoid reserved column names</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#do-not-use-duplicated-column-names">Do not use duplicated column names</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#specify-the-index-column-in-conversion-from-spark-dataframe-to-pandas-on-spark-dataframe">Specify the index column in conversion from Spark DataFrame to pandas-on-Spark DataFrame</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#use-distributed-or-distributed-sequence-default-index">Use <code class="docutils literal notranslate"><span class="pre">distributed</span></code> or <code class="docutils literal notranslate"><span class="pre">distributed-sequence</span></code> default index</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#handling-index-misalignment-with-distributed-sequence">Handling index misalignment with <code class="docutils literal notranslate"><span class="pre">distributed-sequence</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-example-with-apply">Issue example with <code class="docutils literal notranslate"><span class="pre">apply()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#best-practices-to-prevent-index-misalignment">Best practices to prevent index misalignment</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#reduce-the-operations-on-different-dataframe-series">Reduce the operations on different DataFrame/Series</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#use-pandas-api-on-spark-directly-whenever-possible">Use pandas API on Spark directly whenever possible</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="../../_sources/tutorial/pandas_on_spark/best_practices.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><p class="copyright">
+    Copyright @ 2026 The Apache Software Foundation, Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a>.
+</p></div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
