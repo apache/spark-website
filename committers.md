@@ -120,8 +120,9 @@ To get started contributing to Spark, learn
 <a href="{{site.baseurl}}/contributing.html">how to contribute</a> – 
 anyone can submit patches, documentation and examples to the project.
 
-The PMC regularly adds new committers from the active contributors, based on their contributions 
-to Spark. The qualifications for new committers include:
+The [Spark Project Management Committee][pmc] (PMC) regularly adds new committers from the active contributors based on their contributions to Spark. The qualifications for new committers include:
+
+[pmc]: https://projects.apache.org/committee.html?spark
 
 1. Sustained contributions to Spark: Committers should have a history of major contributions to 
 Spark. An ideal committer will have contributed broadly throughout the project, and have 
