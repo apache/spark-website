@@ -1,13 +1,11 @@
 ---
 layout: global
 title: History
-type: "page singular"
+type: "page"
 navigation:
   weight: 5
   show: true
 ---
-
-<h2><span class="text-capitalize">Apache Spark<span class="tm">&trade;</span></span> history</h2>
 
 <p>
 Apache Spark started as a research project at the <a href="https://amplab.cs.berkeley.edu">UC Berkeley AMPLab</a>

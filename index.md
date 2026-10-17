@@ -257,39 +257,40 @@ head(select(df, df$name.first))
                 <div class="text-center ecosystem-title">Data science and Machine learning
                 </div>
                 <div class="row d-flex align-items-center">
-                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/scikit-learn.png" height="90" width="166"/></div>
-                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/pandas.png" height="90" width="166"/></div>
-                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/tf_logo_social.png" height="90" width="166"/></div>
-                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/pytorch.png" height="90" width="166"/></div>
-                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/mlflow-logo.png" height="90" width="166"/></div>
-                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/r_logo.png" height="90" width="166"/></div>
-                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/numpy.png" height="90" width="166"/></div>
+                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/scikit-learn.png" height="90" width="166" alt="scikit learn"/></div>
+                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/pandas.png" height="90" width="166" alt="pandas"/></div>
+                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/tf_logo_social.png" height="90" width="166" alt="TensorFlow"/></div>
+                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/pytorch.png" height="90" width="166" alt="PyTorch"/></div>
+                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/mlflow-logo.png" height="90" width="166" alt="mlflow"/></div>
+                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/r_logo.png" height="90" width="166" alt="R"/></div>
+                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/numpy.png" height="90" width="166" alt="NumPy"/></div>
                 </div>
             </div>
             <div class="col-12 col-md-12 col-lg-5 mt-5 mt-md-5 mt-lg-0 mx-auto">
                 <div class="text-center ecosystem-title">SQL analytics and BI</div>
                 <div class="row d-flex align-items-center">
-                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/superset.png" height="90" width="166"/></div>
-                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/PowerBI-Logo-Square-Insight-Platforms.png" height="90" width="166"/></div>
-                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/looker_logo.png" height="90" width="166"/></div>
-                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/redash.png" height="90" width="166"/></div>
-                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/tableau-logo-tableau-software.png" height="90" width="166"/></div>
-                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/dbt.png" height="90" width="166"/></div>
+                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/superset.png" height="90" width="166" alt="Apache Superset"/></div>
+                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/PowerBI-Logo-Square-Insight-Platforms.png" height="90" width="166" alt="PowerBI"/></div>
+                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/looker_logo.png" height="90" width="166" alt="Looker"/></div>
+                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/redash.png" height="90" width="166" alt="Redash"/></div>
+                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/tableau-logo-tableau-software.png" height="90" width="166" alt="Tableau"/></div>
+                    <div class="col-12 col-md-4"><img src="{{site.baseurl}}/images/dbt.png" height="90" width="166" alt="dbt"/></div>
                 </div>
             </div>
             <div class="col-12 col-md-12 col-lg-10 mt-5 pt-5 mx-auto">
                 <div class="text-center ecosystem-title">Storage and Infrastructure</div>
                 <div class="row d-flex align-items-center">
-                    <div class="col"><img src="{{site.baseurl}}/images/Elasticsearch.png" height="90" width="166"/></div>
-                    <div class="col"><img src="{{site.baseurl}}/images/mongo.png" height="90" width="166"/></div>
-                    <div class="col"><img src="{{site.baseurl}}/images/kafka.png" height="90" width="166"/></div>
-                    <div class="col"><img src="{{site.baseurl}}/images/delta-lake-logo.png" height="90" width="166"/></div>
-                    <div class="col"><img src="{{site.baseurl}}/images/kubernetes-horizontal-color.png" height="90" width="166"/></div>
-                    <div class="col"><img src="{{site.baseurl}}/images/AirflowLogo.png" height="90" width="166"/></div>
-                    <div class="col"><img src="{{site.baseurl}}/images/Apache_Parquet_logo.png" height="90" width="166"/></div>
-                    <div class="col"><img src="{{site.baseurl}}/images/sqlserver.png" height="90" width="166"/></div>
-                    <div class="col"><img src="{{site.baseurl}}/images/1280px-Cassandra_logo.png" height="90" width="166"/></div>
-                    <div class="col"><img src="{{site.baseurl}}/images/Apache_Orc_logo.png" height="90" width="166"/></div>
+                    <div class="col"><img src="{{site.baseurl}}/images/Elasticsearch.png" height="90" width="166" alt="Elasticsearch"/></div>
+                    <div class="col"><img src="{{site.baseurl}}/images/mongo.png" height="90" width="166" alt="mongoDB"/></div>
+                    <div class="col"><img src="{{site.baseurl}}/images/kafka.png" height="90" width="166" alt="Apache Kafka"/></div>
+                    <div class="col"><img src="{{site.baseurl}}/images/delta-lake-logo.png" height="90" width="166" alt="Delta Lake"/></div>
+                    <div class="col"><img src="{{site.baseurl}}/images/kubernetes-horizontal-color.png" height="90" width="166" alt="Kubernetes"/></div>
+                    <div class="col"><img src="{{site.baseurl}}/images/AirflowLogo.png" height="90" width="166" alt="Apache Airflow"/></div>
+                    <div class="col"><img src="{{site.baseurl}}/images/Apache_Parquet_logo.png" height="90" width="166" alt="Parquet"/></div>
+                    <div class="col"><img src="{{site.baseurl}}/images/sqlserver.png" height="90" width="166" alt="SQL Server"/></div>
+                    <div class="col"><img src="{{site.baseurl}}/images/1280px-Cassandra_logo.png" height="90" width="166" alt="Cassandra"/></div>
+                    <div class="col"><img src="{{site.baseurl}}/images/Apache_Iceberg_logo.png" height="" width="166" alt="Apache Iceberg"/></div>
+                    <div class="col"><img src="{{site.baseurl}}/images/Apache_Orc_logo.png" height="90" width="166" alt="Apache Orc"/></div>
                 </div>
             </div>
         </div>

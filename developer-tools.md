@@ -1,7 +1,7 @@
 ---
 layout: global
 title: Useful Developer Tools
-type: "page singular"
+type: "page"
 navigation:
   weight: 5
   show: true
@@ -352,17 +352,32 @@ By default, this script will format files that differ from git master. For more 
 
 <h3>IDE setup</h3>
 
+Make sure you have a clean start before setting up the IDE: A clean git clone of the Spark repo, install the latest 
+version of the IDE.
+
+If something goes wrong, clear the build outputs by `./build/sbt clean` and `./build/mvn clean`, clear the m2 
+cache by `rm -rf ~/.m2/repository/*`, re-import the project into the IDE cleanly and try again.
+
 <h4>IntelliJ</h4>
 
 While many of the Spark developers use SBT or Maven on the command line, the most common IDE we 
-use is IntelliJ IDEA. You can get the community edition for free (Apache committers can get 
-free IntelliJ Ultimate Edition licenses) and install the JetBrains Scala plugin from `Preferences > Plugins`.
+use is IntelliJ IDEA. You need to install the JetBrains Scala plugin from `Preferences > Plugins`.
+
+Due to the complexity of Spark build, please modify the following global settings of IntelliJ IDEA:
+
+- Go to `Settings -> Build, Execution, Deployment -> Build Tools -> Maven -> Importing`, make sure you 
+choose "Detect automatically" for `Generated source folders`, and choose "generate sources" for 
+`Phase to be used for folders update`.
+- Go to `Settings -> Build, Execution, Deployment -> Compiler -> Scala Compiler -> Scala Compiler Server`, 
+pick a large enough number for `Maximum heap size, MB`, such as "4000".
 
 To create a Spark project for IntelliJ:
 
 - Download IntelliJ and install the 
 <a href="https://confluence.jetbrains.com/display/SCA/Scala+Plugin+for+IntelliJ+IDEA">Scala plug-in for IntelliJ</a>.
-- Go to `File -> Import Project`, locate the spark source directory, and select "Maven Project".
+- Go to `File -> Import Project`, locate the spark source directory, and select "Maven Project". It's important to
+pick Maven instead of sbt here, as Spark has complicated building logic that is implemented for sbt using Scala code
+in `SparkBuilder.scala`, and IntelliJ IDEA cannot understant it well.
 - In the Import wizard, it's fine to leave settings at their default. However it is usually useful 
 to enable "Import Maven projects automatically", since changes to the project structure will 
 automatically update the IntelliJ project.
@@ -455,6 +470,26 @@ debug in IntelliJ as usual.
 To exit remote debug mode (so that you don't have to keep starting the remote debugger),
 type "session clear" in SBT console while you're in a project.
 
+
+<h4>Cursor/VS Code</h4>
+
+You can leverage the power of *Cursor* or *VS Code* for Spark development by using the Metals extension. 
+Metals provides robust Scala support through the Build Server Protocol (BSP).
+
+Initial setup:
+- *Install Metals*: Search for and install the Scala (Metals) extension from the Marketplace.
+- *Open Project*: Open your Spark root directory.
+- *Select Build Tool*: When prompted by the popup in the bottom-left corner, select sbt to read build definition.
+- *Confirm Build Server*: Metals defaults to using Bloop as the build server. Do not change this setting, as Bloop provides the fastest compilation and best integration for local development. Open the Command Palette (Cmd+Shift+P or Ctrl+Shift+P), run `Metals: Run doctor`, and verify the status dashboard. Ensure it shows: `Build definition is coming from sbt` and `Build server currently being used is Bloop`.
+
+If you encounter compilation errors or the IDE fails to recognize symbols, follow these steps to perform a clean import:
+1. *Stop Bloop Server*: Run the following command in your terminal to stop the bloop server: `pkill -f "bloop.BloopServer"`. If you have installed bloop CLI you can run `bloop exit` instead.
+2. *Clean Workspace*: Run the following command in your terminal to remove cached build metadata: `rm -rf .bloop/ .metals/ .bsp/`.
+3. *Reload Window*: Run `Developer: Reload Window` from the Command Palette, and select sbt when the prompt reappears.
+4. *Import Build*: Run `Metals: Import build` and wait for the process to complete.
+5. *Connect to Server*: Run `Metals: Connect to build server` and wait for the process to complete.
+6. *Confirm*: Run `Metals: Run doctor` and verify the status dashboard.
+
 <h4>Eclipse</h4>
 
 Eclipse can be used to develop and test Spark. The following configuration is known to work:
@@ -492,6 +527,26 @@ in the Eclipse install directory. Increase the following setting as needed:
 ```
 --launcher.XXMaxPermSize
 256M
+```
+
+<h4>IDE with sbt</h4>
+
+When you use IDEs like VSCode or Cursor and you build from terminal with `sbt`,
+a common issue you'll encounter is something like
+
+```
+java.lang.RuntimeException: Failed to find name hashes for
+```
+
+This is because multiple instances are trying to build the project simultaneously. Normally
+the culprit is your Java/Scala plugin in your IDEs.
+
+In order to fix this, first you need to disable auto-build of your plugins. Then you need to
+clear all the artifacts with `sbt clean`. You'll also need to clear cache in
+
+```
+~/.m2
+~/.ivy2/
 ```
 
 <a name="nightly-builds"></a>

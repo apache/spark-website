@@ -1,7 +1,7 @@
 ---
 layout: global
 title: Release Process
-type: "page singular"
+type: "page"
 navigation:
   weight: 5
   show: true
@@ -31,13 +31,19 @@ The release manager role in Spark means you are responsible for a few different 
   - [Upload to PyPI](#upload-to-pypi)
   - [Remove RC artifacts from repositories](#remove-rc-artifacts-from-repositories)
   - [Remove old releases from Mirror Network](#remove-old-releases-from-mirror-network)
-  - [Update the Apache Spark<sup>TM</sup> repository](#update-the-apache-spark-repository)
+  - [Update the Apache Spark repository](#update-the-apache-spark-repository)
   - [Update the configuration of Algolia Crawler](#update-the-configuration-of-algolia-crawler)
   - [Update the Spark website](#update-the-spark-website)
     - [Upload generated docs](#upload-generated-docs)
     - [Update the rest of the Spark website](#update-the-rest-of-the-spark-website)
   - [Create and upload Spark Docker Images](#create-and-upload-spark-docker-images)
-  - [Create an announcement](#create-an-announcement) 
+  - [Create an announcement](#create-an-announcement)
+- [Preparing Spark Releases with GitHub Actions](#preparing-spark-releases-with-github-actions)
+  - [Preparing your GitHub Actions setup](#preparing-your-github-actions-setup)
+  - [Creating release candidates](#create-release-candidates)
+    - [If the workflow fails ...](#if-workflow-fails)
+  - [Publishing the release](#publishing-release)
+    - [If the workflow fails ...](#if-publishing-workflow-fails)
 
 <h2 id="preparing-your-setup">Preparing your setup</h2>
 
@@ -54,40 +60,46 @@ You can skip this section if you have already uploaded your key.
 
 <h4 id="generate-key">Generate key</h4>
 
-Here's an example of gpg 2.0.12. If you use gpg version 1 series, please refer to <a href="https://www.apache.org/dev/openpgp.html#generate-key">generate-key</a> for details.
+Here's an example of gpg 2.4.8. If you use gpg version 1 series, please refer to <a href="https://www.apache.org/dev/openpgp.html#generate-key">generate-key</a> for details.
+Note that you need an `@apache.org` email address to prepare a Spark release with the `Release Apache Spark` GitHub action.
 
 ```
 $ gpg --full-gen-key
-gpg (GnuPG) 2.0.12; Copyright (C) 2009 Free Software Foundation, Inc.
+gpg (GnuPG) 2.4.8; Copyright (C) 2025 g10 Code GmbH
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
 
 Please select what kind of key you want:
-   (1) RSA and RSA (default)
+   (1) RSA and RSA
    (2) DSA and Elgamal
    (3) DSA (sign only)
    (4) RSA (sign only)
+   (9) ECC (sign and encrypt) *default*
+  (10) ECC (sign only)
+  (14) Existing key from card
+Your selection? 9
+Please select which elliptic curve you want:
+   (1) Curve 25519 *default*
+   (4) NIST P-384
+   (6) Brainpool P-256
 Your selection? 1
-RSA keys may be between 1024 and 4096 bits long.
-What keysize do you want? (2048) 4096
-Requested keysize is 4096 bits
 Please specify how long the key should be valid.
          0 = key does not expire
       <n>  = key expires in n days
       <n>w = key expires in n weeks
       <n>m = key expires in n months
       <n>y = key expires in n years
-Key is valid for? (0) 
+Key is valid for? (0) 0
 Key does not expire at all
 Is this correct? (y/N) y
 
 GnuPG needs to construct a user ID to identify your key.
 
-Real name: Robert Burrell Donkin
-Email address: rdonkin@apache.org
+Real name: Peter Test
+Email address: ptest@apache.org
 Comment: CODE SIGNING KEY
 You selected this USER-ID:
-    "Robert Burrell Donkin (CODE SIGNING KEY) <rdonkin@apache.org>"
+    "Peter Test (CODE SIGNING KEY) <ptest@apache.org>"
 
 Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? O
 We need to generate a lot of random bytes. It is a good idea to perform
@@ -98,24 +110,23 @@ We need to generate a lot of random bytes. It is a good idea to perform
 some other action (type on the keyboard, move the mouse, utilize the
 disks) during the prime generation; this gives the random number
 generator a better chance to gain enough entropy.
-gpg: key 04B3B5C426A27D33 marked as ultimately trusted
-gpg: revocation certificate stored as '/home/ubuntu/.gnupg/openpgp-revocs.d/08071B1E23C8A7E2CA1E891A04B3B5C426A27D33.rev'
+gpg: revocation certificate stored as '/Users/ptest/.gnupg/openpgp-revocs.d/69DD5A189B3C274353A677214926E0E83FF6D044.rev'
 public and secret key created and signed.
 
-pub   rsa4096 2021-08-19 [SC]
-      08071B1E23C8A7E2CA1E891A04B3B5C426A27D33
-uid                      Jack (test) <Jack@mail.com>
-sub   rsa4096 2021-08-19 [E]
+pub   ed25519 2025-09-18 [SC]
+      69DD5A189B3C274353A677214926E0E83FF6D044
+uid                      Peter Test (CODE SIGNING KEY) <ptest@apache.org>
+sub   cv25519 2025-09-18 [E]
 ```
 
-Note that the last 8 digits (26A27D33) of the public key is the <a href="https://infra.apache.org/release-signing.html#key-id">key ID</a>.
+Note that the last 8 digits (3FF6D044) of the public key is the <a href="https://infra.apache.org/release-signing.html#key-id">key ID</a>.
 
 <h4 id="upload-key">Upload key</h4>
 
 After generating the public key, we should upload it to <a href="https://infra.apache.org/release-signing.html#keyserver">public key server</a>:
 
 ```
-$ gpg --keyserver hkps://keys.openpgp.org --send-key 26A27D33
+$ gpg --keyserver hkps://keys.openpgp.org --send-key 3FF6D044
 ```
 
 Please refer to <a href="https://infra.apache.org/release-signing.html#keyserver-upload">keyserver-upload</a> for details.
@@ -125,7 +136,7 @@ Please refer to <a href="https://infra.apache.org/release-signing.html#keyserver
 To get the code signing key (a.k.a ASCII-armored public key), run the command:
 
 ```
-$ gpg --export --armor 26A27D33
+$ gpg --export --armor 3FF6D044
 ```
 
 And then append the generated key to the KEYS file by:
@@ -207,11 +218,13 @@ that looks something like `[VOTE][RESULT] ...`.
 <h2 id="finalize-the-release">Finalize the release</h2>
 
 Note that `dev/create-release/do-release-docker.sh` script (`finalize` step ) automates most of the following steps **except** for:
-- Update the configuration of Algolia Crawler
-- Remove old releases from Mirror Network
-- Update the rest of the Spark website
-- Create and upload Spark Docker Images
-- Create an announcement
+- [Update the configuration of Algolia Crawler](#update-the-configuration-of-algolia-crawler)
+- [Remove old releases from Mirror Network](#remove-old-releases-from-mirror-network)
+- [Update the rest of the Spark website](#update-the-rest-of-the-spark-website)
+- [Create and upload Spark Docker Images](#create-and-upload-spark-docker-images)
+- [Create an announcement](#create-an-announcement) 
+
+The `finalize` step pushes to the `asf-site` branch of spark-website. After that push, you may see a follow-up `[html]` commit from GitHub Actions. This is normal.
 
 Please manually verify the result after each step.
 
@@ -326,7 +339,7 @@ The website repository is located at
 It's recommended to not remove the generated docs of the latest RC, so that we can copy it to
 spark-website directly, otherwise you need to re-build the docs.
 
-```
+```sh
 # Build the latest docs
 $ git checkout v1.1.1
 $ cd docs
@@ -341,12 +354,14 @@ $ cp -R _site spark-website/site/docs/1.1.1
 $ cd spark-website/site/docs
 $ rm latest
 $ ln -s 1.1.1 latest
+$ cd ../..
+$ git add site/docs/1.1.1 site/docs/latest
+$ git commit -m "Add docs for Spark 1.1.1"
 ```
 
 <h4 id="update-the-rest-of-the-spark-website">Update the rest of the Spark website</h4>
 
-Next, update the rest of the Spark website. See how the previous releases are documented
-(all the HTML file changes are generated by `jekyll`). In particular:
+Next, update the rest of the Spark website. See how the previous releases are documented. In particular:
 
 * update `documentation.md` to add link to the docs for the new release
 * add the new release to `js/downloads.js` (attention to the order of releases)
@@ -354,10 +369,7 @@ Next, update the rest of the Spark website. See how the previous releases are do
 * add the new release to `site/static/versions.json` (attention to the order of releases) [for `spark version drop down` of the `PySpark` docs]
 * check `security.md` for anything to update
 
-```
-$ git add 1.1.1
-$ git commit -m "Add docs for Spark 1.1.1"
-```
+Commit these source files normally. You do not need to run `jekyll build` or commit anything else under `site/`. After the change is merged to `asf-site`, GitHub Actions generates the HTML under `site/` and pushes it for you.
 
 Then, create the release notes. Go to the
 <a href="https://issues.apache.org/jira/projects/SPARK?selectedItem=com.atlassian.jira.jira-projects-plugin:release-page">release page in JIRA</a>,
@@ -366,13 +378,7 @@ pick the release version from the list, then click on "Release Notes". Copy this
 `spark-2.1.2`. Create a new release post under `releases/_posts` to include this short URL. The date of the post should
 be the date you create it.
 
-Then run `bundle exec jekyll build` to update the `site` directory.
-
-Considering the Pull Request will be large, please separate the commits of code changes and generated `site` directory for an easier review.
-
-After merging the change into the `asf-site` branch, you may need to create a follow-up empty
-commit to force synchronization between ASF's git and the web site, and also the GitHub mirror.
-For some reason synchronization seems to not be reliable for this repository.
+After merging the change into the `asf-site` branch, confirm the GitHub Actions run finished and the generated HTML is on the site. You may need to create a follow-up empty commit to force synchronization between ASF's git and the website, and also the GitHub mirror. For some reason synchronization seems to not be reliable for this repository.
 
 On a related note, make sure the version is marked as released on JIRA. Go find the release page as above, eg.,
 [`https://issues.apache.org/jira/projects/SPARK/versions/12340295`](https://issues.apache.org/jira/projects/SPARK/versions/12340295),
@@ -436,9 +442,81 @@ The apache/spark-docker provides Dockerfiles and GitHub Action for Spark Docker 
 <h3 id="create-an-announcement">Create an announcement</h3>
 
 Once everything is working (website docs, website changes) create an announcement on the website
-and then send an e-mail to the mailing list with a subject that looks something like `[ANNOUNCE] ...`. To create an announcement, create a post under
-`news/_posts` and then run `bundle exec jekyll build`.
+and then send an e-mail to the mailing list with a subject that looks something like `[ANNOUNCE] ...`. To create an announcement, create a post under `news/_posts`. GitHub Actions will automatically generate the corresponding HTML when you push to `asf-site`.
 
 Enjoy an adult beverage of your choice, and congratulations on making a Spark release.
 
 <p align="right"><a href="#top">Return to top</a></p>
+
+
+<h1 id="preparing-spark-releases-with-github-actions">Preparing Spark Releases with GitHub Actions</h1>
+
+Apache Spark provides a [GitHub Actions workflow](https://github.com/apache/spark/blob/master/.github/workflows/release.yml) for creating official Spark releases. Only Apache Spark PMC members can run this workflow in **their forked repositories**.
+
+- [Preparing Your GitHub Actions Setup](#preparing-your-github-actions-setup)
+  - [Creating release candidates](#preparing-gpg-key)
+  - [Publishing the release](#publishing-release)
+
+<h2 id="preparing-your-github-actions-setup">Preparing your GitHub Actions setup</h2>
+
+To create an official release, PMC members must configure GitHub Actions Secrets in their forked repository:
+
+- `ASF_USERNAME`: Your Apache Software Foundation (ASF) account ID.
+- `ASF_PASSWORD`: The password for your ASF account.
+- `ASF_NEXUS_TOKEN`: ASF Nexus API token associated with your ASF account.
+  Can be found in https://repository.apache.org/#profile;User%20Token
+  It is written in `<password>...</password>` and ignore `User Code`.
+- `GPG_PRIVATE_KEY`: Your GPG private key, exported with:
+  `gpg --armor --export-secret-keys ABCD1234 > private.key`.
+  Make sure this key is registered with a public key server. See also [Preparing your setup](#preparing-your-setup).
+- `GPG_PASSPHRASE`: The passphrase for your GPG private key.
+- `PYPI_API_TOKEN`: Required when finalizing the release. If you do not already have the permission, request it via private@spark.apache.org. Once granted, you can create a token at https://pypi.org/manage/account/ with access to the following projects:
+  - https://pypi.org/project/pyspark/
+  - https://pypi.org/project/pyspark-connect/
+  - https://pypi.org/project/pyspark-client/
+
+After setting up the secrets, make sure your release branch is up-to-date and synced with the corresponding branch in the Apache Spark repository.
+
+Finally, double-check the JIRA versions. See [Cutting a release candidate](#cutting-a-release-candidate).
+
+<h2 id="create-release-candidates">Creating release candidates</h2>
+
+- Go to the GitHub Actions page in your forked repository, e.g., `https://github.com/$USER/spark/actions/workflows/release.yml`.
+- Click `Run workflow` and provide the required inputs. Leave **Whether to convert RC to the official release (IRREVERSIBLE)** set to **`false`**.
+  - Once the workflow completes successfully, it will automatically create a release candidate (RC) and send an email to the dev mailing list to start the voting process.
+- After the vote is complete, you must also send a summary email with the results. Use a subject line similar to: `[VOTE][RESULT] ...`.
+
+<h3 id="if-workflow-fails">If the workflow fails ...</h3>
+
+If something goes wrong during the process and a release candidate (RC) needs to be
+cleaned up, follow these steps:
+
+- Revert the RC-related commits, such as:
+  - "Preparing development version 3.5.7-SNAPSHOT"
+  - "Preparing Spark release v3.5.6-rc1"
+- Delete the RC tag from the remote repository, for example:
+  - `git push --delete apache v3.5.6-rc1`
+- Remove the RC artifacts from SVN:
+  - `RC=v3.5.6-rc1 && svn rm https://dist.apache.org/repos/dist/dev/spark/"${RC}"-bin/ -m "Removing RC artifacts"`
+  - `RC=v3.5.6-rc1 && svn rm https://dist.apache.org/repos/dist/dev/spark/"${RC}"-docs/ -m "Removing RC artifacts"`
+- Drop the staging repository (if it exists) at:
+  https://repository.apache.org/#stagingRepositories
+
+<h2 id="publishing-release">Publishing the release</h2>
+
+**Be Careful!**
+
+**THIS STEP IS IRREVERSIBLE. Once the artifacts are moved into the release folder, they cannot be removed.**
+
+- Go to the GitHub Actions page in your forked repository, e.g., `https://github.com/$USER/spark/actions/workflows/release.yml`.
+- Click `Run workflow` and provide the required inputs. Set **Whether to convert RC to the official release (IRREVERSIBLE)** to **`true`**.
+  This includes [Finalizing the release](#finalize-the-release) with additional automation.
+- After it completes successfully, you should:
+  - [Update the configuration of the Algolia Crawler](#update-the-configuration-of-algolia-crawler)
+  - [Create and upload Spark Docker images](#create-and-upload-spark-docker-images)
+  - [Create an announcement](#create-an-announcement)
+
+
+<h3 id="if-publishing-workflow-fails">If the workflow fails ...</h3>
+
+If the workflow fails here, you will need to manually debug the release script, [`dev/create-release/release-build.sh`](https://github.com/apache/spark/blob/master/dev/create-release/release-build.sh) and then run the remaining commands yourself after the failure.

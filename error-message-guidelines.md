@@ -1,13 +1,11 @@
 ---
 layout: global
-title: Error message guidelines
-type: "page singular"
+title: Error Message Guidelines
+type: "page"
 navigation:
   weight: 5
   show: true
 ---
-
-## Error Message Guidelines
 
 This guide is a reference for composing standardized and actionable
 error messages in Apache Spark.

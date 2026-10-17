@@ -1,12 +1,11 @@
 ---
 layout: global
 title: FAQ
-type: "page singular"
+type: "page"
 navigation:
   weight: 7
   show: true
 ---
-<h2><span class="text-capitalize">Apache Spark<span class="tm">&trade;</span></span> FAQ</h2>
 
 <p class="question">How does Spark relate to Apache Hadoop?</p>
 <p class="answer">

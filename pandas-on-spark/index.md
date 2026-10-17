@@ -1,12 +1,10 @@
 ---
 layout: global
-type: "page singular"
+type: "page"
 title: pandas API on Spark
 description: The pandas API on Spark offers the familiarity of pandas with the power of Spark.
 subproject: pandas API on Spark
 ---
-
-# pandas API on Spark
 
 This page describes the advantages of the pandas API on Spark (“pandas on Spark”) and when you should use it instead of pandas (or in conjunction with pandas).
 

@@ -123,6 +123,7 @@
         <ul class="dropdown-menu" aria-labelledby="github">
           <li><a class="dropdown-item" href="https://github.com/apache/spark">spark</a></li>
           <li><a class="dropdown-item" href="https://github.com/apache/spark-connect-go">spark-connect-go</a></li>
+          <li><a class="dropdown-item" href="https://github.com/apache/spark-connect-rust">spark-connect-rust</a></li>
           <li><a class="dropdown-item" href="https://github.com/apache/spark-connect-swift">spark-connect-swift</a></li>
           <li><a class="dropdown-item" href="https://github.com/apache/spark-docker">spark-docker</a></li>
           <li><a class="dropdown-item" href="https://github.com/apache/spark-kubernetes-operator">spark-kubernetes-operator</a></li>
@@ -152,6 +153,9 @@
 <div class="container">
   <div class="row mt-4">
     <div class="col-12 col-md-9">
+      
+      <h1>Useful Developer Tools</h1>
+      
       <h2>Test coverage</h2>
 
 <p>Apache Spark community uses various resources to maintain the community test coverage.</p>
@@ -481,18 +485,35 @@ your code.  It can be configured to match the import ordering from the style gui
 
 <h3>IDE setup</h3>
 
+<p>Make sure you have a clean start before setting up the IDE: A clean git clone of the Spark repo, install the latest 
+version of the IDE.</p>
+
+<p>If something goes wrong, clear the build outputs by <code class="language-plaintext highlighter-rouge">./build/sbt clean</code> and <code class="language-plaintext highlighter-rouge">./build/mvn clean</code>, clear the m2 
+cache by <code class="language-plaintext highlighter-rouge">rm -rf ~/.m2/repository/*</code>, re-import the project into the IDE cleanly and try again.</p>
+
 <h4>IntelliJ</h4>
 
 <p>While many of the Spark developers use SBT or Maven on the command line, the most common IDE we 
-use is IntelliJ IDEA. You can get the community edition for free (Apache committers can get 
-free IntelliJ Ultimate Edition licenses) and install the JetBrains Scala plugin from <code class="language-plaintext highlighter-rouge">Preferences &gt; Plugins</code>.</p>
+use is IntelliJ IDEA. You need to install the JetBrains Scala plugin from <code class="language-plaintext highlighter-rouge">Preferences &gt; Plugins</code>.</p>
+
+<p>Due to the complexity of Spark build, please modify the following global settings of IntelliJ IDEA:</p>
+
+<ul>
+  <li>Go to <code class="language-plaintext highlighter-rouge">Settings -&gt; Build, Execution, Deployment -&gt; Build Tools -&gt; Maven -&gt; Importing</code>, make sure you 
+choose &#8220;Detect automatically&#8221; for <code class="language-plaintext highlighter-rouge">Generated source folders</code>, and choose &#8220;generate sources&#8221; for 
+<code class="language-plaintext highlighter-rouge">Phase to be used for folders update</code>.</li>
+  <li>Go to <code class="language-plaintext highlighter-rouge">Settings -&gt; Build, Execution, Deployment -&gt; Compiler -&gt; Scala Compiler -&gt; Scala Compiler Server</code>, 
+pick a large enough number for <code class="language-plaintext highlighter-rouge">Maximum heap size, MB</code>, such as &#8220;4000&#8221;.</li>
+</ul>
 
 <p>To create a Spark project for IntelliJ:</p>
 
 <ul>
   <li>Download IntelliJ and install the 
 <a href="https://confluence.jetbrains.com/display/SCA/Scala+Plugin+for+IntelliJ+IDEA">Scala plug-in for IntelliJ</a>.</li>
-  <li>Go to <code class="language-plaintext highlighter-rouge">File -&gt; Import Project</code>, locate the spark source directory, and select &#8220;Maven Project&#8221;.</li>
+  <li>Go to <code class="language-plaintext highlighter-rouge">File -&gt; Import Project</code>, locate the spark source directory, and select &#8220;Maven Project&#8221;. It&#8217;s important to
+pick Maven instead of sbt here, as Spark has complicated building logic that is implemented for sbt using Scala code
+in <code class="language-plaintext highlighter-rouge">SparkBuilder.scala</code>, and IntelliJ IDEA cannot understant it well.</li>
   <li>In the Import wizard, it&#8217;s fine to leave settings at their default. However it is usually useful 
 to enable &#8220;Import Maven projects automatically&#8221;, since changes to the project structure will 
 automatically update the IntelliJ project.</li>
@@ -589,6 +610,29 @@ debug in IntelliJ as usual.</p>
 <p>To exit remote debug mode (so that you don&#8217;t have to keep starting the remote debugger),
 type &#8220;session clear&#8221; in SBT console while you&#8217;re in a project.</p>
 
+<h4>Cursor/VS Code</h4>
+
+<p>You can leverage the power of <em>Cursor</em> or <em>VS Code</em> for Spark development by using the Metals extension. 
+Metals provides robust Scala support through the Build Server Protocol (BSP).</p>
+
+<p>Initial setup:</p>
+<ul>
+  <li><em>Install Metals</em>: Search for and install the Scala (Metals) extension from the Marketplace.</li>
+  <li><em>Open Project</em>: Open your Spark root directory.</li>
+  <li><em>Select Build Tool</em>: When prompted by the popup in the bottom-left corner, select sbt to read build definition.</li>
+  <li><em>Confirm Build Server</em>: Metals defaults to using Bloop as the build server. Do not change this setting, as Bloop provides the fastest compilation and best integration for local development. Open the Command Palette (Cmd+Shift+P or Ctrl+Shift+P), run <code class="language-plaintext highlighter-rouge">Metals: Run doctor</code>, and verify the status dashboard. Ensure it shows: <code class="language-plaintext highlighter-rouge">Build definition is coming from sbt</code> and <code class="language-plaintext highlighter-rouge">Build server currently being used is Bloop</code>.</li>
+</ul>
+
+<p>If you encounter compilation errors or the IDE fails to recognize symbols, follow these steps to perform a clean import:</p>
+<ol>
+  <li><em>Stop Bloop Server</em>: Run the following command in your terminal to stop the bloop server: <code class="language-plaintext highlighter-rouge">pkill -f "bloop.BloopServer"</code>. If you have installed bloop CLI you can run <code class="language-plaintext highlighter-rouge">bloop exit</code> instead.</li>
+  <li><em>Clean Workspace</em>: Run the following command in your terminal to remove cached build metadata: <code class="language-plaintext highlighter-rouge">rm -rf .bloop/ .metals/ .bsp/</code>.</li>
+  <li><em>Reload Window</em>: Run <code class="language-plaintext highlighter-rouge">Developer: Reload Window</code> from the Command Palette, and select sbt when the prompt reappears.</li>
+  <li><em>Import Build</em>: Run <code class="language-plaintext highlighter-rouge">Metals: Import build</code> and wait for the process to complete.</li>
+  <li><em>Connect to Server</em>: Run <code class="language-plaintext highlighter-rouge">Metals: Connect to build server</code> and wait for the process to complete.</li>
+  <li><em>Confirm</em>: Run <code class="language-plaintext highlighter-rouge">Metals: Run doctor</code> and verify the status dashboard.</li>
+</ol>
+
 <h4>Eclipse</h4>
 
 <p>Eclipse can be used to develop and test Spark. The following configuration is known to work:</p>
@@ -626,6 +670,24 @@ in the Eclipse install directory. Increase the following setting as needed:</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>--launcher.XXMaxPermSize
 256M
+</code></pre></div></div>
+
+<h4>IDE with sbt</h4>
+
+<p>When you use IDEs like VSCode or Cursor and you build from terminal with <code class="language-plaintext highlighter-rouge">sbt</code>,
+a common issue you&#8217;ll encounter is something like</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>java.lang.RuntimeException: Failed to find name hashes for
+</code></pre></div></div>
+
+<p>This is because multiple instances are trying to build the project simultaneously. Normally
+the culprit is your Java/Scala plugin in your IDEs.</p>
+
+<p>In order to fix this, first you need to disable auto-build of your plugins. Then you need to
+clear all the artifacts with <code class="language-plaintext highlighter-rouge">sbt clean</code>. You&#8217;ll also need to clear cache in</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>~/.m2
+~/.ivy2/
 </code></pre></div></div>
 
 <p><a name="nightly-builds"></a></p>
@@ -707,17 +769,17 @@ compatible with usage in an Open Source project and inclusion of the generated c
         <h5>Latest News</h5>
         <ul class="list-unstyled">
           
-          <li><a href="/news/spark-3-5-6-released.html">Spark 3.5.6 released</a>
-            <span class="small">(May 29, 2025)</span></li>
+          <li><a href="/news/spark-3-5-9-released.html">Spark 3.5.9 released</a>
+            <span class="small">(Jul 16, 2026)</span></li>
           
-          <li><a href="/news/spark-4-0-0-released.html">Spark 4.0.0 released</a>
-            <span class="small">(May 23, 2025)</span></li>
+          <li><a href="/news/spark-4-1-3-released.html">Spark 4.1.3 released</a>
+            <span class="small">(Jul 15, 2026)</span></li>
           
-          <li><a href="/news/spark-3-5-5-released.html">Spark 3.5.5 released</a>
-            <span class="small">(Feb 27, 2025)</span></li>
+          <li><a href="/news/spark-4-0-4-released.html">Spark 4.0.4 released</a>
+            <span class="small">(Jul 15, 2026)</span></li>
           
-          <li><a href="/news/spark-3-5-4-released.html">Spark 3.5.4 released</a>
-            <span class="small">(Dec 20, 2024)</span></li>
+          <li><a href="/news/spark-4-2-0-released.html">Spark 4.2.0 released</a>
+            <span class="small">(Jul 14, 2026)</span></li>
           
         </ul>
         <p class="small" style="text-align: right;"><a href="/news/index.html">Archive</a></p>

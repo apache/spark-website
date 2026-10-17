@@ -1,0 +1,1414 @@
+
+
+<!DOCTYPE html>
+
+
+<html >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Chapter 3: Function Junction - Data manipulation with PySpark &#8212; PySpark 4.0.3 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/pyspark.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/dataprep';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://spark.apache.org/static/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '4.0.3';
+        </script>
+    <link rel="canonical" href="https://spark.apache.org/docs/latest/api/python/user_guide/dataprep.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Chapter 4: Bug Busting - Debugging PySpark" href="bugbusting.html" />
+    <link rel="prev" title="Chapter 2: A Tour of PySpark Data Types" href="touroftypes.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Matomo -->
+    <script type="text/javascript">
+        var _paq = window._paq = window._paq || [];
+        /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+        _paq.push(["disableCookies"]);
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+        (function() {
+            var u="https://analytics.apache.org/";
+            _paq.push(['setTrackerUrl', u+'matomo.php']);
+            _paq.push(['setSiteId', '40']);
+            var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+            g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+        })();
+    </script>
+    <!-- End Matomo Code -->
+
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://spark.apache.org/images/spark-logo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="https://spark.apache.org/images/spark-logo-rev.svg" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../index.html">
+                        Overview
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started/index.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../tutorial/index.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../reference/index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../development/index.html">
+                        Development
+                      </a>
+                    </li>
+                
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../migration_guide/index.html">
+                        Migration Guides
+                      </a>
+                    </li>
+                
+                </div>
+            </div>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      4.0.3  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/apache/spark" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/pyspark" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-solid fa-box"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../index.html">
+                        Overview
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../getting_started/index.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../tutorial/index.html">
+                        Tutorials
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="index.html">
+                        User Guide
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../reference/index.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../development/index.html">
+                        Development
+                      </a>
+                    </li>
+                
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../migration_guide/index.html">
+                        Migration Guides
+                      </a>
+                    </li>
+                
+                </div>
+            </div>
+            
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <div class="version-switcher__container dropdown">
+    <button type="button" class="version-switcher__button btn btn-sm navbar-btn dropdown-toggle" data-bs-toggle="dropdown">
+      4.0.3  <!-- this text may get changed later by javascript -->
+      <span class="caret"></span>
+    </button>
+    <div class="version-switcher__menu dropdown-menu list-group-flush py-0">
+    <!-- dropdown will be populated by javascript on page load -->
+    </div>
+  </div>
+`);
+</script></div>
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/apache/spark" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/pyspark" title="PyPI" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-solid fa-box"></i></span>
+            <label class="sr-only">PyPI</label></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item"><nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="dataframes.html">Chapter 1: DataFrames - A view into your structured data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="touroftypes.html">Chapter 2: A Tour of PySpark Data Types</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Chapter 3: Function Junction - Data manipulation with PySpark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bugbusting.html">Chapter 4: Bug Busting - Debugging PySpark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="udfandudtf.html">Chapter 5: Unleashing UDFs &amp; UDTFs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sql.html">Chapter 6: Old SQL, New Tricks - Running SQL on PySpark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="loadandbehold.html">Chapter 7: Load and Behold - Data loading, storage, file formats</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User Guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">Chapter 3: Function Junction - Data manipulation with PySpark</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="Chapter-3:-Function-Junction---Data-manipulation-with-PySpark">
+<h1>Chapter 3: Function Junction - Data manipulation with PySpark<a class="headerlink" href="#Chapter-3:-Function-Junction---Data-manipulation-with-PySpark" title="Permalink to this headline">#</a></h1>
+<section id="Clean-data">
+<h2>Clean data<a class="headerlink" href="#Clean-data" title="Permalink to this headline">#</a></h2>
+<p>In data science, <code class="docutils literal notranslate"><span class="pre">garbage</span> <span class="pre">in,</span> <span class="pre">garbage</span> <span class="pre">out</span></code> (GIGO) is the concept that flawed, biased or poor quality information or input produces a result or output of similar quality. To improve the analysis quality, we need data cleaning, the process to turn garbage into gold, it is composed of identifying, correcting, or removing errors and inconsistencies in data to improve its quality and usability.</p>
+<p>Let’s start with a Dataframe containing bad values:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span><span class="nv">pyspark</span><span class="o">==</span><span class="m">4</span>.0.0.dev2
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql</span><span class="w"> </span><span class="kn">import</span> <span class="n">SparkSession</span>
+
+<span class="n">spark</span> <span class="o">=</span> <span class="n">SparkSession</span> \
+    <span class="o">.</span><span class="n">builder</span> \
+    <span class="o">.</span><span class="n">appName</span><span class="p">(</span><span class="s2">&quot;Data Loading and Storage Example&quot;</span><span class="p">)</span> \
+    <span class="o">.</span><span class="n">getOrCreate</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql</span><span class="w"> </span><span class="kn">import</span> <span class="n">Row</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">([</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">age</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">80.0</span><span class="p">,</span> <span class="n">NAME</span><span class="o">=</span><span class="s2">&quot;Alice&quot;</span><span class="p">),</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">age</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">80.0</span><span class="p">,</span> <span class="n">NAME</span><span class="o">=</span><span class="s2">&quot;Alice&quot;</span><span class="p">),</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">age</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">),</span> <span class="n">NAME</span><span class="o">=</span><span class="s2">&quot;BOB&quot;</span><span class="p">),</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">age</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">NAME</span><span class="o">=</span><span class="s2">&quot;Tom&quot;</span><span class="p">),</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">age</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;nan&quot;</span><span class="p">),</span> <span class="n">NAME</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">age</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">78.9</span><span class="p">,</span> <span class="n">NAME</span><span class="o">=</span><span class="s2">&quot;josh&quot;</span><span class="p">),</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">age</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">1802.3</span><span class="p">,</span> <span class="n">NAME</span><span class="o">=</span><span class="s2">&quot;bush&quot;</span><span class="p">),</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">age</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">75.3</span><span class="p">,</span> <span class="n">NAME</span><span class="o">=</span><span class="s2">&quot;jerry&quot;</span><span class="p">),</span>
+<span class="p">])</span>
+
+<span class="n">df</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++----+------+-----+
+| age|height| NAME|
++----+------+-----+
+|  10|  80.0|Alice|
+|  10|  80.0|Alice|
+|   5|   NaN|  BOB|
+|NULL|  NULL|  Tom|
+|NULL|   NaN| NULL|
+|   9|  78.9| josh|
+|  18|1802.3| bush|
+|   7|  75.3|jerry|
++----+------+-----+
+
+</pre></div></div>
+</div>
+<section id="Rename-columns">
+<h3>Rename columns<a class="headerlink" href="#Rename-columns" title="Permalink to this headline">#</a></h3>
+<p>At first glance, we find that column <code class="docutils literal notranslate"><span class="pre">NAME</span></code> is upper case. For consistency, we can use <code class="docutils literal notranslate"><span class="pre">DataFrame.withColumnRenamed</span></code> to rename columns.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df2</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">withColumnRenamed</span><span class="p">(</span><span class="s2">&quot;NAME&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">)</span>
+
+<span class="n">df2</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++----+------+-----+
+| age|height| name|
++----+------+-----+
+|  10|  80.0|Alice|
+|  10|  80.0|Alice|
+|   5|   NaN|  BOB|
+|NULL|  NULL|  Tom|
+|NULL|   NaN| NULL|
+|   9|  78.9| josh|
+|  18|1802.3| bush|
+|   7|  75.3|jerry|
++----+------+-----+
+
+</pre></div></div>
+</div>
+</section>
+<section id="Drop-null-values">
+<h3>Drop null values<a class="headerlink" href="#Drop-null-values" title="Permalink to this headline">#</a></h3>
+<p>Then we can notice that there are two kinds of missing data:</p>
+<ul class="simple">
+<li><p>the <code class="docutils literal notranslate"><span class="pre">NULL</span></code> values in all three columns;</p></li>
+<li><p>the <code class="docutils literal notranslate"><span class="pre">NaN</span></code> values which means <code class="docutils literal notranslate"><span class="pre">Not</span> <span class="pre">a</span> <span class="pre">Number</span></code> for a numeric column;</p></li>
+</ul>
+<p>The records without a valid <code class="docutils literal notranslate"><span class="pre">name</span></code> are likely useless, so let’s drop them first. There are a group of functions in <code class="docutils literal notranslate"><span class="pre">DataFrameNaFunctions</span></code> for missing value handling, we can use <code class="docutils literal notranslate"><span class="pre">DataFrame.na.drop</span></code> or <code class="docutils literal notranslate"><span class="pre">DataFrame.dropna</span></code> to omit rows with <code class="docutils literal notranslate"><span class="pre">NULL</span></code> or <code class="docutils literal notranslate"><span class="pre">NaN</span></code> values.</p>
+<p>After the step <code class="docutils literal notranslate"><span class="pre">df2.na.drop(subset=&quot;name&quot;)</span></code>, invalid record <code class="docutils literal notranslate"><span class="pre">(age=None,</span> <span class="pre">height=NaN,</span> <span class="pre">name=None)</span></code> is discarded.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df3</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">na</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+
+<span class="n">df3</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++----+------+-----+
+| age|height| name|
++----+------+-----+
+|  10|  80.0|Alice|
+|  10|  80.0|Alice|
+|   5|   NaN|  BOB|
+|NULL|  NULL|  Tom|
+|   9|  78.9| josh|
+|  18|1802.3| bush|
+|   7|  75.3|jerry|
++----+------+-----+
+
+</pre></div></div>
+</div>
+</section>
+<section id="Fill-values">
+<h3>Fill values<a class="headerlink" href="#Fill-values" title="Permalink to this headline">#</a></h3>
+<p>For the remaining missing values, we can use <code class="docutils literal notranslate"><span class="pre">DataFrame.na.fill</span></code> or <code class="docutils literal notranslate"><span class="pre">DataFrame.fillna</span></code> to fill them.</p>
+<p>With a <code class="docutils literal notranslate"><span class="pre">Dict</span></code> input <code class="docutils literal notranslate"><span class="pre">{'age':</span> <span class="pre">10,</span> <span class="pre">'height':</span> <span class="pre">80.1}</span></code>, we can specify the values for columns <code class="docutils literal notranslate"><span class="pre">age</span></code> and <code class="docutils literal notranslate"><span class="pre">height</span></code> together.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df4</span> <span class="o">=</span> <span class="n">df3</span><span class="o">.</span><span class="n">na</span><span class="o">.</span><span class="n">fill</span><span class="p">({</span><span class="s1">&#39;age&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="mf">80.1</span><span class="p">})</span>
+
+<span class="n">df4</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++---+------+-----+
+|age|height| name|
++---+------+-----+
+| 10|  80.0|Alice|
+| 10|  80.0|Alice|
+|  5|  80.1|  BOB|
+| 10|  80.1|  Tom|
+|  9|  78.9| josh|
+| 18|1802.3| bush|
+|  7|  75.3|jerry|
++---+------+-----+
+
+</pre></div></div>
+</div>
+</section>
+<section id="Remove-outliers">
+<h3>Remove outliers<a class="headerlink" href="#Remove-outliers" title="Permalink to this headline">#</a></h3>
+<p>After above steps, all missing values are dropped or filled. However, we can find that <code class="docutils literal notranslate"><span class="pre">height=1802.3</span></code> seems unreasonable, to remove this kind of outliers, we can filter the DataFrame with a valid range like <code class="docutils literal notranslate"><span class="pre">(65,</span> <span class="pre">85)</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df5</span> <span class="o">=</span> <span class="n">df4</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">df4</span><span class="o">.</span><span class="n">height</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mi">65</span><span class="p">,</span> <span class="mi">85</span><span class="p">))</span>
+
+<span class="n">df5</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++---+------+-----+
+|age|height| name|
++---+------+-----+
+| 10|  80.0|Alice|
+| 10|  80.0|Alice|
+|  5|  80.1|  BOB|
+| 10|  80.1|  Tom|
+|  9|  78.9| josh|
+|  7|  75.3|jerry|
++---+------+-----+
+
+</pre></div></div>
+</div>
+</section>
+<section id="Remove-duplicates">
+<h3>Remove duplicates<a class="headerlink" href="#Remove-duplicates" title="Permalink to this headline">#</a></h3>
+<p>Now, all invalid records have been handled. But we notice that record <code class="docutils literal notranslate"><span class="pre">(age=10,</span> <span class="pre">height=80.0,</span> <span class="pre">name=Alice)</span></code> has been duplicated. To remove such duplicates, we can simply apply <code class="docutils literal notranslate"><span class="pre">DataFrame.distinct</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df6</span> <span class="o">=</span> <span class="n">df5</span><span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+
+<span class="n">df6</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++---+------+-----+
+|age|height| name|
++---+------+-----+
+| 10|  80.0|Alice|
+|  5|  80.1|  BOB|
+| 10|  80.1|  Tom|
+|  9|  78.9| josh|
+|  7|  75.3|jerry|
++---+------+-----+
+
+</pre></div></div>
+</div>
+</section>
+<section id="String-manipulation">
+<h3>String manipulation<a class="headerlink" href="#String-manipulation" title="Permalink to this headline">#</a></h3>
+<p>Column <code class="docutils literal notranslate"><span class="pre">name</span></code> contains both lower case and upper case letters. We can apply <code class="docutils literal notranslate"><span class="pre">lower()</span></code> function to convert all letters to lower case.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql</span><span class="w"> </span><span class="kn">import</span> <span class="n">functions</span> <span class="k">as</span> <span class="n">sf</span>
+
+<span class="n">df7</span> <span class="o">=</span> <span class="n">df6</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">sf</span><span class="o">.</span><span class="n">lower</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">))</span>
+<span class="n">df7</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++---+------+-----+
+|age|height| name|
++---+------+-----+
+| 10|  80.0|alice|
+|  5|  80.1|  bob|
+| 10|  80.1|  tom|
+|  9|  78.9| josh|
+|  7|  75.3|jerry|
++---+------+-----+
+
+</pre></div></div>
+</div>
+<p>For more complicated string manipulations, we can also use <code class="docutils literal notranslate"><span class="pre">udf</span></code> to utilize Python’s power functions.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql</span><span class="w"> </span><span class="kn">import</span> <span class="n">functions</span> <span class="k">as</span> <span class="n">sf</span>
+
+<span class="n">capitalize</span> <span class="o">=</span> <span class="n">sf</span><span class="o">.</span><span class="n">udf</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">capitalize</span><span class="p">())</span>
+
+<span class="n">df8</span> <span class="o">=</span> <span class="n">df6</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">capitalize</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">))</span>
+<span class="n">df8</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++---+------+-----+
+|age|height| name|
++---+------+-----+
+| 10|  80.0|Alice|
+|  5|  80.1|  Bob|
+| 10|  80.1|  Tom|
+|  9|  78.9| Josh|
+|  7|  75.3|Jerry|
++---+------+-----+
+
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+</section>
+<section id="Reorder-columns">
+<h3>Reorder columns<a class="headerlink" href="#Reorder-columns" title="Permalink to this headline">#</a></h3>
+<p>After above process, the data is clean and we want to reorder the columns before saving the DataFrame to some storage. You can refer to previous chapter <code class="docutils literal notranslate"><span class="pre">Load</span> <span class="pre">and</span> <span class="pre">Behold:</span> <span class="pre">Data</span> <span class="pre">loading,</span> <span class="pre">storage,</span> <span class="pre">file</span> <span class="pre">formats</span></code> for more details.</p>
+<p>Normally, we use <code class="docutils literal notranslate"><span class="pre">DataFrame.select</span></code> for this purpose.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df9</span> <span class="o">=</span> <span class="n">df7</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">,</span> <span class="s2">&quot;height&quot;</span><span class="p">)</span>
+
+<span class="n">df9</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++-----+---+------+
+| name|age|height|
++-----+---+------+
+|alice| 10|  80.0|
+|  bob|  5|  80.1|
+|  tom| 10|  80.1|
+| josh|  9|  78.9|
+|jerry|  7|  75.3|
++-----+---+------+
+
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Transform-data">
+<h2>Transform data<a class="headerlink" href="#Transform-data" title="Permalink to this headline">#</a></h2>
+<p>The main part of a data engineering project is transformation. We create new dataframes from old ones.</p>
+<section id="Select-columns-with-select()">
+<h3>Select columns with select()<a class="headerlink" href="#Select-columns-with-select()" title="Permalink to this headline">#</a></h3>
+<p>The input table may contains hundreds of columns, but for a specific project we likly are interested only in a small subset of them.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql</span><span class="w"> </span><span class="kn">import</span> <span class="n">functions</span> <span class="k">as</span> <span class="n">sf</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">):</span>
+  <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;col_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">sf</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+
+<span class="n">df</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++---+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+------+------+------+------+------+------+------+------+------+------+
+| id|col_0|col_1|col_2|col_3|col_4|col_5|col_6|col_7|col_8|col_9|col_10|col_11|col_12|col_13|col_14|col_15|col_16|col_17|col_18|col_19|
++---+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+------+------+------+------+------+------+------+------+------+------+
+|  0|    0|    1|    2|    3|    4|    5|    6|    7|    8|    9|    10|    11|    12|    13|    14|    15|    16|    17|    18|    19|
+|  1|    0|    1|    2|    3|    4|    5|    6|    7|    8|    9|    10|    11|    12|    13|    14|    15|    16|    17|    18|    19|
+|  2|    0|    1|    2|    3|    4|    5|    6|    7|    8|    9|    10|    11|    12|    13|    14|    15|    16|    17|    18|    19|
+|  3|    0|    1|    2|    3|    4|    5|    6|    7|    8|    9|    10|    11|    12|    13|    14|    15|    16|    17|    18|    19|
+|  4|    0|    1|    2|    3|    4|    5|    6|    7|    8|    9|    10|    11|    12|    13|    14|    15|    16|    17|    18|    19|
+|  5|    0|    1|    2|    3|    4|    5|    6|    7|    8|    9|    10|    11|    12|    13|    14|    15|    16|    17|    18|    19|
+|  6|    0|    1|    2|    3|    4|    5|    6|    7|    8|    9|    10|    11|    12|    13|    14|    15|    16|    17|    18|    19|
+|  7|    0|    1|    2|    3|    4|    5|    6|    7|    8|    9|    10|    11|    12|    13|    14|    15|    16|    17|    18|    19|
+|  8|    0|    1|    2|    3|    4|    5|    6|    7|    8|    9|    10|    11|    12|    13|    14|    15|    16|    17|    18|    19|
+|  9|    0|    1|    2|    3|    4|    5|    6|    7|    8|    9|    10|    11|    12|    13|    14|    15|    16|    17|    18|    19|
++---+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+------+------+------+------+------+------+------+------+------+------+
+
+</pre></div></div>
+</div>
+<p>We create a DataFrame with 21 columns via a <code class="docutils literal notranslate"><span class="pre">for</span></code> loop, then we only select 4 columns by <code class="docutils literal notranslate"><span class="pre">select</span></code>. Columns <code class="docutils literal notranslate"><span class="pre">id</span></code>, <code class="docutils literal notranslate"><span class="pre">col_2</span></code> and <code class="docutils literal notranslate"><span class="pre">col_3</span></code> are directly selected from previous DataFrame, while column <code class="docutils literal notranslate"><span class="pre">sqrt_col_4_plus_5</span></code> is generated by the math functions.</p>
+<p>We have hundreds of functions for column manipulation in <code class="docutils literal notranslate"><span class="pre">pyspark.sql.function</span></code> and <code class="docutils literal notranslate"><span class="pre">pyspark.sql.Column</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><br/><span></span><span class="n">df2</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;col_2&quot;</span><span class="p">,</span> <span class="s2">&quot;col_3&quot;</span><span class="p">,</span> <span class="n">sf</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sf</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;col_4&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">sf</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;col_5&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;sqrt_col_4_plus_5&quot;</span><span class="p">))</span>
+
+<span class="n">df2</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++---+-----+-----+-----------------+
+| id|col_2|col_3|sqrt_col_4_plus_5|
++---+-----+-----+-----------------+
+|  0|    2|    3|              3.0|
+|  1|    2|    3|              3.0|
+|  2|    2|    3|              3.0|
+|  3|    2|    3|              3.0|
+|  4|    2|    3|              3.0|
+|  5|    2|    3|              3.0|
+|  6|    2|    3|              3.0|
+|  7|    2|    3|              3.0|
+|  8|    2|    3|              3.0|
+|  9|    2|    3|              3.0|
++---+-----+-----+-----------------+
+
+</pre></div></div>
+</div>
+</section>
+<section id="Filter-rows-with-where()">
+<h3>Filter rows with where()<a class="headerlink" href="#Filter-rows-with-where()" title="Permalink to this headline">#</a></h3>
+<p>The input table may be super huge and contains billions of rows, and we may also be interested in only a small subset.</p>
+<p>We can use <code class="docutils literal notranslate"><span class="pre">where</span></code> or <code class="docutils literal notranslate"><span class="pre">filter</span></code> with sepcified conditions to filter the rows.</p>
+<p>For example, we can select rows with odd <code class="docutils literal notranslate"><span class="pre">id</span></code> values.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df3</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sf</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="n">df3</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++---+-----+-----+-----------------+
+| id|col_2|col_3|sqrt_col_4_plus_5|
++---+-----+-----+-----------------+
+|  1|    2|    3|              3.0|
+|  3|    2|    3|              3.0|
+|  5|    2|    3|              3.0|
+|  7|    2|    3|              3.0|
+|  9|    2|    3|              3.0|
++---+-----+-----+-----------------+
+
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Summarizing-data">
+<h2>Summarizing data<a class="headerlink" href="#Summarizing-data" title="Permalink to this headline">#</a></h2>
+<p>In data analysis, we normally end up with summarizing data to a chart or table.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql</span><span class="w"> </span><span class="kn">import</span> <span class="n">Row</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">([</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">incomes</span><span class="o">=</span><span class="p">[</span><span class="mf">123.0</span><span class="p">,</span> <span class="mf">456.0</span><span class="p">,</span> <span class="mf">789.0</span><span class="p">],</span> <span class="n">NAME</span><span class="o">=</span><span class="s2">&quot;Alice&quot;</span><span class="p">),</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">incomes</span><span class="o">=</span><span class="p">[</span><span class="mf">234.0</span><span class="p">,</span> <span class="mf">567.0</span><span class="p">],</span> <span class="n">NAME</span><span class="o">=</span><span class="s2">&quot;BOB&quot;</span><span class="p">),</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">incomes</span><span class="o">=</span><span class="p">[</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">200.0</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">],</span> <span class="n">NAME</span><span class="o">=</span><span class="s2">&quot;Tom&quot;</span><span class="p">),</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">incomes</span><span class="o">=</span><span class="p">[</span><span class="mf">79.0</span><span class="p">,</span> <span class="mf">128.0</span><span class="p">],</span> <span class="n">NAME</span><span class="o">=</span><span class="s2">&quot;josh&quot;</span><span class="p">),</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">incomes</span><span class="o">=</span><span class="p">[</span><span class="mf">123.0</span><span class="p">,</span> <span class="mf">145.0</span><span class="p">,</span> <span class="mf">178.0</span><span class="p">],</span> <span class="n">NAME</span><span class="o">=</span><span class="s2">&quot;bush&quot;</span><span class="p">),</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">incomes</span><span class="o">=</span><span class="p">[</span><span class="mf">111.0</span><span class="p">,</span> <span class="mf">187.0</span><span class="p">,</span> <span class="mf">451.0</span><span class="p">,</span> <span class="mf">188.0</span><span class="p">,</span> <span class="mf">199.0</span><span class="p">],</span> <span class="n">NAME</span><span class="o">=</span><span class="s2">&quot;jerry&quot;</span><span class="p">),</span>
+<span class="p">])</span>
+
+<span class="n">df</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++--------------------+-----+
+|             incomes| NAME|
++--------------------+-----+
+|[123.0, 456.0, 78...|Alice|
+|      [234.0, 567.0]|  BOB|
+|[100.0, 200.0, 10...|  Tom|
+|       [79.0, 128.0]| josh|
+|[123.0, 145.0, 17...| bush|
+|[111.0, 187.0, 45...|jerry|
++--------------------+-----+
+
+</pre></div></div>
+</div>
+<p>For example, given the income per month, we want to find the average income for each name.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql</span><span class="w"> </span><span class="kn">import</span> <span class="n">functions</span> <span class="k">as</span> <span class="n">sf</span>
+
+<span class="n">df2</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">sf</span><span class="o">.</span><span class="n">lower</span><span class="p">(</span><span class="s2">&quot;NAME&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">),</span> <span class="s2">&quot;incomes&quot;</span><span class="p">)</span>
+
+<span class="n">df2</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">truncate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++-----+-----------------------------------+
+|name |incomes                            |
++-----+-----------------------------------+
+|alice|[123.0, 456.0, 789.0]              |
+|bob  |[234.0, 567.0]                     |
+|tom  |[100.0, 200.0, 100.0]              |
+|josh |[79.0, 128.0]                      |
+|bush |[123.0, 145.0, 178.0]              |
+|jerry|[111.0, 187.0, 451.0, 188.0, 199.0]|
++-----+-----------------------------------+
+
+</pre></div></div>
+</div>
+<section id="Reshape-data-using-explode()">
+<h3>Reshape data using explode()<a class="headerlink" href="#Reshape-data-using-explode()" title="Permalink to this headline">#</a></h3>
+<p>To make the data easier for aggregation, we can use <code class="docutils literal notranslate"><span class="pre">explode()</span></code> function to reshape the data</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df3</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">sf</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="s2">&quot;incomes&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;income&quot;</span><span class="p">))</span>
+
+<span class="n">df3</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++-----+------+
+| name|income|
++-----+------+
+|alice| 123.0|
+|alice| 456.0|
+|alice| 789.0|
+|  bob| 234.0|
+|  bob| 567.0|
+|  tom| 100.0|
+|  tom| 200.0|
+|  tom| 100.0|
+| josh|  79.0|
+| josh| 128.0|
+| bush| 123.0|
+| bush| 145.0|
+| bush| 178.0|
+|jerry| 111.0|
+|jerry| 187.0|
+|jerry| 451.0|
+|jerry| 188.0|
+|jerry| 199.0|
++-----+------+
+
+</pre></div></div>
+</div>
+</section>
+<section id="Summarizing-via-groupBy()-and-agg()">
+<h3>Summarizing via groupBy() and agg()<a class="headerlink" href="#Summarizing-via-groupBy()-and-agg()" title="Permalink to this headline">#</a></h3>
+<p>Then we normally use <code class="docutils literal notranslate"><span class="pre">DataFrame.groupBy(...).agg(...)</span></code> to aggreate the data. To compute the average income, we can apply aggration function <code class="docutils literal notranslate"><span class="pre">avg</span></code></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df4</span> <span class="o">=</span> <span class="n">df3</span><span class="o">.</span><span class="n">groupBy</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">sf</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="s2">&quot;income&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">&quot;avg_income&quot;</span><span class="p">))</span>
+
+<span class="n">df4</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++-----+------------------+
+| name|        avg_income|
++-----+------------------+
+|alice|             456.0|
+|  bob|             400.5|
+|  tom|133.33333333333334|
+| josh|             103.5|
+| bush|148.66666666666666|
+|jerry|             227.2|
++-----+------------------+
+
+</pre></div></div>
+</div>
+</section>
+<section id="Orderby">
+<h3>Orderby<a class="headerlink" href="#Orderby" title="Permalink to this headline">#</a></h3>
+<p>For final analysis, we normally want to order the data. In this case, we can order the data by <code class="docutils literal notranslate"><span class="pre">name</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df5</span> <span class="o">=</span> <span class="n">df4</span><span class="o">.</span><span class="n">orderBy</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+
+<span class="n">df5</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++-----+------------------+
+| name|        avg_income|
++-----+------------------+
+|alice|             456.0|
+|  bob|             400.5|
+| bush|148.66666666666666|
+|jerry|             227.2|
+| josh|             103.5|
+|  tom|133.33333333333334|
++-----+------------------+
+
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="When-DataFrames-Collide:-The-Art-of-Joining">
+<h2>When DataFrames Collide: The Art of Joining<a class="headerlink" href="#When-DataFrames-Collide:-The-Art-of-Joining" title="Permalink to this headline">#</a></h2>
+<p>When dealing with multiple dataframe, we likely need to combine them together in some way. The most frequently used approach is joining.</p>
+<p>For example, given the <code class="docutils literal notranslate"><span class="pre">incomes</span></code> data and <code class="docutils literal notranslate"><span class="pre">height</span></code> data, we can use <code class="docutils literal notranslate"><span class="pre">DataFrame.join</span></code> to join them together by <code class="docutils literal notranslate"><span class="pre">name</span></code>.</p>
+<p>We can see that only <code class="docutils literal notranslate"><span class="pre">alice</span></code>, <code class="docutils literal notranslate"><span class="pre">josh</span></code> and <code class="docutils literal notranslate"><span class="pre">bush</span></code> are in the final results, because they appear in both DataFrames.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql</span><span class="w"> </span><span class="kn">import</span> <span class="n">Row</span>
+
+<span class="n">df1</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">([</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">age</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">80.0</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;alice&quot;</span><span class="p">),</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">age</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">78.9</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;josh&quot;</span><span class="p">),</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">age</span><span class="o">=</span><span class="mi">18</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">82.3</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;bush&quot;</span><span class="p">),</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">age</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mf">75.3</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;tom&quot;</span><span class="p">),</span>
+<span class="p">])</span>
+
+<span class="n">df2</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">([</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">incomes</span><span class="o">=</span><span class="p">[</span><span class="mf">123.0</span><span class="p">,</span> <span class="mf">456.0</span><span class="p">,</span> <span class="mf">789.0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;alice&quot;</span><span class="p">),</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">incomes</span><span class="o">=</span><span class="p">[</span><span class="mf">234.0</span><span class="p">,</span> <span class="mf">567.0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;bob&quot;</span><span class="p">),</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">incomes</span><span class="o">=</span><span class="p">[</span><span class="mf">79.0</span><span class="p">,</span> <span class="mf">128.0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;josh&quot;</span><span class="p">),</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">incomes</span><span class="o">=</span><span class="p">[</span><span class="mf">123.0</span><span class="p">,</span> <span class="mf">145.0</span><span class="p">,</span> <span class="mf">178.0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;bush&quot;</span><span class="p">),</span>
+    <span class="n">Row</span><span class="p">(</span><span class="n">incomes</span><span class="o">=</span><span class="p">[</span><span class="mf">111.0</span><span class="p">,</span> <span class="mf">187.0</span><span class="p">,</span> <span class="mf">451.0</span><span class="p">,</span> <span class="mf">188.0</span><span class="p">,</span> <span class="mf">199.0</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;jerry&quot;</span><span class="p">),</span>
+<span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df3</span> <span class="o">=</span> <span class="n">df1</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df2</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+
+<span class="n">df3</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">truncate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++-----+---+------+---------------------+
+|name |age|height|incomes              |
++-----+---+------+---------------------+
+|alice|10 |80.0  |[123.0, 456.0, 789.0]|
+|bush |18 |82.3  |[123.0, 145.0, 178.0]|
+|josh |9  |78.9  |[79.0, 128.0]        |
++-----+---+------+---------------------+
+
+</pre></div></div>
+</div>
+<p>There are seven join methods: - <code class="docutils literal notranslate"><span class="pre">INNER</span></code> - <code class="docutils literal notranslate"><span class="pre">LEFT</span></code> - <code class="docutils literal notranslate"><span class="pre">RIGHT</span></code> - <code class="docutils literal notranslate"><span class="pre">FULL</span></code> - <code class="docutils literal notranslate"><span class="pre">CROSS</span></code> - <code class="docutils literal notranslate"><span class="pre">LEFTSEMI</span></code> - <code class="docutils literal notranslate"><span class="pre">LEFTANTI</span></code></p>
+<p>And the default one is <code class="docutils literal notranslate"><span class="pre">INNER</span></code>.</p>
+<p>Let’s take <code class="docutils literal notranslate"><span class="pre">LEFT</span></code> join as another example. A left join includes all of the records from the first (left) of two tables, even if there are no matching values for records in the second (right) table.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df4</span> <span class="o">=</span> <span class="n">df1</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df2</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+
+<span class="n">df4</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">truncate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++-----+---+------+---------------------+
+|name |age|height|incomes              |
++-----+---+------+---------------------+
+|alice|10 |80.0  |[123.0, 456.0, 789.0]|
+|josh |9  |78.9  |[79.0, 128.0]        |
+|bush |18 |82.3  |[123.0, 145.0, 178.0]|
+|tom  |7  |75.3  |NULL                 |
++-----+---+------+---------------------+
+
+</pre></div></div>
+</div>
+<p>And a <code class="docutils literal notranslate"><span class="pre">RIGHT</span></code> join keeps all of the records from the right table.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df5</span> <span class="o">=</span> <span class="n">df1</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df2</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+
+<span class="n">df5</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">truncate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++-----+----+------+-----------------------------------+
+|name |age |height|incomes                            |
++-----+----+------+-----------------------------------+
+|alice|10  |80.0  |[123.0, 456.0, 789.0]              |
+|bob  |NULL|NULL  |[234.0, 567.0]                     |
+|josh |9   |78.9  |[79.0, 128.0]                      |
+|bush |18  |82.3  |[123.0, 145.0, 178.0]              |
+|jerry|NULL|NULL  |[111.0, 187.0, 451.0, 188.0, 199.0]|
++-----+----+------+-----------------------------------+
+
+</pre></div></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="touroftypes.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Chapter 2: A Tour of PySpark Data Types</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="bugbusting.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Chapter 4: Bug Busting - Debugging PySpark</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Clean-data">Clean data</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Rename-columns">Rename columns</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Drop-null-values">Drop null values</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Fill-values">Fill values</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Remove-outliers">Remove outliers</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Remove-duplicates">Remove duplicates</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#String-manipulation">String manipulation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Reorder-columns">Reorder columns</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Transform-data">Transform data</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Select-columns-with-select()">Select columns with select()</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Filter-rows-with-where()">Filter rows with where()</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Summarizing-data">Summarizing data</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Reshape-data-using-explode()">Reshape data using explode()</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Summarizing-via-groupBy()-and-agg()">Summarizing via groupBy() and agg()</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Orderby">Orderby</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#When-DataFrames-Collide:-The-Art-of-Joining">When DataFrames Collide: The Art of Joining</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="../_sources/user_guide/dataprep.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><p class="copyright">
+    Copyright @ 2026 The Apache Software Foundation, Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a>.
+</p></div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

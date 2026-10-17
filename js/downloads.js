@@ -23,9 +23,10 @@ var packagesV14 = [hadoop3p, hadoop3pscala213, hadoopFree, sources];
 // 4.0.0+
 var packagesV15 = [hadoop34p, hadoop34pSparkConnect, hadoopFree, sources];
 
-addRelease("4.0.0", new Date("05/23/2025"), packagesV15, true);
-addRelease("3.5.6", new Date("05/29/2025"), packagesV14, true);
-addRelease("3.4.4", new Date("10/27/2024"), packagesV14, true);
+addRelease("4.2.0", new Date("07/14/2026"), packagesV15, true);
+addRelease("4.1.3", new Date("07/15/2026"), packagesV15, true);
+addRelease("4.0.4", new Date("07/15/2026"), packagesV15, true);
+addRelease("3.5.9", new Date("07/16/2026"), packagesV14, true);
 
 function append(el, contents) {
   el.innerHTML += contents;

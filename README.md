@@ -1,57 +1,48 @@
-## Generating the website HTML
+# Apache Spark Main Website
 
-In this directory you will find text files formatted using Markdown, with an `.md` suffix.
+This repository captures the main Apache Spark website located at https://spark.apache.org. The programming docs under https://spark.apache.org/docs/ are [in the main Spark repo][main], not here. They are built separately for each release of Spark and then copied to the website under the `docs/` directory.
 
-Building the site requires [Jekyll](http://jekyllrb.com/docs)
-[Rouge](https://github.com/rouge-ruby/rouge).
-The easiest way to install the right version of these tools is using
-[Bundler](https://bundler.io/) and running `bundle install` in this directory.
+[main]: https://github.com/apache/spark/tree/master/docs#readme
 
-See also [https://github.com/apache/spark/blob/master/docs/README.md](https://github.com/apache/spark/blob/master/docs/README.md)
+## Contributing
 
-A site build will update the directories and files in the `site` directory with the generated files.
-Using Jekyll via `bundle exec jekyll` locks it to the right version.
-So after this you can generate the html website by running `bundle exec jekyll build` in this
-directory. Use the `--watch` flag to have jekyll recompile your files as you save changes.
+To contribute changes, build and test the site locally, then submit a pull request with your changes. Unless you are working through the [release guide](./release-process.md), you only need to commit changes to source files (typically Markdown). A [GitHub Actions workflow](.github/workflows/html-push.yml) will generate the corresponding HTML under `site/` and push it for you.
 
-In addition to generating the site as HTML from the Markdown files, jekyll can serve the site via
-a web server. To build the site and run a web server use the command `bundle exec jekyll serve` which runs
-the web server on port 4000, then visit the site at http://localhost:4000.
+## Building the site locally
 
-Please make sure you always run `bundle exec jekyll build` after testing your changes with
-`bundle exec jekyll serve`, otherwise you end up with broken links in a few places.
+Building the site requires [Ruby 3](https://www.ruby-lang.org), [Jekyll](http://jekyllrb.com/docs), and [Rouge](https://github.com/rouge-ruby/rouge).
 
-## Updating Jekyll version
+```
+gem install bundler -v 2.4.22
+bundle install
+bundle exec jekyll serve
+```
 
-To update `Jekyll` or any other gem please follow these steps:
+### Building the site with Docker
 
-1. Update the version in the `Gemfile`
-1. Run `bundle update` which updates the `Gemfile.lock`
-1. Commit both files
+The most reliable way to ensure a compatible environment is to use the official Docker build image from the Apache Spark repository.
 
-## Docs sub-dir
+If you haven't already, clone the [Apache Spark](https://github.com/apache/spark) repository. Navigate to
+the Spark root directory and run the following command to create the builder image:
+```
+docker build \
+  --tag docs-builder:latest \
+  --file dev/spark-test-image/docs/Dockerfile \
+  dev/spark-test-image-util/docs/
+```
 
-The docs are not generated as part of the website. They are built separately for each release 
-of Spark from the Spark source repository and then copied to the website under the docs 
-directory. See the instructions for building those in the readme in the Spark 
-project's `/docs` directory.
+Once the image is built, navigate to the `spark-website` root directory, run the script which processes
+the Markdown files in the Docker container.
+```
+.dev/build-docs.sh
+```
 
-## Rouge and Pygments
+## Deploying to production
 
-We also use [Rouge](https://github.com/rouge-ruby/rouge) for syntax highlighting in documentation Markdown pages.
-Its HTML output is compatible with CSS files designed for [Pygments](https://pygments.org/).
+The website is deployed automatically by [ASF Infra][infra]. The deployment configuration is tracked by [.asf.yaml](./.asf.yaml) and is [documented here][asf-docs].
 
-To mark a block of code in your Markdown to be syntax highlighted by `jekyll` during the 
-compile phase, use the following syntax:
+One deployment detail that appears to be critical is the presence of the [`content`](./content/) symlink to `site/`. Even though ASF Infra is [aware of Jekyll][jek], we perhaps do not have the exact setup required for them to automatically use our [Jekyll config](./_config.yml) to understand where the site content lives. Without the `content` symlink, the website will just show a plain directory listing of the files in this repo.
 
-    {% highlight scala %}
-    // Your Scala code goes here, you can replace Scala with many other
-    // supported languages too.
-    {% endhighlight %}
-
-You probably don't need to install that unless you want to regenerate the Pygments CSS file.
-It requires Python, and can be installed by running `sudo easy_install Pygments`.
-
-## Merge PR
-
-To merge pull request, use the `merge_pr.py` script which also squashes the commits.
+[infra]: https://infra.apache.org
+[asf-docs]: https://github.com/apache/infrastructure-asfyaml/tree/main#readme
+[jek]: https://github.com/apache/infrastructure-asfyaml/tree/76d241ccef02e5397e10c173ebf04c07525311ea#jekyll_cms

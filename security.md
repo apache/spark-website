@@ -1,13 +1,11 @@
 ---
 layout: global
 title: Security
-type: "page singular"
+type: "page"
 navigation:
   weight: 5
   show: true
 ---
-
-<h2>Security Model</h2>
 
 For information on what security properties to expect from Apache Spark
 and how to configure the various security features, see the
@@ -43,7 +41,46 @@ internet or untrusted networks. We recommend access within trusted networks (com
 private cloud environments), using restrict access to the Spark cluster with robust authentication, 
 authorization, and network controls.
 
+<h3>Is loading a machine learning model secure? Who is responsible for model security?</h3> 
+
+Loading an Apache Spark ML model is equivalent to loading and executing code within the Spark runtime.
+
+Spark ML models might contain serialized objects, custom transformers, user-defined expressions, and execution graphs. 
+During model loading, Spark deserializes these components, reconstructs the pipeline, and instantiates runtime objects. 
+This process can invoke executable logic on the Spark driver and executors. 
+Any model, but particularly that is compromised or intentionally created with malicious intent, 
+might execute arbitrary code, access sensitive data, or compromise cluster nodes.
+
+End users must treat Spark ML models with the same level of caution and security scrutiny as any third-party software. 
+This includes verifying the source, validating integrity, and applying appropriate isolation and security controls 
+before loading or deploying a model.
+
 <h2>Known security issues</h2>
+
+<h3 id="CVE-2025-55039">CVE-2025-55039: Apache Spark: RPC encryption defaults to unauthenticated AES-CTR mode, enabling man-in-the-middle ciphertext modification attacks</h3>
+
+Severity: Moderate
+
+Vendor: The Apache Software Foundation
+
+Versions Affected:
+
+- Versions prior to 3.4.4, 3.5.2 and 4.0.0
+
+Description:
+
+Apache Spark versions before 4.0.0, 3.5.2 and 3.4.4 use an insecure default network encryption cipher for RPC communication between nodes.
+When spark.network.crypto.enabled is set to true (it is set to false by default), but spark.network.crypto.cipher is not explicitly configured, Spark defaults to AES in CTR mode (AES/CTR/NoPadding), which provides encryption without authentication.
+This vulnerability allows a man-in-the-middle attacker to modify encrypted RPC traffic undetected by flipping bits in ciphertext, potentially compromising heartbeat messages or application data and affecting the integrity of Spark workflows.
+
+Mitigation:
+
+- Either configure `spark.network.crypto.cipher` to "AES/GCM/NoPadding" to enable authenticated encryption or enable SSL encryption by setting both `spark.ssl.enabled` and `spark.ssl.rpc.enabled` to "true", which provides stronger transport security.
+
+Credit:
+
+- Holden Karau
+
 
 <h3 id="CVE-2023-32007">CVE-2023-32007: Apache Spark shell command injection vulnerability via Spark UI</h3>
 

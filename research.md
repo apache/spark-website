@@ -1,7 +1,7 @@
 ---
 layout: global
 title: Research
-type: "page singular"
+type: "page"
 navigation:
   weight: 6
   show: true

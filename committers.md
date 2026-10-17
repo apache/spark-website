@@ -1,12 +1,11 @@
 ---
 layout: global
 title: Committers
-type: "page singular"
+type: "page"
 navigation:
   weight: 5
   show: true
 ---
-<h2>Current committers</h2>
 
 |Name|Organization|
 |----|------------|
@@ -14,7 +13,9 @@ navigation:
 |Michael Armbrust|Databricks|
 |Dilip Biswal|Adobe|
 |Ryan Blue|Databricks|
+|Uros Bojanic|Databricks|
 |Joseph Bradley|Databricks|
+|Nicholas Chammas||
 |Matthew Cheah|Palantir|
 |Felix Cheung|NVIDIA|
 |Mosharaf Chowdhury|University of Michigan, Ann Arbor|
@@ -28,6 +29,7 @@ navigation:
 |Robert Evans|NVIDIA|
 |Wenchen Fan|Databricks|
 |Huaxin Gao|Apple|
+|Tian Gao|Databricks|
 |Max Gekk|Databricks|
 |Jiaan Geng|NetEase|
 |Joseph Gonzalez|UC Berkeley|
@@ -36,10 +38,12 @@ navigation:
 |Stephen Haberman|LinkedIn|
 |Mark Hamstra|ClearStory Data|
 |Seth Hendrickson|Stripe|
+|Szehon Ho|Databricks|
 |Herman van Hovell|Databricks|
 |Liang-Chi Hsieh|Databricks|
 |Yin Huai|Databricks|
 |Shane Huang|Intel|
+|Yicong Huang|Databricks, UMass Amherst|
 |Dongjoon Hyun|Apple|
 |Kazuaki Ishizaki|IBM|
 |Xingbo Jiang|Databricks|
@@ -63,10 +67,12 @@ navigation:
 |Xiangrui Meng|Databricks|
 |Xinrong Meng|Databricks|
 |Mridul Muralidharan|LinkedIn|
+|Anton Okolnychyi|Databricks|
 |Andrew Or|Facebook|
 |Kay Ousterhout|LightStep|
 |Sean Owen|Databricks|
 |Bingkun Pan|Baidu|
+|Cheng Pan|NetEase|
 |Tejas Patil|Meta|
 |Nick Pentreath|Automattic|
 |Attila Zsolt Piros|Cloudera|
@@ -87,13 +93,13 @@ navigation:
 |Jose Torres|Databricks|
 |Peter Toth|Apple|
 |DB Tsai|Databricks|
-|Takuya Ueshin|Databricks|
+|Takuya Ueshin||
 |Marcelo Vanzin|Cloudera|
 |Shivaram Venkataraman|University of Wisconsin, Madison|
 |Allison Wang|Databricks|
 |Gengliang Wang|Databricks|
 |Yuming Wang|eBay|
-|Zhenhua Wang|Huawei|
+|Zhenhua Wang|Alibaba|
 |Patrick Wendell|Databricks|
 |Yi Wu|Databricks|
 |Andrew Xia|Alibaba|
@@ -101,7 +107,7 @@ navigation:
 |Weichen Xu|Databricks|
 |Takeshi Yamamuro|NTT|
 |Jie Yang|Baidu|
-|Kent Yao|NetEase|
+|Kent Yao|Microsoft|
 |Burak Yavuz|Databricks|
 |Xiduo You|NetEase|
 |Matei Zaharia|Databricks, Stanford|
@@ -114,8 +120,9 @@ To get started contributing to Spark, learn
 <a href="{{site.baseurl}}/contributing.html">how to contribute</a> – 
 anyone can submit patches, documentation and examples to the project.
 
-The PMC regularly adds new committers from the active contributors, based on their contributions 
-to Spark. The qualifications for new committers include:
+The [Spark Project Management Committee][pmc] (PMC) regularly adds new committers from the active contributors based on their contributions to Spark. The qualifications for new committers include:
+
+[pmc]: https://projects.apache.org/committee.html?spark
 
 1. Sustained contributions to Spark: Committers should have a history of major contributions to 
 Spark. An ideal committer will have contributed broadly throughout the project, and have 
@@ -237,6 +244,12 @@ Also, please remember to set Assignee on JIRAs where applicable when they are re
 can do this automatically in most cases.
 
 Once a PR is merged please leave a comment on the PR stating which branch(es) it has been merged with.
+
+<h4>Merging website pull requests</h4>
+
+Pull requests to the [Spark website repo](https://github.com/apache/spark-website) are merged separately from the [main Spark repo](https://github.com/apache/spark). Unlike the main repo, the website uses `asf-site` as its default branch; there is no `master` branch.
+
+The website repo does not use a merge script. Instead, use GitHub's "Squash and merge" button to merge PRs.
 
 <h3>Policy on backporting bug fixes</h3>
 

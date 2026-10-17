@@ -1,12 +1,10 @@
 ---
 layout: global
 title: Examples
-type: "page singular"
 navigation:
   weight: 4
   show: true
 ---
-<h1>Apache Spark<span class="tm">&trade;</span> examples</h1>
 
 This page shows you how to use different Apache Spark APIs with simple examples.
 

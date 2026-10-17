@@ -123,6 +123,7 @@
         <ul class="dropdown-menu" aria-labelledby="github">
           <li><a class="dropdown-item" href="https://github.com/apache/spark">spark</a></li>
           <li><a class="dropdown-item" href="https://github.com/apache/spark-connect-go">spark-connect-go</a></li>
+          <li><a class="dropdown-item" href="https://github.com/apache/spark-connect-rust">spark-connect-rust</a></li>
           <li><a class="dropdown-item" href="https://github.com/apache/spark-connect-swift">spark-connect-swift</a></li>
           <li><a class="dropdown-item" href="https://github.com/apache/spark-docker">spark-docker</a></li>
           <li><a class="dropdown-item" href="https://github.com/apache/spark-kubernetes-operator">spark-kubernetes-operator</a></li>
@@ -152,6 +153,9 @@
 <div class="container">
   <div class="row mt-4">
     <div class="col-12 col-md-9">
+      
+      <h1>Release Process</h1>
+      
       <h1>Preparing Spark releases</h1>
 
 <p>The release manager role in Spark means you are responsible for a few different things:</p>
@@ -190,7 +194,7 @@
       <li><a href="#upload-to-pypi">Upload to PyPI</a></li>
       <li><a href="#remove-rc-artifacts-from-repositories">Remove RC artifacts from repositories</a></li>
       <li><a href="#remove-old-releases-from-mirror-network">Remove old releases from Mirror Network</a></li>
-      <li><a href="#update-the-apache-spark-repository">Update the Apache Spark<sup>TM</sup> repository</a></li>
+      <li><a href="#update-the-apache-spark-repository">Update the Apache Spark repository</a></li>
       <li><a href="#update-the-configuration-of-algolia-crawler">Update the configuration of Algolia Crawler</a></li>
       <li><a href="#update-the-spark-website">Update the Spark website</a>
         <ul>
@@ -200,6 +204,21 @@
       </li>
       <li><a href="#create-and-upload-spark-docker-images">Create and upload Spark Docker Images</a></li>
       <li><a href="#create-an-announcement">Create an announcement</a></li>
+    </ul>
+  </li>
+  <li><a href="#preparing-spark-releases-with-github-actions">Preparing Spark Releases with GitHub Actions</a>
+    <ul>
+      <li><a href="#preparing-your-github-actions-setup">Preparing your GitHub Actions setup</a></li>
+      <li><a href="#create-release-candidates">Creating release candidates</a>
+        <ul>
+          <li><a href="#if-workflow-fails">If the workflow fails &#8230;</a></li>
+        </ul>
+      </li>
+      <li><a href="#publishing-release">Publishing the release</a>
+        <ul>
+          <li><a href="#if-publishing-workflow-fails">If the workflow fails &#8230;</a></li>
+        </ul>
+      </li>
     </ul>
   </li>
 </ul>
@@ -220,39 +239,45 @@
 
 <h4 id="generate-key">Generate key</h4>
 
-<p>Here&#8217;s an example of gpg 2.0.12. If you use gpg version 1 series, please refer to <a href="https://www.apache.org/dev/openpgp.html#generate-key">generate-key</a> for details.</p>
+<p>Here&#8217;s an example of gpg 2.4.8. If you use gpg version 1 series, please refer to <a href="https://www.apache.org/dev/openpgp.html#generate-key">generate-key</a> for details.
+Note that you need an <code class="language-plaintext highlighter-rouge">@apache.org</code> email address to prepare a Spark release with the <code class="language-plaintext highlighter-rouge">Release Apache Spark</code> GitHub action.</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ gpg --full-gen-key
-gpg (GnuPG) 2.0.12; Copyright (C) 2009 Free Software Foundation, Inc.
+gpg (GnuPG) 2.4.8; Copyright (C) 2025 g10 Code GmbH
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
 
 Please select what kind of key you want:
-   (1) RSA and RSA (default)
+   (1) RSA and RSA
    (2) DSA and Elgamal
    (3) DSA (sign only)
    (4) RSA (sign only)
+   (9) ECC (sign and encrypt) *default*
+  (10) ECC (sign only)
+  (14) Existing key from card
+Your selection? 9
+Please select which elliptic curve you want:
+   (1) Curve 25519 *default*
+   (4) NIST P-384
+   (6) Brainpool P-256
 Your selection? 1
-RSA keys may be between 1024 and 4096 bits long.
-What keysize do you want? (2048) 4096
-Requested keysize is 4096 bits
 Please specify how long the key should be valid.
          0 = key does not expire
       &lt;n&gt;  = key expires in n days
       &lt;n&gt;w = key expires in n weeks
       &lt;n&gt;m = key expires in n months
       &lt;n&gt;y = key expires in n years
-Key is valid for? (0) 
+Key is valid for? (0) 0
 Key does not expire at all
 Is this correct? (y/N) y
 
 GnuPG needs to construct a user ID to identify your key.
 
-Real name: Robert Burrell Donkin
-Email address: rdonkin@apache.org
+Real name: Peter Test
+Email address: ptest@apache.org
 Comment: CODE SIGNING KEY
 You selected this USER-ID:
-    "Robert Burrell Donkin (CODE SIGNING KEY) &lt;rdonkin@apache.org&gt;"
+    "Peter Test (CODE SIGNING KEY) &lt;ptest@apache.org&gt;"
 
 Change (N)ame, (C)omment, (E)mail or (O)kay/(Q)uit? O
 We need to generate a lot of random bytes. It is a good idea to perform
@@ -263,23 +288,22 @@ We need to generate a lot of random bytes. It is a good idea to perform
 some other action (type on the keyboard, move the mouse, utilize the
 disks) during the prime generation; this gives the random number
 generator a better chance to gain enough entropy.
-gpg: key 04B3B5C426A27D33 marked as ultimately trusted
-gpg: revocation certificate stored as '/home/ubuntu/.gnupg/openpgp-revocs.d/08071B1E23C8A7E2CA1E891A04B3B5C426A27D33.rev'
+gpg: revocation certificate stored as '/Users/ptest/.gnupg/openpgp-revocs.d/69DD5A189B3C274353A677214926E0E83FF6D044.rev'
 public and secret key created and signed.
 
-pub   rsa4096 2021-08-19 [SC]
-      08071B1E23C8A7E2CA1E891A04B3B5C426A27D33
-uid                      Jack (test) &lt;Jack@mail.com&gt;
-sub   rsa4096 2021-08-19 [E]
+pub   ed25519 2025-09-18 [SC]
+      69DD5A189B3C274353A677214926E0E83FF6D044
+uid                      Peter Test (CODE SIGNING KEY) &lt;ptest@apache.org&gt;
+sub   cv25519 2025-09-18 [E]
 </code></pre></div></div>
 
-<p>Note that the last 8 digits (26A27D33) of the public key is the <a href="https://infra.apache.org/release-signing.html#key-id">key ID</a>.</p>
+<p>Note that the last 8 digits (3FF6D044) of the public key is the <a href="https://infra.apache.org/release-signing.html#key-id">key ID</a>.</p>
 
 <h4 id="upload-key">Upload key</h4>
 
 <p>After generating the public key, we should upload it to <a href="https://infra.apache.org/release-signing.html#keyserver">public key server</a>:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ gpg --keyserver hkps://keys.openpgp.org --send-key 26A27D33
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ gpg --keyserver hkps://keys.openpgp.org --send-key 3FF6D044
 </code></pre></div></div>
 
 <p>Please refer to <a href="https://infra.apache.org/release-signing.html#keyserver-upload">keyserver-upload</a> for details.</p>
@@ -288,7 +312,7 @@ sub   rsa4096 2021-08-19 [E]
 
 <p>To get the code signing key (a.k.a ASCII-armored public key), run the command:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ gpg --export --armor 26A27D33
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ gpg --export --armor 3FF6D044
 </code></pre></div></div>
 
 <p>And then append the generated key to the KEYS file by:</p>
@@ -369,12 +393,14 @@ that looks something like <code class="language-plaintext highlighter-rouge">[VO
 
 <p>Note that <code class="language-plaintext highlighter-rouge">dev/create-release/do-release-docker.sh</code> script (<code class="language-plaintext highlighter-rouge">finalize</code> step ) automates most of the following steps <strong>except</strong> for:</p>
 <ul>
-  <li>Update the configuration of Algolia Crawler</li>
-  <li>Remove old releases from Mirror Network</li>
-  <li>Update the rest of the Spark website</li>
-  <li>Create and upload Spark Docker Images</li>
-  <li>Create an announcement</li>
+  <li><a href="#update-the-configuration-of-algolia-crawler">Update the configuration of Algolia Crawler</a></li>
+  <li><a href="#remove-old-releases-from-mirror-network">Remove old releases from Mirror Network</a></li>
+  <li><a href="#update-the-rest-of-the-spark-website">Update the rest of the Spark website</a></li>
+  <li><a href="#create-and-upload-spark-docker-images">Create and upload Spark Docker Images</a></li>
+  <li><a href="#create-an-announcement">Create an announcement</a></li>
 </ul>
+
+<p>The <code class="language-plaintext highlighter-rouge">finalize</code> step pushes to the <code class="language-plaintext highlighter-rouge">asf-site</code> branch of spark-website. After that push, you may see a follow-up <code class="language-plaintext highlighter-rouge">[html]</code> commit from GitHub Actions. This is normal.</p>
 
 <p>Please manually verify the result after each step.</p>
 
@@ -480,26 +506,28 @@ $ git push apache v1.1.1
 <p>It&#8217;s recommended to not remove the generated docs of the latest RC, so that we can copy it to
 spark-website directly, otherwise you need to re-build the docs.</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># Build the latest docs
-$ git checkout v1.1.1
-$ cd docs
-$ PRODUCTION=1 bundle exec jekyll build
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Build the latest docs</span>
+<span class="nv">$ </span>git checkout v1.1.1
+<span class="nv">$ </span><span class="nb">cd </span>docs
+<span class="nv">$ PRODUCTION</span><span class="o">=</span>1 bundle <span class="nb">exec </span>jekyll build
 
-# Copy the new documentation to Apache
-$ git clone https://github.com/apache/spark-website
+<span class="c"># Copy the new documentation to Apache</span>
+<span class="nv">$ </span>git clone https://github.com/apache/spark-website
 ...
-$ cp -R _site spark-website/site/docs/1.1.1
+<span class="nv">$ </span><span class="nb">cp</span> <span class="nt">-R</span> _site spark-website/site/docs/1.1.1
 
-# Update the "latest" link
-$ cd spark-website/site/docs
-$ rm latest
-$ ln -s 1.1.1 latest
+<span class="c"># Update the "latest" link</span>
+<span class="nv">$ </span><span class="nb">cd </span>spark-website/site/docs
+<span class="nv">$ </span><span class="nb">rm </span>latest
+<span class="nv">$ </span><span class="nb">ln</span> <span class="nt">-s</span> 1.1.1 latest
+<span class="nv">$ </span><span class="nb">cd</span> ../..
+<span class="nv">$ </span>git add site/docs/1.1.1 site/docs/latest
+<span class="nv">$ </span>git commit <span class="nt">-m</span> <span class="s2">"Add docs for Spark 1.1.1"</span>
 </code></pre></div></div>
 
 <h4 id="update-the-rest-of-the-spark-website">Update the rest of the Spark website</h4>
 
-<p>Next, update the rest of the Spark website. See how the previous releases are documented
-(all the HTML file changes are generated by <code class="language-plaintext highlighter-rouge">jekyll</code>). In particular:</p>
+<p>Next, update the rest of the Spark website. See how the previous releases are documented. In particular:</p>
 
 <ul>
   <li>update <code class="language-plaintext highlighter-rouge">documentation.md</code> to add link to the docs for the new release</li>
@@ -509,9 +537,7 @@ $ ln -s 1.1.1 latest
   <li>check <code class="language-plaintext highlighter-rouge">security.md</code> for anything to update</li>
 </ul>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ git add 1.1.1
-$ git commit -m "Add docs for Spark 1.1.1"
-</code></pre></div></div>
+<p>Commit these source files normally. You do not need to run <code class="language-plaintext highlighter-rouge">jekyll build</code> or commit anything else under <code class="language-plaintext highlighter-rouge">site/</code>. After the change is merged to <code class="language-plaintext highlighter-rouge">asf-site</code>, GitHub Actions generates the HTML under <code class="language-plaintext highlighter-rouge">site/</code> and pushes it for you.</p>
 
 <p>Then, create the release notes. Go to the
 <a href="https://issues.apache.org/jira/projects/SPARK?selectedItem=com.atlassian.jira.jira-projects-plugin:release-page">release page in JIRA</a>,
@@ -520,13 +546,7 @@ pick the release version from the list, then click on &#8220;Release Notes&#8221
 <code class="language-plaintext highlighter-rouge">spark-2.1.2</code>. Create a new release post under <code class="language-plaintext highlighter-rouge">releases/_posts</code> to include this short URL. The date of the post should
 be the date you create it.</p>
 
-<p>Then run <code class="language-plaintext highlighter-rouge">bundle exec jekyll build</code> to update the <code class="language-plaintext highlighter-rouge">site</code> directory.</p>
-
-<p>Considering the Pull Request will be large, please separate the commits of code changes and generated <code class="language-plaintext highlighter-rouge">site</code> directory for an easier review.</p>
-
-<p>After merging the change into the <code class="language-plaintext highlighter-rouge">asf-site</code> branch, you may need to create a follow-up empty
-commit to force synchronization between ASF&#8217;s git and the web site, and also the GitHub mirror.
-For some reason synchronization seems to not be reliable for this repository.</p>
+<p>After merging the change into the <code class="language-plaintext highlighter-rouge">asf-site</code> branch, confirm the GitHub Actions run finished and the generated HTML is on the site. You may need to create a follow-up empty commit to force synchronization between ASF&#8217;s git and the website, and also the GitHub mirror. For some reason synchronization seems to not be reliable for this repository.</p>
 
 <p>On a related note, make sure the version is marked as released on JIRA. Go find the release page as above, eg.,
 <a href="https://issues.apache.org/jira/projects/SPARK/versions/12340295"><code class="language-plaintext highlighter-rouge">https://issues.apache.org/jira/projects/SPARK/versions/12340295</code></a>,
@@ -587,12 +607,113 @@ $ git log v1.1.1 --grep "$expr" --shortstat --oneline | grep -B 1 -e "[3-9][0-9]
 <h3 id="create-an-announcement">Create an announcement</h3>
 
 <p>Once everything is working (website docs, website changes) create an announcement on the website
-and then send an e-mail to the mailing list with a subject that looks something like <code class="language-plaintext highlighter-rouge">[ANNOUNCE] ...</code>. To create an announcement, create a post under
-<code class="language-plaintext highlighter-rouge">news/_posts</code> and then run <code class="language-plaintext highlighter-rouge">bundle exec jekyll build</code>.</p>
+and then send an e-mail to the mailing list with a subject that looks something like <code class="language-plaintext highlighter-rouge">[ANNOUNCE] ...</code>. To create an announcement, create a post under <code class="language-plaintext highlighter-rouge">news/_posts</code>. GitHub Actions will automatically generate the corresponding HTML when you push to <code class="language-plaintext highlighter-rouge">asf-site</code>.</p>
 
 <p>Enjoy an adult beverage of your choice, and congratulations on making a Spark release.</p>
 
 <p align="right"><a href="#top">Return to top</a></p>
+
+<h1 id="preparing-spark-releases-with-github-actions">Preparing Spark Releases with GitHub Actions</h1>
+
+<p>Apache Spark provides a <a href="https://github.com/apache/spark/blob/master/.github/workflows/release.yml">GitHub Actions workflow</a> for creating official Spark releases. Only Apache Spark PMC members can run this workflow in <strong>their forked repositories</strong>.</p>
+
+<ul>
+  <li><a href="#preparing-your-github-actions-setup">Preparing Your GitHub Actions Setup</a>
+    <ul>
+      <li><a href="#preparing-gpg-key">Creating release candidates</a></li>
+      <li><a href="#publishing-release">Publishing the release</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="preparing-your-github-actions-setup">Preparing your GitHub Actions setup</h2>
+
+<p>To create an official release, PMC members must configure GitHub Actions Secrets in their forked repository:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">ASF_USERNAME</code>: Your Apache Software Foundation (ASF) account ID.</li>
+  <li><code class="language-plaintext highlighter-rouge">ASF_PASSWORD</code>: The password for your ASF account.</li>
+  <li><code class="language-plaintext highlighter-rouge">ASF_NEXUS_TOKEN</code>: ASF Nexus API token associated with your ASF account.
+Can be found in https://repository.apache.org/#profile;User%20Token
+It is written in <code class="language-plaintext highlighter-rouge">&lt;password&gt;...&lt;/password&gt;</code> and ignore <code class="language-plaintext highlighter-rouge">User Code</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">GPG_PRIVATE_KEY</code>: Your GPG private key, exported with:
+<code class="language-plaintext highlighter-rouge">gpg --armor --export-secret-keys ABCD1234 &gt; private.key</code>.
+Make sure this key is registered with a public key server. See also <a href="#preparing-your-setup">Preparing your setup</a>.</li>
+  <li><code class="language-plaintext highlighter-rouge">GPG_PASSPHRASE</code>: The passphrase for your GPG private key.</li>
+  <li><code class="language-plaintext highlighter-rouge">PYPI_API_TOKEN</code>: Required when finalizing the release. If you do not already have the permission, request it via private@spark.apache.org. Once granted, you can create a token at https://pypi.org/manage/account/ with access to the following projects:
+    <ul>
+      <li>https://pypi.org/project/pyspark/</li>
+      <li>https://pypi.org/project/pyspark-connect/</li>
+      <li>https://pypi.org/project/pyspark-client/</li>
+    </ul>
+  </li>
+</ul>
+
+<p>After setting up the secrets, make sure your release branch is up-to-date and synced with the corresponding branch in the Apache Spark repository.</p>
+
+<p>Finally, double-check the JIRA versions. See <a href="#cutting-a-release-candidate">Cutting a release candidate</a>.</p>
+
+<h2 id="create-release-candidates">Creating release candidates</h2>
+
+<ul>
+  <li>Go to the GitHub Actions page in your forked repository, e.g., <code class="language-plaintext highlighter-rouge">https://github.com/$USER/spark/actions/workflows/release.yml</code>.</li>
+  <li>Click <code class="language-plaintext highlighter-rouge">Run workflow</code> and provide the required inputs. Leave <strong>Whether to convert RC to the official release (IRREVERSIBLE)</strong> set to <strong><code class="language-plaintext highlighter-rouge">false</code></strong>.
+    <ul>
+      <li>Once the workflow completes successfully, it will automatically create a release candidate (RC) and send an email to the dev mailing list to start the voting process.</li>
+    </ul>
+  </li>
+  <li>After the vote is complete, you must also send a summary email with the results. Use a subject line similar to: <code class="language-plaintext highlighter-rouge">[VOTE][RESULT] ...</code>.</li>
+</ul>
+
+<h3 id="if-workflow-fails">If the workflow fails ...</h3>
+
+<p>If something goes wrong during the process and a release candidate (RC) needs to be
+cleaned up, follow these steps:</p>
+
+<ul>
+  <li>Revert the RC-related commits, such as:
+    <ul>
+      <li>&#8220;Preparing development version 3.5.7-SNAPSHOT&#8221;</li>
+      <li>&#8220;Preparing Spark release v3.5.6-rc1&#8221;</li>
+    </ul>
+  </li>
+  <li>Delete the RC tag from the remote repository, for example:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">git push --delete apache v3.5.6-rc1</code></li>
+    </ul>
+  </li>
+  <li>Remove the RC artifacts from SVN:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">RC=v3.5.6-rc1 &amp;&amp; svn rm https://dist.apache.org/repos/dist/dev/spark/"${RC}"-bin/ -m "Removing RC artifacts"</code></li>
+      <li><code class="language-plaintext highlighter-rouge">RC=v3.5.6-rc1 &amp;&amp; svn rm https://dist.apache.org/repos/dist/dev/spark/"${RC}"-docs/ -m "Removing RC artifacts"</code></li>
+    </ul>
+  </li>
+  <li>Drop the staging repository (if it exists) at:
+https://repository.apache.org/#stagingRepositories</li>
+</ul>
+
+<h2 id="publishing-release">Publishing the release</h2>
+
+<p><strong>Be Careful!</strong></p>
+
+<p><strong>THIS STEP IS IRREVERSIBLE. Once the artifacts are moved into the release folder, they cannot be removed.</strong></p>
+
+<ul>
+  <li>Go to the GitHub Actions page in your forked repository, e.g., <code class="language-plaintext highlighter-rouge">https://github.com/$USER/spark/actions/workflows/release.yml</code>.</li>
+  <li>Click <code class="language-plaintext highlighter-rouge">Run workflow</code> and provide the required inputs. Set <strong>Whether to convert RC to the official release (IRREVERSIBLE)</strong> to <strong><code class="language-plaintext highlighter-rouge">true</code></strong>.
+This includes <a href="#finalize-the-release">Finalizing the release</a> with additional automation.</li>
+  <li>After it completes successfully, you should:
+    <ul>
+      <li><a href="#update-the-configuration-of-algolia-crawler">Update the configuration of the Algolia Crawler</a></li>
+      <li><a href="#create-and-upload-spark-docker-images">Create and upload Spark Docker images</a></li>
+      <li><a href="#create-an-announcement">Create an announcement</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="if-publishing-workflow-fails">If the workflow fails ...</h3>
+
+<p>If the workflow fails here, you will need to manually debug the release script, <a href="https://github.com/apache/spark/blob/master/dev/create-release/release-build.sh"><code class="language-plaintext highlighter-rouge">dev/create-release/release-build.sh</code></a> and then run the remaining commands yourself after the failure.</p>
 
     </div>
     <div class="col-12 col-md-3">
@@ -600,17 +721,17 @@ and then send an e-mail to the mailing list with a subject that looks something 
         <h5>Latest News</h5>
         <ul class="list-unstyled">
           
-          <li><a href="/news/spark-3-5-6-released.html">Spark 3.5.6 released</a>
-            <span class="small">(May 29, 2025)</span></li>
+          <li><a href="/news/spark-3-5-9-released.html">Spark 3.5.9 released</a>
+            <span class="small">(Jul 16, 2026)</span></li>
           
-          <li><a href="/news/spark-4-0-0-released.html">Spark 4.0.0 released</a>
-            <span class="small">(May 23, 2025)</span></li>
+          <li><a href="/news/spark-4-1-3-released.html">Spark 4.1.3 released</a>
+            <span class="small">(Jul 15, 2026)</span></li>
           
-          <li><a href="/news/spark-3-5-5-released.html">Spark 3.5.5 released</a>
-            <span class="small">(Feb 27, 2025)</span></li>
+          <li><a href="/news/spark-4-0-4-released.html">Spark 4.0.4 released</a>
+            <span class="small">(Jul 15, 2026)</span></li>
           
-          <li><a href="/news/spark-3-5-4-released.html">Spark 3.5.4 released</a>
-            <span class="small">(Dec 20, 2024)</span></li>
+          <li><a href="/news/spark-4-2-0-released.html">Spark 4.2.0 released</a>
+            <span class="small">(Jul 14, 2026)</span></li>
           
         </ul>
         <p class="small" style="text-align: right;"><a href="/news/index.html">Archive</a></p>

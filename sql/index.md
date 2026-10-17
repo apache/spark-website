@@ -1,6 +1,6 @@
 ---
 layout: global
-type: "page singular"
+type: "page"
 title: Spark SQL &amp; DataFrames
 description: Spark SQL is Spark's module for working with structured data, either within Spark programs or through standard JDBC and ODBC connectors.
 subproject: SQL
