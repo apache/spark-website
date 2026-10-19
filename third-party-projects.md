@@ -98,6 +98,10 @@ transforming, and analyzing genomic data using Apache Spark
 
 - <a href="https://github.com/JetBrains/kotlin-spark-api">Kotlin for Apache Spark</a>
 
+<h3>TypeScript</h3>
+
+- <a href="https://github.com/BaldrVivaldelli/ts-spark-connector">ts-spark-connector</a> - TypeScript client for Spark Connect that builds Spark logical plans in TypeScript and runs them against a Spark Connect server
+
 ## Adding new projects
 
 To add a project, open a pull request against the [spark-website](https://github.com/apache/spark-website)  repository. Add an entry to [this markdown file](https://github.com/apache/spark-website/blob/asf-site/third-party-projects.md) and follow the [README instructions](https://github.com/apache/spark-website#readme) to submit a pull request with your changes.
