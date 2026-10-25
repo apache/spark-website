@@ -210,6 +210,7 @@ Slides, videos and EC2-based exercises from each of these are available online:
 <h3>Hands-On Exercises</h3>
 
 <ul>
+  <li><a href="https://prepare.sh/course/apache-spark-from-zero-to-production-pipelines">Apache Spark: From Zero to Production Pipelines</a> &mdash; a hands-on course by Prepare.sh covering a standalone cluster, DataFrames and Spark SQL, partitions and shuffles, joins, caching, tuning and Structured Streaming. Lessons are free; the hands-on labs run in browser VMs on the paid plan.</li>
   <li><a href="https://spark-summit.org/2014/training">Hands-on exercises from Spark Summit 2014</a>. These let you install Spark on your laptop and learn basic concepts, Spark SQL, Spark Streaming, GraphX and MLlib.</li>
   <li><a href="https://spark-summit.org/2013/exercises/">Hands-on exercises from Spark Summit 2013</a>. These exercises let you launch a small EC2 cluster, load a dataset, and query it with Spark, Shark, Spark Streaming, and MLlib.</li>
 </ul>
