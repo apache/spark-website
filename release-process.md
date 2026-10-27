@@ -139,14 +139,20 @@ To get the code signing key (a.k.a ASCII-armored public key), run the command:
 $ gpg --export --armor 3FF6D044
 ```
 
-And then append the generated key to the KEYS file by:
+And then append the generated key to the staging KEYS file by:
 
 ```
-# Move dev/ to release/ when the voting is completed. See Finalize the Release below
 svn co --depth=files "https://dist.apache.org/repos/dist/dev/spark" svn-spark
 # edit svn-spark/KEYS file
 svn ci --username $ASF_USERNAME --password "$ASF_PASSWORD" -m"Update KEYS"
 ```
+
+Before starting a release vote, check that your signing key is in the
+[release KEYS file](https://downloads.apache.org/spark/KEYS) linked from vote emails.
+If your key is missing, add it to
+[`release/spark/KEYS`](https://dist.apache.org/repos/dist/release/spark/KEYS) if you are a PMC member,
+or ask your PMC shepherd to add it for you.
+Adding the key only to `dev/spark/KEYS` does not update the release copy.
 
 If you want to do the release on another machine, you can transfer your secret key to that machine
 via the `gpg --export-secret-keys` and `gpg --import` commands.
