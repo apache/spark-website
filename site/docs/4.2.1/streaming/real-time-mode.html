@@ -1,0 +1,947 @@
+
+
+
+
+<!DOCTYPE html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>Structured Streaming Programming Guide - Spark 4.2.1 Documentation</title>
+        
+
+        
+
+
+        <link rel="stylesheet" href="../css/bootstrap.min.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+        <link href="../css/custom.css" rel="stylesheet">
+        <script src="../js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+
+        <link rel="stylesheet" href="../css/pygments-default.css">
+        <link rel="stylesheet" href="../css/docsearch.min.css" />
+        <link rel="stylesheet" href="../css/docsearch.css">
+
+        
+        <!-- Matomo -->
+        <script>
+            var _paq = window._paq = window._paq || [];
+            /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+            _paq.push(["disableCookies"]);
+            _paq.push(['trackPageView']);
+            _paq.push(['enableLinkTracking']);
+            (function() {
+              var u="https://analytics.apache.org/";
+              _paq.push(['setTrackerUrl', u+'matomo.php']);
+              _paq.push(['setSiteId', '40']);
+              var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+              g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+            })();
+        </script>
+        <!-- End Matomo Code -->
+        
+
+    </head>
+    <body class="global">
+        <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
+        <nav class="navbar navbar-expand-lg navbar-dark p-0 px-4 fixed-top" style="background: #1d6890;" id="topbar">
+            <div class="navbar-brand"><a href="../index.html">
+                <img src="https://spark.apache.org/images/spark-logo-rev.svg" width="141" height="72"/></a><span class="version">4.2.1</span>
+            </div>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarCollapse" aria-controls="navbarCollapse"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a href="../index.html" class="nav-link">Overview</a></li>
+
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" id="navbarQuickStart" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Programming Guides</a>
+                        <div class="dropdown-menu" aria-labelledby="navbarQuickStart">
+                            <a class="dropdown-item" href="../quick-start.html">Quick Start</a>
+                            <a class="dropdown-item" href="../rdd-programming-guide.html">RDDs, Accumulators, Broadcasts Vars</a>
+                            <a class="dropdown-item" href="../sql-programming-guide.html">SQL, DataFrames, and Datasets</a>
+                            <a class="dropdown-item" href="../streaming/index.html">Structured Streaming</a>
+                            <a class="dropdown-item" href="../streaming-programming-guide.html">Spark Streaming (DStreams)</a>
+                            <a class="dropdown-item" href="../ml-guide.html">MLlib (Machine Learning)</a>
+                            <a class="dropdown-item" href="../graphx-programming-guide.html">GraphX (Graph Processing)</a>
+                            <a class="dropdown-item" href="../sparkr.html">SparkR (R on Spark)</a>
+                            <a class="dropdown-item" href="../api/python/getting_started/index.html">PySpark (Python on Spark)</a>
+                            <a class="dropdown-item" href="../declarative-pipelines-programming-guide.html">Declarative Pipelines</a>
+                        </div>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" id="navbarAPIDocs" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">API Docs</a>
+                        <div class="dropdown-menu" aria-labelledby="navbarAPIDocs">
+                            <a class="dropdown-item" href="../api/python/index.html">Python</a>
+                            <a class="dropdown-item" href="../api/scala/org/apache/spark/index.html">Scala</a>
+                            <a class="dropdown-item" href="../api/java/index.html">Java</a>
+                            <a class="dropdown-item" href="../api/R/index.html">R</a>
+                            <a class="dropdown-item" href="../api/sql/index.html">SQL, Built-in Functions</a>
+                        </div>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" id="navbarDeploying" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Deploying</a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDeploying">
+                            <a class="dropdown-item" href="../cluster-overview.html">Overview</a>
+                            <a class="dropdown-item" href="../submitting-applications.html">Submitting Applications</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="../spark-standalone.html">Spark Standalone</a>
+                            <a class="dropdown-item" href="../running-on-yarn.html">YARN</a>
+                            <a class="dropdown-item" href="../running-on-kubernetes.html">Kubernetes</a>
+                        </div>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" id="navbarMore" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More</a>
+                        <div class="dropdown-menu" aria-labelledby="navbarMore">
+                            <a class="dropdown-item" href="../configuration.html">Configuration</a>
+                            <a class="dropdown-item" href="../monitoring.html">Monitoring</a>
+                            <a class="dropdown-item" href="../tuning.html">Tuning Guide</a>
+                            <a class="dropdown-item" href="../job-scheduling.html">Job Scheduling</a>
+                            <a class="dropdown-item" href="../security.html">Security</a>
+                            <a class="dropdown-item" href="../hardware-provisioning.html">Hardware Provisioning</a>
+                            <a class="dropdown-item" href="../migration-guide.html">Migration Guide</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="../building-spark.html">Building Spark</a>
+                            <a class="dropdown-item" href="https://spark.apache.org/contributing.html">Contributing to Spark</a>
+                            <a class="dropdown-item" href="https://spark.apache.org/third-party-projects.html">Third Party Projects</a>
+                        </div>
+                    </li>
+
+                    <li class="nav-item">
+                        <input type="text" id="docsearch-input" placeholder="Search the docs…">
+                    </li>
+                </ul>
+                <!--<span class="navbar-text navbar-right"><span class="version-text">v4.2.1</span></span>-->
+            </div>
+        </nav>
+
+        
+
+        <div class="container">
+            
+                
+                    
+<div class="left-menu-wrapper">
+    <div class="left-menu">
+        <h3><a href="../streaming/index.html">Structured Streaming Programming Guide</a></h3>
+        
+<ul>
+
+    <li>
+        <a href="../streaming/index.html">
+            
+                Overview
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="../streaming/getting-started.html">
+            
+                Getting Started
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="../streaming/apis-on-dataframes-and-datasets.html">
+            
+                APIs on DataFrames and Datasets
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="../streaming/real-time-mode.html">
+            
+                Real-time Mode
+            
+        </a>
+    </li>
+    
+    
+        
+<ul>
+
+    <li>
+        <a href="../streaming/real-time-mode.html#how-real-time-mode-works">
+            
+                How Real-time Mode Works
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="../streaming/real-time-mode.html#batch-duration-is-a-checkpoint-interval">
+            
+                Batch Duration Is a Checkpoint Interval
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="../streaming/real-time-mode.html#comparison-with-other-modes">
+            
+                Comparison with Other Modes
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="../streaming/real-time-mode.html#enabling-real-time-mode">
+            
+                Enabling Real-time Mode
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="../streaming/real-time-mode.html#supported-queries">
+            
+                Supported Queries
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="../streaming/real-time-mode.html#fault-tolerance">
+            
+                Fault Tolerance
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="../streaming/real-time-mode.html#examples">
+            
+                Examples
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="../streaming/real-time-mode.html#configuration">
+            
+                Configuration
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="../streaming/real-time-mode.html#best-practices">
+            
+                Best Practices
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="../streaming/real-time-mode.html#caveats">
+            
+                Caveats
+            
+        </a>
+    </li>
+    
+    
+
+</ul>
+
+    
+
+    <li>
+        <a href="../streaming/performance-tips.html">
+            
+                Performance Tips
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="../streaming/additional-information.html">
+            
+                Additional Information
+            
+        </a>
+    </li>
+    
+    
+
+</ul>
+
+    </div>
+</div>
+
+                
+                <input id="nav-trigger" class="nav-trigger" checked type="checkbox">
+                <label for="nav-trigger"></label>
+                <div class="content-with-sidebar mr-3" id="content">
+                    
+                        <h1 class="title">Structured Streaming Programming Guide</h1>
+                    
+
+                    <ul id="markdown-toc">
+  <li><a href="#real-time-mode" id="markdown-toc-real-time-mode">Real-time Mode</a>    <ul>
+      <li><a href="#how-real-time-mode-works" id="markdown-toc-how-real-time-mode-works">How Real-time Mode Works</a></li>
+      <li><a href="#batch-duration-is-a-checkpoint-interval" id="markdown-toc-batch-duration-is-a-checkpoint-interval">Batch Duration Is a Checkpoint Interval</a></li>
+      <li><a href="#comparison-with-other-modes" id="markdown-toc-comparison-with-other-modes">Comparison with Other Modes</a></li>
+      <li><a href="#enabling-real-time-mode" id="markdown-toc-enabling-real-time-mode">Enabling Real-time Mode</a>        <ul>
+          <li><a href="#trigger-api" id="markdown-toc-trigger-api">Trigger API</a></li>
+          <li><a href="#requirements" id="markdown-toc-requirements">Requirements</a></li>
+        </ul>
+      </li>
+      <li><a href="#supported-queries" id="markdown-toc-supported-queries">Supported Queries</a>        <ul>
+          <li><a href="#not-supported" id="markdown-toc-not-supported">Not supported</a></li>
+        </ul>
+      </li>
+      <li><a href="#fault-tolerance" id="markdown-toc-fault-tolerance">Fault Tolerance</a></li>
+      <li><a href="#examples" id="markdown-toc-examples">Examples</a>        <ul>
+          <li><a href="#stream-static-join" id="markdown-toc-stream-static-join">Stream-static join</a></li>
+          <li><a href="#writing-to-the-console-for-development" id="markdown-toc-writing-to-the-console-for-development">Writing to the console for development</a></li>
+        </ul>
+      </li>
+      <li><a href="#configuration" id="markdown-toc-configuration">Configuration</a></li>
+      <li><a href="#best-practices" id="markdown-toc-best-practices">Best Practices</a></li>
+      <li><a href="#caveats" id="markdown-toc-caveats">Caveats</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="real-time-mode">Real-time Mode</h1>
+
+<p><strong>Real-time Mode</strong> is a new streaming execution mode introduced in Spark 4.1.0 that
+targets ultra-low end-to-end latency with the exact same API and processing guarantees / semantics as the current structured streaming engine.
+It is intended for operational workloads
+that must react to data the moment it arrives, such as fraud detection, real-time alerting, and live
+personalization.</p>
+
+<p>In this release, Real-time Mode in Apache Spark supports <strong>stateless queries</strong> only &#8211; projections,
+filters and other map-like operations, unions, and stream-static joins. Stateful operations such as
+streaming aggregations, deduplication, stream-stream joins, and <code class="language-plaintext highlighter-rouge">transformWithState</code> are not yet
+supported, but support for them is planned starting in Spark 4.3. See
+<a href="#supported-queries">Supported Queries</a> for the full list.</p>
+
+<p>The most important thing to know: <strong>the duration you pass to the trigger (default 5 minutes) is a
+checkpoint interval, not a latency target.</strong> Records are processed and emitted continuously rather
+than at batch boundaries, so the trigger duration does not set latency the way a micro-batch interval does. See
+<a href="#batch-duration-is-a-checkpoint-interval">Batch Duration Is a Checkpoint Interval</a>.</p>
+
+<p>You enable Real-time Mode by setting a Real-time trigger on the streaming write; the rest of your
+query is unchanged. See <a href="#enabling-real-time-mode">Enabling Real-time Mode</a>.</p>
+
+<h2 id="how-real-time-mode-works">How Real-time Mode Works</h2>
+
+<p>By default, Structured Streaming runs a query as a series of small batch jobs &#8211; the <em>micro-batch</em>
+model. For each micro-batch, the driver plans the batch and launches a fresh set of short-lived
+tasks. Those tasks read and process a bounded slice of the input, and the driver commits progress
+before planning the next batch. The fixed per-batch planning and task-scheduling overhead places a
+floor on end-to-end latency.</p>
+
+<p>Real-time Mode removes this per-batch overhead by launching <strong>long-running tasks</strong> &#8211; one per input
+partition. These tasks stay alive for the duration of a (long) batch and process records
+continuously as they arrive. Because tasks are scheduled once per batch rather than once per slice
+of data, records flow through the operator pipeline (source -&gt; transformations -&gt; sink) without
+waiting for a batch boundary. End-to-end latency drops from the ~100 ms micro-batch floor to roughly
+the time needed to process and ship one record (often a few milliseconds).</p>
+
+<p>Since records never wait for a batch boundary, the batch duration mainly controls how often the
+query checkpoints progress &#8211; as the next section explains.</p>
+
+<h2 id="batch-duration-is-a-checkpoint-interval">Batch Duration Is a Checkpoint Interval</h2>
+
+<p>In Real-time Mode, the batch duration is a <strong>checkpoint interval, not a latency interval.</strong> With the
+default 5-minute duration, the query still emits records within milliseconds; the 5 minutes only
+controls how often it commits progress and starts the next long-running batch. This is the opposite
+of the micro-batch engine, where a longer batch interval directly increases latency.</p>
+
+<p>Do not confuse the 5-minute default trigger duration with the 5-second minimum allowed duration
+described under <a href="#requirements">Requirements</a>: the former is the checkpoint cadence used when you do
+not specify a duration, while the latter is the smallest duration you are allowed to set.</p>
+
+<p>Choosing the batch duration is a trade-off:</p>
+
+<ul>
+  <li>A <em>shorter</em> batch duration checkpoints more often, giving finer-grained recovery (less work to
+re-process after a failure). However, the query does not process data while it commits progress
+and starts the next batch, so checkpointing too frequently adds more of these gaps, which can
+raise tail (p99) latency, in addition to incurring more planning and commit overhead.</li>
+  <li>A <em>longer</em> batch duration checkpoints less often, reducing that overhead and those gaps, at the
+cost of coarser-grained recovery (more data re-processed after a failure).</li>
+</ul>
+
+<p>The duration is set on the Real-time trigger, as shown under
+<a href="#enabling-real-time-mode">Enabling Real-time Mode</a>.</p>
+
+<h2 id="comparison-with-other-modes">Comparison with Other Modes</h2>
+
+<p>The table below summarizes how Real-time Mode relates to the default micro-batch engine and to the
+experimental <a href="./performance-tips.html#continuous-processing">Continuous Processing</a> mode. See
+<a href="#how-real-time-mode-works">How Real-time Mode Works</a> for the mechanism and
+<a href="#supported-queries">Supported Queries</a> for the full list of supported operations.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Mode</th>
+      <th>Latency</th>
+      <th>Processing Guarantees</th>
+      <th>Supported operations</th>
+      <th>When to use</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Micro-batch (default)</td>
+      <td>~100 ms</td>
+      <td>Exactly-once</td>
+      <td>All streaming operations, including stateful</td>
+      <td>Stateful or higher-throughput workloads, or queries Real-time Mode does not yet support</td>
+    </tr>
+    <tr>
+      <td>Real-time Mode</td>
+      <td>millisecond-scale</td>
+      <td>Exactly-once</td>
+      <td>Stateless today (map-like operations, unions, and stream-static joins); designed to support all query shapes, including stateful</td>
+      <td>Low-latency workloads</td>
+    </tr>
+    <tr>
+      <td>Continuous Processing (experimental)</td>
+      <td>~1 ms</td>
+      <td>At-least-once</td>
+      <td>Map-like only (projections and selections); no stateful operations</td>
+      <td>Legacy; use Real-time Mode instead</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The <strong>Processing Guarantees</strong> column refers to processing semantics, defined under
+<a href="#fault-tolerance">Fault Tolerance</a>; end-to-end delivery additionally depends on the sink and is
+independent of the execution mode.</p>
+
+<p>Real-time Mode and Continuous Processing both target millisecond-scale latency, but they differ
+substantially:</p>
+
+<ul>
+  <li><strong>Continuous Processing</strong> (introduced in Spark 2.3) is, and remains, experimental. It supports
+only map-like operations &#8211; projections and selections &#8211; with no stateful operations such as
+aggregations or joins, and it provides at-least-once guarantees. Because it is stateless, the
+exactly-once <em>processing</em> guarantee discussed under <a href="#fault-tolerance">Fault Tolerance</a> does not
+apply to it. These constraints have limited its adoption.</li>
+  <li><strong>Real-time Mode</strong> is designed to support all query shapes, including stateful operations, while
+reusing Spark&#8217;s mature components such as state management, the Catalyst optimizer, and the
+existing SQL operators. It provides exactly-once processing semantics. It currently supports
+stateless queries, with stateful support planned starting in Spark 4.3.</li>
+</ul>
+
+<p>For new low-latency workloads, prefer Real-time Mode over Continuous Processing.</p>
+
+<h2 id="enabling-real-time-mode">Enabling Real-time Mode</h2>
+
+<p>To run a supported query in Real-time Mode, set a <strong>Real-time trigger</strong> on the streaming write.
+Everything else in the query stays the same. For example, the following query reads from a Kafka
+topic, applies a stateless transformation, and writes the result to another Kafka topic. Records
+flow through with low latency even though the trigger is 5 minutes.</p>
+
+<div class="codetabs">
+
+<div data-lang="python">
+
+    <figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">spark</span> \
+  <span class="p">.</span><span class="n">readStream</span> \
+  <span class="p">.</span><span class="nf">format</span><span class="p">(</span><span class="sh">"</span><span class="s">kafka</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">option</span><span class="p">(</span><span class="sh">"</span><span class="s">kafka.bootstrap.servers</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">host1:port1,host2:port2</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">option</span><span class="p">(</span><span class="sh">"</span><span class="s">subscribe</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">input-topic</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">load</span><span class="p">()</span> \
+  <span class="p">.</span><span class="nf">selectExpr</span><span class="p">(</span><span class="sh">"</span><span class="s">CAST(key AS STRING)</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">CAST(value AS STRING)</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="n">writeStream</span> \
+  <span class="p">.</span><span class="nf">format</span><span class="p">(</span><span class="sh">"</span><span class="s">kafka</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">option</span><span class="p">(</span><span class="sh">"</span><span class="s">kafka.bootstrap.servers</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">host1:port1,host2:port2</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">option</span><span class="p">(</span><span class="sh">"</span><span class="s">topic</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">output-topic</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">option</span><span class="p">(</span><span class="sh">"</span><span class="s">checkpointLocation</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">/path/to/checkpoint</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">outputMode</span><span class="p">(</span><span class="sh">"</span><span class="s">update</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">trigger</span><span class="p">(</span><span class="n">realTime</span><span class="o">=</span><span class="sh">"</span><span class="s">5 minutes</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">start</span><span class="p">()</span></code></pre></figure>
+
+  </div>
+
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">import</span> <span class="nn">org.apache.spark.sql.streaming.Trigger</span>
+
+<span class="n">spark</span>
+  <span class="o">.</span><span class="py">readStream</span>
+  <span class="o">.</span><span class="py">format</span><span class="o">(</span><span class="s">"kafka"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">option</span><span class="o">(</span><span class="s">"kafka.bootstrap.servers"</span><span class="o">,</span> <span class="s">"host1:port1,host2:port2"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">option</span><span class="o">(</span><span class="s">"subscribe"</span><span class="o">,</span> <span class="s">"input-topic"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">load</span><span class="o">()</span>
+  <span class="o">.</span><span class="py">selectExpr</span><span class="o">(</span><span class="s">"CAST(key AS STRING)"</span><span class="o">,</span> <span class="s">"CAST(value AS STRING)"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">writeStream</span>
+  <span class="o">.</span><span class="py">format</span><span class="o">(</span><span class="s">"kafka"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">option</span><span class="o">(</span><span class="s">"kafka.bootstrap.servers"</span><span class="o">,</span> <span class="s">"host1:port1,host2:port2"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">option</span><span class="o">(</span><span class="s">"topic"</span><span class="o">,</span> <span class="s">"output-topic"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">option</span><span class="o">(</span><span class="s">"checkpointLocation"</span><span class="o">,</span> <span class="s">"/path/to/checkpoint"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">outputMode</span><span class="o">(</span><span class="s">"update"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">trigger</span><span class="o">(</span><span class="nv">Trigger</span><span class="o">.</span><span class="py">RealTime</span><span class="o">(</span><span class="s">"5 minutes"</span><span class="o">))</span>  <span class="c1">// enable Real-time Mode</span>
+  <span class="o">.</span><span class="py">start</span><span class="o">()</span></code></pre></figure>
+
+  </div>
+
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kn">import</span> <span class="nn">org.apache.spark.sql.streaming.Trigger</span><span class="o">;</span>
+
+<span class="n">spark</span>
+  <span class="o">.</span><span class="na">readStream</span>
+  <span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">"kafka"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">"kafka.bootstrap.servers"</span><span class="o">,</span> <span class="s">"host1:port1,host2:port2"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">"subscribe"</span><span class="o">,</span> <span class="s">"input-topic"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">load</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">selectExpr</span><span class="o">(</span><span class="s">"CAST(key AS STRING)"</span><span class="o">,</span> <span class="s">"CAST(value AS STRING)"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">writeStream</span>
+  <span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">"kafka"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">"kafka.bootstrap.servers"</span><span class="o">,</span> <span class="s">"host1:port1,host2:port2"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">"topic"</span><span class="o">,</span> <span class="s">"output-topic"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">"checkpointLocation"</span><span class="o">,</span> <span class="s">"/path/to/checkpoint"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">outputMode</span><span class="o">(</span><span class="s">"update"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">trigger</span><span class="o">(</span><span class="nc">Trigger</span><span class="o">.</span><span class="na">RealTime</span><span class="o">(</span><span class="s">"5 minutes"</span><span class="o">))</span>  <span class="c1">// enable Real-time Mode</span>
+  <span class="o">.</span><span class="na">start</span><span class="o">();</span></code></pre></figure>
+
+  </div>
+
+</div>
+
+<h3 id="trigger-api">Trigger API</h3>
+
+<ul>
+  <li><em>Scala and Java</em>: the trigger is <code class="language-plaintext highlighter-rouge">Trigger.RealTime(...)</code>, imported from
+<code class="language-plaintext highlighter-rouge">org.apache.spark.sql.streaming.Trigger</code>. Several forms are available:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">Trigger.RealTime()</code> &#8211; uses the default batch duration of 5 minutes.</li>
+      <li><code class="language-plaintext highlighter-rouge">Trigger.RealTime("5 minutes")</code> &#8211; a duration string.</li>
+      <li><code class="language-plaintext highlighter-rouge">Trigger.RealTime(300000)</code> &#8211; the batch duration in milliseconds, as a <code class="language-plaintext highlighter-rouge">long</code>.</li>
+      <li><code class="language-plaintext highlighter-rouge">Trigger.RealTime(5, TimeUnit.MINUTES)</code> &#8211; a value together with a
+<code class="language-plaintext highlighter-rouge">java.util.concurrent.TimeUnit</code>.</li>
+      <li><code class="language-plaintext highlighter-rouge">Trigger.RealTime(Duration("10 seconds"))</code> &#8211; a Scala <code class="language-plaintext highlighter-rouge">scala.concurrent.duration.Duration</code>.</li>
+    </ul>
+  </li>
+  <li><em>Python</em>: pass the batch duration as a string to the <code class="language-plaintext highlighter-rouge">realTime</code> keyword argument of <code class="language-plaintext highlighter-rouge">trigger()</code>,
+for example <code class="language-plaintext highlighter-rouge">.trigger(realTime="5 minutes")</code>. The duration is required in Python.</li>
+</ul>
+
+<h3 id="requirements">Requirements</h3>
+
+<p>A query must satisfy all of the following before it can start in Real-time Mode; each is checked when
+the query starts:</p>
+
+<ul>
+  <li>The output mode must be <code class="language-plaintext highlighter-rouge">update</code>. Any other output mode fails to start with
+<code class="language-plaintext highlighter-rouge">STREAMING_REAL_TIME_MODE.OUTPUT_MODE_NOT_SUPPORTED</code>.</li>
+  <li>A <code class="language-plaintext highlighter-rouge">checkpointLocation</code> is required, as with any other Structured Streaming query.</li>
+  <li>The batch duration must be at least <code class="language-plaintext highlighter-rouge">spark.sql.streaming.realTimeMode.minBatchDuration</code>
+(5000 ms, i.e. 5 seconds, by default); a shorter interval fails to start with
+<code class="language-plaintext highlighter-rouge">INVALID_STREAMING_REAL_TIME_MODE_TRIGGER_INTERVAL</code>. The duration string must parse to a positive
+interval, and month-based intervals (for example, <code class="language-plaintext highlighter-rouge">"1 month"</code>) are not accepted. (This 5-second
+minimum is distinct from the 5-minute default; see
+<a href="#batch-duration-is-a-checkpoint-interval">Batch Duration Is a Checkpoint Interval</a>.)</li>
+</ul>
+
+<h2 id="supported-queries">Supported Queries</h2>
+
+<p>Real-time Mode supports stateless, map-like queries only.</p>
+
+<p>The following operations, sources, and sinks are supported as of Spark 4.1.0:</p>
+
+<ul>
+  <li><em>Operations</em>: stateless, map-like operations are supported:
+    <ul>
+      <li>Projections: <code class="language-plaintext highlighter-rouge">select</code>, <code class="language-plaintext highlighter-rouge">selectExpr</code>, <code class="language-plaintext highlighter-rouge">withColumn</code>, <code class="language-plaintext highlighter-rouge">drop</code>, and the typed <code class="language-plaintext highlighter-rouge">map</code> / <code class="language-plaintext highlighter-rouge">flatMap</code> Dataset operations.</li>
+      <li>Selections: <code class="language-plaintext highlighter-rouge">where</code> / <code class="language-plaintext highlighter-rouge">filter</code>.</li>
+      <li>Expressions that compile to a projection &#8211; including functions such as <code class="language-plaintext highlighter-rouge">from_json</code> / <code class="language-plaintext highlighter-rouge">to_json</code>
+and scalar user-defined functions (UDFs).</li>
+      <li>Column generators such as <code class="language-plaintext highlighter-rouge">explode</code>.</li>
+      <li><code class="language-plaintext highlighter-rouge">union</code> of two or more <em>distinct</em> streaming sources. Referencing the same source DataFrame more
+than once is not supported and fails with
+<code class="language-plaintext highlighter-rouge">STREAMING_REAL_TIME_MODE.IDENTICAL_SOURCES_IN_UNION_NOT_SUPPORTED</code>; create a separate DataFrame
+for each source instead.</li>
+      <li>Stream-static joins, where a streaming DataFrame is joined with a static DataFrame. The static
+side must be broadcast (use the <code class="language-plaintext highlighter-rouge">broadcast(...)</code> hint), because Real-time Mode does not support
+shuffles.</li>
+      <li><code class="language-plaintext highlighter-rouge">withWatermark</code> (event-time watermark declaration) is allowed, although it has no effect because
+stateful operators are not supported. This lets queries that already declare a watermark run in
+Real-time Mode without modification.</li>
+    </ul>
+  </li>
+  <li>
+    <p><em>Sources</em>: the source must support Real-time Mode. In Apache Spark, the <strong>Kafka</strong> source supports
+Real-time Mode. An unsupported source fails with
+<code class="language-plaintext highlighter-rouge">STREAMING_REAL_TIME_MODE.INPUT_STREAM_NOT_SUPPORTED</code>. (The built-in <code class="language-plaintext highlighter-rouge">rate</code> source is not supported
+as a Real-time source.)</p>
+  </li>
+  <li><em>Sinks</em>:
+    <ul>
+      <li><strong>Kafka</strong> sink.</li>
+      <li><strong>Foreach</strong> sink (via <code class="language-plaintext highlighter-rouge">ForeachWriter</code>), for writing to arbitrary external systems one record at
+a time. See <a href="./apis-on-dataframes-and-datasets.html#using-foreach-and-foreachbatch">Using Foreach</a>.
+Note that <code class="language-plaintext highlighter-rouge">foreachBatch</code> is <em>not</em> supported, because it processes each batch as a whole rather
+than one record at a time.</li>
+      <li><strong>Console</strong> and <strong>memory</strong> sinks, which are useful for development and debugging.</li>
+    </ul>
+
+    <p>Other sinks fail with <code class="language-plaintext highlighter-rouge">STREAMING_REAL_TIME_MODE.SINK_NOT_SUPPORTED</code>.</p>
+  </li>
+</ul>
+
+<p>The operators and sinks used by a Real-time query are checked against an allowlist before the query
+starts; anything outside the allowlist fails with
+<code class="language-plaintext highlighter-rouge">STREAMING_REAL_TIME_MODE.OPERATOR_OR_SINK_NOT_IN_ALLOWLIST</code>.</p>
+
+<h3 id="not-supported">Not supported</h3>
+
+<p>Stateful operations of any kind are not supported in this release. This includes streaming
+aggregations, <code class="language-plaintext highlighter-rouge">dropDuplicates</code> / <code class="language-plaintext highlighter-rouge">dropDuplicatesWithinWatermark</code>, stream-stream joins, <code class="language-plaintext highlighter-rouge">repartition</code>
+and other operations that introduce a shuffle, and stateful operators such as
+<code class="language-plaintext highlighter-rouge">flatMapGroupsWithState</code> and <code class="language-plaintext highlighter-rouge">transformWithState</code>. Support for stateful operations is planned
+starting in Spark 4.3. Asynchronous progress tracking is also not supported; enabling it fails with
+<code class="language-plaintext highlighter-rouge">STREAMING_REAL_TIME_MODE.ASYNC_PROGRESS_TRACKING_NOT_SUPPORTED</code>.</p>
+
+<h2 id="fault-tolerance">Fault Tolerance</h2>
+
+<p>Real-time Mode provides the same <strong>exactly-once processing</strong> guarantees as the default micro-batch
+engine. Two distinct guarantees are worth separating:</p>
+
+<ul>
+  <li><strong>Exactly-once processing</strong> means every input record&#8217;s effect on the state the engine manages (for
+example, aggregation counts) is applied effectively once, even across failures and restarts.</li>
+  <li><strong>Delivery semantics</strong> describe whether a record may be written to the external system more than
+once. This is a property of the <strong>sink</strong>, not the execution mode.</li>
+</ul>
+
+<p>Real-time Mode is exactly-once with respect to processing. End-to-end delivery depends on the sink: a
+sink that performs idempotent or transactional writes can deliver <strong>exactly-once</strong>, while other sinks
+deliver <strong>at-least-once</strong> (duplicates are possible after a failure). The built-in Kafka sink provides
+at-least-once delivery, with or without Real-time Mode. Real-time Mode does not yet ship an
+exactly-once sink, though one can be implemented.</p>
+
+<p>Internally, offsets are committed at the <em>end</em> of each batch, after the corresponding records have
+already been written to the sink. If a query fails partway through a batch, it resumes from the last
+committed offsets on restart and may re-write records emitted before the failure. Design sinks to
+tolerate duplicates &#8211; for example, with idempotent writes &#8211; where exactly-once output matters.</p>
+
+<h2 id="examples">Examples</h2>
+
+<p>The following examples read from Kafka and assume a running Kafka cluster. Each example shows the
+same query in Python, Scala, and Java.</p>
+
+<h3 id="stream-static-join">Stream-static join</h3>
+
+<p>Enrich a stream by joining it with a static reference dataset. The static side is wrapped in
+<code class="language-plaintext highlighter-rouge">broadcast(...)</code> so the join is executed as a broadcast (map-side) join, which avoids a shuffle.</p>
+
+<div class="codetabs">
+
+<div data-lang="python">
+
+    <figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="kn">from</span> <span class="n">pyspark.sql.functions</span> <span class="kn">import</span> <span class="n">broadcast</span>
+
+<span class="c1"># Static reference data, read once as a batch DataFrame.
+</span><span class="n">reference</span> <span class="o">=</span> <span class="n">spark</span><span class="p">.</span><span class="n">read</span><span class="p">.</span><span class="nf">format</span><span class="p">(</span><span class="sh">"</span><span class="s">parquet</span><span class="sh">"</span><span class="p">).</span><span class="nf">load</span><span class="p">(</span><span class="sh">"</span><span class="s">/path/to/reference</span><span class="sh">"</span><span class="p">)</span>
+
+<span class="n">spark</span> \
+  <span class="p">.</span><span class="n">readStream</span> \
+  <span class="p">.</span><span class="nf">format</span><span class="p">(</span><span class="sh">"</span><span class="s">kafka</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">option</span><span class="p">(</span><span class="sh">"</span><span class="s">kafka.bootstrap.servers</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">host1:port1,host2:port2</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">option</span><span class="p">(</span><span class="sh">"</span><span class="s">subscribe</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">input-topic</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">load</span><span class="p">()</span> \
+  <span class="p">.</span><span class="nf">selectExpr</span><span class="p">(</span><span class="sh">"</span><span class="s">CAST(key AS STRING) AS joinKey</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">CAST(value AS STRING) AS value</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">join</span><span class="p">(</span><span class="nf">broadcast</span><span class="p">(</span><span class="n">reference</span><span class="p">),</span> <span class="sh">"</span><span class="s">joinKey</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="n">writeStream</span> \
+  <span class="p">.</span><span class="nf">format</span><span class="p">(</span><span class="sh">"</span><span class="s">kafka</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">option</span><span class="p">(</span><span class="sh">"</span><span class="s">kafka.bootstrap.servers</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">host1:port1,host2:port2</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">option</span><span class="p">(</span><span class="sh">"</span><span class="s">topic</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">output-topic</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">option</span><span class="p">(</span><span class="sh">"</span><span class="s">checkpointLocation</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">/path/to/checkpoint</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">outputMode</span><span class="p">(</span><span class="sh">"</span><span class="s">update</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">trigger</span><span class="p">(</span><span class="n">realTime</span><span class="o">=</span><span class="sh">"</span><span class="s">5 minutes</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">start</span><span class="p">()</span></code></pre></figure>
+
+  </div>
+
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">import</span> <span class="nn">org.apache.spark.sql.functions.broadcast</span>
+<span class="k">import</span> <span class="nn">org.apache.spark.sql.streaming.Trigger</span>
+
+<span class="c1">// Static reference data, read once as a batch DataFrame.</span>
+<span class="k">val</span> <span class="nv">reference</span> <span class="k">=</span> <span class="nv">spark</span><span class="o">.</span><span class="py">read</span><span class="o">.</span><span class="py">format</span><span class="o">(</span><span class="s">"parquet"</span><span class="o">).</span><span class="py">load</span><span class="o">(</span><span class="s">"/path/to/reference"</span><span class="o">)</span>
+
+<span class="n">spark</span>
+  <span class="o">.</span><span class="py">readStream</span>
+  <span class="o">.</span><span class="py">format</span><span class="o">(</span><span class="s">"kafka"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">option</span><span class="o">(</span><span class="s">"kafka.bootstrap.servers"</span><span class="o">,</span> <span class="s">"host1:port1,host2:port2"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">option</span><span class="o">(</span><span class="s">"subscribe"</span><span class="o">,</span> <span class="s">"input-topic"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">load</span><span class="o">()</span>
+  <span class="o">.</span><span class="py">selectExpr</span><span class="o">(</span><span class="s">"CAST(key AS STRING) AS joinKey"</span><span class="o">,</span> <span class="s">"CAST(value AS STRING) AS value"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">join</span><span class="o">(</span><span class="nf">broadcast</span><span class="o">(</span><span class="n">reference</span><span class="o">),</span> <span class="s">"joinKey"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">writeStream</span>
+  <span class="o">.</span><span class="py">format</span><span class="o">(</span><span class="s">"kafka"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">option</span><span class="o">(</span><span class="s">"kafka.bootstrap.servers"</span><span class="o">,</span> <span class="s">"host1:port1,host2:port2"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">option</span><span class="o">(</span><span class="s">"topic"</span><span class="o">,</span> <span class="s">"output-topic"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">option</span><span class="o">(</span><span class="s">"checkpointLocation"</span><span class="o">,</span> <span class="s">"/path/to/checkpoint"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">outputMode</span><span class="o">(</span><span class="s">"update"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">trigger</span><span class="o">(</span><span class="nv">Trigger</span><span class="o">.</span><span class="py">RealTime</span><span class="o">(</span><span class="s">"5 minutes"</span><span class="o">))</span>
+  <span class="o">.</span><span class="py">start</span><span class="o">()</span></code></pre></figure>
+
+  </div>
+
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kn">import</span> <span class="nn">static</span> <span class="n">org</span><span class="o">.</span><span class="na">apache</span><span class="o">.</span><span class="na">spark</span><span class="o">.</span><span class="na">sql</span><span class="o">.</span><span class="na">functions</span><span class="o">.</span><span class="na">broadcast</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.apache.spark.sql.streaming.Trigger</span><span class="o">;</span>
+
+<span class="c1">// Static reference data, read once as a batch DataFrame.</span>
+<span class="nc">Dataset</span><span class="o">&lt;</span><span class="nc">Row</span><span class="o">&gt;</span> <span class="n">reference</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="na">read</span><span class="o">().</span><span class="na">format</span><span class="o">(</span><span class="s">"parquet"</span><span class="o">).</span><span class="na">load</span><span class="o">(</span><span class="s">"/path/to/reference"</span><span class="o">);</span>
+
+<span class="n">spark</span>
+  <span class="o">.</span><span class="na">readStream</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">"kafka"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">"kafka.bootstrap.servers"</span><span class="o">,</span> <span class="s">"host1:port1,host2:port2"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">"subscribe"</span><span class="o">,</span> <span class="s">"input-topic"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">load</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">selectExpr</span><span class="o">(</span><span class="s">"CAST(key AS STRING) AS joinKey"</span><span class="o">,</span> <span class="s">"CAST(value AS STRING) AS value"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">join</span><span class="o">(</span><span class="n">broadcast</span><span class="o">(</span><span class="n">reference</span><span class="o">),</span> <span class="s">"joinKey"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">writeStream</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">"kafka"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">"kafka.bootstrap.servers"</span><span class="o">,</span> <span class="s">"host1:port1,host2:port2"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">"topic"</span><span class="o">,</span> <span class="s">"output-topic"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">"checkpointLocation"</span><span class="o">,</span> <span class="s">"/path/to/checkpoint"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">outputMode</span><span class="o">(</span><span class="s">"update"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">trigger</span><span class="o">(</span><span class="nc">Trigger</span><span class="o">.</span><span class="na">RealTime</span><span class="o">(</span><span class="s">"5 minutes"</span><span class="o">))</span>
+  <span class="o">.</span><span class="na">start</span><span class="o">();</span></code></pre></figure>
+
+  </div>
+
+</div>
+
+<h3 id="writing-to-the-console-for-development">Writing to the console for development</h3>
+
+<p>The console sink prints output to the driver&#8217;s standard output and is handy while developing a
+query. Note that the console sink buffers each batch&#8217;s rows and prints them when the batch commits,
+so its output appears once per batch &#8211; here, every 30 seconds &#8211; rather than continuously. This
+makes it useful for inspecting results, but it does not reflect Real-time Mode&#8217;s true per-record
+latency; to observe that, use a row-by-row sink such as Kafka. A shorter batch duration simply makes
+the console refresh more often.</p>
+
+<div class="codetabs">
+
+<div data-lang="python">
+
+    <figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">spark</span> \
+  <span class="p">.</span><span class="n">readStream</span> \
+  <span class="p">.</span><span class="nf">format</span><span class="p">(</span><span class="sh">"</span><span class="s">kafka</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">option</span><span class="p">(</span><span class="sh">"</span><span class="s">kafka.bootstrap.servers</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">host1:port1,host2:port2</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">option</span><span class="p">(</span><span class="sh">"</span><span class="s">subscribe</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">input-topic</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">load</span><span class="p">()</span> \
+  <span class="p">.</span><span class="nf">selectExpr</span><span class="p">(</span><span class="sh">"</span><span class="s">CAST(key AS STRING)</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">CAST(value AS STRING)</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">where</span><span class="p">(</span><span class="sh">"</span><span class="s">value IS NOT NULL</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="n">writeStream</span> \
+  <span class="p">.</span><span class="nf">format</span><span class="p">(</span><span class="sh">"</span><span class="s">console</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">option</span><span class="p">(</span><span class="sh">"</span><span class="s">checkpointLocation</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">/path/to/checkpoint</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">outputMode</span><span class="p">(</span><span class="sh">"</span><span class="s">update</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">trigger</span><span class="p">(</span><span class="n">realTime</span><span class="o">=</span><span class="sh">"</span><span class="s">30 seconds</span><span class="sh">"</span><span class="p">)</span> \
+  <span class="p">.</span><span class="nf">start</span><span class="p">()</span></code></pre></figure>
+
+  </div>
+
+<div data-lang="scala">
+
+    <figure class="highlight"><pre><code class="language-scala" data-lang="scala"><span class="k">import</span> <span class="nn">org.apache.spark.sql.streaming.Trigger</span>
+
+<span class="n">spark</span>
+  <span class="o">.</span><span class="py">readStream</span>
+  <span class="o">.</span><span class="py">format</span><span class="o">(</span><span class="s">"kafka"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">option</span><span class="o">(</span><span class="s">"kafka.bootstrap.servers"</span><span class="o">,</span> <span class="s">"host1:port1,host2:port2"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">option</span><span class="o">(</span><span class="s">"subscribe"</span><span class="o">,</span> <span class="s">"input-topic"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">load</span><span class="o">()</span>
+  <span class="o">.</span><span class="py">selectExpr</span><span class="o">(</span><span class="s">"CAST(key AS STRING)"</span><span class="o">,</span> <span class="s">"CAST(value AS STRING)"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">where</span><span class="o">(</span><span class="s">"value IS NOT NULL"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">writeStream</span>
+  <span class="o">.</span><span class="py">format</span><span class="o">(</span><span class="s">"console"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">option</span><span class="o">(</span><span class="s">"checkpointLocation"</span><span class="o">,</span> <span class="s">"/path/to/checkpoint"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">outputMode</span><span class="o">(</span><span class="s">"update"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">trigger</span><span class="o">(</span><span class="nv">Trigger</span><span class="o">.</span><span class="py">RealTime</span><span class="o">(</span><span class="s">"30 seconds"</span><span class="o">))</span>
+  <span class="o">.</span><span class="py">start</span><span class="o">()</span></code></pre></figure>
+
+  </div>
+
+<div data-lang="java">
+
+    <figure class="highlight"><pre><code class="language-java" data-lang="java"><span class="kn">import</span> <span class="nn">org.apache.spark.sql.streaming.Trigger</span><span class="o">;</span>
+
+<span class="n">spark</span>
+  <span class="o">.</span><span class="na">readStream</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">"kafka"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">"kafka.bootstrap.servers"</span><span class="o">,</span> <span class="s">"host1:port1,host2:port2"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">"subscribe"</span><span class="o">,</span> <span class="s">"input-topic"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">load</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">selectExpr</span><span class="o">(</span><span class="s">"CAST(key AS STRING)"</span><span class="o">,</span> <span class="s">"CAST(value AS STRING)"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">where</span><span class="o">(</span><span class="s">"value IS NOT NULL"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">writeStream</span><span class="o">()</span>
+  <span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">"console"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">option</span><span class="o">(</span><span class="s">"checkpointLocation"</span><span class="o">,</span> <span class="s">"/path/to/checkpoint"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">outputMode</span><span class="o">(</span><span class="s">"update"</span><span class="o">)</span>
+  <span class="o">.</span><span class="na">trigger</span><span class="o">(</span><span class="nc">Trigger</span><span class="o">.</span><span class="na">RealTime</span><span class="o">(</span><span class="s">"30 seconds"</span><span class="o">))</span>
+  <span class="o">.</span><span class="na">start</span><span class="o">();</span></code></pre></figure>
+
+  </div>
+
+</div>
+
+<h2 id="configuration">Configuration</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Configuration</th>
+      <th>Default</th>
+      <th>Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">spark.sql.streaming.realTimeMode.minBatchDuration</code></td>
+      <td><code class="language-plaintext highlighter-rouge">5000</code> (ms, 5 seconds)</td>
+      <td>The minimum batch duration, in milliseconds, allowed for a Real-time trigger. See the batch-duration requirement under <a href="#requirements">Requirements</a>.</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">spark.sql.streaming.realTimeMode.allowlistCheck</code></td>
+      <td><code class="language-plaintext highlighter-rouge">true</code></td>
+      <td>Whether to verify that all operators and sinks used by a Real-time query are in the supported allowlist. Disabling this check (not recommended) lets unsupported operators and sinks run at your own risk.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="best-practices">Best Practices</h2>
+
+<ul>
+  <li>Real-time Mode launches long-running tasks &#8211; one per input partition &#8211; that continuously read,
+process, and write data. The number of tasks a query needs depends on how many partitions it reads
+from its sources in parallel. Before starting a Real-time query, ensure the cluster has enough
+cores to run all of these tasks simultaneously and continuously. For example, reading from a Kafka
+topic with 10 partitions requires at least 10 cores for the query to make progress. Real-time Mode
+uses a fixed 1:1 mapping between Kafka topic partitions and reader tasks; the <code class="language-plaintext highlighter-rouge">minPartitions</code>
+option is not supported in Real-time Mode.</li>
+  <li>Run a single Real-time query per cluster. Because Real-time Mode holds its task slots for the
+entire batch duration, any other queries sharing the cluster compete for the same slots, which can
+starve the Real-time query of resources and increase its latency.</li>
+</ul>
+
+<h2 id="caveats">Caveats</h2>
+
+<ul>
+  <li>Real-time Mode provides exactly-once processing semantics, but sinks may receive duplicate records
+after a failure. See <a href="#fault-tolerance">Fault Tolerance</a> for how to design sinks for exactly-once
+writes.</li>
+  <li>Adaptive Query Execution (AQE) is not supported for Real-time Mode queries.</li>
+</ul>
+
+
+                </div>
+            
+             <!-- /container -->
+        </div>
+
+        <script src="../js/vendor/jquery.min.js"></script>
+        <script src="../js/vendor/bootstrap.bundle.min.js"></script>
+
+        <script src="../js/vendor/anchor.min.js"></script>
+        <script src="../js/main.js"></script>
+
+        <script type="text/javascript" src="../js/vendor/docsearch.min.js"></script>
+        <script type="text/javascript">
+            // DocSearch is entirely free and automated. DocSearch is built in two parts:
+            // 1. a crawler which we run on our own infrastructure every 24 hours. It follows every link
+            //    in your website and extract content from every page it traverses. It then pushes this
+            //    content to an Algolia index.
+            // 2. a JavaScript snippet to be inserted in your website that will bind this Algolia index
+            //    to your search input and display its results in a dropdown UI. If you want to find more
+            //    details on how works DocSearch, check the docs of DocSearch.
+            docsearch({
+    apiKey: 'd62f962a82bc9abb53471cb7b89da35e',
+    appId: 'RAI69RXRSK',
+    indexName: 'apache_spark',
+    inputSelector: '#docsearch-input',
+    enhancedSearchInput: true,
+    algoliaOptions: {
+      'facetFilters': ["version:latest"]
+    },
+    debug: false // Set debug to true if you want to inspect the dropdown
+});
+
+        </script>
+
+        <!-- MathJax Section -->
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({
+                TeX: { equationNumbers: { autoNumber: "AMS" } }
+            });
+        </script>
+        <script>
+            // Note that we load MathJax this way to work with local file (file://), HTTP and HTTPS.
+            // We could use "//cdn.mathjax...", but that won't support "file://".
+            (function(d, script) {
+                script = d.createElement('script');
+                script.type = 'text/javascript';
+                script.async = true;
+                script.onload = function(){
+                    MathJax.Hub.Config({
+                        tex2jax: {
+                            inlineMath: [ ["$", "$"], ["\\\\(","\\\\)"] ],
+                            displayMath: [ ["$$","$$"], ["\\[", "\\]"] ],
+                            processEscapes: true,
+                            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+                        }
+                    });
+                };
+                script.src = ('https:' == document.location.protocol ? 'https://' : 'http://') +
+                    'cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js' +
+                    '?config=TeX-AMS-MML_HTMLorMML';
+                d.getElementsByTagName('head')[0].appendChild(script);
+            }(document));
+        </script>
+    </body>
+</html>
