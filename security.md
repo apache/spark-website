@@ -54,6 +54,41 @@ internet or untrusted networks. We recommend access within trusted networks (com
 private cloud environments), using restrict access to the Spark cluster with robust authentication, 
 authorization, and network controls.
 
+<h3>I found an exploit, but it requires authentication to be disabled, is that a vulnerability?</h3>
+
+No. Without authentication, anyone who can reach a Spark cluster can already submit and execute arbitrary
+code on it by design (see above), so an exploit that only works with authentication disabled demonstrates
+no additional risk. Such a deployment is inherently insecure, and reports of this kind will be rejected.
+If you believe you have found an issue that works against a cluster with authentication enabled, please
+report it.
+
+<h3>I found an exploit, but it requires knowing the shared secret, is that a vulnerability?</h3>
+
+No. The shared secret (`spark.authenticate.secret`) _is_ the credential: anyone who knows it is already
+authenticated and can submit and execute arbitrary code on the cluster by design (see above). An exploit
+that requires knowing the secret demonstrates no access beyond what the secret already grants, and
+reports of this kind will be rejected. If you have found a way to bypass authentication or recover the
+secret without being given it (see, for example, [CVE-2021-38296](#CVE-2021-38296)), please report it.
+
+<h3 id="spark-connect-user-isolation">I found that one authenticated user can see or act on another user's session in the same driver (for example, via Spark Connect's `user_id` / `session_id`), is that a vulnerability?</h3>
+
+No. Spark does not support isolating users from each other within a single driver. Anyone who holds
+a driver's authentication credential has the same access as anyone else who holds it, including access
+to sessions, jobs, and data belonging to other holders of that same credential. This is the flip side of
+the point above: the credential is what grants access, not the identifiers layered on top of it.
+
+Open-source Spark Connect does not provide user isolation. The `user_id` and `session_id` fields in a
+Spark Connect request are supplied by the client and used to route a request to the right session; they
+are not an authorization boundary between different holders of the same authentication credential.
+A shared token answers "is this caller allowed to talk to this server at all," not "which of the server's
+users is this." If mutually-untrusting users need isolation from each other, give each one their own
+driver, and therefore their own credential, rather than sharing one endpoint and token across them.
+
+Some vendors offer their own isolation or a multi-tenant version of Spark Connect on top of
+open-source Spark. Issues with a vendor's isolation or multi-tenant version should be reported to
+that vendor. The same applies to other projects that add their own per-user isolation (for example,
+Apache Kyuubi): report those to the project.
+
 <h3>Is loading a machine learning model secure? Who is responsible for model security?</h3> 
 
 Loading an Apache Spark ML model is equivalent to loading and executing code within the Spark runtime.
@@ -67,6 +102,24 @@ might execute arbitrary code, access sensitive data, or compromise cluster nodes
 End users must treat Spark ML models with the same level of caution and security scrutiny as any third-party software. 
 This includes verifying the source, validating integrity, and applying appropriate isolation and security controls 
 before loading or deploying a model.
+
+<h3>Is loading a checkpoint secure?</h3>
+
+No, not from an untrusted source. This applies to any kind of Spark checkpoint -- RDD checkpoints,
+Spark Streaming checkpoints, and Structured Streaming checkpoints alike. A checkpoint directory holds
+serialized Spark internals: driver and operator state, and, depending on the job or query, serialized
+closures such as the functions in a DStream graph. Spark deserializes and reconstructs these when it recovers
+from a checkpoint. Recovering from a checkpoint you did not write, or whose storage location is writable
+by someone else, is equivalent to loading and executing arbitrary code within the Spark runtime, for the
+same reasons a Spark ML model is above.
+
+Checkpoints must be trusted: treat a checkpoint location the same way you would treat the credential
+that authenticates to the driver, restrict write access to it accordingly, and do not recover from a
+checkpoint whose provenance or integrity you cannot verify.
+
+<h3>I noticed the Spark server can cause the client to execute code, is that a problem?</h3>
+
+No, this is intentional. The Spark client _must_ trust the server since the results that come back can be of complex types whose deserialization can execute code. The final, smaller parts of a computation sometimes run on the client or driver (depending on the deployment model). This applies to Spark Connect as well: a client must trust the server it connects to.
 
 <h2>Known security issues</h2>
 

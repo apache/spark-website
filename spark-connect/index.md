@@ -136,6 +136,12 @@ Spark JVM does not allow for this debugging experience because it does not fully
 
 Due to the decoupled nature of client applications leveraging Spark Connect, failures of the client are now decoupled from the Spark Driver. This means that when a client application fails, its failure modes are completely independent of the other applications and don’t impact the running Spark Driver that may continue serving other client applications.
 
+## User isolation
+
+Open-source Spark Connect does not isolate users who share a server. Clients that can authenticate to a server share its sessions, jobs, and data. `user_id` and `session_id` route a request to a session; they are not an authorization boundary.
+
+Some vendors offer their own isolation or a multi-tenant version of Spark Connect. Issues with those should be reported to the vendor. See the [Security]({{site.baseurl}}/security.html#spark-connect-user-isolation) page.
+
 ## Upgrading to Spark Connect
 
 Spark Connect does not support all the Spark JVM APIs.  For example, Spark JVM has private methods that some users leverage to execute arbitrary Java code on Spark clusters.  Spark Connect obviously cannot support those methods because the Spark Connect client isn’t necessarily running Java!
