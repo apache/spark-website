@@ -147,11 +147,11 @@ svn co --depth=files "https://dist.apache.org/repos/dist/dev/spark" svn-spark
 svn ci --username $ASF_USERNAME --password "$ASF_PASSWORD" -m"Update KEYS"
 ```
 
-Release vote emails link to the
-[release KEYS file](https://downloads.apache.org/spark/KEYS), so your signing key must also be
-published there before starting a vote. Only PMC members can update
-[`release/spark/KEYS`](https://dist.apache.org/repos/dist/release/spark/KEYS). If you are a
-committer who is not a PMC member, ask your PMC shepherd to add your key to that file.
+Before starting a release vote, check that your signing key is in the
+[release KEYS file](https://downloads.apache.org/spark/KEYS) linked from vote emails.
+If your key is missing, add it to
+[`release/spark/KEYS`](https://dist.apache.org/repos/dist/release/spark/KEYS) if you are a PMC member,
+or ask your PMC shepherd to add it for you.
 Adding the key only to `dev/spark/KEYS` does not update the release copy.
 
 If you want to do the release on another machine, you can transfer your secret key to that machine
