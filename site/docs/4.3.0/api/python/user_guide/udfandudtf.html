@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Chapter 5: Unleashing UDFs &amp; UDTFs &#8212; PySpark 4.3.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/pyspark.css?v=be654f78" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
+
+    <script src="../_static/documentation_options.js?v=a17b270f"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=6dbb43f8"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/udfandudtf';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://spark.apache.org/static/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '4.3.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://spark.apache.org/docs/latest/api/python/user_guide/udfandudtf.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Chapter 6: Old SQL, New Tricks - Running SQL on PySpark" href="sql.html" />
+    <link rel="prev" title="Chapter 4: Bug Busting - Debugging PySpark" href="bugbusting.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Matomo -->
+    <script type="text/javascript">
+        var _paq = window._paq = window._paq || [];
+        /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+        _paq.push(["disableCookies"]);
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+        (function() {
+            var u="https://analytics.apache.org/";
+            _paq.push(['setTrackerUrl', u+'matomo.php']);
+            _paq.push(['setSiteId', '40']);
+            var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+            g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+        })();
+    </script>
+    <!-- End Matomo Code -->
+
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://spark.apache.org/images/spark-logo.png" class="logo__image only-light" alt="PySpark 4.3.0 documentation - Home"/>
+    <img src="https://spark.apache.org/images/spark-logo-rev.svg" class="logo__image only-dark pst-js-only" alt="PySpark 4.3.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/index.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../migration_guide/index.html">
+    Migration Guides
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/apache/spark" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/pyspark" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting_started/index.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorial/index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../reference/index.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../development/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../migration_guide/index.html">
+    Migration Guides
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/apache/spark" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/pyspark" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button type="button" id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="dataframes.html">Chapter 1: DataFrames - A view into your structured data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="touroftypes.html">Chapter 2: A Tour of PySpark Data Types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataprep.html">Chapter 3: Function Junction - Data manipulation with PySpark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bugbusting.html">Chapter 4: Bug Busting - Debugging PySpark</a></li>
+<li class="toctree-l1 current active"><a aria-current="page" class="current reference internal" href="#">Chapter 5: Unleashing UDFs &amp; UDTFs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sql.html">Chapter 6: Old SQL, New Tricks - Running SQL on PySpark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="loadandbehold.html">Chapter 7: Load and Behold - Data loading, storage, file formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ansi_migration_guide.html">ANSI Migration Guide - Pandas API on Spark</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User Guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Chapter 5: Unleashing UDFs &amp; UDTFs</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="Chapter-5:-Unleashing-UDFs-&amp;-UDTFs">
+<h1>Chapter 5: Unleashing UDFs &amp; UDTFs<a class="headerlink" href="#Chapter-5:-Unleashing-UDFs-&-UDTFs" title="Link to this heading">#</a></h1>
+<p>In large-scale data processing, customization is often necessary to extend the native capabilities of Spark. <em>Python User-Defined Functions (UDFs)</em> and <em>User-Defined Table Functions (UDTFs)</em> offer a way to perform complex transformations and computations using Python, seamlessly integrating them into Spark’s distributed environment.</p>
+<p>In this section, we’ll explore how to write and use UDFs and UDTFs in Python, leveraging PySpark to perform complex data transformations that go beyond Spark’s built-in functions.</p>
+<section id="Python-UDFs">
+<h2>Python UDFs<a class="headerlink" href="#Python-UDFs" title="Link to this heading">#</a></h2>
+<section id="Categories-of-Python-UDFs">
+<h3>Categories of Python UDFs<a class="headerlink" href="#Categories-of-Python-UDFs" title="Link to this heading">#</a></h3>
+<p>There are three main categories of UDFs supported in PySpark: Scalar Python UDFs, Pandas UDFs and Arrow UDFs.</p>
+<ul class="simple">
+<li><p><em>Scalar Python UDFs</em> are user-defined scalar functions that take or return Python objects serialized/deserialized by <a class="reference external" href="https://python.readthedocs.io/en/latest/library/pickle.html">pickle</a> or <a class="reference external" href="https://arrow.readthedocs.io/en/latest/">Arrow</a> and operate one row at a time</p></li>
+<li><p><em>Pandas UDFs</em> (a.k.a. Vectorized UDFs) are UDFs that take/return pandas Series or DataFrame serialized/deserialized by Apache Arrow and operate block by block. Pandas UDFs have some variations categorized by usage, with specific input and output types: Series to Series, Series to Scalar, and Iterator to Iterator.</p></li>
+<li><p><em>Arrow UDFs</em> are UDFs that take/return <code class="docutils literal notranslate"><span class="pre">pyarrow.Array</span></code> (or iterators of them) directly. Arrow UDFs support multiple forms: Arrays to Arrays, Arrays to Scalar, Iterator of Arrays to Iterator of Arrays, and Iterator of Multiple Arrays to Iterator of Arrays.</p></li>
+</ul>
+<p>Based on Pandas UDFs implementation, there are also <em>Pandas Function APIs</em>: Map (i.e., <code class="docutils literal notranslate"><span class="pre">mapInPandas</span></code>) and (Co)Grouped Map (i.e., <code class="docutils literal notranslate"><span class="pre">applyInPandas</span></code>), as well as an Arrow Function API - <code class="docutils literal notranslate"><span class="pre">mapInArrow</span></code>.</p>
+</section>
+<section id="To-create-a-Scalar-Python-UDF">
+<h3>To create a Scalar Python UDF<a class="headerlink" href="#To-create-a-Scalar-Python-UDF" title="Link to this heading">#</a></h3>
+<p>In the code below, we’ve created a simple scalar Python UDF.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">udf</span>
+
+<span class="nd">@udf</span><span class="p">(</span><span class="n">returnType</span><span class="o">=</span><span class="s1">'int'</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">slen</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Arrow-optimization">
+<h4>Arrow optimization<a class="headerlink" href="#Arrow-optimization" title="Link to this heading">#</a></h4>
+<p>Scalar Python UDFs rely on <a class="reference external" href="https://pypi.org/project/cloudpickle/">cloudpickle</a> for serialization and deserialization, and encounter performance bottlenecks, particularly when dealing with large data inputs and outputs. We introduce Arrow-optimized Python UDFs to significantly improve performance.</p>
+<p>At the core of this optimization lies Apache Arrow, a standardized cross-language columnar in-memory data representation. By harnessing Arrow, these UDFs bypass the traditional, slower methods of data (de)serialization, leading to swift data exchange between JVM and Python processes. With Apache Arrow’s rich type system, these optimized UDFs offer a more consistent and standardized way to handle type coercion.</p>
+<p>We can control whether or not to enable Arrow optimization for individual UDFs by using the <code class="docutils literal notranslate"><span class="pre">useArrow</span></code> boolean parameter of <code class="docutils literal notranslate"><span class="pre">functions.udf</span></code>. An example is as shown below:</p>
+<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">udf</span>
+
+<span class="nd">@udf</span><span class="p">(</span><span class="n">returnType</span><span class="o">=</span><span class="s1">'int'</span><span class="p">,</span> <span class="n">useArrow</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># An Arrow Python UDF</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">arrow_slen</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>In addition, we can enable Arrow optimization for all UDFs of an entire SparkSession via a Spark configuration: <code class="docutils literal notranslate"><span class="pre">spark.sql.execution.pythonUDF.arrow.enabled</span></code>, as shown below:</p>
+<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="n">spark</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"spark.sql.execution.pythonUDF.arrow.enabled"</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+<span class="nd">@udf</span><span class="p">(</span><span class="n">returnType</span><span class="o">=</span><span class="s1">'int'</span><span class="p">)</span>  <span class="c1"># An Arrow Python UDF</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">arrow_slen</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="To-use-a-Scalar-Python-UDF">
+<h3>To use a Scalar Python UDF<a class="headerlink" href="#To-use-a-Scalar-Python-UDF" title="Link to this heading">#</a></h3>
+<p>In Python, we can invoke a UDF directly on column(s), just like a built-in Spark function, as shown below.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">"Alice"</span><span class="p">,),</span> <span class="p">(</span><span class="s2">"Bob"</span><span class="p">,),</span> <span class="p">(</span><span class="s2">"Charlie"</span><span class="p">,)]</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">[</span><span class="s2">"name"</span><span class="p">])</span>
+<span class="n">df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="s2">"name_length"</span><span class="p">,</span> <span class="n">slen</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++-------+-----------+
+|   name|name_length|
++-------+-----------+
+|  Alice|          5|
+|    Bob|          3|
+|Charlie|          7|
++-------+-----------+
+
+</pre></div></div>
+</div>
+</section>
+<section id="To-create-a-Pandas-UDF">
+<h3>To create a Pandas UDF<a class="headerlink" href="#To-create-a-Pandas-UDF" title="Link to this heading">#</a></h3>
+<p>In the code below, we’ve created a Pandas UDF which takes one <code class="docutils literal notranslate"><span class="pre">pandas.Series</span></code> and outputs one <code class="docutils literal notranslate"><span class="pre">pandas.Series</span></code></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">pandas_udf</span>
+
+<span class="nd">@pandas_udf</span><span class="p">(</span><span class="s2">"string"</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_upper</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">([(</span><span class="s2">"John Doe"</span><span class="p">,)],</span> <span class="p">(</span><span class="s2">"name"</span><span class="p">,))</span>
+<span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">to_upper</span><span class="p">(</span><span class="s2">"name"</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++--------------+
+|to_upper(name)|
++--------------+
+|      JOHN DOE|
++--------------+
+
+</pre></div></div>
+</div>
+</section>
+<section id="To-use-a-Pandas-UDF">
+<h3>To use a Pandas UDF<a class="headerlink" href="#To-use-a-Pandas-UDF" title="Link to this heading">#</a></h3>
+<p>Similar to a Scalar Python UDF, we can also invoke a pandas UDF directly on column(s):</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">"Alice"</span><span class="p">,),</span> <span class="p">(</span><span class="s2">"Bob"</span><span class="p">,),</span> <span class="p">(</span><span class="s2">"Charlie"</span><span class="p">,)]</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">[</span><span class="s2">"name"</span><span class="p">])</span>
+<span class="n">df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="s2">"name_length"</span><span class="p">,</span> <span class="n">to_upper</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++-------+-----------+
+|   name|name_length|
++-------+-----------+
+|  Alice|      ALICE|
+|    Bob|        BOB|
+|Charlie|    CHARLIE|
++-------+-----------+
+
+</pre></div></div>
+</div>
+</section>
+<section id="To-create-an-Arrow-UDF">
+<h3>To create an Arrow UDF<a class="headerlink" href="#To-create-an-Arrow-UDF" title="Link to this heading">#</a></h3>
+<p>In the code below, we’ve created an Arrow UDF which takes one <code class="docutils literal notranslate"><span class="pre">pa.Array</span></code> and outputs one <code class="docutils literal notranslate"><span class="pre">pa.Array</span></code></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pa</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">arrow_udf</span>
+
+<span class="nd">@arrow_udf</span><span class="p">(</span><span class="s2">"string"</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_upper</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">pa</span><span class="o">.</span><span class="n">Array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pa</span><span class="o">.</span><span class="n">Array</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">pa</span><span class="o">.</span><span class="n">compute</span><span class="o">.</span><span class="n">ascii_upper</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="To-use-an-Arrow-UDF">
+<h3>To use an Arrow UDF<a class="headerlink" href="#To-use-an-Arrow-UDF" title="Link to this heading">#</a></h3>
+<p>We can invoke an Arrow UDF directly on column(s), just like a built-in Spark function, as shown below.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">([(</span><span class="s2">"John Doe"</span><span class="p">,)],</span> <span class="p">(</span><span class="s2">"name"</span><span class="p">,))</span>
+<span class="n">df</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">to_upper</span><span class="p">(</span><span class="s2">"name"</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="More-Examples">
+<h3>More Examples<a class="headerlink" href="#More-Examples" title="Link to this heading">#</a></h3>
+<section id="Example-1:-Python-UDF-to-Process-DataFrame-with-String-and-List-Columns">
+<h4>Example 1: Python UDF to Process DataFrame with String and List Columns<a class="headerlink" href="#Example-1:-Python-UDF-to-Process-DataFrame-with-String-and-List-Columns" title="Link to this heading">#</a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayType</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">,</span> <span class="n">StringType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">udf</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s2">"Hello World"</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span>
+    <span class="p">(</span><span class="s2">"PySpark is Fun"</span><span class="p">,</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]),</span>
+    <span class="p">(</span><span class="s2">"PySpark Rocks"</span><span class="p">,</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span>
+<span class="p">]</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">[</span><span class="s2">"text_column"</span><span class="p">,</span> <span class="s2">"list_column"</span><span class="p">])</span>
+
+<span class="nd">@udf</span><span class="p">(</span><span class="n">returnType</span><span class="o">=</span><span class="s2">"string"</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">process_row</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">numbers</span><span class="p">):</span>
+    <span class="n">vowels_count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">text</span> <span class="k">if</span> <span class="n">char</span> <span class="ow">in</span> <span class="s2">"aeiouAEIOU"</span><span class="p">)</span>
+    <span class="n">doubled</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">*</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">numbers</span><span class="p">]</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"Vowels: </span><span class="si">{</span><span class="n">vowels_count</span><span class="si">}</span><span class="s2">, Doubled: </span><span class="si">{</span><span class="n">doubled</span><span class="si">}</span><span class="s2">"</span>
+
+<span class="n">df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="s2">"process_row"</span><span class="p">,</span> <span class="n">process_row</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"text_column"</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s2">"list_column"</span><span class="p">]))</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">truncate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++--------------+-----------+--------------------------------+
+|text_column   |list_column|process_row                     |
++--------------+-----------+--------------------------------+
+|Hello World   |[1, 2, 3]  |Vowels: 3, Doubled: [2, 4, 6]   |
+|PySpark is Fun|[4, 5, 6]  |Vowels: 3, Doubled: [8, 10, 12] |
+|PySpark Rocks |[7, 8, 9]  |Vowels: 2, Doubled: [14, 16, 18]|
++--------------+-----------+--------------------------------+
+
+</pre></div></div>
+</div>
+</section>
+<section id="Example-2:-Pandas-UDF-for-Statistical-Computations-and-Complex-Transformation">
+<h4>Example 2: Pandas UDF for Statistical Computations and Complex Transformation<a class="headerlink" href="#Example-2:-Pandas-UDF-for-Statistical-Computations-and-Complex-Transformation" title="Link to this heading">#</a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql</span><span class="w"> </span><span class="kn">import</span> <span class="n">SparkSession</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">pandas_udf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">StructType</span><span class="p">,</span> <span class="n">StructField</span><span class="p">,</span> <span class="n">DoubleType</span><span class="p">,</span> <span class="n">StringType</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="mf">10.0</span><span class="p">,</span> <span class="s2">"Spark"</span><span class="p">),</span>
+    <span class="p">(</span><span class="mf">20.0</span><span class="p">,</span> <span class="s2">"Big Data"</span><span class="p">),</span>
+    <span class="p">(</span><span class="mf">30.0</span><span class="p">,</span> <span class="s2">"AI"</span><span class="p">),</span>
+    <span class="p">(</span><span class="mf">40.0</span><span class="p">,</span> <span class="s2">"Machine Learning"</span><span class="p">),</span>
+    <span class="p">(</span><span class="mf">50.0</span><span class="p">,</span> <span class="s2">"Deep Learning"</span><span class="p">)</span>
+<span class="p">]</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">spark</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">[</span><span class="s2">"numeric_column"</span><span class="p">,</span> <span class="s2">"text_column"</span><span class="p">])</span>
+
+<span class="c1"># Schema for the result</span>
+<span class="n">schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">([</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">"mean_value"</span><span class="p">,</span> <span class="n">DoubleType</span><span class="p">(),</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">"sum_value"</span><span class="p">,</span> <span class="n">DoubleType</span><span class="p">(),</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="n">StructField</span><span class="p">(</span><span class="s2">"processed_text"</span><span class="p">,</span> <span class="n">StringType</span><span class="p">(),</span> <span class="kc">True</span><span class="p">)</span>
+<span class="p">])</span>
+
+<span class="nd">@pandas_udf</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_stats_and_transform_string</span><span class="p">(</span><span class="n">numeric_col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">text_col</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">mean_value</span> <span class="o">=</span> <span class="n">numeric_col</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">sum_value</span> <span class="o">=</span> <span class="n">numeric_col</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+    <span class="c1"># Reverse the string if its length is greater than 5, otherwise capitalize it</span>
+    <span class="n">processed_text</span> <span class="o">=</span> <span class="n">text_col</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">5</span> <span class="k">else</span> <span class="n">x</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+
+    <span class="n">result_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s2">"mean_value"</span><span class="p">:</span> <span class="p">[</span><span class="n">mean_value</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">text_col</span><span class="p">),</span>
+        <span class="s2">"sum_value"</span><span class="p">:</span> <span class="p">[</span><span class="n">sum_value</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">text_col</span><span class="p">),</span>
+        <span class="s2">"processed_text"</span><span class="p">:</span> <span class="n">processed_text</span>
+    <span class="p">})</span>
+
+    <span class="k">return</span> <span class="n">result_df</span>
+
+<span class="n">df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="s2">"result"</span><span class="p">,</span> <span class="n">compute_stats_and_transform_string</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"numeric_column"</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s2">"text_column"</span><span class="p">]))</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">truncate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++--------------+----------------+------------------------------+
+|numeric_column|text_column     |result                        |
++--------------+----------------+------------------------------+
+|10.0          |Spark           |{10.0, 10.0, SPARK}           |
+|20.0          |Big Data        |{20.0, 20.0, ataD giB}        |
+|30.0          |AI              |{30.0, 30.0, AI}              |
+|40.0          |Machine Learning|{40.0, 40.0, gninraeL enihcaM}|
+|50.0          |Deep Learning   |{50.0, 50.0, gninraeL peeD}   |
++--------------+----------------+------------------------------+
+
+</pre></div></div>
+</div>
+</section>
+</section>
+</section>
+<section id="Python-UDTFs">
+<h2>Python UDTFs<a class="headerlink" href="#Python-UDTFs" title="Link to this heading">#</a></h2>
+<p>A Python user-defined table function (UDTF) is a new kind of function that returns a table as output instead of a single scalar result value. Once registered, they can appear in the FROM clause of a SQL query.</p>
+<section id="When-to-use-Python-UDTFs">
+<h3>When to use Python UDTFs<a class="headerlink" href="#When-to-use-Python-UDTFs" title="Link to this heading">#</a></h3>
+<p>In short, if you want a function that generates multiple rows and columns, and want to leverage the rich Python ecosystem, Python UDTFs are for you.</p>
+<ul class="simple">
+<li><p><strong>Python UDTFs vs Python UDFs</strong>: While Python UDFs in Spark are designed to each accept zero or more scalar values as input, and return a single value as output, UDTFs offer more flexibility. They can return multiple rows and columns, extending the capabilities of UDFs. Here are a few scenarios where UDTFs are particularly helpful:</p>
+<ul>
+<li><p>Exploding nested data types like arrays or structs, transforming it into multiple rows</p></li>
+<li><p>Dealing with string data that needs to be split into multiple parts, each represented as a separate row or multiple columns</p></li>
+<li><p>Generating rows based on input ranges, such as creating sequences of numbers, timestamps, or records for different dates</p></li>
+</ul>
+</li>
+<li><p><strong>Python UDTFs vs SQL UDTFs</strong>: SQL UDTFs are efficient and versatile, but Python offers a richer set of libraries and tools. Compared to SQL, Python provides tools to enable advanced transformations or computations (e.g. statistical functions or machine learning inferences).</p></li>
+</ul>
+</section>
+<section id="To-create-a-Python-UDTF">
+<h3>To create a Python UDTF<a class="headerlink" href="#To-create-a-Python-UDTF" title="Link to this heading">#</a></h3>
+<p>In the code below, we’ve created a simple UDTF that takes two integers as inputs and produces two columns as output: the original number and its square.</p>
+<p>Note the use of the <code class="docutils literal notranslate"><span class="pre">yield</span></code> statement; A Python UDTF requires the return type to be either a tuple or a Row object so that the results can be processed properly.</p>
+<p>Also note the return type must be a <code class="docutils literal notranslate"><span class="pre">StructType</span></code>with block-formatting or DDL string representing a <code class="docutils literal notranslate"><span class="pre">StructType</span></code> with block-formatting in Spark.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">udtf</span>
+
+<span class="nd">@udtf</span><span class="p">(</span><span class="n">returnType</span><span class="o">=</span><span class="s2">"num: int, squared: int"</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SquareNumbers</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">num</span> <span class="o">*</span> <span class="n">num</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="id1">
+<h4>Arrow optimization<a class="headerlink" href="#id1" title="Link to this heading">#</a></h4>
+<p>Apache Arrow is an in-memory columnar data format that allows for efficient data transfers between Java and Python processes. It can significantly boost performance when the UDTF outputs many rows. Arrow-optimization can be enabled using <code class="docutils literal notranslate"><span class="pre">useArrow=True</span></code>, for example,</p>
+<div class="highlight-py notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">udtf</span>
+
+<span class="nd">@udtf</span><span class="p">(</span><span class="n">returnType</span><span class="o">=</span><span class="s2">"num: int, squared: int"</span><span class="p">,</span> <span class="n">useArrow</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SquareNumbers</span><span class="p">:</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="To-use-a-Python-UDTF">
+<h3>To use a Python UDTF<a class="headerlink" href="#To-use-a-Python-UDTF" title="Link to this heading">#</a></h3>
+<p>In Python, we can invoke a UDTF directly using the class name, as shown below.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">lit</span>
+
+<span class="n">SquareNumbers</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">lit</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++---+-------+
+|num|squared|
++---+-------+
+|  1|      1|
+|  2|      4|
+|  3|      9|
++---+-------+
+
+</pre></div></div>
+</div>
+<p>In SQL, we can register the Python UDTF and then use it in SQL as a table-valued function in the FROM clause of a query.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>spark.sql("SELECT * FROM square_numbers(1, 3)").show()
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h3>More Examples<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<section id="Example-1:-Generating-Numbers,-Their-Squares,-Cubes,-and-Factorials-for-a-Range">
+<h4>Example 1: Generating Numbers, Their Squares, Cubes, and Factorials for a Range<a class="headerlink" href="#Example-1:-Generating-Numbers,-Their-Squares,-Cubes,-and-Factorials-for-a-Range" title="Link to this heading">#</a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">lit</span><span class="p">,</span> <span class="n">udtf</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="nd">@udtf</span><span class="p">(</span><span class="n">returnType</span><span class="o">=</span><span class="s2">"num: int, square: int, cube: int, factorial: int"</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GenerateComplexNumbers</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">num</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">num</span> <span class="o">**</span> <span class="mi">3</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">factorial</span><span class="p">(</span><span class="n">num</span><span class="p">))</span>
+
+<span class="n">GenerateComplexNumbers</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">lit</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++---+------+----+---------+
+|num|square|cube|factorial|
++---+------+----+---------+
+|  1|     1|   1|        1|
+|  2|     4|   8|        2|
+|  3|     9|  27|        6|
+|  4|    16|  64|       24|
+|  5|    25| 125|      120|
++---+------+----+---------+
+
+</pre></div></div>
+</div>
+</section>
+<section id="Example-2:-Splitting-a-Sentence-into-Words-and-Performing-Multiple-Operations">
+<h4>Example 2: Splitting a Sentence into Words and Performing Multiple Operations<a class="headerlink" href="#Example-2:-Splitting-a-Sentence-into-Words-and-Performing-Multiple-Operations" title="Link to this heading">#</a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">lit</span><span class="p">,</span> <span class="n">udtf</span>
+
+<span class="nd">@udtf</span><span class="p">(</span><span class="n">returnType</span><span class="o">=</span><span class="s2">"word: string, length: int, is_palindrome: boolean"</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProcessWords</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sentence</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">words</span> <span class="o">=</span> <span class="n">sentence</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>  <span class="c1"># Split sentence into words</span>
+        <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span>
+            <span class="n">is_palindrome</span> <span class="o">=</span> <span class="n">word</span> <span class="o">==</span> <span class="n">word</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Check if the word is a palindrome</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">word</span><span class="p">),</span> <span class="n">is_palindrome</span><span class="p">)</span>
+
+<span class="n">ProcessWords</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="s2">"hello world"</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++-----+------+-------------+
+| word|length|is_palindrome|
++-----+------+-------------+
+|hello|     5|        false|
+|world|     5|        false|
++-----+------+-------------+
+
+</pre></div></div>
+</div>
+</section>
+<section id="Example-3:-Parsing-JSON-String-into-Key-Value-Pairs-with-Data-Types">
+<h4>Example 3: Parsing JSON String into Key-Value Pairs with Data Types<a class="headerlink" href="#Example-3:-Parsing-JSON-String-into-Key-Value-Pairs-with-Data-Types" title="Link to this heading">#</a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">lit</span><span class="p">,</span> <span class="n">udtf</span>
+
+<span class="nd">@udtf</span><span class="p">(</span><span class="n">returnType</span><span class="o">=</span><span class="s2">"key: string, value: string, value_type: string"</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParseJSON</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">json_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_str</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">json_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">value_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span>
+                <span class="k">yield</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="n">value_type</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="s2">"Invalid JSON"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+
+<span class="n">ParseJSON</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="s1">'{"name": "Alice", "age": 25, "is_student": false}'</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
++----------+-----+----------+
+|       key|value|value_type|
++----------+-----+----------+
+|      name|Alice|       str|
+|       age|   25|       int|
+|is_student|False|      bool|
++----------+-----+----------+
+
+</pre></div></div>
+</div>
+</section>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="bugbusting.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Chapter 4: Bug Busting - Debugging PySpark</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="sql.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Chapter 6: Old SQL, New Tricks - Running SQL on PySpark</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Python-UDFs">Python UDFs</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#Categories-of-Python-UDFs">Categories of Python UDFs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#To-create-a-Scalar-Python-UDF">To create a Scalar Python UDF</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Arrow-optimization">Arrow optimization</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#To-use-a-Scalar-Python-UDF">To use a Scalar Python UDF</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#To-create-a-Pandas-UDF">To create a Pandas UDF</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#To-use-a-Pandas-UDF">To use a Pandas UDF</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#To-create-an-Arrow-UDF">To create an Arrow UDF</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#To-use-an-Arrow-UDF">To use an Arrow UDF</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#More-Examples">More Examples</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Example-1:-Python-UDF-to-Process-DataFrame-with-String-and-List-Columns">Example 1: Python UDF to Process DataFrame with String and List Columns</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Example-2:-Pandas-UDF-for-Statistical-Computations-and-Complex-Transformation">Example 2: Pandas UDF for Statistical Computations and Complex Transformation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Python-UDTFs">Python UDTFs</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#When-to-use-Python-UDTFs">When to use Python UDTFs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#To-create-a-Python-UDTF">To create a Python UDTF</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Arrow optimization</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#To-use-a-Python-UDTF">To use a Python UDTF</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">More Examples</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Example-1:-Generating-Numbers,-Their-Squares,-Cubes,-and-Factorials-for-a-Range">Example 1: Generating Numbers, Their Squares, Cubes, and Factorials for a Range</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Example-2:-Splitting-a-Sentence-into-Words-and-Performing-Multiple-Operations">Example 2: Splitting a Sentence into Words and Performing Multiple Operations</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#Example-3:-Parsing-JSON-String-into-Key-Value-Pairs-with-Data-Types">Example 3: Parsing JSON String into Key-Value Pairs with Data Types</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/user_guide/udfandudtf.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><p class="copyright">
+    Copyright @ 2026 The Apache Software Foundation, Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a>.
+</p></div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

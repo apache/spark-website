@@ -23,6 +23,7 @@ var packagesV14 = [hadoop3p, hadoop3pscala213, hadoopFree, sources];
 // 4.0.0+
 var packagesV15 = [hadoop34p, hadoop34pSparkConnect, hadoopFree, sources];
 
+addRelease("4.3.0", new Date("10/30/2026"), packagesV15, true);
 addRelease("4.2.1", new Date("10/27/2026"), packagesV15, true);
 addRelease("4.1.4", new Date("10/27/2026"), packagesV15, true);
 addRelease("4.0.5", new Date("10/27/2026"), packagesV15, true);

@@ -1,0 +1,767 @@
+
+
+
+
+<!DOCTYPE html>
+<html class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>Apache Arrow Cache Format - Spark 4.3.0 Documentation</title>
+        
+
+        
+
+
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+        <link href="css/custom.css" rel="stylesheet">
+        <script src="js/vendor/modernizr-2.6.1-respond-1.1.0.min.js"></script>
+
+        <link rel="stylesheet" href="css/pygments-default.css">
+        <link rel="stylesheet" href="css/docsearch.min.css" />
+        <link rel="stylesheet" href="css/docsearch.css">
+
+        
+        <!-- Matomo -->
+        <script>
+            var _paq = window._paq = window._paq || [];
+            /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+            _paq.push(["disableCookies"]);
+            _paq.push(['trackPageView']);
+            _paq.push(['enableLinkTracking']);
+            (function() {
+              var u="https://analytics.apache.org/";
+              _paq.push(['setTrackerUrl', u+'matomo.php']);
+              _paq.push(['setSiteId', '40']);
+              var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+              g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+            })();
+        </script>
+        <!-- End Matomo Code -->
+        
+
+    </head>
+    <body class="global">
+        <!-- This code is taken from http://twitter.github.com/bootstrap/examples/hero.html -->
+        <nav class="navbar navbar-expand-lg navbar-dark p-0 px-4 fixed-top" style="background: #1d6890;" id="topbar">
+            <div class="navbar-brand"><a href="index.html">
+                <img src="https://spark.apache.org/images/spark-logo-rev.svg" width="141" height="72"/></a><span class="version">4.3.0</span>
+            </div>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarCollapse" aria-controls="navbarCollapse"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a href="index.html" class="nav-link">Overview</a></li>
+
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" id="navbarQuickStart" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Programming Guides</a>
+                        <div class="dropdown-menu" aria-labelledby="navbarQuickStart">
+                            <a class="dropdown-item" href="quick-start.html">Quick Start</a>
+                            <a class="dropdown-item" href="rdd-programming-guide.html">RDDs, Accumulators, Broadcasts Vars</a>
+                            <a class="dropdown-item" href="sql-programming-guide.html">SQL, DataFrames, and Datasets</a>
+                            <a class="dropdown-item" href="streaming/index.html">Structured Streaming</a>
+                            <a class="dropdown-item" href="streaming-programming-guide.html">Spark Streaming (DStreams)</a>
+                            <a class="dropdown-item" href="ml-guide.html">MLlib (Machine Learning)</a>
+                            <a class="dropdown-item" href="graphx-programming-guide.html">GraphX (Graph Processing)</a>
+                            <a class="dropdown-item" href="sparkr.html">SparkR (R on Spark)</a>
+                            <a class="dropdown-item" href="api/python/getting_started/index.html">PySpark (Python on Spark)</a>
+                            <a class="dropdown-item" href="declarative-pipelines-programming-guide.html">Declarative Pipelines</a>
+                        </div>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" id="navbarAPIDocs" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">API Docs</a>
+                        <div class="dropdown-menu" aria-labelledby="navbarAPIDocs">
+                            <a class="dropdown-item" href="api/python/index.html">Python</a>
+                            <a class="dropdown-item" href="api/scala/org/apache/spark/index.html">Scala</a>
+                            <a class="dropdown-item" href="api/java/index.html">Java</a>
+                            <a class="dropdown-item" href="api/R/index.html">R</a>
+                            <a class="dropdown-item" href="api/sql/index.html">SQL, Built-in Functions</a>
+                        </div>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" id="navbarDeploying" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Deploying</a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDeploying">
+                            <a class="dropdown-item" href="cluster-overview.html">Overview</a>
+                            <a class="dropdown-item" href="submitting-applications.html">Submitting Applications</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="spark-standalone.html">Spark Standalone</a>
+                            <a class="dropdown-item" href="running-on-yarn.html">YARN</a>
+                            <a class="dropdown-item" href="running-on-kubernetes.html">Kubernetes</a>
+                        </div>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle" id="navbarMore" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More</a>
+                        <div class="dropdown-menu" aria-labelledby="navbarMore">
+                            <a class="dropdown-item" href="configuration.html">Configuration</a>
+                            <a class="dropdown-item" href="monitoring.html">Monitoring</a>
+                            <a class="dropdown-item" href="tuning.html">Tuning Guide</a>
+                            <a class="dropdown-item" href="job-scheduling.html">Job Scheduling</a>
+                            <a class="dropdown-item" href="security.html">Security</a>
+                            <a class="dropdown-item" href="hardware-provisioning.html">Hardware Provisioning</a>
+                            <a class="dropdown-item" href="migration-guide.html">Migration Guide</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="building-spark.html">Building Spark</a>
+                            <a class="dropdown-item" href="https://spark.apache.org/contributing.html">Contributing to Spark</a>
+                            <a class="dropdown-item" href="https://spark.apache.org/third-party-projects.html">Third Party Projects</a>
+                        </div>
+                    </li>
+
+                    <li class="nav-item">
+                        <input type="text" id="docsearch-input" placeholder="Search the docs…">
+                    </li>
+                </ul>
+                <!--<span class="navbar-text navbar-right"><span class="version-text">v4.3.0</span></span>-->
+            </div>
+        </nav>
+
+        
+
+        <div class="container">
+            
+                
+                    <div class="left-menu-wrapper">
+    <div class="left-menu">
+        <h3><a href="sql-programming-guide.html">Spark SQL Guide</a></h3>
+        
+<ul>
+
+    <li>
+        <a href="sql-getting-started.html">
+            
+                Getting Started
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-data-sources.html">
+            
+                Data Sources
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-v2-data-sources.html">
+            
+                Data Source V2
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-performance-tuning.html">
+            
+                Performance Tuning
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-distributed-sql-engine.html">
+            
+                Distributed SQL Engine
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-pyspark-pandas-with-arrow.html">
+            
+                PySpark Usage Guide for Pandas with Apache Arrow
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-migration-guide.html">
+            
+                Migration Guide
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-ref.html">
+            
+                SQL Reference
+            
+        </a>
+    </li>
+    
+    
+
+    <li>
+        <a href="sql-error-conditions.html">
+            
+                Error Conditions
+            
+        </a>
+    </li>
+    
+    
+
+</ul>
+
+    </div>
+</div>
+                
+                <input id="nav-trigger" class="nav-trigger" checked type="checkbox">
+                <label for="nav-trigger"></label>
+                <div class="content-with-sidebar mr-3" id="content">
+                    
+                        <h1 class="title">Apache Arrow Cache Format</h1>
+                    
+
+                    <h2 id="overview">Overview</h2>
+
+<p>Apache Spark supports using Apache Arrow as an alternative cache format for in-memory Dataset caching. This format provides improved performance for certain workloads, especially when working with columnar data sources like Parquet and ORC.</p>
+
+<h2 id="benefits">Benefits</h2>
+
+<p>The Arrow cache format offers several advantages over the default cache format:</p>
+
+<ul>
+  <li><strong>Zero-copy reads</strong> when input is already in Arrow format (e.g., Arrow-based data sources, re-caching Arrow cached data)</li>
+  <li><strong>Better filter pushdown</strong> with min/max statistics for partition pruning</li>
+  <li><strong>Compact columnar layout</strong> with zstd compression support</li>
+</ul>
+
+<p>Note that the cached bytes are an internal format (a schema-less Arrow RecordBatch payload), not
+a complete Arrow IPC stream, so they are not directly readable by external Arrow tooling.</p>
+
+<p><strong>Note</strong>: Spark&#8217;s built-in Parquet/ORC readers use internal column vectors (<code class="language-plaintext highlighter-rouge">OnHeapColumnVector</code>/<code class="language-plaintext highlighter-rouge">OffHeapColumnVector</code>), not Arrow format, so they don&#8217;t benefit from zero-copy optimization.</p>
+
+<h2 id="configuration">Configuration</h2>
+
+<p><code class="language-plaintext highlighter-rouge">spark.sql.cache.serializer</code> is a static SQL configuration, so it must be set when the
+SparkSession is built and cannot be changed on a running session (<code class="language-plaintext highlighter-rouge">spark.conf.set</code> rejects static
+keys with <code class="language-plaintext highlighter-rouge">CANNOT_MODIFY_CONFIG</code>):</p>
+
+<div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">val</span> <span class="nv">spark</span> <span class="k">=</span> <span class="nv">SparkSession</span><span class="o">.</span><span class="py">builder</span><span class="o">()</span>
+  <span class="o">.</span><span class="py">appName</span><span class="o">(</span><span class="s">"MyApp"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">config</span><span class="o">(</span><span class="s">"spark.sql.cache.serializer"</span><span class="o">,</span>
+    <span class="s">"org.apache.spark.sql.execution.columnar.ArrowCachedBatchSerializer"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">getOrCreate</span><span class="o">()</span>
+</code></pre></div></div>
+
+<p><strong>Note</strong>: This config selects the cache serializer for the whole session; once set, this
+serializer handles every cached relation. There is no automatic per-relation fallback to another
+cache serializer based on the data types involved (see
+<a href="#supported-data-types">Supported Data Types</a> for how unsupported types are handled). The chosen
+serializer is also cached process-wide on first use, so switching cache formats within a JVM that
+has already materialized a cache requires a fresh JVM (see
+<a href="#migration-from-default-cache">Migration from Default Cache</a>).</p>
+
+<h2 id="usage">Usage</h2>
+
+<p>Once configured, use cache operations as normal:</p>
+
+<div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Cache a DataFrame</span>
+<span class="k">val</span> <span class="nv">df</span> <span class="k">=</span> <span class="nv">spark</span><span class="o">.</span><span class="py">read</span><span class="o">.</span><span class="py">parquet</span><span class="o">(</span><span class="s">"data.parquet"</span><span class="o">)</span>
+<span class="nv">df</span><span class="o">.</span><span class="py">cache</span><span class="o">()</span>
+
+<span class="c1">// Use cached data</span>
+<span class="nv">df</span><span class="o">.</span><span class="py">filter</span><span class="o">(</span><span class="s">"age &gt; 30"</span><span class="o">).</span><span class="py">count</span><span class="o">()</span>
+
+<span class="c1">// Uncache when done</span>
+<span class="nv">df</span><span class="o">.</span><span class="py">unpersist</span><span class="o">()</span>
+</code></pre></div></div>
+
+<h2 id="compression">Compression</h2>
+
+<p>Arrow cache supports multiple compression codecs. Configure compression with:</p>
+
+<div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">spark</span><span class="o">.</span><span class="py">conf</span><span class="o">.</span><span class="py">set</span><span class="o">(</span><span class="s">"spark.sql.execution.arrow.compression.codec"</span><span class="o">,</span> <span class="s">"zstd"</span><span class="o">)</span>
+</code></pre></div></div>
+
+<p>Available options:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">none</code> - No compression (fastest, largest size, <strong>default</strong>)</li>
+  <li><code class="language-plaintext highlighter-rouge">zstd</code> - Zstandard compression (best compression; tunable level)</li>
+  <li><code class="language-plaintext highlighter-rouge">lz4</code> - LZ4 compression. Not recommended: Arrow&#8217;s Java LZ4 codec is implemented with the
+pure-Java Commons Compress framed LZ4 streams and is much slower than zstd</li>
+</ul>
+
+<p>For zstd, you can also configure the compression level. Positive values (up to 22) give better
+compression but slower speed; negative values give ultra-fast compression with lower ratios:</p>
+
+<div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">spark</span><span class="o">.</span><span class="py">conf</span><span class="o">.</span><span class="py">set</span><span class="o">(</span><span class="s">"spark.sql.execution.arrow.compression.zstd.level"</span><span class="o">,</span> <span class="s">"3"</span><span class="o">)</span>  <span class="c1">// Default: 3</span>
+</code></pre></div></div>
+
+<h2 id="vectorized-reader">Vectorized Reader</h2>
+
+<p>Enable vectorized reading for better performance with primitive types:</p>
+
+<div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">spark</span><span class="o">.</span><span class="py">conf</span><span class="o">.</span><span class="py">set</span><span class="o">(</span><span class="s">"spark.sql.inMemoryColumnarStorage.enableVectorizedReader"</span><span class="o">,</span> <span class="s">"true"</span><span class="o">)</span>
+</code></pre></div></div>
+
+<p>When enabled, cached data is read as columnar batches instead of rows, which can significantly improve performance for columnar operations.</p>
+
+<h2 id="performance-characteristics">Performance Characteristics</h2>
+
+<p>In our benchmarks, the Arrow cache format performs best on the following workloads. Actual
+results depend on data types, compression settings, and hardware, and the default cache format
+can be faster in some cases (for example, with higher compression levels):</p>
+
+<ol>
+  <li><strong>Filter-Heavy Workloads</strong>: Queries with selective filters benefit from min/max statistics.</li>
+  <li><strong>Columnar Operations</strong>: Aggregations and projections on cached data benefit from the Arrow format.</li>
+  <li><strong>Parquet/ORC Caching</strong>: Arrow&#8217;s batch processing helps even without the zero-copy path.</li>
+  <li><strong>Re-caching with Column Projection</strong>: Dropping columns from Arrow-cached data preserves the
+<code class="language-plaintext highlighter-rouge">ArrowColumnVector</code> format, enabling true zero-copy extraction and the largest gains.</li>
+</ol>
+
+<h3 id="benchmark-results">Benchmark Results</h3>
+
+<p>The numbers below are illustrative results from one run on an Apple M4 Max (OpenJDK 21.0.8) and
+will vary with hardware, JDK, and compression settings. They are not a guarantee. For the
+authoritative, regularly regenerated numbers, see
+<code class="language-plaintext highlighter-rouge">sql/core/benchmarks/ArrowCacheBenchmark-jdk21-results.txt</code> and the <code class="language-plaintext highlighter-rouge">ArrowCacheBenchmark</code> suite.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Workload</th>
+      <th>Default Cache</th>
+      <th>Arrow Cache</th>
+      <th>Speedup</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Write + Read (5M rows, 3 primitive columns)</td>
+      <td>153.7 ns/row</td>
+      <td>74.2 ns/row</td>
+      <td><strong>~2X faster</strong></td>
+    </tr>
+    <tr>
+      <td>Cache then filter (5M rows)</td>
+      <td>100.1 ns/row</td>
+      <td>70.8 ns/row</td>
+      <td><strong>~1.4X faster</strong></td>
+    </tr>
+    <tr>
+      <td>Columnar input from Parquet (2M rows, 3 primitive columns)</td>
+      <td>195.3 ns/row</td>
+      <td>113.1 ns/row</td>
+      <td><strong>~1.7X faster</strong></td>
+    </tr>
+    <tr>
+      <td>Re-cache with zero-copy (2M rows, 2 columns)</td>
+      <td>123.3 ns/row</td>
+      <td>38.5 ns/row</td>
+      <td><strong>~3.2X faster</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Notes</strong>:</p>
+<ul>
+  <li><strong>Write + Read</strong>: Significant improvement from efficient Arrow serialization and vectorized operations</li>
+  <li><strong>Cache then filter</strong>: This measures end-to-end cache build plus a filtered scan, comparing the two cache formats. Both formats collect min/max statistics and can prune batches, so the difference reflects overall cache+scan throughput rather than pruning unique to Arrow</li>
+  <li><strong>Parquet caching</strong>: Shows improvement despite Spark&#8217;s Parquet reader producing <code class="language-plaintext highlighter-rouge">OnHeapColumnVector</code>/<code class="language-plaintext highlighter-rouge">OffHeapColumnVector</code> rather than <code class="language-plaintext highlighter-rouge">ArrowColumnVector</code>, due to Arrow&#8217;s efficient batch processing</li>
+  <li><strong>Re-cache with zero-copy</strong>: When caching a subset of columns from Arrow-cached data (e.g., <code class="language-plaintext highlighter-rouge">df.drop("column")</code>), the remaining columns preserve their <code class="language-plaintext highlighter-rouge">ArrowColumnVector</code> format, enabling true zero-copy extraction and achieving the best performance</li>
+  <li><strong>Zero-copy benefits</strong> only apply when input is already <code class="language-plaintext highlighter-rouge">ArrowColumnVector</code> (e.g., Python Arrow sources, re-caching Arrow cached data with column projection)</li>
+</ul>
+
+<h2 id="supported-data-types">Supported Data Types</h2>
+
+<p>Arrow cache supports the following data types:</p>
+
+<h3 id="primitive-types">Primitive Types</h3>
+<ul>
+  <li>BooleanType</li>
+  <li>ByteType, ShortType, IntegerType, LongType</li>
+  <li>FloatType, DoubleType</li>
+  <li>DecimalType (all precision/scale combinations)</li>
+  <li>NullType</li>
+</ul>
+
+<h3 id="temporal-types">Temporal Types</h3>
+<ul>
+  <li>DateType</li>
+  <li>TimestampType</li>
+  <li>TimestampNTZType</li>
+  <li>Nanosecond-precision timestamps (<code class="language-plaintext highlighter-rouge">TIMESTAMP_NTZ(p)</code> / <code class="language-plaintext highlighter-rouge">TIMESTAMP(p)</code> with <code class="language-plaintext highlighter-rouge">p</code> in 7..9)</li>
+  <li>TimeType</li>
+</ul>
+
+<h3 id="interval-types">Interval Types</h3>
+<ul>
+  <li>YearMonthIntervalType</li>
+  <li>DayTimeIntervalType</li>
+  <li>CalendarIntervalType</li>
+</ul>
+
+<p>Nanosecond-precision timestamps and <code class="language-plaintext highlighter-rouge">CalendarIntervalType</code> are stored in lossless internal
+Arrow representations (structs of the types&#8217; own components) rather than the standard Arrow
+interchange encodings, so their full Spark value domains round-trip through the cache &#8211; the
+same domains the default cache serializer supports. The standard interchange encodings pack
+these values into a single int64 of nanoseconds and therefore cover only a reduced range
+(roughly years 1677-2262 for timestamps, +/-292 years of microseconds for intervals); that
+limitation applies to Arrow interchange paths such as <code class="language-plaintext highlighter-rouge">toPandas</code>, not to this cache.</p>
+
+<h3 id="string-and-binary">String and Binary</h3>
+<ul>
+  <li>StringType (including collated strings)</li>
+  <li>BinaryType</li>
+</ul>
+
+<h3 id="complex-types">Complex Types</h3>
+<ul>
+  <li>ArrayType</li>
+  <li>StructType</li>
+  <li>MapType</li>
+  <li>Nested combinations of the above</li>
+</ul>
+
+<h3 id="other-types">Other Types</h3>
+<ul>
+  <li>VariantType</li>
+  <li>GeometryType, GeographyType</li>
+  <li>User-defined types (UDTs) whose underlying representation is itself supported</li>
+</ul>
+
+<h3 id="unsupported-types">Unsupported Types</h3>
+
+<p>Arrow cache covers every type the default cache serializer supports, plus some it
+does not (for example geometry and geography). Types that Arrow cannot represent
+(such as <code class="language-plaintext highlighter-rouge">ObjectType</code>) are not silently dropped or routed to a different cache
+serializer: there is no per-type fallback, because the cache serializer is chosen
+once via the static <code class="language-plaintext highlighter-rouge">spark.sql.cache.serializer</code> configuration and then handles
+every cached relation. Attempting to cache an unsupported type fails with an
+<code class="language-plaintext highlighter-rouge">UNSUPPORTED_DATATYPE</code> error when the cache is materialized.</p>
+
+<h2 id="statistics-and-filter-pushdown">Statistics and Filter Pushdown</h2>
+
+<p>Arrow cache automatically collects min/max statistics for the following types:</p>
+<ul>
+  <li>Boolean</li>
+  <li>Numeric types (Byte, Short, Int, Long, Float, Double)</li>
+  <li>Decimal</li>
+  <li>Date, Timestamp, and Timestamp without time zone (TIMESTAMP_NTZ)</li>
+  <li>Nanosecond-precision timestamps</li>
+  <li>Time</li>
+  <li>Year-month and day-time intervals</li>
+  <li>String (using collation-aware comparison for collated strings)</li>
+</ul>
+
+<p>Other types (Binary, Variant, calendar intervals, and complex types such as
+Array/Struct/Map) are cached but do not contribute min/max bounds, so they only
+record null counts and sizes.</p>
+
+<p>These statistics enable partition pruning when filtering:</p>
+
+<div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">val</span> <span class="nv">df</span> <span class="k">=</span> <span class="nv">spark</span><span class="o">.</span><span class="py">range</span><span class="o">(</span><span class="mi">10000000</span><span class="o">).</span><span class="py">cache</span><span class="o">()</span>
+
+<span class="c1">// This filter can skip batches using min/max statistics</span>
+<span class="nv">df</span><span class="o">.</span><span class="py">filter</span><span class="o">(</span><span class="s">"id &gt; 5000000"</span><span class="o">).</span><span class="py">count</span><span class="o">()</span>
+</code></pre></div></div>
+
+<h2 id="memory-management">Memory Management</h2>
+
+<p>The cached data itself lives on the JVM heap, not off-heap. Each cached batch is stored as a
+serialized Arrow IPC byte array (<code class="language-plaintext highlighter-rouge">Array[Byte]</code>), and the default <code class="language-plaintext highlighter-rouge">Dataset.cache()</code> storage level is
+the deserialized <code class="language-plaintext highlighter-rouge">MEMORY_AND_DISK</code>, so those bytes are retained as ordinary heap objects (and spill
+to disk under memory pressure). Arrow&#8217;s off-heap allocators are used only for the transient
+<code class="language-plaintext highlighter-rouge">VectorSchemaRoot</code>s created while encoding a batch for caching and while decoding a batch on read;
+these are released as soon as the encode/decode completes.</p>
+
+<p><strong>Sizing implications</strong>:</p>
+<ul>
+  <li>Size the JVM heap (executor memory) for the cached data, since that is where it resides. This is
+the main knob for cache capacity.</li>
+  <li><code class="language-plaintext highlighter-rouge">spark.executor.memoryOverhead</code> covers the transient off-heap encode/decode buffers, which are
+proportional to a single batch, not to the total cached size. It generally does not need to grow
+with the size of the cache.</li>
+  <li>Arrow cache is often <strong>more memory-efficient</strong> than the default cache for the heap-resident bytes:
+efficient zstd compression, a compact columnar layout without per-value Java object overhead,
+and better compression ratios for strings and complex types.</li>
+</ul>
+
+<p><strong>Memory Cleanup</strong>:</p>
+<ul>
+  <li>The transient off-heap encode/decode roots are released when each task completes.</li>
+  <li>The heap-resident cached bytes are released when the DataFrame is unpersisted or evicted, like any
+other cached block.</li>
+</ul>
+
+<p>You can monitor cache block sizes through the Storage tab in the Spark UI.</p>
+
+<h2 id="limitations-and-considerations">Limitations and Considerations</h2>
+
+<ol>
+  <li><strong>Static Configuration</strong>: Cache serializer must be set before SparkSession creation</li>
+  <li><strong>Memory Overhead</strong>: Arrow format has a small per-batch overhead</li>
+  <li><strong>Compatibility</strong>: Cannot mix cache formats - recache needed when switching</li>
+  <li><strong>Compression Trade-off</strong>: Higher compression = lower memory but slower reads</li>
+</ol>
+
+<h2 id="migration-from-default-cache">Migration from Default Cache</h2>
+
+<p>The cache serializer is resolved from <code class="language-plaintext highlighter-rouge">spark.sql.cache.serializer</code> only on first use and is then
+held in a process-wide field that is not reset when a SparkSession stops. As a result, <strong>switching
+cache formats requires a fresh JVM</strong> once any cache has been materialized &#8211; stopping and
+rebuilding the SparkSession in the same process keeps using the originally resolved serializer.</p>
+
+<p>To migrate from the default cache to Arrow cache:</p>
+
+<ol>
+  <li><strong>Start a new JVM / driver process</strong> (a brand-new Spark application).</li>
+  <li><strong>Build the SparkSession with the Arrow serializer</strong>:
+    <div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">val</span> <span class="nv">spark</span> <span class="k">=</span> <span class="nv">SparkSession</span><span class="o">.</span><span class="py">builder</span><span class="o">()</span>
+  <span class="o">.</span><span class="py">config</span><span class="o">(</span><span class="s">"spark.sql.cache.serializer"</span><span class="o">,</span>
+    <span class="s">"org.apache.spark.sql.execution.columnar.ArrowCachedBatchSerializer"</span><span class="o">)</span>
+  <span class="o">.</span><span class="py">getOrCreate</span><span class="o">()</span>
+</code></pre></div>    </div>
+  </li>
+  <li><strong>Cache your DataFrames</strong> as usual.</li>
+</ol>
+
+<p><strong>Note</strong>: Cache data is never shared across formats; each application caches in whichever format
+its serializer produces.</p>
+
+<h2 id="troubleshooting">Troubleshooting</h2>
+
+<h3 id="out-of-memory-errors">Out of Memory Errors</h3>
+
+<p>If you encounter OOM errors with Arrow cache:</p>
+
+<ol>
+  <li>Reduce batch size:
+    <div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">spark</span><span class="o">.</span><span class="py">conf</span><span class="o">.</span><span class="py">set</span><span class="o">(</span><span class="s">"spark.sql.execution.arrow.maxRecordsPerBatch"</span><span class="o">,</span> <span class="s">"5000"</span><span class="o">)</span>  <span class="c1">// Default: 10000</span>
+</code></pre></div>    </div>
+  </li>
+  <li>Enable compression:
+    <div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">spark</span><span class="o">.</span><span class="py">conf</span><span class="o">.</span><span class="py">set</span><span class="o">(</span><span class="s">"spark.sql.execution.arrow.compression.codec"</span><span class="o">,</span> <span class="s">"zstd"</span><span class="o">)</span>
+</code></pre></div>    </div>
+  </li>
+  <li>Reduce compression level:
+    <div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">spark</span><span class="o">.</span><span class="py">conf</span><span class="o">.</span><span class="py">set</span><span class="o">(</span><span class="s">"spark.sql.execution.arrow.compression.zstd.level"</span><span class="o">,</span> <span class="s">"1"</span><span class="o">)</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="slow-performance">Slow Performance</h3>
+
+<p>If Arrow cache is slower than expected:</p>
+
+<ol>
+  <li>Enable vectorized reader:
+    <div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">spark</span><span class="o">.</span><span class="py">conf</span><span class="o">.</span><span class="py">set</span><span class="o">(</span><span class="s">"spark.sql.inMemoryColumnarStorage.enableVectorizedReader"</span><span class="o">,</span> <span class="s">"true"</span><span class="o">)</span>
+</code></pre></div>    </div>
+  </li>
+  <li>Reduce or disable compression (decompression is part of every read):
+    <div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">spark</span><span class="o">.</span><span class="py">conf</span><span class="o">.</span><span class="py">set</span><span class="o">(</span><span class="s">"spark.sql.execution.arrow.compression.zstd.level"</span><span class="o">,</span> <span class="s">"1"</span><span class="o">)</span> <span class="c1">// faster, less ratio</span>
+<span class="c1">// or, for read-heavy workloads where memory is not the constraint:</span>
+<span class="nv">spark</span><span class="o">.</span><span class="py">conf</span><span class="o">.</span><span class="py">set</span><span class="o">(</span><span class="s">"spark.sql.execution.arrow.compression.codec"</span><span class="o">,</span> <span class="s">"none"</span><span class="o">)</span>
+</code></pre></div>    </div>
+    <p>Note: <code class="language-plaintext highlighter-rouge">lz4</code> is not recommended. Arrow&#8217;s Java LZ4 codec always uses the pure-Java Commons
+Compress framed LZ4 implementation, which is far slower than zstd.</p>
+  </li>
+  <li>Increase batch size (if memory allows):
+    <div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">spark</span><span class="o">.</span><span class="py">conf</span><span class="o">.</span><span class="py">set</span><span class="o">(</span><span class="s">"spark.sql.execution.arrow.maxRecordsPerBatch"</span><span class="o">,</span> <span class="s">"20000"</span><span class="o">)</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="configuration-reference">Configuration Reference</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Configuration</th>
+      <th>Default</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">spark.sql.cache.serializer</code></td>
+      <td>DefaultCachedBatchSerializer</td>
+      <td>Cache format serializer class</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">spark.sql.execution.arrow.compression.codec</code></td>
+      <td><code class="language-plaintext highlighter-rouge">none</code></td>
+      <td>Compression codec (none, lz4, zstd)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">spark.sql.execution.arrow.compression.zstd.level</code></td>
+      <td><code class="language-plaintext highlighter-rouge">3</code></td>
+      <td>Zstd compression level (negative = faster, up to 22)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">spark.sql.execution.arrow.maxRecordsPerBatch</code></td>
+      <td><code class="language-plaintext highlighter-rouge">10000</code></td>
+      <td>Maximum rows per Arrow batch</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">spark.sql.execution.arrow.maxBytesPerBatch</code></td>
+      <td><code class="language-plaintext highlighter-rouge">64MB</code></td>
+      <td>Maximum bytes per Arrow batch (whichever limit is hit first applies)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">spark.sql.execution.arrow.cache.prefetch.enabled</code></td>
+      <td><code class="language-plaintext highlighter-rouge">false</code></td>
+      <td>Prefetch the next batch in the background while the current one is consumed</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">spark.sql.inMemoryColumnarStorage.enableVectorizedReader</code></td>
+      <td><code class="language-plaintext highlighter-rouge">true</code></td>
+      <td>Enable vectorized cache reading</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="example-complete-application">Example: Complete Application</h2>
+
+<div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nn">org.apache.spark.sql.SparkSession</span>
+
+<span class="k">object</span> <span class="nc">ArrowCacheExample</span> <span class="o">{</span>
+  <span class="k">def</span> <span class="nf">main</span><span class="o">(</span><span class="n">args</span><span class="k">:</span> <span class="kt">Array</span><span class="o">[</span><span class="kt">String</span><span class="o">])</span><span class="k">:</span> <span class="kt">Unit</span> <span class="o">=</span> <span class="o">{</span>
+    <span class="c1">// Create SparkSession with Arrow cache</span>
+    <span class="k">val</span> <span class="nv">spark</span> <span class="k">=</span> <span class="nv">SparkSession</span><span class="o">.</span><span class="py">builder</span><span class="o">()</span>
+      <span class="o">.</span><span class="py">appName</span><span class="o">(</span><span class="s">"ArrowCacheExample"</span><span class="o">)</span>
+      <span class="o">.</span><span class="py">master</span><span class="o">(</span><span class="s">"local[*]"</span><span class="o">)</span>
+      <span class="o">.</span><span class="py">config</span><span class="o">(</span><span class="s">"spark.sql.cache.serializer"</span><span class="o">,</span>
+        <span class="s">"org.apache.spark.sql.execution.columnar.ArrowCachedBatchSerializer"</span><span class="o">)</span>
+      <span class="o">.</span><span class="py">config</span><span class="o">(</span><span class="s">"spark.sql.execution.arrow.compression.codec"</span><span class="o">,</span> <span class="s">"zstd"</span><span class="o">)</span>
+      <span class="o">.</span><span class="py">config</span><span class="o">(</span><span class="s">"spark.sql.inMemoryColumnarStorage.enableVectorizedReader"</span><span class="o">,</span> <span class="s">"true"</span><span class="o">)</span>
+      <span class="o">.</span><span class="py">getOrCreate</span><span class="o">()</span>
+
+    <span class="k">try</span> <span class="o">{</span>
+      <span class="c1">// Read columnar data source</span>
+      <span class="k">val</span> <span class="nv">df</span> <span class="k">=</span> <span class="nv">spark</span><span class="o">.</span><span class="py">read</span><span class="o">.</span><span class="py">parquet</span><span class="o">(</span><span class="s">"large_dataset.parquet"</span><span class="o">)</span>
+
+      <span class="c1">// Cache with Arrow format</span>
+      <span class="nv">df</span><span class="o">.</span><span class="py">cache</span><span class="o">()</span>
+
+      <span class="c1">// Queries benefit from zero-copy reads and statistics</span>
+      <span class="k">val</span> <span class="nv">result1</span> <span class="k">=</span> <span class="nv">df</span><span class="o">.</span><span class="py">filter</span><span class="o">(</span><span class="s">"age &gt; 30"</span><span class="o">).</span><span class="py">select</span><span class="o">(</span><span class="s">"name"</span><span class="o">,</span> <span class="s">"age"</span><span class="o">).</span><span class="py">count</span><span class="o">()</span>
+      <span class="nf">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Filtered count: $result1"</span><span class="o">)</span>
+
+      <span class="k">val</span> <span class="nv">result2</span> <span class="k">=</span> <span class="nv">df</span><span class="o">.</span><span class="py">groupBy</span><span class="o">(</span><span class="s">"country"</span><span class="o">).</span><span class="py">agg</span><span class="o">(</span><span class="nf">sum</span><span class="o">(</span><span class="s">"sales"</span><span class="o">)).</span><span class="py">collect</span><span class="o">()</span>
+      <span class="nf">println</span><span class="o">(</span><span class="n">s</span><span class="s">"Aggregation result: ${result2.mkString("</span><span class="o">,</span> <span class="s">")}"</span><span class="o">)</span>
+
+      <span class="c1">// Uncache when done</span>
+      <span class="nv">df</span><span class="o">.</span><span class="py">unpersist</span><span class="o">()</span>
+
+    <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+      <span class="nv">spark</span><span class="o">.</span><span class="py">stop</span><span class="o">()</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h2 id="best-practices">Best Practices</h2>
+
+<ol>
+  <li><strong>Use with Columnar Sources</strong>: Maximum benefit with Parquet/ORC</li>
+  <li><strong>Enable Statistics</strong>: Let Arrow cache collect min/max for filter pushdown</li>
+  <li><strong>Monitor Memory</strong>: Watch cache block sizes in the Spark UI Storage tab; the cached data lives on the JVM heap</li>
+  <li><strong>Test First</strong>: Benchmark your workload before production deployment</li>
+  <li><strong>Compression</strong>: Start with <code class="language-plaintext highlighter-rouge">none</code> for read-heavy workloads, or <code class="language-plaintext highlighter-rouge">zstd</code> (default level 3) when memory matters; avoid <code class="language-plaintext highlighter-rouge">lz4</code> (Arrow&#8217;s Java LZ4 codec is pure-Java Commons Compress and much slower than zstd)</li>
+  <li><strong>Vectorization</strong>: Enable vectorized reader for primitive-heavy workloads</li>
+</ol>
+
+<h2 id="further-reading">Further Reading</h2>
+
+<ul>
+  <li><a href="https://arrow.apache.org/">Apache Arrow Project</a></li>
+  <li><a href="https://spark.apache.org/docs/latest/sql-performance-tuning.html#caching-data-in-memory">Spark Caching Documentation</a></li>
+  <li><a href="https://arrow.apache.org/docs/format/Columnar.html#ipc-file-format">Arrow IPC Format</a></li>
+</ul>
+
+
+                </div>
+            
+             <!-- /container -->
+        </div>
+
+        <script src="js/vendor/jquery.min.js"></script>
+        <script src="js/vendor/bootstrap.bundle.min.js"></script>
+
+        <script src="js/vendor/anchor.min.js"></script>
+        <script src="js/main.js"></script>
+
+        <script type="text/javascript" src="js/vendor/docsearch.min.js"></script>
+        <script type="text/javascript">
+            // DocSearch is entirely free and automated. DocSearch is built in two parts:
+            // 1. a crawler which we run on our own infrastructure every 24 hours. It follows every link
+            //    in your website and extract content from every page it traverses. It then pushes this
+            //    content to an Algolia index.
+            // 2. a JavaScript snippet to be inserted in your website that will bind this Algolia index
+            //    to your search input and display its results in a dropdown UI. If you want to find more
+            //    details on how works DocSearch, check the docs of DocSearch.
+            docsearch({
+    apiKey: 'd62f962a82bc9abb53471cb7b89da35e',
+    appId: 'RAI69RXRSK',
+    indexName: 'apache_spark',
+    inputSelector: '#docsearch-input',
+    enhancedSearchInput: true,
+    algoliaOptions: {
+      'facetFilters': ["version:latest"]
+    },
+    debug: false // Set debug to true if you want to inspect the dropdown
+});
+
+        </script>
+
+        <!-- MathJax Section -->
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({
+                TeX: { equationNumbers: { autoNumber: "AMS" } }
+            });
+        </script>
+        <script>
+            // Note that we load MathJax this way to work with local file (file://), HTTP and HTTPS.
+            // We could use "//cdn.mathjax...", but that won't support "file://".
+            (function(d, script) {
+                script = d.createElement('script');
+                script.type = 'text/javascript';
+                script.async = true;
+                script.onload = function(){
+                    MathJax.Hub.Config({
+                        tex2jax: {
+                            inlineMath: [ ["$", "$"], ["\\\\(","\\\\)"] ],
+                            displayMath: [ ["$$","$$"], ["\\[", "\\]"] ],
+                            processEscapes: true,
+                            skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+                        }
+                    });
+                };
+                script.src = ('https:' == document.location.protocol ? 'https://' : 'http://') +
+                    'cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js' +
+                    '?config=TeX-AMS-MML_HTMLorMML';
+                d.getElementsByTagName('head')[0].appendChild(script);
+            }(document));
+        </script>
+    </body>
+</html>

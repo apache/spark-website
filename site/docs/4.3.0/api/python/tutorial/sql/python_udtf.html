@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Python User-defined Table Functions (UDTFs) &#8212; PySpark 4.3.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/pyspark.css?v=be654f78" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
+
+    <script src="../../_static/documentation_options.js?v=a17b270f"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=6dbb43f8"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorial/sql/python_udtf';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://spark.apache.org/static/versions.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '4.3.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="canonical" href="https://spark.apache.org/docs/latest/api/python/tutorial/sql/python_udtf.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Python Data Source API" href="python_data_source.html" />
+    <link rel="prev" title="Vectorized Python User-defined Table Functions (UDTFs)" href="arrow_python_udtf.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en">
+    
+
+    <!-- Matomo -->
+    <script type="text/javascript">
+        var _paq = window._paq = window._paq || [];
+        /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+        _paq.push(["disableCookies"]);
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+        (function() {
+            var u="https://analytics.apache.org/";
+            _paq.push(['setTrackerUrl', u+'matomo.php']);
+            _paq.push(['setSiteId', '40']);
+            var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+            g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+        })();
+    </script>
+    <!-- End Matomo Code -->
+
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="https://spark.apache.org/images/spark-logo.png" class="logo__image only-light" alt="PySpark 4.3.0 documentation - Home"/>
+    <img src="https://spark.apache.org/images/spark-logo-rev.svg" class="logo__image only-dark pst-js-only" alt="PySpark 4.3.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../reference/index.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../development/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../migration_guide/index.html">
+    Migration Guides
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/apache/spark" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/pyspark" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../getting_started/index.html">
+    Getting Started
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../user_guide/index.html">
+    User Guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../reference/index.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../development/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../migration_guide/index.html">
+    Migration Guides
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/apache/spark" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/pyspark" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-box fa-lg" aria-hidden="true"></i><span class="visually-hidden">PyPI</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button type="button" id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../python_packaging.html">Python Package Management</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Spark SQL</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="arrow_pandas.html">Apache Arrow in PySpark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="arrow_python_udf.html">Arrow Python UDFs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="arrow_python_udtf.html">Vectorized Python User-defined Table Functions (UDTFs)</a></li>
+<li class="toctree-l2 current active"><a aria-current="page" class="current reference internal" href="#">Python User-defined Table Functions (UDTFs)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="python_data_source.html">Python Data Source API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="type_conversions.html">Python to Spark Type Conversions</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../pandas_on_spark/index.html">Pandas API on Spark</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../pandas_on_spark/options.html">Options and settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pandas_on_spark/pandas_pyspark.html">From/to pandas and PySpark DataFrames</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pandas_on_spark/transform_apply.html">Transform and apply a function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pandas_on_spark/types.html">Type Support in Pandas API on Spark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pandas_on_spark/typehints.html">Type Hints in Pandas API on Spark</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pandas_on_spark/from_to_dbms.html">From/to other DBMSes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pandas_on_spark/best_practices.html">Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pandas_on_spark/supported_pandas_api.html">Supported pandas API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pandas_on_spark/faq.html">FAQ</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Tutorials</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Spark SQL</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Python User-defined Table Functions (UDTFs)</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="python-user-defined-table-functions-udtfs">
+<h1>Python User-defined Table Functions (UDTFs)<a class="headerlink" href="#python-user-defined-table-functions-udtfs" title="Link to this heading">#</a></h1>
+<p>Spark 3.5 introduces the Python user-defined table function (UDTF), a new type of user-defined function.
+Unlike scalar functions that return a single result value from each call, each UDTF is invoked in
+the <code class="docutils literal notranslate"><span class="pre">FROM</span></code> clause of a query and returns an entire table as output.
+Each UDTF call can accept zero or more arguments.
+These arguments can either be scalar expressions or table arguments that represent entire input tables.</p>
+<section id="implementing-a-python-udtf">
+<h2>Implementing a Python UDTF<a class="headerlink" href="#implementing-a-python-udtf" title="Link to this heading">#</a></h2>
+<p>To implement a Python UDTF, you first need to define a class implementing the methods:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">PythonUDTF</span><span class="p">:</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Initializes the user-defined table function (UDTF). This is optional.</span>
+
+<span class="sd">        This method serves as the default constructor and is called once when the</span>
+<span class="sd">        UDTF is instantiated on the executor side.</span>
+
+<span class="sd">        Any class fields assigned in this method will be available for subsequent</span>
+<span class="sd">        calls to the `eval` and `terminate` methods. This class instance will</span>
+<span class="sd">        remain alive until all rows in the current partition have been consumed</span>
+<span class="sd">        by the `eval` method.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - You cannot create or reference the Spark session within the UDTF. Any</span>
+<span class="sd">          attempt to do so will result in a serialization error.</span>
+<span class="sd">        - If the below `analyze` method is implemented, it is also possible to</span>
+<span class="sd">          define this method as: `__init__(self, analyze_result: AnalyzeResult)`.</span>
+<span class="sd">          In this case, the result of the `analyze` method is passed into all</span>
+<span class="sd">          future instantiations of this UDTF class. In this way, the UDTF may</span>
+<span class="sd">          inspect the schema and metadata of the output table as needed during</span>
+<span class="sd">          execution of other methods in this class. Note that it is possible to</span>
+<span class="sd">          create a subclass of the `AnalyzeResult` class if desired for purposes</span>
+<span class="sd">          of passing custom information generated just once during UDTF analysis</span>
+<span class="sd">          to other method calls; this can be especially useful if this</span>
+<span class="sd">          initialization is expensive.</span>
+<span class="sd">        """</span>
+        <span class="o">...</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">analyze</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">AnalyzeArgument</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnalyzeResult</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Static method to compute the output schema of a particular call to this</span>
+<span class="sd">        function in response to the arguments provided.</span>
+
+<span class="sd">        This method is optional and only needed if the registration of the UDTF</span>
+<span class="sd">        did not provide a static output schema to be use for all calls to the</span>
+<span class="sd">        function. In this context, `output schema` refers to the ordered list</span>
+<span class="sd">        of the names and types of the columns in the function's result table.</span>
+
+<span class="sd">        This method accepts zero or more parameters mapping 1:1 with the</span>
+<span class="sd">        arguments provided to the particular UDTF call under consideration.</span>
+<span class="sd">        Each parameter is an instance of the `AnalyzeArgument` class.</span>
+
+<span class="sd">        `AnalyzeArgument` fields</span>
+<span class="sd">        ------------------------</span>
+<span class="sd">        dataType: DataType</span>
+<span class="sd">            Indicates the type of the provided input argument to this particular</span>
+<span class="sd">            UDTF call. For input table arguments, this is a StructType</span>
+<span class="sd">            representing the table's columns.</span>
+<span class="sd">        value: Optional[Any]</span>
+<span class="sd">            The value of the provided input argument to this particular UDTF</span>
+<span class="sd">            call. This is `None` for table arguments, or for literal scalar</span>
+<span class="sd">            arguments that are not constant.</span>
+<span class="sd">        isTable: bool</span>
+<span class="sd">            This is true if the provided input argument to this particular UDTF</span>
+<span class="sd">            call is a table argument.</span>
+<span class="sd">        isConstantExpression: bool</span>
+<span class="sd">            This is true if the provided input argument to this particular UDTF</span>
+<span class="sd">            call is either a literal or other constant-foldable scalar expression.</span>
+
+<span class="sd">        This method returns an instance of the `AnalyzeResult` class which</span>
+<span class="sd">        includes the result table's schema as a StructType. If the UDTF accepts</span>
+<span class="sd">        an input table argument, then the `AnalyzeResult` can also include a</span>
+<span class="sd">        requested way to partition and order the rows of the input table across</span>
+<span class="sd">        several UDTF calls. See below for more information about UDTF table</span>
+<span class="sd">        arguments and how to call them in SQL queries, including the WITH SINGLE</span>
+<span class="sd">        PARTITION clause (corresponding to the `withSinglePartition` field here),</span>
+<span class="sd">        PARTITION BY clause (corresponding to the `partitionBy` field here),</span>
+<span class="sd">        ORDER BY clause (corresponding to the `orderBy` field here), and passing</span>
+<span class="sd">        table subqueries as arguments (corresponding to the `select` field here).</span>
+
+<span class="sd">        `AnalyzeResult` fields</span>
+<span class="sd">        ----------------------</span>
+<span class="sd">        schema: StructType</span>
+<span class="sd">            The schema of the result table.</span>
+<span class="sd">        withSinglePartition: bool = False</span>
+<span class="sd">            If True, the query planner will arrange a repartitioning operation</span>
+<span class="sd">            from the previous execution stage such that all rows of the input</span>
+<span class="sd">            table are consumed by the `eval` method from exactly one instance</span>
+<span class="sd">            of the UDTF class.</span>
+<span class="sd">        partitionBy: Sequence[PartitioningColumn] = field(default_factory=tuple)</span>
+<span class="sd">            If non-empty, the query planner will arrange a repartitioning such</span>
+<span class="sd">            that all rows with each unique combination of values of the</span>
+<span class="sd">            partitioning expressions are consumed by a separate unique instance</span>
+<span class="sd">            of the UDTF class.</span>
+<span class="sd">        orderBy: Sequence[OrderingColumn] = field(default_factory=tuple)</span>
+<span class="sd">            If non-empty, this specifies the requested ordering of rows within</span>
+<span class="sd">            each partition.</span>
+<span class="sd">        select: Sequence[SelectedColumn] = field(default_factory=tuple)</span>
+<span class="sd">            If non-empty, this is a sequence of expressions that the UDTF is</span>
+<span class="sd">            specifying for Catalyst to evaluate against the columns in the input</span>
+<span class="sd">            TABLE argument. The UDTF then receives one input attribute for each</span>
+<span class="sd">            name in the list, in the order they are listed.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - It is possible for the `analyze` method to accept the exact arguments</span>
+<span class="sd">          expected, mapping 1:1 with the arguments provided to the UDTF call.</span>
+<span class="sd">        - The `analyze` method can instead choose to accept positional arguments</span>
+<span class="sd">          if desired (using `*args`) or keyword arguments (using `**kwargs`).</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        This is an `analyze` implementation that returns one output column for</span>
+<span class="sd">        each word in the input string argument.</span>
+
+<span class="sd">        &gt;&gt;&gt; @staticmethod</span>
+<span class="sd">        ... def analyze(text: str) -&gt; AnalyzeResult:</span>
+<span class="sd">        ...     schema = StructType()</span>
+<span class="sd">        ...     for index, word in enumerate(text.split(" ")):</span>
+<span class="sd">        ...         schema = schema.add(f"word_{index}")</span>
+<span class="sd">        ...     return AnalyzeResult(schema=schema)</span>
+
+<span class="sd">        Same as above, but using *args to accept the arguments.</span>
+
+<span class="sd">        &gt;&gt;&gt; @staticmethod</span>
+<span class="sd">        ... def analyze(*args) -&gt; AnalyzeResult:</span>
+<span class="sd">        ...     assert len(args) == 1, "This function accepts one argument only"</span>
+<span class="sd">        ...     assert args[0].dataType == StringType(), "Only string arguments are supported"</span>
+<span class="sd">        ...     text = args[0]</span>
+<span class="sd">        ...     schema = StructType()</span>
+<span class="sd">        ...     for index, word in enumerate(text.split(" ")):</span>
+<span class="sd">        ...         schema = schema.add(f"word_{index}")</span>
+<span class="sd">        ...     return AnalyzeResult(schema=schema)</span>
+
+<span class="sd">        Same as above, but using **kwargs to accept the arguments.</span>
+
+<span class="sd">        &gt;&gt;&gt; @staticmethod</span>
+<span class="sd">        ... def analyze(**kwargs) -&gt; AnalyzeResult:</span>
+<span class="sd">        ...     assert len(kwargs) == 1, "This function accepts one argument only"</span>
+<span class="sd">        ...     assert "text" in kwargs, "An argument named 'text' is required"</span>
+<span class="sd">        ...     assert kwargs["text"].dataType == StringType(), "Only strings are supported"</span>
+<span class="sd">        ...     text = args["text"]</span>
+<span class="sd">        ...     schema = StructType()</span>
+<span class="sd">        ...     for index, word in enumerate(text.split(" ")):</span>
+<span class="sd">        ...         schema = schema.add(f"word_{index}")</span>
+<span class="sd">        ...     return AnalyzeResult(schema=schema)</span>
+
+<span class="sd">        This is an `analyze` implementation that returns a constant output</span>
+<span class="sd">        schema, but add custom information in the result metadata to be consumed</span>
+<span class="sd">        by future __init__ method calls:</span>
+
+<span class="sd">        &gt;&gt;&gt; @staticmethod</span>
+<span class="sd">        ... def analyze(text: str) -&gt; AnalyzeResult:</span>
+<span class="sd">        ...     @dataclass</span>
+<span class="sd">        ...     class AnalyzeResultWithOtherMetadata(AnalyzeResult):</span>
+<span class="sd">        ...         num_words: int</span>
+<span class="sd">        ...         num_articles: int</span>
+<span class="sd">        ...     words = text.split(" ")</span>
+<span class="sd">        ...     return AnalyzeResultWithOtherMetadata(</span>
+<span class="sd">        ...         schema=StructType()</span>
+<span class="sd">        ...             .add("word", StringType())</span>
+<span class="sd">        ...             .add('total", IntegerType()),</span>
+<span class="sd">        ...         num_words=len(words),</span>
+<span class="sd">        ...         num_articles=len((</span>
+<span class="sd">        ...             word for word in words</span>
+<span class="sd">        ...             if word == 'a' or word == 'an' or word == 'the')))</span>
+
+<span class="sd">        This is an `analyze` implementation that returns a constant output</span>
+<span class="sd">        schema, and also requests to select a subset of columns from the input</span>
+<span class="sd">        table and for the input table to be partitioned across several UDTF</span>
+<span class="sd">        calls based on the values of the `date` column. A SQL query may this</span>
+<span class="sd">        UDTF passing a table argument like "SELECT * FROM udtf(TABLE(t))".</span>
+<span class="sd">        Then this `analyze` method specifies additional constraints on the</span>
+<span class="sd">        input table:</span>
+<span class="sd">        (1) The input table must be partitioned across several UDTF calls</span>
+<span class="sd">            based on the values of the month value of each `date` column.</span>
+<span class="sd">        (2) The rows within each partition will arrive ordered by the `date`</span>
+<span class="sd">            column.</span>
+<span class="sd">        (3) The UDTF will only receive the `date` and `word` columns from</span>
+<span class="sd">            the input table.</span>
+
+<span class="sd">        &gt;&gt;&gt; @staticmethod</span>
+<span class="sd">        ... def analyze(*args) -&gt; AnalyzeResult:</span>
+<span class="sd">        ...     assert len(args) == 1, "This function accepts one argument only"</span>
+<span class="sd">        ...     assert args[0].isTable, "Only table arguments are supported"</span>
+<span class="sd">        ...     return AnalyzeResult(</span>
+<span class="sd">        ...         schema=StructType()</span>
+<span class="sd">        ...             .add("month", DateType())</span>
+<span class="sd">        ...             .add('longest_word", IntegerType()),</span>
+<span class="sd">        ...         partitionBy=[</span>
+<span class="sd">        ...             PartitioningColumn("extract(month from date)")],</span>
+<span class="sd">        ...         orderBy=[</span>
+<span class="sd">        ...             OrderingColumn("date")],</span>
+<span class="sd">        ...         select=[</span>
+<span class="sd">        ...             SelectedColumn("date"),</span>
+<span class="sd">        ...             SelectedColumn(</span>
+<span class="sd">        ...               name="length(word),</span>
+<span class="sd">        ...               alias="length_word")])</span>
+<span class="sd">        """</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Evaluates the function using the given input arguments.</span>
+
+<span class="sd">        This method is required and must be implemented.</span>
+
+<span class="sd">        Argument Mapping:</span>
+<span class="sd">        - Each provided scalar expression maps to exactly one value in the</span>
+<span class="sd">          `*args` list.</span>
+<span class="sd">        - Each provided table argument maps to a pyspark.sql.Row object containing</span>
+<span class="sd">          the columns in the order they appear in the provided input table,</span>
+<span class="sd">          and with the names computed by the query analyzer.</span>
+
+<span class="sd">        This method is called on every input row, and can produce zero or more</span>
+<span class="sd">        output rows. Each element in the output tuple corresponds to one column</span>
+<span class="sd">        specified in the return type of the UDTF.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        *args : Any</span>
+<span class="sd">            Arbitrary positional arguments representing the input to the UDTF.</span>
+
+<span class="sd">        Yields</span>
+<span class="sd">        ------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            A tuple, list, or pyspark.sql.Row object representing a single row</span>
+<span class="sd">            in the UDTF result table. Yield as many times as needed to produce</span>
+<span class="sd">            multiple rows.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        - It is also possible for UDTFs to accept the exact arguments expected,</span>
+<span class="sd">          along with their types.</span>
+<span class="sd">        - UDTFs can instead accept keyword arguments during the function call if</span>
+<span class="sd">          needed.</span>
+<span class="sd">        - The `eval` method can raise a `SkipRestOfInputTableException` to</span>
+<span class="sd">          indicate that the UDTF wants to skip consuming all remaining rows from</span>
+<span class="sd">          the current partition of the input table. This will cause the UDTF to</span>
+<span class="sd">          proceed directly to the `terminate` method.</span>
+<span class="sd">        - The `eval` method can raise any other exception to indicate that the</span>
+<span class="sd">          UDTF should be aborted entirely. This will cause the UDTF to skip the</span>
+<span class="sd">          `terminate` method and proceed directly to the `cleanup` method, and</span>
+<span class="sd">          then the exception will be propagated to the query processor causing</span>
+<span class="sd">          the invoking query to fail.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        This `eval` method returns one row and one column for each input.</span>
+
+<span class="sd">        &gt;&gt;&gt; def eval(self, x: int):</span>
+<span class="sd">        ...     yield (x, )</span>
+
+<span class="sd">        This `eval` method returns two rows and two columns for each input.</span>
+
+<span class="sd">        &gt;&gt;&gt; def eval(self, x: int, y: int):</span>
+<span class="sd">        ...     yield (x + y, x - y)</span>
+<span class="sd">        ...     yield (y + x, y - x)</span>
+
+<span class="sd">        Same as above, but using *args to accept the arguments:</span>
+
+<span class="sd">        &gt;&gt;&gt; def eval(self, *args):</span>
+<span class="sd">        ...     assert len(args) == 2, "This function accepts two integer arguments only"</span>
+<span class="sd">        ...     x = args[0]</span>
+<span class="sd">        ...     y = args[1]</span>
+<span class="sd">        ...     yield (x + y, x - y)</span>
+<span class="sd">        ...     yield (y + x, y - x)</span>
+
+<span class="sd">        Same as above, but using **kwargs to accept the arguments:</span>
+
+<span class="sd">        &gt;&gt;&gt; def eval(self, **kwargs):</span>
+<span class="sd">        ...     assert len(kwargs) == 2, "This function accepts two integer arguments only"</span>
+<span class="sd">        ...     x = kwargs["x"]</span>
+<span class="sd">        ...     y = kwargs["y"]</span>
+<span class="sd">        ...     yield (x + y, x - y)</span>
+<span class="sd">        ...     yield (y + x, y - x)</span>
+<span class="sd">        """</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Called when the UDTF has successfully processed all input rows.</span>
+
+<span class="sd">        This method is optional to implement and is useful for performing any</span>
+<span class="sd">        finalization operations after the UDTF has finished processing</span>
+<span class="sd">        all rows. It can also be used to yield additional rows if needed.</span>
+<span class="sd">        Table functions that consume all rows in the entire input partition</span>
+<span class="sd">        and then compute and return the entire output table can do so from</span>
+<span class="sd">        this method as well (please be mindful of memory usage when doing</span>
+<span class="sd">        this).</span>
+
+<span class="sd">        If any exceptions occur during input row processing, this method</span>
+<span class="sd">        won't be called.</span>
+
+<span class="sd">        Yields</span>
+<span class="sd">        ------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            A tuple representing a single row in the UDTF result table.</span>
+<span class="sd">            Yield this if you want to return additional rows during termination.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; def terminate(self) -&gt; Iterator[Any]:</span>
+<span class="sd">        &gt;&gt;&gt;     yield "done", None</span>
+<span class="sd">        """</span>
+        <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Invoked after the UDTF completes processing input rows.</span>
+
+<span class="sd">        This method is optional to implement and is useful for final cleanup</span>
+<span class="sd">        regardless of whether the UDTF processed all input rows successfully</span>
+<span class="sd">        or was aborted due to exceptions.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; def cleanup(self) -&gt; None:</span>
+<span class="sd">        &gt;&gt;&gt;     self.conn.close()</span>
+<span class="sd">        """</span>
+        <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="defining-the-output-schema">
+<h2>Defining the Output Schema<a class="headerlink" href="#defining-the-output-schema" title="Link to this heading">#</a></h2>
+<p>The return type of the UDTF defines the schema of the table it outputs.</p>
+<p>You can specify it either after the <code class="docutils literal notranslate"><span class="pre">&#64;udtf</span></code> decorator or as a result from the <code class="docutils literal notranslate"><span class="pre">analyze</span></code> method.</p>
+<p>It must be either a <code class="docutils literal notranslate"><span class="pre">StructType</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">StructType</span><span class="p">()</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s2">"c1"</span><span class="p">,</span> <span class="n">StringType</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>or a DDL string representing a struct type:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">c1</span> <span class="n">string</span>
+</pre></div>
+</div>
+</section>
+<section id="emitting-output-rows">
+<h2>Emitting Output Rows<a class="headerlink" href="#emitting-output-rows" title="Link to this heading">#</a></h2>
+<p>The <cite>eval</cite> and <cite>terminate</cite> methods then emit zero or more output rows conforming to this schema by
+yielding tuples, lists, or <code class="docutils literal notranslate"><span class="pre">pyspark.sql.Row</span></code> objects.</p>
+<p>For example, here we return a row by providing a tuple of three elements:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+    <span class="k">yield</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>It is also acceptable to omit the parentheses:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+    <span class="k">yield</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span>
+</pre></div>
+</div>
+<p>Remember to add a trailing comma if returning a row with only one column!</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+    <span class="k">yield</span> <span class="n">x</span><span class="p">,</span>
+</pre></div>
+</div>
+<p>It is also possible to yield a <code class="docutils literal notranslate"><span class="pre">pyspark.sql.Row</span></code> object.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Row</span>
+    <span class="k">yield</span> <span class="n">Row</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This is an example of yielding output rows from the <cite>terminate</cite> method using a Python list.
+Usually it makes sense to store state inside the class for this purpose from earlier steps in the
+UDTF evaluation.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">yield</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="registering-and-using-python-udtfs-in-sql">
+<h2>Registering and Using Python UDTFs in SQL<a class="headerlink" href="#registering-and-using-python-udtfs-in-sql" title="Link to this heading">#</a></h2>
+<p>Python UDTFs can be registered and used in SQL queries.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">udtf</span>
+
+<span class="nd">@udtf</span><span class="p">(</span><span class="n">returnType</span><span class="o">=</span><span class="s2">"word: string"</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">WordSplitter</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">" "</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="n">word</span><span class="o">.</span><span class="n">strip</span><span class="p">(),)</span>
+
+<span class="c1"># Register the UDTF for use in Spark SQL.</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">udtf</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">"split_words"</span><span class="p">,</span> <span class="n">WordSplitter</span><span class="p">)</span>
+
+<span class="c1"># Example: Using the UDTF in SQL.</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">"SELECT * FROM split_words('hello world')"</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +-----+</span>
+<span class="c1"># | word|</span>
+<span class="c1"># +-----+</span>
+<span class="c1"># |hello|</span>
+<span class="c1"># |world|</span>
+<span class="c1"># +-----+</span>
+
+<span class="c1"># Example: Using the UDTF with a lateral join in SQL.</span>
+<span class="c1"># The lateral join allows us to reference the columns and aliases</span>
+<span class="c1"># in the previous FROM clause items as inputs to the UDTF.</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span>
+    <span class="s2">"SELECT * FROM VALUES ('Hello World'), ('Apache Spark') t(text), "</span>
+    <span class="s2">"LATERAL split_words(text)"</span>
+<span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +------------+------+</span>
+<span class="c1"># |        text|  word|</span>
+<span class="c1"># +------------+------+</span>
+<span class="c1"># | Hello World| Hello|</span>
+<span class="c1"># | Hello World| World|</span>
+<span class="c1"># |Apache Spark|Apache|</span>
+<span class="c1"># |Apache Spark| Spark|</span>
+<span class="c1"># +------------+------+</span>
+</pre></div>
+</div>
+</section>
+<section id="arrow-optimization">
+<h2>Arrow Optimization<a class="headerlink" href="#arrow-optimization" title="Link to this heading">#</a></h2>
+<p>Apache Arrow is an in-memory columnar data format used in Spark to efficiently transfer
+data between Java and Python processes. Beginning in Spark 4.2, Apache Arrow is enabled by default for Python UDTFs.
+To disable Arrow optimization, set <code class="docutils literal notranslate"><span class="pre">spark.sql.execution.pythonUDTF.arrow.enabled</span></code> to false.</p>
+<p>Arrow can improve performance when each input row generates a large result table from the UDTF.</p>
+<p>To enable Arrow optimization, set the <code class="docutils literal notranslate"><span class="pre">spark.sql.execution.pythonUDTF.arrow.enabled</span></code>
+configuration to <code class="docutils literal notranslate"><span class="pre">true</span></code>. You can also enable it by specifying the <code class="docutils literal notranslate"><span class="pre">useArrow</span></code> parameter
+when declaring the UDTF.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">udtf</span>
+
+<span class="nd">@udtf</span><span class="p">(</span><span class="n">returnType</span><span class="o">=</span><span class="s2">"c1: int, c2: int"</span><span class="p">,</span> <span class="n">useArrow</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PlusOne</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">x</span><span class="p">,</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>For more details, please see <a class="reference internal" href="../arrow_pandas.html"><span class="doc">Apache Arrow in PySpark</span></a>.</p>
+</section>
+<section id="udtf-examples-with-scalar-arguments">
+<h2>UDTF Examples with Scalar Arguments<a class="headerlink" href="#udtf-examples-with-scalar-arguments" title="Link to this heading">#</a></h2>
+<p>Here is a simple example of a UDTF class implementation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define the UDTF class and implement the required `eval` method.</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SquareNumbers</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">num</span> <span class="o">*</span> <span class="n">num</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To make use of the UDTF, you’ll first need to instantiate it using the <code class="docutils literal notranslate"><span class="pre">&#64;udtf</span></code> decorator:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">lit</span><span class="p">,</span> <span class="n">udtf</span>
+
+<span class="c1"># Create a UDTF using the class definition and the `udtf` function.</span>
+<span class="n">square_num</span> <span class="o">=</span> <span class="n">udtf</span><span class="p">(</span><span class="n">SquareNumbers</span><span class="p">,</span> <span class="n">returnType</span><span class="o">=</span><span class="s2">"num: int, squared: int"</span><span class="p">)</span>
+
+<span class="c1"># Invoke the UDTF in PySpark.</span>
+<span class="n">square_num</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">lit</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +---+-------+</span>
+<span class="c1"># |num|squared|</span>
+<span class="c1"># +---+-------+</span>
+<span class="c1"># |  1|      1|</span>
+<span class="c1"># |  2|      4|</span>
+<span class="c1"># |  3|      9|</span>
+<span class="c1"># +---+-------+</span>
+</pre></div>
+</div>
+<p>An alternative way to create a UDTF is to use the <a class="reference internal" href="../../reference/pyspark.sql/api/pyspark.sql.functions.udtf.html#pyspark.sql.functions.udtf" title="pyspark.sql.functions.udtf"><code class="xref py py-func docutils literal notranslate"><span class="pre">udtf()</span></code></a> function:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">lit</span><span class="p">,</span> <span class="n">udtf</span>
+
+<span class="c1"># Define a UDTF using the `udtf` decorator directly on the class.</span>
+<span class="nd">@udtf</span><span class="p">(</span><span class="n">returnType</span><span class="o">=</span><span class="s2">"num: int, squared: int"</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SquareNumbers</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="n">num</span><span class="p">,</span> <span class="n">num</span> <span class="o">*</span> <span class="n">num</span><span class="p">)</span>
+
+<span class="c1"># Invoke the UDTF in PySpark using the SquareNumbers class directly.</span>
+<span class="n">SquareNumbers</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">lit</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +---+-------+</span>
+<span class="c1"># |num|squared|</span>
+<span class="c1"># +---+-------+</span>
+<span class="c1"># |  1|      1|</span>
+<span class="c1"># |  2|      4|</span>
+<span class="c1"># |  3|      9|</span>
+<span class="c1"># +---+-------+</span>
+</pre></div>
+</div>
+<p>Here is a Python UDTF that expands date ranges into individual dates:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">lit</span><span class="p">,</span> <span class="n">udtf</span>
+
+<span class="nd">@udtf</span><span class="p">(</span><span class="n">returnType</span><span class="o">=</span><span class="s2">"date: string"</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DateExpander</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">end_date</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">start_date</span><span class="p">,</span> <span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">end_date</span><span class="p">,</span> <span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
+        <span class="k">while</span> <span class="n">current</span> <span class="o">&lt;=</span> <span class="n">end</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="n">current</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">),)</span>
+            <span class="n">current</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">DateExpander</span><span class="p">(</span><span class="n">lit</span><span class="p">(</span><span class="s2">"2023-02-25"</span><span class="p">),</span> <span class="n">lit</span><span class="p">(</span><span class="s2">"2023-03-01"</span><span class="p">))</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +----------+</span>
+<span class="c1"># |      date|</span>
+<span class="c1"># +----------+</span>
+<span class="c1"># |2023-02-25|</span>
+<span class="c1"># |2023-02-26|</span>
+<span class="c1"># |2023-02-27|</span>
+<span class="c1"># |2023-02-28|</span>
+<span class="c1"># |2023-03-01|</span>
+<span class="c1"># +----------+</span>
+</pre></div>
+</div>
+<p>Here is a Python UDTF with <code class="docutils literal notranslate"><span class="pre">__init__</span></code> and <code class="docutils literal notranslate"><span class="pre">terminate</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">udtf</span>
+
+<span class="nd">@udtf</span><span class="p">(</span><span class="n">returnType</span><span class="o">=</span><span class="s2">"cnt: int"</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CountUDTF</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Initialize the counter to 0 when an instance of the class is created.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="c1"># Increment the counter by 1 for each input value received.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Yield the final count when the UDTF is done processing.</span>
+        <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">,</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="n">udtf</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">"count_udtf"</span><span class="p">,</span> <span class="n">CountUDTF</span><span class="p">)</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">"SELECT * FROM range(0, 10, 1, 1), LATERAL count_udtf(id)"</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +---+---+</span>
+<span class="c1"># | id|cnt|</span>
+<span class="c1"># +---+---+</span>
+<span class="c1"># |  9| 10|</span>
+<span class="c1"># +---+---+</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">"SELECT * FROM range(0, 10, 1, 2), LATERAL count_udtf(id)"</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +---+---+</span>
+<span class="c1"># | id|cnt|</span>
+<span class="c1"># +---+---+</span>
+<span class="c1"># |  4|  5|</span>
+<span class="c1"># |  9|  5|</span>
+<span class="c1"># +---+---+</span>
+</pre></div>
+</div>
+</section>
+<section id="accepting-an-input-table-argument">
+<h2>Accepting an Input Table Argument<a class="headerlink" href="#accepting-an-input-table-argument" title="Link to this heading">#</a></h2>
+<p>The UDTF examples above show functions that accept scalar input arguments, such as integers or
+strings.</p>
+<p>However, any Python UDTF can also accept an input table as an argument, and this can work in
+conjunction with scalar input argument(s) for the same function definition. You are allowed to
+have only one such table argument as input.</p>
+<p>Then any SQL query can provide an input table using the <code class="docutils literal notranslate"><span class="pre">TABLE</span></code> keyword followed by parentheses
+surrounding an appropriate table identifier, like <code class="docutils literal notranslate"><span class="pre">TABLE(t)</span></code>. Alternatively, you can pass a table
+subquery, like <code class="docutils literal notranslate"><span class="pre">TABLE(SELECT</span> <span class="pre">a,</span> <span class="pre">b,</span> <span class="pre">c</span> <span class="pre">FROM</span> <span class="pre">t)</span></code> or
+<code class="docutils literal notranslate"><span class="pre">TABLE(SELECT</span> <span class="pre">t1.a,</span> <span class="pre">t2.b</span> <span class="pre">FROM</span> <span class="pre">t1</span> <span class="pre">INNER</span> <span class="pre">JOIN</span> <span class="pre">t2</span> <span class="pre">USING</span> <span class="pre">(key))</span></code>.</p>
+<p>The input table argument is then represented as a <code class="docutils literal notranslate"><span class="pre">pyspark.sql.Row</span></code> argument to the <code class="docutils literal notranslate"><span class="pre">eval</span></code>
+method, with one call to the <code class="docutils literal notranslate"><span class="pre">eval</span></code> method for each row in the input table.</p>
+<p>For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">udtf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Row</span>
+
+<span class="nd">@udtf</span><span class="p">(</span><span class="n">returnType</span><span class="o">=</span><span class="s2">"id: int"</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FilterUDTF</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="n">Row</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">row</span><span class="p">[</span><span class="s2">"id"</span><span class="p">],</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="n">udtf</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">"filter_udtf"</span><span class="p">,</span> <span class="n">FilterUDTF</span><span class="p">)</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">"SELECT * FROM filter_udtf(TABLE(SELECT * FROM range(10)))"</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +---+</span>
+<span class="c1"># | id|</span>
+<span class="c1"># +---+</span>
+<span class="c1"># |  6|</span>
+<span class="c1"># |  7|</span>
+<span class="c1"># |  8|</span>
+<span class="c1"># |  9|</span>
+<span class="c1"># +---+</span>
+</pre></div>
+</div>
+<p>When calling a UDTF with a table argument, any SQL query can request that the input table be
+partitioned across several UDTF calls based on the values of one or more columns of the input
+table. To do so, specify the <code class="docutils literal notranslate"><span class="pre">PARTITION</span> <span class="pre">BY</span></code> clause in the function call after the <code class="docutils literal notranslate"><span class="pre">TABLE</span></code>
+argument. This provides a guaranteee that all input rows with each unique combination of values of
+the partitioning columns will get consumed by exactly one instance of the UDTF class.</p>
+<p>Note that in addition to simple column references, the <code class="docutils literal notranslate"><span class="pre">PARTITION</span> <span class="pre">BY</span></code> clause also accepts
+arbitrary expressions based on columns of the input table. For example, you can specify the
+<code class="docutils literal notranslate"><span class="pre">LENGTH</span></code> of a string, extract a month from a date, or concatenate two values.</p>
+<p>It is also possible to specify <code class="docutils literal notranslate"><span class="pre">WITH</span> <span class="pre">SINGLE</span> <span class="pre">PARTITION</span></code> instead of <code class="docutils literal notranslate"><span class="pre">PARTITION</span> <span class="pre">BY</span></code> to request
+only one partition wherein all input rows must be consumed by exactly one instance of the UDTF
+class.</p>
+<p>Within each partition, you can optionally specify a required ordering of the input rows as the
+UDTF’s <code class="docutils literal notranslate"><span class="pre">eval</span></code> method consumes them. To do so, provide an <code class="docutils literal notranslate"><span class="pre">ORDER</span> <span class="pre">BY</span></code> clause after the
+<code class="docutils literal notranslate"><span class="pre">PARTITION</span> <span class="pre">BY</span></code> or <code class="docutils literal notranslate"><span class="pre">WITH</span> <span class="pre">SINGLE</span> <span class="pre">PARTITION</span></code> clause described above.</p>
+<p>For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.functions</span><span class="w"> </span><span class="kn">import</span> <span class="n">udtf</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyspark.sql.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Row</span>
+
+<span class="c1"># Define and register a UDTF.</span>
+<span class="nd">@udtf</span><span class="p">(</span><span class="n">returnType</span><span class="o">=</span><span class="s2">"a: string, b: int"</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FilterUDTF</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="s2">""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="n">Row</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"a"</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">,</span> <span class="n">row</span><span class="p">[</span><span class="s2">"b"</span><span class="p">])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">terminate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span>
+
+<span class="n">spark</span><span class="o">.</span><span class="n">udtf</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s2">"filter_udtf"</span><span class="p">,</span> <span class="n">FilterUDTF</span><span class="p">)</span>
+
+<span class="c1"># Create an input table with some example values.</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">"DROP TABLE IF EXISTS values_table"</span><span class="p">)</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">"CREATE TABLE values_table (a STRING, b INT)"</span><span class="p">)</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">"INSERT INTO values_table VALUES ('abc', 2), ('abc', 4), ('def', 6), ('def', 8)"</span><span class="p">)</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">table</span><span class="p">(</span><span class="s2">"values_table"</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +-------+----+</span>
+<span class="c1"># |     a |  b |</span>
+<span class="c1"># +-------+----+</span>
+<span class="c1"># | "abc" | 2  |</span>
+<span class="c1"># | "abc" | 4  |</span>
+<span class="c1"># | "def" | 6  |</span>
+<span class="c1"># | "def" | 8  |</span>
+<span class="c1"># +-------+----+</span>
+
+<span class="c1"># Query the UDTF with the input table as an argument, and a directive to partition the input</span>
+<span class="c1"># rows such that all rows with each unique value of the `a` column are processed by the same</span>
+<span class="c1"># instance of the UDTF class. Within each partition, the rows are ordered by the `b` column.</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">"""</span>
+<span class="s2">    SELECT * FROM filter_udtf(TABLE(values_table) PARTITION BY a ORDER BY b) ORDER BY 1</span>
+<span class="s2">    """</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +-------+----+</span>
+<span class="c1"># |     a |  b |</span>
+<span class="c1"># +-------+----+</span>
+<span class="c1"># | "abc" | 4  |</span>
+<span class="c1"># | "def" | 8  |</span>
+<span class="c1"># +-------+----+</span>
+
+<span class="c1"># Query the UDTF with the input table as an argument, and a directive to partition the input</span>
+<span class="c1"># rows such that all rows with each unique result of evaluating the "LENGTH(a)" expression are</span>
+<span class="c1"># processed by the same instance of the UDTF class. Within each partition, the rows are ordered</span>
+<span class="c1"># by the `b` column.</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">"""</span>
+<span class="s2">    SELECT * FROM filter_udtf(TABLE(values_table) PARTITION BY LENGTH(a) ORDER BY b) ORDER BY 1</span>
+<span class="s2">    """</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +-------+---+</span>
+<span class="c1"># |     a | b |</span>
+<span class="c1"># +-------+---+</span>
+<span class="c1"># | "def" | 8 |</span>
+<span class="c1"># +-------+---+</span>
+
+<span class="c1"># Query the UDTF with the input table as an argument, and a directive to consider all the input</span>
+<span class="c1"># rows in one single partition such that exactly once instance of the UDTF class consumes all of</span>
+<span class="c1"># the input rows. Within each partition, the rows are ordered by the `b` column.</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">"""</span>
+<span class="s2">    SELECT * FROM filter_udtf(TABLE(values_table) WITH SINGLE PARTITION ORDER BY b) ORDER BY 1</span>
+<span class="s2">    """</span><span class="p">)</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># +-------+----+</span>
+<span class="c1"># |     a |  b |</span>
+<span class="c1"># +-------+----+</span>
+<span class="c1"># | "def" | 8 |</span>
+<span class="c1"># +-------+----+</span>
+
+<span class="c1"># Clean up.</span>
+<span class="n">spark</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">"DROP TABLE values_table"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that in for each of these ways of partitioning the input table when calling UDTFs in SQL
+queries, there is a corresponding way for the UDTF’s <code class="docutils literal notranslate"><span class="pre">analyze</span></code> method to specify the same
+partitioning method automatically instead.</p>
+<p>For example, instead of calling a UDTF as <code class="docutils literal notranslate"><span class="pre">SELECT</span> <span class="pre">*</span> <span class="pre">FROM</span> <span class="pre">udtf(TABLE(t)</span> <span class="pre">PARTITION</span> <span class="pre">BY</span> <span class="pre">a)</span></code>, you can
+update the <code class="docutils literal notranslate"><span class="pre">analyze</span></code> method to set the field <code class="docutils literal notranslate"><span class="pre">partitionBy=[PartitioningColumn(&quot;a&quot;)]</span></code> and simply
+call the function like <code class="docutils literal notranslate"><span class="pre">SELECT</span> <span class="pre">*</span> <span class="pre">FROM</span> <span class="pre">udtf(TABLE(t))</span></code>.</p>
+<p>By the same token, instead of specifying <code class="docutils literal notranslate"><span class="pre">TABLE(t)</span> <span class="pre">WITH</span> <span class="pre">SINGLE</span> <span class="pre">PARTITION</span></code> in the SQL query,
+make <code class="docutils literal notranslate"><span class="pre">analyze</span></code> set the field <code class="docutils literal notranslate"><span class="pre">withSinglePartition=true</span></code> and then just pass <code class="docutils literal notranslate"><span class="pre">TABLE(t)</span></code>.</p>
+<p>Instead of passing <code class="docutils literal notranslate"><span class="pre">TABLE(t)</span> <span class="pre">ORDER</span> <span class="pre">BY</span> <span class="pre">b</span></code> in the SQL query, you can make <code class="docutils literal notranslate"><span class="pre">analyze</span></code> set
+<code class="docutils literal notranslate"><span class="pre">orderBy=[OrderingColumn(&quot;b&quot;)]</span></code> and then just pass <code class="docutils literal notranslate"><span class="pre">TABLE(t)</span></code>.</p>
+<p>Instead of passing <code class="docutils literal notranslate"><span class="pre">TABLE(SELECT</span> <span class="pre">a</span> <span class="pre">FROM</span> <span class="pre">t)</span></code> in the SQL query, you can make <code class="docutils literal notranslate"><span class="pre">analyze</span></code> set
+<code class="docutils literal notranslate"><span class="pre">select=[SelectedColumn(&quot;a&quot;)]</span></code> and then just pass <code class="docutils literal notranslate"><span class="pre">TABLE(t)</span></code>.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="arrow_python_udtf.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Vectorized Python User-defined Table Functions (UDTFs)</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="python_data_source.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Python Data Source API</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementing-a-python-udtf">Implementing a Python UDTF</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#defining-the-output-schema">Defining the Output Schema</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#emitting-output-rows">Emitting Output Rows</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#registering-and-using-python-udtfs-in-sql">Registering and Using Python UDTFs in SQL</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#arrow-optimization">Arrow Optimization</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#udtf-examples-with-scalar-arguments">UDTF Examples with Scalar Arguments</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#accepting-an-input-table-argument">Accepting an Input Table Argument</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../../_sources/tutorial/sql/python_udtf.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><p class="copyright">
+    Copyright @ 2026 The Apache Software Foundation, Licensed under the <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a>.
+</p></div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
