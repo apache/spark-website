@@ -51,6 +51,7 @@ This page tracks external software projects that supplement Apache Spark and add
 <h2>Infrastructure projects</h2>
 
 - [Kyuubi](https://github.com/apache/kyuubi) - Apache Kyuubi is a distributed and multi-tenant gateway to provide serverless SQL on data warehouses and lakehouses
+- [LibreDB Studio](https://github.com/libredb/libredb-studio) - Open source web SQL IDE that runs Spark SQL against a self-hosted Apache Spark cluster over Spark Connect
 - <a href="https://github.com/spark-jobserver/spark-jobserver">REST Job Server for Apache Spark</a> - REST interface for managing and submitting Spark jobs on the same cluster.
 - <a href="https://mesos.apache.org/">Apache Mesos</a> - Cluster management system that supports 
 running Spark
