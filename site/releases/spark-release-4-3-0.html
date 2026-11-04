@@ -156,11 +156,427 @@
       
       <h1>Spark Release 4.3.0</h1>
       
-      <p>Apache Spark 4.3.0 is a new feature release. It introduces new functionality and improvements. We encourage users to try it and provide feedback.</p>
+      <p>Apache Spark 4.3.0 is the fourth release of the Spark 4.x line. With significant contributions from the open-source community, this release addressed over 1,100 Jira tickets with contributions from more than 210 individuals.</p>
 
-<p>You can find the list of resolved issues and detailed changes in the <a href="https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=12315420&amp;version=12356944">JIRA release notes</a>.</p>
+<p>This release brings stateful processing to Structured Streaming Real-Time Mode, adds history-preserving SCD Type 2 Auto CDC to Spark Declarative Pipelines, and makes Spark faster to iterate with on small data. It also marks the start of a quarterly feature-release cadence.</p>
 
-<p>We would like to acknowledge all community members for contributing patches and features to this release.</p>
+<p>Real-Time Mode now supports stateful queries: streaming aggregation, <code class="language-plaintext highlighter-rouge">dropDuplicates</code>, and <code class="language-plaintext highlighter-rouge">transformWithState</code> run with end-to-end latency on the order of 100 milliseconds using the familiar Structured Streaming APIs. Underneath, Spark gains native concurrent stage scheduling and pipelined shuffles, so producer and consumer stages can run at the same time.</p>
+
+<p>Auto CDC adds Slowly Changing Dimension (SCD) Type 2 through Python, SQL, and Spark Connect, so pipelines can track how records change over time instead of overwriting the latest value.</p>
+
+<p>Work toward faster queries in local laptop mode reduces fixed execution overhead on small data, with opt-in shuffle-free single-task execution for small queries and opt-in Arrow-native Dataset caching.</p>
+
+<p>Spark Connect adds REST endpoints for inspecting sessions and operations, operation IDs for end-to-end request attribution, and a more complete JDBC driver. SQL adds <code class="language-plaintext highlighter-rouge">JSON_TABLE</code> and functions for transforming <code class="language-plaintext highlighter-rouge">VARIANT</code> values, ANSI <code class="language-plaintext highlighter-rouge">UNNEST</code>, SQL <code class="language-plaintext highlighter-rouge">ASOF JOIN</code>, and a preview of nanosecond-precision timestamps.</p>
+
+<p>To download Apache Spark 4.3.0, please visit the <a href="https://spark.apache.org/downloads.html">downloads</a> page. You can consult JIRA for the <a href="https://issues.apache.org/jira/issues/?jql=project%20%3D%20SPARK%20AND%20fixVersion%20%3D%204.3.0">detailed changes</a>.</p>
+
+<ul id="markdown-toc">
+  <li><a href="#highlights" id="markdown-toc-highlights">Highlights</a></li>
+  <li><a href="#sql-foundation" id="markdown-toc-sql-foundation">SQL Foundation</a>    <ul>
+      <li><a href="#built-in-functions" id="markdown-toc-built-in-functions">Built-in Functions</a></li>
+      <li><a href="#variant-manipulation" id="markdown-toc-variant-manipulation">VARIANT manipulation</a></li>
+      <li><a href="#time-type" id="markdown-toc-time-type">TIME type</a></li>
+      <li><a href="#nanosecond-precision-timestamps-preview" id="markdown-toc-nanosecond-precision-timestamps-preview">Nanosecond-precision timestamps (preview)</a></li>
+      <li><a href="#notable-fixes" id="markdown-toc-notable-fixes">Notable fixes</a></li>
+    </ul>
+  </li>
+  <li><a href="#query-api" id="markdown-toc-query-api">Query API</a>    <ul>
+      <li><a href="#pandas-api-on-spark" id="markdown-toc-pandas-api-on-spark">Pandas API on Spark</a></li>
+    </ul>
+  </li>
+  <li><a href="#connectors" id="markdown-toc-connectors">Connectors</a>    <ul>
+      <li><a href="#data-source-v2-framework" id="markdown-toc-data-source-v2-framework">Data Source V2 framework</a></li>
+      <li><a href="#reading-from-archives-opt-in" id="markdown-toc-reading-from-archives-opt-in">Reading from archives (opt-in)</a></li>
+      <li><a href="#file-sources" id="markdown-toc-file-sources">File Sources</a></li>
+      <li><a href="#jdbc-hive-and-kafka" id="markdown-toc-jdbc-hive-and-kafka">JDBC, Hive, and Kafka</a></li>
+      <li><a href="#notable-fixes-1" id="markdown-toc-notable-fixes-1">Notable fixes</a></li>
+    </ul>
+  </li>
+  <li><a href="#udf-user-defined-functions" id="markdown-toc-udf-user-defined-functions">UDF (User Defined Functions)</a></li>
+  <li><a href="#streaming" id="markdown-toc-streaming">Streaming</a>    <ul>
+      <li><a href="#real-time-mode" id="markdown-toc-real-time-mode">Real-Time Mode</a></li>
+      <li><a href="#notable-fixes-2" id="markdown-toc-notable-fixes-2">Notable fixes</a></li>
+    </ul>
+  </li>
+  <li><a href="#spark-connect-framework" id="markdown-toc-spark-connect-framework">Spark Connect Framework</a>    <ul>
+      <li><a href="#jdbc-driver" id="markdown-toc-jdbc-driver">JDBC driver</a></li>
+    </ul>
+  </li>
+  <li><a href="#performance-and-stability" id="markdown-toc-performance-and-stability">Performance and stability</a>    <ul>
+      <li><a href="#faster-queries-on-small-data" id="markdown-toc-faster-queries-on-small-data">Faster queries on small data</a></li>
+      <li><a href="#query-optimizer-and-execution" id="markdown-toc-query-optimizer-and-execution">Query Optimizer and Execution</a></li>
+      <li><a href="#python-performance" id="markdown-toc-python-performance">Python Performance</a></li>
+      <li><a href="#stability" id="markdown-toc-stability">Stability</a></li>
+      <li><a href="#security" id="markdown-toc-security">Security</a></li>
+    </ul>
+  </li>
+  <li><a href="#declarative-pipelines" id="markdown-toc-declarative-pipelines">Declarative Pipelines</a></li>
+  <li><a href="#infrastructure" id="markdown-toc-infrastructure">Infrastructure</a>    <ul>
+      <li><a href="#build-and-python-upgrades" id="markdown-toc-build-and-python-upgrades">Build and Python Upgrades</a></li>
+      <li><a href="#observability" id="markdown-toc-observability">Observability</a></li>
+    </ul>
+  </li>
+  <li><a href="#deployment" id="markdown-toc-deployment">Deployment</a>    <ul>
+      <li><a href="#kubernetes" id="markdown-toc-kubernetes">Kubernetes</a></li>
+      <li><a href="#other" id="markdown-toc-other">Other</a></li>
+    </ul>
+  </li>
+  <li><a href="#credits" id="markdown-toc-credits">Credits</a></li>
+</ul>
+
+<h3 id="highlights">Highlights</h3>
+<ul>
+  <li><strong><a href="https://issues.apache.org/jira/browse/SPARK-58635">[SPARK-58635]</a></strong>, <strong><a href="https://issues.apache.org/jira/browse/SPARK-57228">[SPARK-57228]</a></strong>, <strong><a href="https://issues.apache.org/jira/browse/SPARK-58508">[SPARK-58508]</a></strong> Stateful Real-Time Mode — streaming aggregation, <code class="language-plaintext highlighter-rouge">dropDuplicates</code>, and <code class="language-plaintext highlighter-rouge">transformWithState</code> with end-to-end latency on the order of 100 milliseconds, built on native concurrent stage scheduling and pipelined shuffles</li>
+  <li><strong><a href="https://issues.apache.org/jira/browse/SPARK-58321">[SPARK-58321]</a></strong>, <strong><a href="https://issues.apache.org/jira/browse/SPARK-58247">[SPARK-58247]</a></strong>, <strong><a href="https://issues.apache.org/jira/browse/SPARK-58261">[SPARK-58261]</a></strong> SCD Type 2 in Auto CDC — preserve the history of every record through Python, SQL, and Spark Connect</li>
+  <li><strong><a href="https://issues.apache.org/jira/browse/SPARK-57851">[SPARK-57851]</a></strong>, <strong><a href="https://issues.apache.org/jira/browse/SPARK-57268">[SPARK-57268]</a></strong> Faster queries on small data — opt-in shuffle-free single-task execution for small queries and Arrow-native Dataset caching for faster iteration on small data</li>
+  <li><strong><a href="https://issues.apache.org/jira/browse/SPARK-57941">[SPARK-57941]</a></strong>, <strong><a href="https://issues.apache.org/jira/browse/SPARK-58547">[SPARK-58547]</a></strong> Spark Connect REST endpoints to list and inspect sessions and operations, with operation IDs for end-to-end request attribution</li>
+  <li><strong><a href="https://issues.apache.org/jira/browse/SPARK-58366">[SPARK-58366]</a></strong>, <strong><a href="https://issues.apache.org/jira/browse/SPARK-57804">[SPARK-57804]</a></strong> <code class="language-plaintext highlighter-rouge">JSON_TABLE</code> and <code class="language-plaintext highlighter-rouge">VARIANT</code> transformation functions (<code class="language-plaintext highlighter-rouge">variant_set</code>, <code class="language-plaintext highlighter-rouge">variant_insert</code>, <code class="language-plaintext highlighter-rouge">variant_delete</code>, &#8230;) to process nested documents natively in SQL</li>
+  <li><strong><a href="https://issues.apache.org/jira/browse/SPARK-58092">[SPARK-58092]</a></strong> SQL <code class="language-plaintext highlighter-rouge">ASOF JOIN</code> for point-in-time matching of events to the information available at the time</li>
+  <li><strong><a href="https://issues.apache.org/jira/browse/SPARK-56876">[SPARK-56876]</a></strong> Nanosecond-precision timestamps <code class="language-plaintext highlighter-rouge">TIMESTAMP_NTZ(p)</code> / <code class="language-plaintext highlighter-rouge">TIMESTAMP_LTZ(p)</code> (preview)</li>
+</ul>
+
+<hr />
+
+<h3 id="sql-foundation">SQL Foundation</h3>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58366">[SPARK-58366]</a> Support the <code class="language-plaintext highlighter-rouge">JSON_TABLE</code> table-valued function</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58419">[SPARK-58419]</a> Support ANSI SQL <code class="language-plaintext highlighter-rouge">UNNEST</code> in the <code class="language-plaintext highlighter-rouge">FROM</code> clause</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57421">[SPARK-57421]</a> Support <code class="language-plaintext highlighter-rouge">@</code>-syntax version time travel on table names</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58012">[SPARK-58012]</a> Support <code class="language-plaintext highlighter-rouge">@</code>-syntax timestamp time travel on table names</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52719">[SPARK-52719]</a> Support scalar UDFs in table-valued function arguments</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54831">[SPARK-54831]</a> Support <code class="language-plaintext highlighter-rouge">COMMENT ON COLUMN</code> for table columns</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58065">[SPARK-58065]</a> Support column lists for <code class="language-plaintext highlighter-rouge">INSERT ... REPLACE WHERE</code></li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57681">[SPARK-57681]</a> Support dynamic table options for <code class="language-plaintext highlighter-rouge">UPDATE</code></li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58007">[SPARK-58007]</a> Support dynamic table options for <code class="language-plaintext highlighter-rouge">MERGE</code></li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58008">[SPARK-58008]</a> Support dynamic table options for <code class="language-plaintext highlighter-rouge">DELETE</code></li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57993">[SPARK-57993]</a> Support an advisory partition size in the <code class="language-plaintext highlighter-rouge">REBALANCE</code> hint</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-53840">[SPARK-53840]</a> Add <code class="language-plaintext highlighter-rouge">AS JSON</code> output for <code class="language-plaintext highlighter-rouge">SHOW TABLES</code> and <code class="language-plaintext highlighter-rouge">SHOW TABLE EXTENDED</code></li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54710">[SPARK-54710]</a> Add <code class="language-plaintext highlighter-rouge">AS JSON</code> output for <code class="language-plaintext highlighter-rouge">SHOW PARTITIONS</code></li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58260">[SPARK-58260]</a> Add a config to render Hive DDL in <code class="language-plaintext highlighter-rouge">SHOW CREATE TABLE</code> for Hive tables</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58052">[SPARK-58052]</a> Throw overflow errors for <code class="language-plaintext highlighter-rouge">ceil</code> and <code class="language-plaintext highlighter-rouge">floor</code> in ANSI mode</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57775">[SPARK-57775]</a> Return one row for <code class="language-plaintext highlighter-rouge">GROUP BY GROUPING SETS (())</code> over empty input</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57194">[SPARK-57194]</a> Add the <code class="language-plaintext highlighter-rouge">preOperatorOptimizationRules</code> extension point to the Optimizer</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-56147">[SPARK-56147]</a> Use a parser-based SQL statement splitter in the <code class="language-plaintext highlighter-rouge">spark-sql</code> CLI</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57518">[SPARK-57518]</a> Make Thrift server JDBC metadata operations DataSource V2 catalog-aware (opt-in via <code class="language-plaintext highlighter-rouge">spark.sql.thriftServer.catalogMetadata.enabled</code>)</li>
+  <li><strong>SQL support for ASOF join</strong> (<a href="https://issues.apache.org/jira/browse/SPARK-58092">[SPARK-58092]</a>)
+    <ul>
+      <li><a href="https://issues.apache.org/jira/browse/SPARK-58122">[SPARK-58122]</a> Add SQL <code class="language-plaintext highlighter-rouge">ASOF JOIN ... MATCH_CONDITION</code> syntax, enabled with <code class="language-plaintext highlighter-rouge">spark.sql.join.asofJoin.enabled</code> (off by default)</li>
+      <li><a href="https://issues.apache.org/jira/browse/SPARK-58124">[SPARK-58124]</a> Sort-merge physical execution for SQL <code class="language-plaintext highlighter-rouge">ASOF JOIN</code></li>
+    </ul>
+  </li>
+  <li><strong>Add BIN BY relation operator for aligning range-typed rows to fixed bin boundaries</strong> (<a href="https://issues.apache.org/jira/browse/SPARK-57133">[SPARK-57133]</a>)
+    <ul>
+      <li><a href="https://issues.apache.org/jira/browse/SPARK-57440">[SPARK-57440]</a> <code class="language-plaintext highlighter-rouge">BIN BY</code> is available behind <code class="language-plaintext highlighter-rouge">spark.sql.binByRelationOperator.enabled</code> (off by default)</li>
+      <li><a href="https://issues.apache.org/jira/browse/SPARK-58003">[SPARK-58003]</a> Physical execution for <code class="language-plaintext highlighter-rouge">BIN BY</code></li>
+      <li><a href="https://issues.apache.org/jira/browse/SPARK-58064">[SPARK-58064]</a> Filter pushdown for <code class="language-plaintext highlighter-rouge">BIN BY</code></li>
+      <li><a href="https://issues.apache.org/jira/browse/SPARK-58138">[SPARK-58138]</a> Preserve child output partitioning through <code class="language-plaintext highlighter-rouge">BIN BY</code></li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="built-in-functions">Built-in Functions</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-56820">[SPARK-56820]</a> Add the <code class="language-plaintext highlighter-rouge">counter_diff</code> window function for converting cumulative counters to deltas</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57253">[SPARK-57253]</a> Add the <code class="language-plaintext highlighter-rouge">jaro_winkler_similarity</code> function</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58399">[SPARK-58399]</a> Add the <code class="language-plaintext highlighter-rouge">collect_union</code> aggregate function</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58295">[SPARK-58295]</a> Add the <code class="language-plaintext highlighter-rouge">to_base32</code> and <code class="language-plaintext highlighter-rouge">from_base32</code> functions</li>
+</ul>
+
+<h4 id="variant-manipulation">VARIANT manipulation</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57804">[SPARK-57804]</a> Add the <code class="language-plaintext highlighter-rouge">variant_set</code> expression, plus <code class="language-plaintext highlighter-rouge">try_variant_set</code> (<a href="https://issues.apache.org/jira/browse/SPARK-58221">[SPARK-58221]</a>)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57641">[SPARK-57641]</a> Add the <code class="language-plaintext highlighter-rouge">variant_insert</code> expression, plus <code class="language-plaintext highlighter-rouge">try_variant_insert</code> (<a href="https://issues.apache.org/jira/browse/SPARK-58035">[SPARK-58035]</a>)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57417">[SPARK-57417]</a> Add the <code class="language-plaintext highlighter-rouge">variant_delete</code> expression</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58061">[SPARK-58061]</a> Add the <code class="language-plaintext highlighter-rouge">variant_array_append</code> expression, plus <code class="language-plaintext highlighter-rouge">try_variant_array_append</code> (<a href="https://issues.apache.org/jira/browse/SPARK-58222">[SPARK-58222]</a>)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58062">[SPARK-58062]</a> Add the <code class="language-plaintext highlighter-rouge">variant_strip_nulls</code> expression</li>
+</ul>
+
+<h4 id="time-type">TIME type</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57551">[SPARK-57551]</a> Extend <code class="language-plaintext highlighter-rouge">TIME</code> precision to nanoseconds (<code class="language-plaintext highlighter-rouge">TIME(p)</code> with <code class="language-plaintext highlighter-rouge">p</code> up to 9)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57558">[SPARK-57558]</a> Add the <code class="language-plaintext highlighter-rouge">LOCALTIME</code> datetime value function</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57618">[SPARK-57618]</a> Support casting between <code class="language-plaintext highlighter-rouge">TIME(p)</code> and <code class="language-plaintext highlighter-rouge">TIMESTAMP_NTZ(q)</code> / <code class="language-plaintext highlighter-rouge">TIMESTAMP_LTZ(q)</code> (<a href="https://issues.apache.org/jira/browse/SPARK-57660">[SPARK-57660]</a>)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57572">[SPARK-57572]</a> Infer <code class="language-plaintext highlighter-rouge">TIME</code> during CSV and JSON schema inference, and in XML (<a href="https://issues.apache.org/jira/browse/SPARK-57634">[SPARK-57634]</a>)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57555">[SPARK-57555]</a> Support <code class="language-plaintext highlighter-rouge">TIME</code> in the built-in JDBC data source and the Protobuf connector (<a href="https://issues.apache.org/jira/browse/SPARK-57573">[SPARK-57573]</a>)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57571">[SPARK-57571]</a> <code class="language-plaintext highlighter-rouge">TIME</code> predicate pushdown to ORC, and Parquet/ORC aggregate pushdown (<a href="https://issues.apache.org/jira/browse/SPARK-57568">[SPARK-57568]</a>)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57557">[SPARK-57557]</a> Support <code class="language-plaintext highlighter-rouge">TIME</code> in quantile aggregates, <code class="language-plaintext highlighter-rouge">approx_top_k</code> (<a href="https://issues.apache.org/jira/browse/SPARK-57848">[SPARK-57848]</a>), and <code class="language-plaintext highlighter-rouge">to_char</code>/<code class="language-plaintext highlighter-rouge">to_varchar</code> (<a href="https://issues.apache.org/jira/browse/SPARK-57575">[SPARK-57575]</a>)</li>
+</ul>
+
+<h4 id="nanosecond-precision-timestamps-preview">Nanosecond-precision timestamps (preview)</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-56876">[SPARK-56876]</a> Add the <code class="language-plaintext highlighter-rouge">TIMESTAMP_NTZ(p)</code> and <code class="language-plaintext highlighter-rouge">TIMESTAMP_LTZ(p)</code> types with precision <code class="language-plaintext highlighter-rouge">p</code> from 7 through 9, as a preview enabled with <code class="language-plaintext highlighter-rouge">spark.sql.timestampNanosTypes.enabled</code> (off by default)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-56965">[SPARK-56965]</a> SQL parser support for <code class="language-plaintext highlighter-rouge">TIMESTAMP_NTZ(p)</code> and <code class="language-plaintext highlighter-rouge">TIMESTAMP_LTZ(p)</code></li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57293">[SPARK-57293]</a> Casts between nanosecond- and microsecond-precision timestamps, and to and from <code class="language-plaintext highlighter-rouge">DATE</code>, <code class="language-plaintext highlighter-rouge">TIME</code>, and strings</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57454">[SPARK-57454]</a> Type coercion and widening rules for nanosecond-precision timestamps</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57526">[SPARK-57526]</a> Add the <code class="language-plaintext highlighter-rouge">timestamp_nanos</code> and <code class="language-plaintext highlighter-rouge">unix_nanos</code> (<a href="https://issues.apache.org/jira/browse/SPARK-57527">[SPARK-57527]</a>) functions, and the precision argument in <code class="language-plaintext highlighter-rouge">current_timestamp(p)</code> (<a href="https://issues.apache.org/jira/browse/SPARK-57837">[SPARK-57837]</a>)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57816">[SPARK-57816]</a> Datetime functions (<code class="language-plaintext highlighter-rouge">date_format</code>, <code class="language-plaintext highlighter-rouge">date_trunc</code>, <code class="language-plaintext highlighter-rouge">EXTRACT</code>, <code class="language-plaintext highlighter-rouge">hour</code>/<code class="language-plaintext highlighter-rouge">minute</code>/<code class="language-plaintext highlighter-rouge">second</code>, <code class="language-plaintext highlighter-rouge">unix_*</code>) over nanosecond-precision timestamps</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57501">[SPARK-57501]</a> ANSI interval arithmetic and timestamp subtraction for nanosecond-precision timestamps</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57102">[SPARK-57102]</a> Parquet support, including the vectorized reader (<a href="https://issues.apache.org/jira/browse/SPARK-57828">[SPARK-57828]</a>) and predicate pushdown (<a href="https://issues.apache.org/jira/browse/SPARK-57822">[SPARK-57822]</a>)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57455">[SPARK-57455]</a> ORC, JSON, CSV, XML, Avro, and JDBC data source support for nanosecond-precision timestamps</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57160">[SPARK-57160]</a> Arrow and Spark Connect support for nanosecond-precision timestamp types and literals</li>
+</ul>
+
+<h4 id="notable-fixes">Notable fixes</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-60304">[SPARK-60304]</a> Fix subplan merging losing a shared lower filter or a reused filter attribute (<a href="https://issues.apache.org/jira/browse/SPARK-60084">[SPARK-60084]</a>), which could produce wrong results</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57956">[SPARK-57956]</a> Fix AQE incorrectly eliminating a global <code class="language-plaintext highlighter-rouge">LIMIT</code> over a non-materialized query stage</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-60508">[SPARK-60508]</a> Fix wrong results from <code class="language-plaintext highlighter-rouge">semanticEquals</code> of higher-order functions capturing lambda variables</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58384">[SPARK-58384]</a> Preserve null semantics in <code class="language-plaintext highlighter-rouge">OptimizeJoinCondition</code></li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58481">[SPARK-58481]</a> Fix <code class="language-plaintext highlighter-rouge">IN (subquery)</code> returning wrong results when the subquery output contains NULLs</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-59434">[SPARK-59434]</a> Do not push non-deterministic predicates into CTE definitions</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58959">[SPARK-58959]</a> Fix <code class="language-plaintext highlighter-rouge">PIVOT</code> with duplicate values corrupting the aggregation buffer</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58816">[SPARK-58816]</a> Fix <code class="language-plaintext highlighter-rouge">INSERT</code> with a column list to resolve structs inside arrays and maps positionally</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57727">[SPARK-57727]</a> Fix incorrect query results from constraint inference substituting attributes with non-binary-stable collations</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58204">[SPARK-58204]</a> Fix expressions that held unprotected mutable state (regex, <code class="language-plaintext highlighter-rouge">translate</code>, <code class="language-plaintext highlighter-rouge">format_number</code>, JSON/CSV/XML (<a href="https://issues.apache.org/jira/browse/SPARK-58205">[SPARK-58205]</a>), <code class="language-plaintext highlighter-rouge">ApplyFunctionExpression</code> (<a href="https://issues.apache.org/jira/browse/SPARK-58578">[SPARK-58578]</a>), and Hive <code class="language-plaintext highlighter-rouge">GenericUDF</code> (<a href="https://issues.apache.org/jira/browse/SPARK-58792">[SPARK-58792]</a>)), which could corrupt results under concurrent evaluation</li>
+</ul>
+
+<h3 id="query-api">Query API</h3>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-55886">[SPARK-55886]</a> Add <code class="language-plaintext highlighter-rouge">DataFrame.zip</code> for merging column-projected DataFrames</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57284">[SPARK-57284]</a> Add Scala and Python bindings for vector functions</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-46776">[SPARK-46776]</a> Support <code class="language-plaintext highlighter-rouge">pa.ChunkedArray</code> columns in <code class="language-plaintext highlighter-rouge">createDataFrame</code> from pandas</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57190">[SPARK-57190]</a> Fix the API inconsistency of the 4-argument <code class="language-plaintext highlighter-rouge">regexp_replace</code></li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57860">[SPARK-57860]</a> Make the storage level of MLlib intermediate datasets configurable for KMeans and ALS</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-34591">[SPARK-34591]</a> Add decision tree pruning as a parameter</li>
+</ul>
+
+<h4 id="pandas-api-on-spark">Pandas API on Spark</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-40336">[SPARK-40336]</a> Implement <code class="language-plaintext highlighter-rouge">DataFrameGroupBy.cov</code></li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-40337">[SPARK-40337]</a> Implement <code class="language-plaintext highlighter-rouge">SeriesGroupBy.describe</code></li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-40340">[SPARK-40340]</a> Implement <code class="language-plaintext highlighter-rouge">Rolling.sem</code> and <code class="language-plaintext highlighter-rouge">Expanding.sem</code></li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-40341">[SPARK-40341]</a> Implement <code class="language-plaintext highlighter-rouge">Rolling.median</code> and <code class="language-plaintext highlighter-rouge">Expanding.median</code></li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-40373">[SPARK-40373]</a> Implement <code class="language-plaintext highlighter-rouge">ps.show_versions</code></li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-46158">[SPARK-46158]</a> Support axis columns in <code class="language-plaintext highlighter-rouge">DataFrame.xs</code></li>
+</ul>
+
+<h3 id="connectors">Connectors</h3>
+
+<h4 id="data-source-v2-framework">Data Source V2 framework</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57644">[SPARK-57644]</a> Support generated column values on V2 table writes</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-55347">[SPARK-55347]</a> Pass generated column expressions to DSv2 connectors</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58523">[SPARK-58523]</a> Add a Catalyst runtime filtering interface for DSv2 scans</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-55617">[SPARK-55617]</a> Push down <code class="language-plaintext highlighter-rouge">variant_get</code> filters to DSv2 sources</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-56660">[SPARK-56660]</a> Decompose struct equality into field predicates for data source pushdown</li>
+</ul>
+
+<h4 id="reading-from-archives-opt-in">Reading from archives (opt-in)</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57135">[SPARK-57135]</a> Read CSV files inside tar archives, with schema inference (<a href="https://issues.apache.org/jira/browse/SPARK-57321">[SPARK-57321]</a>)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57419">[SPARK-57419]</a> Read and infer JSON schema from tar archives</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57479">[SPARK-57479]</a> Read and infer XML schema from tar archives</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57478">[SPARK-57478]</a> Read text files from tar archives</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57481">[SPARK-57481]</a> Read and infer Avro schema from tar archives</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57590">[SPARK-57590]</a> Read and infer Parquet schema from archives</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57591">[SPARK-57591]</a> Read and infer ORC schema from archives</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57705">[SPARK-57705]</a> Read CSV, JSON, text, and XML files from zip archives</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58246">[SPARK-58246]</a> Read files from 7z archives</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58382">[SPARK-58382]</a> Support archives in the <code class="language-plaintext highlighter-rouge">binaryFile</code> source via the <code class="language-plaintext highlighter-rouge">wholeFile</code> option</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58609">[SPARK-58609]</a> Add the <code class="language-plaintext highlighter-rouge">archivePathFilter</code> option to select entries inside archives</li>
+</ul>
+
+<h4 id="file-sources">File Sources</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57354">[SPARK-57354]</a> Add the <code class="language-plaintext highlighter-rouge">ignoredPathSegmentRegex</code> data source option and config</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57678">[SPARK-57678]</a> Add the <code class="language-plaintext highlighter-rouge">explodeEmbeddedArray</code> JSON option for streaming scans of embedded arrays</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57802">[SPARK-57802]</a> Make XML schema inference incremental, aligning with CSV</li>
+</ul>
+
+<h4 id="jdbc-hive-and-kafka">JDBC, Hive, and Kafka</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-52825">[SPARK-52825]</a> Register existing JDBC dialects for additional URL prefixes</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-59330">[SPARK-59330]</a> Add an option to defer Hive <code class="language-plaintext highlighter-rouge">InputFormat</code> and <code class="language-plaintext highlighter-rouge">OutputFormat</code> class initialization</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-59328">[SPARK-59328]</a> Add an option to reject specified Kafka options in the Kafka data source</li>
+</ul>
+
+<h4 id="notable-fixes-1">Notable fixes</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58112">[SPARK-58112]</a> Keep nondeterministic filters out of DSv2 Catalyst and V2 filter pushdown (<a href="https://issues.apache.org/jira/browse/SPARK-58207">[SPARK-58207]</a>), so Spark evaluates them after the scan</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-59108">[SPARK-59108]</a> Fix Avro positional field matching under column pruning</li>
+</ul>
+
+<h3 id="udf-user-defined-functions">UDF (User Defined Functions)</h3>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-55206">[SPARK-55206]</a> Experimental transpilation of simple Python UDFs to Catalyst expressions (e.g. <code class="language-plaintext highlighter-rouge">len()</code> to <code class="language-plaintext highlighter-rouge">length</code> (<a href="https://issues.apache.org/jira/browse/SPARK-55214">[SPARK-55214]</a>)), enabled with <code class="language-plaintext highlighter-rouge">spark.sql.experimental.optimizer.transpilePyUDFs</code></li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-56413">[SPARK-56413]</a> Add a gRPC UDF execution protocol and logical/physical planning nodes (<a href="https://issues.apache.org/jira/browse/SPARK-56661">[SPARK-56661]</a>) as groundwork for language-agnostic UDFs</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57271">[SPARK-57271]</a> Optionally print local variables in Python UDF tracebacks</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57593">[SPARK-57593]</a> Bound pickled Python UDF input batches by size, with instrumentation</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58601">[SPARK-58601]</a> Require <code class="language-plaintext highlighter-rouge">mapInPandas</code> functions to return a strict iterator</li>
+</ul>
+
+<h3 id="streaming">Streaming</h3>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58724">[SPARK-58724]</a> Incremental state cleanup for streaming <code class="language-plaintext highlighter-rouge">dropDuplicates</code></li>
+</ul>
+
+<h4 id="real-time-mode">Real-Time Mode</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58508">[SPARK-58508]</a> Support stateful queries in Real-Time Mode, including <code class="language-plaintext highlighter-rouge">dropDuplicates</code>, by running them on pipelined shuffles</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58635">[SPARK-58635]</a> Support streaming aggregation in Real-Time Mode</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57228">[SPARK-57228]</a> Support Scala/Java <code class="language-plaintext highlighter-rouge">transformWithState</code> in Real-Time Mode</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57281">[SPARK-57281]</a> Remove the <code class="language-plaintext highlighter-rouge">@Experimental</code> annotation from Real-Time Mode</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58131">[SPARK-58131]</a> Support async progress tracking in Real-Time Mode</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58185">[SPARK-58185]</a> Add <code class="language-plaintext highlighter-rouge">PipelinedShuffleDependency</code>, letting consumers read while producers are still running, and route each shuffle to a shuffle manager by dependency type</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58263">[SPARK-58263]</a> Natively schedule pipelined stage groups concurrently in the DAGScheduler, with group-atomic failure and fail-fast admission when task slots are insufficient (<a href="https://issues.apache.org/jira/browse/SPARK-58398">[SPARK-58398]</a>), decoupled from the <code class="language-plaintext highlighter-rouge">MapOutputTracker</code> (<a href="https://issues.apache.org/jira/browse/SPARK-58454">[SPARK-58454]</a>)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57141">[SPARK-57141]</a> Add <code class="language-plaintext highlighter-rouge">StreamingShuffleManager</code>, the built-in pipelined shuffle implementation, with a Netty-based wire protocol (<a href="https://issues.apache.org/jira/browse/SPARK-56674">[SPARK-56674]</a>)</li>
+</ul>
+
+<h4 id="notable-fixes-2">Notable fixes</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-59315">[SPARK-59315]</a> Fix the correctness of <code class="language-plaintext highlighter-rouge">dropDuplicates</code> with a watermark after query restart</li>
+</ul>
+
+<h3 id="spark-connect-framework">Spark Connect Framework</h3>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57941">[SPARK-57941]</a> Expose Spark Connect sessions and operations via a REST API</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57021">[SPARK-57021]</a> Add a <code class="language-plaintext highlighter-rouge">SQLContext</code> wrapper for Spark Connect</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57787">[SPARK-57787]</a> Reuse a persistent local Spark Connect server across runs for faster local PySpark startup (opt-in via <code class="language-plaintext highlighter-rouge">SPARK_LOCAL_CONNECT_REUSE=1</code>)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58159">[SPARK-58159]</a> Support the <code class="language-plaintext highlighter-rouge">with</code> statement for Spark Connect sessions</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58547">[SPARK-58547]</a> Expose operation IDs for end-to-end request attribution</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57247">[SPARK-57247]</a> Support <code class="language-plaintext highlighter-rouge">DataFrame.zip</code> in Spark Connect</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58251">[SPARK-58251]</a> Size estimates for nearly all Spark ML models (feature transformers, tree, clustering, ALS, LDA, FPGrowth, and tuning models), with fixes for pipeline overcounting (<a href="https://issues.apache.org/jira/browse/SPARK-58281">[SPARK-58281]</a>), for better Spark Connect ML model cache management</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-44462">[SPARK-44462]</a> Fix the session passed to <code class="language-plaintext highlighter-rouge">foreachBatch</code> in Spark Connect</li>
+</ul>
+
+<h4 id="jdbc-driver">JDBC driver</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57380">[SPARK-57380]</a> Support complex types (<code class="language-plaintext highlighter-rouge">ARRAY</code>, <code class="language-plaintext highlighter-rouge">MAP</code>, <code class="language-plaintext highlighter-rouge">STRUCT</code>) in the Connect JDBC driver</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57627">[SPARK-57627]</a> Support primary key, foreign key, and SQL type metadata in <code class="language-plaintext highlighter-rouge">DatabaseMetaData</code></li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57274">[SPARK-57274]</a> Support fetch/type accessors and <code class="language-plaintext highlighter-rouge">getMoreResults</code> for <code class="language-plaintext highlighter-rouge">SparkConnectStatement</code></li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57933">[SPARK-57933]</a> Map Spark Connect client failures to <code class="language-plaintext highlighter-rouge">SQLException</code>, and connection errors by SQLSTATE class <code class="language-plaintext highlighter-rouge">08</code> (<a href="https://issues.apache.org/jira/browse/SPARK-58619">[SPARK-58619]</a>)</li>
+</ul>
+
+<h3 id="performance-and-stability">Performance and stability</h3>
+<ul>
+  <li><strong>Add bulk read+convert paths for type-converting Parquet vector updaters</strong> (<a href="https://issues.apache.org/jira/browse/SPARK-56800">[SPARK-56800]</a>)
+    <ul>
+      <li><a href="https://issues.apache.org/jira/browse/SPARK-56791">[SPARK-56791]</a> Bulk read-and-convert paths in the vectorized Parquet reader for widening (INT32 to Long/Double, FLOAT to Double), INT64 <code class="language-plaintext highlighter-rouge">DECIMAL</code> narrowing, and <code class="language-plaintext highlighter-rouge">DATE</code> to <code class="language-plaintext highlighter-rouge">TIMESTAMP_NTZ</code> conversions</li>
+    </ul>
+  </li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-56893">[SPARK-56893]</a> Faster vectorized Parquet decoding: dictionary decoding fast paths, bulk <code class="language-plaintext highlighter-rouge">DELTA_BINARY_PACKED</code> (<a href="https://issues.apache.org/jira/browse/SPARK-56892">[SPARK-56892]</a>) and timestamp/date (<a href="https://issues.apache.org/jira/browse/SPARK-56896">[SPARK-56896]</a>) reads, and lower-allocation RLE decoding (<a href="https://issues.apache.org/jira/browse/SPARK-56895">[SPARK-56895]</a>)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-56894">[SPARK-56894]</a> Add a vectorized Parquet <code class="language-plaintext highlighter-rouge">BYTE_STREAM_SPLIT</code> reader</li>
+</ul>
+
+<h4 id="faster-queries-on-small-data">Faster queries on small data</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57851">[SPARK-57851]</a> Opt-in shuffle-free single-task execution for eligible small, single-partition query fragments (<code class="language-plaintext highlighter-rouge">spark.sql.optimizer.singleTaskExecution.enabled</code>), covering scans, aggregations, distinct, windows, sorts, and limits</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57268">[SPARK-57268]</a> Opt-in Arrow-native in-memory Dataset caching with compression and column statistics (<code class="language-plaintext highlighter-rouge">spark.sql.cache.serializer=org.apache.spark.sql.execution.columnar.ArrowCachedBatchSerializer</code>)</li>
+</ul>
+
+<h4 id="query-optimizer-and-execution">Query Optimizer and Execution</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58210">[SPARK-58210]</a> Enable <code class="language-plaintext highlighter-rouge">ReplaceHashWithSortAgg</code> and combining adjacent aggregations (<a href="https://issues.apache.org/jira/browse/SPARK-43317">[SPARK-43317]</a>) by default</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-56805">[SPARK-56805]</a> Enable whole-stage codegen for <code class="language-plaintext highlighter-rouge">Union</code> by default</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-37019">[SPARK-37019]</a> Add codegen support for array higher-order functions</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-40259">[SPARK-40259]</a> Merge equivalent DataSource V2 scans in subplan merging</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-56887">[SPARK-56887]</a> Add a dedicated sort-merge physical operator for AS-OF joins</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-56903">[SPARK-56903]</a> Opt-in (<code class="language-plaintext highlighter-rouge">spark.sql.shuffle.spreadNullJoinKeys.enabled</code>) spreading of NULL outer join keys, and left anti join keys (<a href="https://issues.apache.org/jira/browse/SPARK-57282">[SPARK-57282]</a>), across shuffle partitions to avoid skew</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57370">[SPARK-57370]</a> Add a JDK (<code class="language-plaintext highlighter-rouge">javac</code>) compiler backend for whole-stage codegen</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58066">[SPARK-58066]</a> Hoist streamed-side predicates in outer, anti, and existence joins</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58084">[SPARK-58084]</a> Support converting sort merge join to shuffled hash join in the AQE physical plan</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58099">[SPARK-58099]</a> Remove the redundant local sort left below the shuffle added by skew join optimization</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58233">[SPARK-58233]</a> Push down local sorts to reduce redundant sorts within a stage</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58405">[SPARK-58405]</a> Pull up project aliases through windows to eliminate redundant shuffles and sorts</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54593">[SPARK-54593]</a> Enable dynamic partition pruning for materialized filtering sides</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58265">[SPARK-58265]</a> Reuse projected broadcast values for dynamic partition pruning</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58272">[SPARK-58272]</a> Enable runtime Bloom filters for materialized cached inputs</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58089">[SPARK-58089]</a> Push variant extractions through Aggregate, Sort, and Join</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57022">[SPARK-57022]</a> Nested column pruning for <code class="language-plaintext highlighter-rouge">transform</code> over arrays of structs and through array-returning functions (<a href="https://issues.apache.org/jira/browse/SPARK-57176">[SPARK-57176]</a>)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57043">[SPARK-57043]</a> Collapse grouped <code class="language-plaintext highlighter-rouge">SUM(COUNT(1))</code> rollups</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57220">[SPARK-57220]</a> Extend the segment-tree window frame to shrinking frames and to <code class="language-plaintext highlighter-rouge">first</code>/<code class="language-plaintext highlighter-rouge">last</code> (<a href="https://issues.apache.org/jira/browse/SPARK-57424">[SPARK-57424]</a>)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57937">[SPARK-57937]</a> Improve decimal division performance by dividing at the result scale</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-56769">[SPARK-56769]</a> Add a fast path for <code class="language-plaintext highlighter-rouge">date_trunc</code> at WEEK/MONTH/QUARTER/YEAR granularity</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57905">[SPARK-57905]</a> Reduce the size of generated whole-stage codegen, e.g. for null-guarded row writes and <code class="language-plaintext highlighter-rouge">regexp_extract</code> (<a href="https://issues.apache.org/jira/browse/SPARK-57258">[SPARK-57258]</a>)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57688">[SPARK-57688]</a> Add <code class="language-plaintext highlighter-rouge">spark.sql.execution.bypassPartialAggregation</code> to skip partial aggregation</li>
+</ul>
+
+<h4 id="python-performance">Python Performance</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-56642">[SPARK-56642]</a> Add pipelined JVM-Python UDF data transfer, with an optional Unix Domain Socket mode</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58230">[SPARK-58230]</a> Batch pandas-on-Spark column projections</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58249">[SPARK-58249]</a> Use native Spark functions for NumPy math ufuncs, bitwise shifts (<a href="https://issues.apache.org/jira/browse/SPARK-58464">[SPARK-58464]</a>), <code class="language-plaintext highlighter-rouge">rint</code> (<a href="https://issues.apache.org/jira/browse/SPARK-58469">[SPARK-58469]</a>), <code class="language-plaintext highlighter-rouge">trunc</code> (<a href="https://issues.apache.org/jira/browse/SPARK-58470">[SPARK-58470]</a>), and inverse hyperbolic functions (<a href="https://issues.apache.org/jira/browse/SPARK-58234">[SPARK-58234]</a>) in pandas API on Spark</li>
+</ul>
+
+<h4 id="stability">Stability</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57723">[SPARK-57723]</a> Enable <code class="language-plaintext highlighter-rouge">spark.rdd.compress</code> by default, as in PySpark</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58107">[SPARK-58107]</a> Detect and repair non-deterministic local checkpoints via RDD-block content checksums</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57491">[SPARK-57491]</a> Prevent and detect stale push-based shuffle data from duplicate map task attempts</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58848">[SPARK-58848]</a> Prevent unbounded shuffle reader connection waits</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58004">[SPARK-58004]</a> Add a hard fan-in bound to AQE shuffle partition coalescing</li>
+</ul>
+
+<h4 id="security">Security</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58054">[SPARK-58054]</a> Enable <code class="language-plaintext highlighter-rouge">spark.ui.contentSecurityPolicy.enabled</code> by default</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57904">[SPARK-57904]</a> Change the default of <code class="language-plaintext highlighter-rouge">spark.ui.xXssProtection</code> to <code class="language-plaintext highlighter-rouge">0</code></li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-59319">[SPARK-59319]</a> Add an opt-in restricted SQL execution mode</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57448">[SPARK-57448]</a> Support <code class="language-plaintext highlighter-rouge">spark.sql.reflect.allowList</code> to restrict the methods invoked by <code class="language-plaintext highlighter-rouge">reflect</code>/<code class="language-plaintext highlighter-rouge">java_method</code></li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57441">[SPARK-57441]</a> Disallow setting JVM system properties in Spark Thrift Server sessions, including via <code class="language-plaintext highlighter-rouge">set:hiveconf</code> (<a href="https://issues.apache.org/jira/browse/SPARK-57480">[SPARK-57480]</a>)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-54293">[SPARK-54293]</a> Make the <code class="language-plaintext highlighter-rouge">ThriftHttpCLIService</code> SNI host check configurable</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58370">[SPARK-58370]</a> Check table write privileges when the write target is also read in the same statement</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-59329">[SPARK-59329]</a> Add an allowlist of URI schemes for the Avro <code class="language-plaintext highlighter-rouge">schemaUrl</code> option</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57453">[SPARK-57453]</a> Support <code class="language-plaintext highlighter-rouge">spark.master.rest.allowedAppResourcePatterns</code> to restrict application resources submitted through the Master REST server, and limit its request body size (<a href="https://issues.apache.org/jira/browse/SPARK-58049">[SPARK-58049]</a>)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58056">[SPARK-58056]</a> Make <code class="language-plaintext highlighter-rouge">NettyStreamManager</code> serve only files under the registered directory</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58153">[SPARK-58153]</a> Reject JAR entries escaping the extraction directory in <code class="language-plaintext highlighter-rouge">RPackageUtils</code></li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-59508">[SPARK-59508]</a> Harden Python client safety with a restricted unpickle serializer</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-59320">[SPARK-59320]</a> Optionally require an expiration claim in <code class="language-plaintext highlighter-rouge">JWSFilter</code></li>
+</ul>
+
+<h3 id="declarative-pipelines">Declarative Pipelines</h3>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58321">[SPARK-58321]</a> Support SCD Type 2 in Auto CDC end to end: each key&#8217;s history is kept as versioned rows bounded by <code class="language-plaintext highlighter-rouge">__START_AT</code> and <code class="language-plaintext highlighter-rouge">__END_AT</code> (the target table must be in a catalog supporting DSv2 row-level operations, e.g. Apache Iceberg)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58247">[SPARK-58247]</a> Support SCD Type 2 in the Auto CDC Python and Spark Connect APIs (<code class="language-plaintext highlighter-rouge">stored_as_scd_type=2</code>, <code class="language-plaintext highlighter-rouge">track_history_column_list</code>)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58261">[SPARK-58261]</a> Support SCD Type 2 syntax (<code class="language-plaintext highlighter-rouge">STORED AS SCD TYPE 2</code>, <code class="language-plaintext highlighter-rouge">TRACK HISTORY ON</code>) in SQL <code class="language-plaintext highlighter-rouge">AUTO CDC</code></li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57402">[SPARK-57402]</a> Add SQL <code class="language-plaintext highlighter-rouge">AUTO CDC</code> flows (<code class="language-plaintext highlighter-rouge">CREATE FLOW ... AS AUTO CDC INTO</code>), with clauses accepted in any order (<a href="https://issues.apache.org/jira/browse/SPARK-58271">[SPARK-58271]</a>)</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58319">[SPARK-58319]</a> Derive the SCD Type 2 target table schema, and validate reserved columns (<a href="https://issues.apache.org/jira/browse/SPARK-57251">[SPARK-57251]</a>), track-history columns (<a href="https://issues.apache.org/jira/browse/SPARK-58313">[SPARK-58313]</a>), and sequencing types (<a href="https://issues.apache.org/jira/browse/SPARK-58391">[SPARK-58391]</a>) when an Auto CDC flow is defined</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58418">[SPARK-58418]</a> Reconcile SCD Type 2 micro-batches that are narrower than an evolved target schema</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57594">[SPARK-57594]</a> Support <code class="language-plaintext highlighter-rouge">spark_confs</code> in <code class="language-plaintext highlighter-rouge">create_auto_cdc_flow</code></li>
+</ul>
+
+<h3 id="infrastructure">Infrastructure</h3>
+
+<h4 id="build-and-python-upgrades">Build and Python Upgrades</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-56889">[SPARK-56889]</a> Drop Python 3.10 support</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-56928">[SPARK-56928]</a> Increase the minimum NumPy version to 1.23.2</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57877">[SPARK-57877]</a> Support the <code class="language-plaintext highlighter-rouge">DirectByteBuffer</code> cleaner on Java 26</li>
+</ul>
+
+<h4 id="observability">Observability</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-55876">[SPARK-55876]</a> Add a query statistics summary bar to the SQL tab</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57987">[SPARK-57987]</a> Expose modified configs and node descriptions in the SQL REST API</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58468">[SPARK-58468]</a> Support on-demand loading for single event logs in the Spark History Server</li>
+</ul>
+
+<h3 id="deployment">Deployment</h3>
+
+<h4 id="kubernetes">Kubernetes</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57351">[SPARK-57351]</a> Enable <code class="language-plaintext highlighter-rouge">spark.kubernetes.executor.useDriverPodIP</code> by default</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57493">[SPARK-57493]</a> Set <code class="language-plaintext highlighter-rouge">allowPrivilegeEscalation</code> to false for driver and executor containers by default</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57546">[SPARK-57546]</a> Spark Docker images now use <code class="language-plaintext highlighter-rouge">eclipse-temurin</code> on Ubuntu 26.04 with Python 3.14 by default</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57700">[SPARK-57700]</a> Support opt-in <code class="language-plaintext highlighter-rouge">jemalloc</code> in Spark Docker images</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58113">[SPARK-58113]</a> Support <code class="language-plaintext highlighter-rouge">publishNotReadyAddresses</code> in the driver service</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58926">[SPARK-58926]</a> Set the driver pod&#8217;s <code class="language-plaintext highlighter-rouge">SPARK_USER</code> from <code class="language-plaintext highlighter-rouge">--proxy-user</code></li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-59798">[SPARK-59798]</a> Support <code class="language-plaintext highlighter-rouge">spark.executor.extraLibraryPath</code> for K8s executors</li>
+</ul>
+
+<h4 id="other">Other</h4>
+<ul>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-38954">[SPARK-38954]</a> Support delegation token renewal and distribution without Kerberos</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-57387">[SPARK-57387]</a> Make the executor JVM option <code class="language-plaintext highlighter-rouge">-XX:OnOutOfMemoryError</code> configurable on YARN</li>
+  <li><a href="https://issues.apache.org/jira/browse/SPARK-58192">[SPARK-58192]</a> Support fractional <code class="language-plaintext highlighter-rouge">spark.task.cpus</code></li>
+</ul>
+
+<hr />
+
+<h3 id="credits">Credits</h3>
+
+<p>Last but not least, this release would not have been possible without the following contributors:
+Aaron Congo, Abdelrahman Gamal, AbhinavBattu, Adam Binford, adith-os, Adithya Ajith, Akira Ajisaka, Akshat Shenoi, Albert Sugranyes, Alek Jarmov, Aleksandar Trajkovic, Aleksandr Efimov, Andreas Chatzistergiou, Andreas Neumann, Andy Grove, Andy Lam, Angerszhuuuu, Anish Mahto, Anshul Baliga, anshulbhide, Anton Okolnychyi, Anupam Yadav, Anurag Kumar Dwivedi, Anurag Mantripragada, art000109, Ashutosh Jindal, Attila Zsolt Piros, Avery Qi, Ayush Bilala, Ben Hollis, Bobby Wang, Bojana Zecevic, Boyang Jerry Peng, BRIJ RAJ KISHORE, Calvin Qin, Chao Sun, Charlie Chen, Chen Wang, Cheng Pan, Chenhao Li, Chester, ChuckLin2025, cxzl25, Daniel Lunin, Daniel Tenedorio, Daniil Filippov, David Dallakyan, David Milicevic, DB Tsai, Deepak Jain, deepinsight coder, Dejan Krakovic, Devin Petersohn, Dhruv Patel, Dilip Biswal, Diveyam Mishra, Dongjoon Hyun, DongjunHwang, EJ Song, Emil Ejbyfeldt, Eric Marnadi, Eric Yang, eunsang, Fabian Paul, Fangchen Li, Ganesha Shreedhara, gaoyajun02, gaurav kumar pandey, Gengliang Wang, Gurpreet Nanda, Gurpreet Singh Multani, Haiyang Sun, Haoyan Geng, Holden Karau, huangxiaoping, Huaxin Gao, Hyukjin Kwon, Ilya Vasilyev, Ismaël Mejía, Israel Obukonise, Ivan Leventsov, Iván Morales, Jahnavi Nelavelli, James Willis, James Xu, Jarek Potiuk, jbharadw-oai, Jiwon Park, Joel Robin P, Jon Mio, Jonathan Albrecht, Jonathan Dayton, Jonathan Gao, Jorge Molina, Jubin Soni, Juliusz Sompolski, Jungtaek Lim, Junlong Li, Kavpreet Grewal, Kent Yao, Kousuke Saruta, Lavan Vivekanandasarma, Leon Windheuser, Liang-Chi Hsieh, Linhong Liu, Livia Zhu, Manu Zhang, Mao Li, Marcus Lin, Mark Jarvin, Marko Ilić, Matt Zhang, Matthew B, Matthew Hawkes_ONS, Matthis Gördel, Maxim Gekk, Michael Kincaid, Michael Mitchell, Mihailo Aleksic, Mihailo Timotic, Mikhail Nikoliukin, Milan Dankovic, Milan Stefanovic, Minh Vu, Mohamed Gallab, Monica G, Naveen Kumar Puppala, NaVis, Nguyễn Mạnh hà, Nicholas Chammas, Nikolaus Schuetz, Nikolina Vraneš, Noufal Rijal, Oleks V, otterc, Pablo Langa, Parth Chandra, Petar Nikić, Peter Toth, Pranav Chintareddy, Pranav Dev, Pratham Manja, Puneet Dixit, Qiegang Long, Qing Fu, Rajesh Vakkalagadda, Rakesh Raushan, rdtr, Rishav Sinha, Rito Takeuchi, Rob Reeves, Robert Kruszewski, Roy Huang, Ruifeng Zheng, Sagar Mittal, Sepuri Sai Krishna, Serge Rielau, Shivadarshan Devadiga, Shrirang Mhalgi, Simon Maling, Sotirios Kougiouris, Spenser Sun, Spyros Pavlatos, SreeramaYeshwanthGowd, Stanley Yao, Stefan Kandic, Stefan Savic, Steve Vaughan, Stevo Mitric, StormSpirit, Sudhanva Huruli, Sven Weber, Szehon Ho, Takuya UESHIN, Tengfei Huang, Thang Long Vu, Tian Gao, tonghuaroot (童话), TongWei, Trisha Jain, Uros Bojanic, Vaibhav Garg, Venkata Krishnan Sowrirajan, Vinod KC, Vitalii Li, Vladimir Golubev, Weichen Xu, Wenchen Fan, Will Gan, Xiao Li, Xiaoxuan Li, Xiduo You, xuanyulu, Yahya Kisana, Yan Yan, Yang Jie, Yash Bapat, Yash Botadra, ycli12, Yi Hu, Yicong Huang, Yiping Deng, You Zhou, Yuchen Liu, yueqingshu, Yuming Wang, Zahed M, Zero Qu, Zerui Bao, Zhen Wang, Zikang Han, Ziqi Liu, Ziya Mukhtarov</p>
 
 
 <p>
