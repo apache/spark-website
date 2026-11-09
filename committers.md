@@ -28,7 +28,7 @@ navigation:
 |Erik Erlandson|Red Hat|
 |Robert Evans|NVIDIA|
 |Wenchen Fan|Databricks|
-|Huaxin Gao|Apple|
+|Huaxin Gao|Snowflake|
 |Tian Gao|Databricks|
 |Max Gekk|Databricks|
 |Jiaan Geng|NetEase|
