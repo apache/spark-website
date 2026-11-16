@@ -108,13 +108,78 @@ improvements, and bug fixes. Major releases occur annually (every 12 months), ty
 changes and dependency upgrades. Maintenance releases happen as needed in between for critical 
 bug fixes and security patches.
 
-<h3>Spark 4.3 release window</h3>
+<h3>Spark 4.3, 4.4 and 4.5 release windows</h3>
 
-| Date  | Event |
-| ----- | ----- |
-| Aug 1st 2026 | Code freeze. Release branch cut.|
-| Mid Aug 2026 | QA period. Focus on bug fixes, tests, stability and docs. Generally, no new features merged.|
-| Late Aug 2026 | Release candidates (RC), voting, etc. until final release passes|
+| Event | Spark 4.3 | Spark 4.4 | Spark 4.5 (tentative) |
+| ----- | ----- | ----- | ----- |
+| Code freeze. Release branch cut. | Aug 1st 2026 | November 16th 2026 | February 1st 2027 |
+| QA period. Focus on bug fixes, tests, stability and docs. Generally, no new features merged. | Mid Aug 2026 | November 16th – December 6th 2026 | February 1st – 21st 2027 |
+| Release candidates (RC), voting, etc. until final release passes | Late Aug 2026 | First RC by December 7th 2026 | First RC by February 22nd 2027 |
+
+<div class="release-pipeline" style="max-width: 820px; margin: 1em 0;">
+<svg viewBox="0 0 820 225" width="100%" role="img" aria-labelledby="release-pipeline-title release-pipeline-desc" style="font-size: 12px;">
+<title id="release-pipeline-title">Spark 4.3, 4.4 and 4.5 release pipeline</title>
+<desc id="release-pipeline-desc">Timeline from May 2026 to March 2027. Spark 4.3: development until the Aug 1st 2026 branch cut, QA in mid August, RC in late August 2026. Spark 4.4: development from August until the November 16th 2026 branch cut, QA from November 16th to December 6th 2026, first RC by December 7th 2026. Spark 4.5 (tentative): development from November 2026 until the February 1st 2027 branch cut, QA from February 1st to 21st 2027, first RC by February 22nd 2027. Each release is developed on branch-4.x while the previous one is in QA. RC and voting continue after the first RC until a release vote passes; final release dates are not shown.</desc>
+<g fill="#52514e">
+<text x="150" y="14">2026</text>
+<text x="586.8" y="14">2027</text>
+</g>
+<g fill="#52514e" text-anchor="middle">
+<text x="177.4" y="30">May</text><text x="231.3" y="30">Jun</text><text x="285.2" y="30">Jul</text><text x="339.9" y="30">Aug</text><text x="393.8" y="30">Sep</text><text x="447.7" y="30">Oct</text><text x="501.5" y="30">Nov</text><text x="555.4" y="30">Dec</text><text x="610.2" y="30">Jan</text><text x="662.3" y="30">Feb</text><text x="713.5" y="30">Mar</text>
+</g>
+<g stroke="#e1e0d9" stroke-width="1">
+<line x1="150" y1="36" x2="150" y2="188"/><line x1="204.8" y1="36" x2="204.8" y2="188"/><line x1="257.8" y1="36" x2="257.8" y2="188"/><line x1="312.5" y1="36" x2="312.5" y2="188"/><line x1="367.3" y1="36" x2="367.3" y2="188"/><line x1="420.3" y1="36" x2="420.3" y2="188"/><line x1="475" y1="36" x2="475" y2="188"/><line x1="528" y1="36" x2="528" y2="188"/><line x1="637.6" y1="36" x2="637.6" y2="188"/><line x1="687" y1="36" x2="687" y2="188"/><line x1="740" y1="36" x2="740" y2="188"/>
+</g>
+<line x1="582.8" y1="4" x2="582.8" y2="188" stroke="#52514e" stroke-width="1"/>
+<g transform="translate(0,10)">
+<g fill="#0b0b0b" text-anchor="end">
+<text x="140" y="63">Spark 4.3</text>
+<text x="140" y="113">Spark 4.4</text>
+<text x="140" y="163">Spark 4.5 (tentative)</text>
+</g>
+<g>
+<rect x="151" y="48" width="160.5" height="22" rx="3" fill="#86b6ef"><title>Spark 4.3 development on branch-4.x: until Aug 1st 2026</title></rect>
+<rect x="313.5" y="48" width="33.3" height="22" rx="3" fill="#2a78d6"><title>Spark 4.3 QA period: Mid Aug 2026</title></rect>
+<rect x="313.5" y="98" width="187" height="22" rx="3" fill="#86b6ef"><title>Spark 4.4 development on branch-4.x: Aug 2026 until November 16th 2026</title></rect>
+<rect x="502.5" y="98" width="35.1" height="22" rx="3" fill="#2a78d6"><title>Spark 4.4 QA period: November 16th – December 6th 2026</title></rect>
+</g>
+<g stroke="#52514e" stroke-width="1" stroke-dasharray="3 2">
+<rect x="502.5" y="148" width="134.1" height="22" rx="3" fill="#86b6ef"><title>Spark 4.5 (tentative) development on branch-4.x: November 2026 until February 1st 2027</title></rect>
+<rect x="638.6" y="148" width="35" height="22" rx="3" fill="#2a78d6"><title>Spark 4.5 (tentative) QA period: February 1st – 21st 2027</title></rect>
+</g>
+<g fill="#104281" stroke="#ffffff" stroke-width="2">
+<path d="M347.8,50 L356.8,59 L347.8,68 L338.8,59 Z"><title>Spark 4.3 release candidates: Late Aug 2026</title></path>
+<path d="M538.6,100 L547.6,109 L538.6,118 L529.6,109 Z"><title>Spark 4.4 first release candidate: by December 7th 2026</title></path>
+<path d="M674.6,150 L683.6,159 L674.6,168 L665.6,159 Z"><title>Spark 4.5 (tentative) first release candidate: by February 22nd 2027</title></path>
+</g>
+<g stroke="#0b0b0b" stroke-width="1.5">
+<line x1="312.5" y1="42" x2="312.5" y2="70"/>
+<line x1="501.5" y1="92" x2="501.5" y2="120"/>
+<line x1="637.6" y1="142" x2="637.6" y2="170"/>
+</g>
+<g fill="#0b0b0b">
+<text x="316.5" y="43">Branch cut Aug 1</text>
+<text x="505.5" y="93">Branch cut Nov 16</text>
+<text x="641.6" y="143">Branch cut Feb 1</text>
+</g>
+<g fill="#52514e">
+<text x="361.8" y="63">RC late Aug</text>
+<text x="552.6" y="113">First RC by Dec 7</text>
+<text x="688.6" y="163">First RC by Feb 22</text>
+</g>
+<g fill="#0b0b0b">
+<rect x="150" y="194" width="12" height="12" rx="2" fill="#86b6ef"/><text x="168" y="204">Development on branch-4.x</text>
+<rect x="345" y="194" width="12" height="12" rx="2" fill="#2a78d6"/><text x="363" y="204">QA period</text>
+<path d="M446,193 L453,200 L446,207 L439,200 Z" fill="#104281"/><text x="458" y="204">First RC</text>
+<rect x="530" y="194" width="12" height="12" rx="2" fill="#ffffff" stroke="#52514e" stroke-dasharray="3 2"/><text x="548" y="204">Tentative dates</text>
+</g>
+</g>
+</svg>
+</div>
+
+Each release is developed on `branch-4.x` while the previous release is in QA, so consecutive releases overlap. RC and voting continue after the first RC until a release vote passes, so the figure does not show final release dates. Bar positions are approximate; see the table above for the dates.
+
+The 4.4 dates follow the timeline proposed on the dev mailing list. The 4.5 dates are a projection based on the quarterly release cadence and a three-week QA period, and are subject to discussion on the dev mailing list.
 
 <h3>Illustrative transition: 2026 and 2027</h3>
 
