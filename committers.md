@@ -15,7 +15,7 @@ navigation:
 |Ryan Blue|Databricks|
 |Uros Bojanic|Databricks|
 |Joseph Bradley|Databricks|
-|Nicholas Chammas||
+|Nicholas Chammas|Snowflake|
 |Matthew Cheah|Palantir|
 |Felix Cheung|NVIDIA|
 |Mosharaf Chowdhury|University of Michigan, Ann Arbor|
