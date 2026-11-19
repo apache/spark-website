@@ -39,7 +39,7 @@ This page tracks external software projects that supplement Apache Spark and add
 - [spark-connector-oceanbase](https://github.com/oceanbase/spark-connector-oceanbase) - Apache Spark Connectors for OceanBase
 - [lance-spark](https://github.com/lancedb/lance-spark) - Apache Spark connector for Lance datasets
 - [spark-clickhouse-connector](https://github.com/ClickHouse/spark-clickhouse-connector) - Apache Spark connector for ClickHouse
-
+- [adbc-driver-spark](https://adbc-drivers.org/drivers/spark/) - ADBC driver for Apache Spark
 
 ## Open table formats
 
