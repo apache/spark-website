@@ -27,7 +27,7 @@ addRelease("4.3.0", new Date("10/30/2026"), packagesV15, true);
 addRelease("4.2.1", new Date("10/27/2026"), packagesV15, true);
 addRelease("4.1.4", new Date("10/27/2026"), packagesV15, true);
 addRelease("4.0.5", new Date("10/27/2026"), packagesV15, true);
-addRelease("3.5.9", new Date("07/16/2026"), packagesV14, true);
+addRelease("3.5.10", new Date("11/22/2026"), packagesV14, true);
 
 function append(el, contents) {
   el.innerHTML += contents;
